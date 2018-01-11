@@ -77,7 +77,7 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         }
         Map<String, Object> cfgChaneRet = new HashMap<>();
         if (input == null) {
-            cfgChaneRet = this.actionCfgApi.getCfgChane(input.getRouterId(), input.getCfgType());
+            cfgChaneRet = this.actionCfgApi.getCfgChane(null, null);
         } else {
             cfgChaneRet = this.actionCfgApi.getCfgChane(input.getRouterId(), input.getCfgType());
         }

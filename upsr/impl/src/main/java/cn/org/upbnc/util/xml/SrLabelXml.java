@@ -76,7 +76,7 @@ public class SrLabelXml {
                 "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                              \n" +
                 "  <target>                                                                                                   \n" +
-                "    <running/>                                                                                               \n" +
+                "    <candidate/>                                                                                               \n" +
                 "  </target>                                                                                                  \n" +
                 "  <config>                                                                                                   \n" +
                 "    <segr xmlns=\"http://www.huawei.com/netconf/vrp/huawei-segr\">                                           \n" +
@@ -247,7 +247,7 @@ public class SrLabelXml {
             return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                     "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                                     \n" +
                     "  <target>                                                                                                          \n" +
-                    "    <running/>                                                                                                      \n" +
+                    "    <candidate/>                                                                                                      \n" +
                     "  </target>                                                                                                         \n" +
                     "  <config>                                                                                                          \n" +
                     "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                              \n" +
@@ -314,7 +314,7 @@ public class SrLabelXml {
             return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                     "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                          \n" +
                     "  <target>                                                                                               \n" +
-                    "    <running/>                                                                                           \n" +
+                    "    <candidate/>                                                                                           \n" +
                     "  </target>                                                                                              \n" +
                     "  <config>                                                                                               \n" +
                     "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                   \n" +

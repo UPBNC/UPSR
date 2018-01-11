@@ -11,6 +11,8 @@ import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetXml {
+    private static final Logger LOG = LoggerFactory.getLogger(GetXml.class);
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
         SSrTeTunnel srTeTunnel;
@@ -73,7 +76,7 @@ public class GetXml {
                 srTeTunnel.setSrTeTunnelPaths(srTeTunnelPaths);
                 srTeTunnels.add(srTeTunnel);
             } catch (Exception e) {
-                System.out.println(e);
+                LOG.info(e.toString());
             }
         }
         return srTeTunnels;

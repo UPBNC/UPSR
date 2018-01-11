@@ -11,7 +11,7 @@ import java.util.List;
 public class TunnelCli {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelCli.class);
 
-    public static List<String> tunnelCfgCli(String xml1, String xml2) {
+    public static List<String> tunnelCfgCliTest(String xml1, String xml2) {
         List<String> cliList = new ArrayList<>();
 
         ActionEntity actionEntity = XmlUtils.compare(xml1, xml2);
@@ -35,5 +35,9 @@ public class TunnelCli {
             }
         }
         return cliList;
+    }
+
+    public static List<String> tunnelCfgCli(String candidateCfg, String runningCfg) {
+        return null;
     }
 }
