@@ -12,7 +12,6 @@ import cn.org.upbnc.enumtype.CfgTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ActionCfgService;
-import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.xml.ActionCfgXml;
 import cn.org.upbnc.util.xml.CandidateXml;
@@ -20,7 +19,6 @@ import cn.org.upbnc.util.xml.RunningXml;
 import cn.org.upbnc.xmlcompare.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.jca.GetInstance;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +33,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     private BaseInterface baseInterface;
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
+
     public static ActionCfgService getInstance() {
         if (ourInstance == null) {
             ourInstance = new ActionCfgServiceImpl();
@@ -46,6 +45,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         this.deviceManager = null;
         this.netConfManager = null;
     }
+
     @Override
     public boolean setBaseInterface(BaseInterface baseInterface) {
         this.baseInterface = baseInterface;
@@ -55,6 +55,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         }
         return true;
     }
+
     @Override
     public Map<String, Object> getCfgChane(String routerId, String cfgType) {
         Map<String, Object> resultMap = new HashMap<>();
@@ -66,7 +67,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         } else {
             deviceList.add(device);
         }
-        for (Device d :deviceList) {
+        for (Device d : deviceList) {
             CommandLine commandLine = new CommandLine();
             String candidateCfg = this.getCandidateCfgXml(d, cfgType);
             String runningCfg = this.getRunningCfgXml(d, cfgType);
@@ -86,7 +87,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 commandLine.getCliList().addAll(TunnelCli.tunnelCfgCliTest(xml1, xml2));
                 commandLine.getCliList().addAll(SrlabelCli.srLabelCfgCliTest());
             }
-            if (commandLine.getCliList().size() != 0 ) {
+            if (commandLine.getCliList().size() != 0) {
                 commandLineList.add(commandLine);
             }
         }
@@ -106,7 +107,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         } else {
             deviceList.add(device);
         }
-        for (Device d :deviceList) {
+        for (Device d : deviceList) {
             NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
             String outPutXml = netconfController.sendMessage(netconfClient, commitXml);
             LOG.info(outPutXml);
@@ -126,7 +127,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         } else {
             deviceList.add(device);
         }
-        for (Device d :deviceList) {
+        for (Device d : deviceList) {
             NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
             String outPutXml = netconfController.sendMessage(netconfClient, cancelXml);
             LOG.info(outPutXml);
@@ -151,13 +152,14 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String outPutXml = netconfController.sendMessage(netconfClient, xml);
         return outPutXml;
     }
+
     private String getRunningCfgXml(Device device, String cfgType) {
         String xml;
         if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
             xml = RunningXml.getRunningSrLabelXml();
         } else if (cfgType.equals(CfgTypeEnum.VPN.getCfgType())) {
             xml = RunningXml.getRunningVpnXml();
-        }else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
+        } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
             xml = RunningXml.getRunningTunnelXml();
         } else {
 //            xml = RunningXml.getRunningXml();
@@ -166,5 +168,22 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String outPutXml = netconfController.sendMessage(netconfClient, xml);
         return outPutXml;
+    }
+
+    @Override
+    public Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId) {
+        List<Device> deviceList = new ArrayList<>();
+        Device device = deviceManager.getDevice(routerId);
+        if (device == null) {
+            deviceList = deviceManager.getDeviceList();
+        } else {
+            deviceList.add(device);
+        }
+        for (Device d : deviceList) {
+            String getCommitXml = ActionCfgXml.getCheckPointInfoXml(commitId);
+            NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
+            String outPutCommitXml = netconfController.sendMessage(netconfClient, getCommitXml);
+        }
+        return null;
     }
 }

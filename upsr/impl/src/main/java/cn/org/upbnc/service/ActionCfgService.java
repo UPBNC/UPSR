@@ -9,4 +9,5 @@ public interface ActionCfgService {
     Map<String, Object> getCfgChane(String routerId, String cfgType);
     Map<String, Object> commitCfgChane(String routerId, String cfgType);
     Map<String, Object> cancelCfgChane(String routerId, String cfgType);
+    Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId);
 }

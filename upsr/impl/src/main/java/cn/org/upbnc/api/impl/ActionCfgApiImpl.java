@@ -50,4 +50,10 @@ public class ActionCfgApiImpl implements ActionCfgApi {
         }
         return ret;
     }
+
+    @Override
+    public Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId) {
+        actionCfgService.getCfgCommitPointInfo(routerId,commitId);
+        return null;
+    }
 }

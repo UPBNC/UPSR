@@ -73,4 +73,31 @@ module upsrActionCfg {
             leaf result { type string; }
         }
     }
+
+    rpc getCfgCommit {
+        input {
+            leaf routerId { type string; }
+            leaf commitId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list commitRouters {
+                leaf routerId { type string; }
+                list commitInfo {
+                    leaf commitId { type string; }
+                    leaf userName { type string; }
+                    leaf userLabel { type string; }
+                    leaf timeStamp { type string; }
+                    list currentChanges {
+                        leaf index { type string; }
+                        leaf change { type string; }
+                    }
+                    list sinceChanges {
+                        leaf index { type string; }
+                        leaf change { type string; }
+                    }
+                }
+            }
+        }
+    }
 }
