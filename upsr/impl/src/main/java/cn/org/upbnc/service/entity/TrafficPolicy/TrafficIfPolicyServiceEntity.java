@@ -4,6 +4,15 @@ public class TrafficIfPolicyServiceEntity {
     String routerId;
     String ifName;
     String policyName;
+    String direction;
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
 
     public String getRouterId() {
         return routerId;

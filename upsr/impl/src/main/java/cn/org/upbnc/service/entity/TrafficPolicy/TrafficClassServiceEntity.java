@@ -1,11 +1,23 @@
 package cn.org.upbnc.service.entity.TrafficPolicy;
 
+import java.util.List;
+
 public class TrafficClassServiceEntity {
     String routerId;
 
     String trafficClassName;
 
     String operator;
+
+    List<TrafficClassAclServiceEntity> trafficClassAclServiceEntityList;
+
+    public List<TrafficClassAclServiceEntity> getTrafficClassAclServiceEntityList() {
+        return trafficClassAclServiceEntityList;
+    }
+
+    public void setTrafficClassAclServiceEntityList(List<TrafficClassAclServiceEntity> trafficClassAclServiceEntityList) {
+        this.trafficClassAclServiceEntityList = trafficClassAclServiceEntityList;
+    }
 
     public String getRouterId() {
         return routerId;

@@ -234,7 +234,7 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
             for (TrafficBehaveServiceEntity trafficBehaveServiceEntity : trafficBehaveServiceEntityList) {
                 TrafficBehaveEntriesBuilder trafficBehaveEntriesBuilder = new TrafficBehaveEntriesBuilder();
                 trafficBehaveEntriesBuilder.setBehaveName(trafficBehaveServiceEntity.getTrafficBehaveName());
-                trafficBehaveEntriesBuilder.setTunnelName(trafficBehaveServiceEntity.getTunnelName());
+                trafficBehaveEntriesBuilder.setTunnelName(trafficBehaveServiceEntity.getRedirectTunnelName());
                 trafficBehaveEntriesList.add(trafficBehaveEntriesBuilder.build());
             }
             trafficBehaveRoutersBuilder.setTrafficBehaveEntries(trafficBehaveEntriesList);

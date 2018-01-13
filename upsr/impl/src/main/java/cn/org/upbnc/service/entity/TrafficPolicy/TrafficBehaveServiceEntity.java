@@ -5,7 +5,7 @@ public class TrafficBehaveServiceEntity {
 
     String trafficBehaveName;
 
-    String tunnelName;
+    String redirectTunnelName;
 
     public String getRouterId() {
         return routerId;
@@ -23,11 +23,11 @@ public class TrafficBehaveServiceEntity {
         this.trafficBehaveName = trafficBehaveName;
     }
 
-    public String getTunnelName() {
-        return tunnelName;
+    public String getRedirectTunnelName() {
+        return redirectTunnelName;
     }
 
-    public void setTunnelName(String tunnelName) {
-        this.tunnelName = tunnelName;
+    public void setRedirectTunnelName(String redirectTunnelName) {
+        this.redirectTunnelName = redirectTunnelName;
     }
 }
