@@ -187,4 +187,9 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("getCfgCommit end");
         return RpcResultBuilder.success(getCfgCommitOutputBuilder.build()).buildFuture();
     }
+
+    @Override
+    public Future<RpcResult<RollbackOutput>> rollback(RollbackInput input) {
+        return null;
+    }
 }

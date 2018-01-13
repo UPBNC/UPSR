@@ -37,10 +37,10 @@ public class TrafficClassifier {
         try {
             document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            List<Element> aclGroupElements = root.element("data").element("acl").element("aclGroups").elements("aclGroup");
-            for (org.dom4j.Element aclGroupElement : aclGroupElements) {
+            List<Element> qosClassifierElements = root.element("data").element("qos").element("qosCbQos").element("qosClassifiers").elements("qosClassifier");
+            for (org.dom4j.Element qosClassifier : qosClassifierElements) {
                 STrafficClassInfo sTrafficClassInfo = new STrafficClassInfo();
-                sTrafficClassInfo.setTrafficClassName(aclGroupElement.elementText("aclNumOrName"));
+                sTrafficClassInfo.setTrafficClassName(qosClassifier.elementText("classifierName"));
 
                 sTrafficClassInfoList.add(sTrafficClassInfo);
             }

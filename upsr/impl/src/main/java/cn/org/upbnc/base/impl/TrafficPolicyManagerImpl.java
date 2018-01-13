@@ -4,9 +4,7 @@ import cn.org.upbnc.base.TrafficPolicyManager;
 import cn.org.upbnc.entity.TrafficPolicy.*;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.TrafficPolicy.*;
-import cn.org.upbnc.util.xml.TrafficAclXml;
-import cn.org.upbnc.util.xml.TrafficBehaviorXml;
-import cn.org.upbnc.util.xml.TrafficClassifier;
+import cn.org.upbnc.util.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,12 +132,12 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     public boolean syncTrafficPolicyTrafficPolicyConf(String routerID, NetconfClient netconfClient) {
-        String commandTrafficPolicyXml = TrafficBehaviorXml.getTrafficBehaviorXml();
+        String commandTrafficPolicyXml = TrafficPolicyXml.getTrafficPolicyXml();
         LOG.info("commandTrafficPolicyXml : " + commandTrafficPolicyXml);
         String outPutTrafficPolicyXml = netconfController.sendMessage(netconfClient,commandTrafficPolicyXml);
         LOG.info("outPutTrafficPolicyXml : " + outPutTrafficPolicyXml);
 
-        List<STrafficPolicyInfo> sTrafficPolicyInfoList = TrafficBehaviorXml.getSTrafficPolicyFromXml(outPutTrafficPolicyXml);
+        List<STrafficPolicyInfo> sTrafficPolicyInfoList = TrafficPolicyXml.getSTrafficPolicyFromXml(outPutTrafficPolicyXml);
 
         for (STrafficPolicyInfo sTrafficPolicyInfo : sTrafficPolicyInfoList) {
             TrafficPolicyInfoEntity trafficPolicyInfoEntity = this.sTrafficPolicyInfoToTrafficPolicyInfoEntity(sTrafficPolicyInfo);
@@ -155,20 +153,20 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     public boolean syncTrafficPolicyTrafficIfPolicyConf(String routerID, NetconfClient netconfClient) {
-        String commandTrafficIfPolicyXml = TrafficBehaviorXml.getTrafficBehaviorXml();
+        String commandTrafficIfPolicyXml = TrafficPolicyApplyXml.getTrafficPolicyXml();
         LOG.info("commandTrafficIfPolicyXml : " + commandTrafficIfPolicyXml);
         String outPutTrafficIfPolicyXml = netconfController.sendMessage(netconfClient,commandTrafficIfPolicyXml);
         LOG.info("outPutTrafficIfPolicyXml : " + outPutTrafficIfPolicyXml);
 
-        List<STrafficIfPolicyInfo> sTrafficIfPolicyInfoList = TrafficBehaviorXml.getSTrafficIfPolicyFromXml(outPutTrafficIfPolicyXml);
+        List<STrafficIfPolicyInfo> sTrafficIfPolicyInfoList = TrafficPolicyApplyXml.getSTrafficIfPolicyFromXml(outPutTrafficIfPolicyXml);
 
         for (STrafficIfPolicyInfo sTrafficIfPolicyInfo : sTrafficIfPolicyInfoList) {
             TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity = this.sTrafficIfPolicyInfoToTrafficIfPolicyInfoEntity(sTrafficIfPolicyInfo);
             if (trafficIfPolicyInfoEntityMaps.containsKey(routerID)) {
-                trafficIfPolicyInfoEntityMaps.get(routerID).put(sTrafficIfPolicyInfo.getTrafficIfPolicyName(),trafficIfPolicyInfoEntity);
+                trafficIfPolicyInfoEntityMaps.get(routerID).put(sTrafficIfPolicyInfo.getIfName(),trafficIfPolicyInfoEntity);
             } else {
                 trafficIfPolicyInfoEntityMap = new HashMap<>();
-                trafficIfPolicyInfoEntityMap.put(trafficIfPolicyInfoEntity.getTrafficIfPolicyName(),trafficIfPolicyInfoEntity);
+                trafficIfPolicyInfoEntityMap.put(trafficIfPolicyInfoEntity.getIfName(),trafficIfPolicyInfoEntity);
                 trafficIfPolicyInfoEntityMaps.put(routerID,trafficIfPolicyInfoEntityMap);
             }
         }

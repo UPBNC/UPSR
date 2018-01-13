@@ -1,5 +1,15 @@
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficIfPolicyInfo;
+import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficPolicyInfo;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.xml.sax.InputSource;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TrafficPolicyApplyXml {
     public static String getTrafficPolicyXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
@@ -19,5 +29,27 @@ public class TrafficPolicyApplyXml {
                 "  </filter>                                                                       \n" +
                 "</get>                                                                            \n" +
                 "</rpc>";
+    }
+    public static List<STrafficIfPolicyInfo> getSTrafficIfPolicyFromXml(String xml){
+        List<STrafficIfPolicyInfo> sTrafficIfPolicyInfoList = new ArrayList<>();
+        if (null == xml || xml.isEmpty()) {//判断xml是否为空
+            return sTrafficIfPolicyInfoList;
+        }
+        SAXReader reader = new SAXReader();
+        org.dom4j.Document document = null;
+        try {
+            document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            List<Element> qosIfQosElements = root.element("data").element("qos").element("qosIfQoss").elements("qosIfQos");
+            for (org.dom4j.Element qosIfQos : qosIfQosElements) {
+                STrafficIfPolicyInfo sTrafficIfPolicyInfo = new STrafficIfPolicyInfo();
+                sTrafficIfPolicyInfo.setIfName(qosIfQos.elementText("ifName"));
+
+                sTrafficIfPolicyInfoList.add(sTrafficIfPolicyInfo);
+            }
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        return sTrafficIfPolicyInfoList;
     }
 }

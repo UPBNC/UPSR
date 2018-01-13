@@ -78,6 +78,7 @@ module upsrActionCfg {
         input {
             leaf routerId { type string; }
             leaf commitId { type string; }
+            leaf isdetail { type string; }
         }
         output {
             leaf result { type string; }
@@ -98,6 +99,16 @@ module upsrActionCfg {
                     }
                 }
             }
+        }
+    }
+
+    rpc rollback {
+        input {
+            leaf routerId { type string; }
+            leaf commitId { type string; }
+        }
+        output {
+            leaf result { type string; }
         }
     }
 }

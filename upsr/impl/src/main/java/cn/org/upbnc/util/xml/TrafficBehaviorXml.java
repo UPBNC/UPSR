@@ -39,10 +39,10 @@ public class TrafficBehaviorXml {
         try {
             document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            List<Element> aclGroupElements = root.element("data").element("acl").element("aclGroups").elements("aclGroup");
-            for (org.dom4j.Element aclGroupElement : aclGroupElements) {
+            List<Element> qosBehaviorElements = root.element("data").element("qos").element("qosCbQos").element("qosBehaviors").elements("qosBehavior");
+            for (org.dom4j.Element qosBehavior : qosBehaviorElements) {
                 STrafficBehaveInfo sTrafficBehaveInfo = new STrafficBehaveInfo();
-                sTrafficBehaveInfo.setTrafficBehaveName(aclGroupElement.elementText("aclNumOrName"));
+                sTrafficBehaveInfo.setTrafficBehaveName(qosBehavior.elementText("behaviorName"));
 
                 sTrafficBehaveInfoList.add(sTrafficBehaveInfo);
             }
