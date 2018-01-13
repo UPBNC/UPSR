@@ -81,15 +81,15 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
             for (AclInfoServiceEntity aclInfoServiceEntity : aclInfoServiceEntityList) {
                 AclEntriesBuilder aclEntriesBuilder = new AclEntriesBuilder();
                 List<Rules> rulesList = new ArrayList<>();
-                for (int j = 1; j < 5; j++) {
+                for (AclRuleInfoServiceEntity aclRuleInfoServiceEntity : aclInfoServiceEntity.getAclRuleInfoServiceEntityList()) {
                     RulesBuilder rulesBuilder = new RulesBuilder();
-                    rulesBuilder.setRuleId("" + j);
-                    rulesBuilder.setRuleType("permit");
-                    rulesBuilder.setProtoType("tcp");
-                    rulesBuilder.setSource("10.10.10." + j);
-                    rulesBuilder.setSourcePort("10" + j);
-                    rulesBuilder.setDestination("11.11.11." + j);
-                    rulesBuilder.setDestinationPort("11" + j);
+                    rulesBuilder.setRuleId(aclRuleInfoServiceEntity.getRuleId());
+                    rulesBuilder.setRuleType(aclRuleInfoServiceEntity.getRuleType());
+                    rulesBuilder.setProtoType(aclRuleInfoServiceEntity.getProtoType());
+                    rulesBuilder.setSource(aclRuleInfoServiceEntity.getSourcce() + " " + aclRuleInfoServiceEntity.getSourcceWild());
+                    rulesBuilder.setSourcePort(aclRuleInfoServiceEntity.getSourcePortOp() + " " + aclRuleInfoServiceEntity.getSourcePort());
+                    rulesBuilder.setDestination(aclRuleInfoServiceEntity.getDestination() + " " + aclRuleInfoServiceEntity.getDestinationWild());
+                    rulesBuilder.setDestinationPort(aclRuleInfoServiceEntity.getDestinationPortOp() + " " + aclRuleInfoServiceEntity.getDestinationPort());
                     rulesList.add(rulesBuilder.build());
                 }
                 aclEntriesBuilder.setAclName(aclInfoServiceEntity.getAclName());
@@ -151,9 +151,9 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
                 trafficClassEntriesBuilder.setClassName(trafficClassServiceEntity.getTrafficClassName());
                 trafficClassEntriesBuilder.setOperator(trafficClassServiceEntity.getOperator());
                 List<Matches> matchesList = new ArrayList<>();
-                for (int k = 1; k < 5; k++) {
+                for (TrafficClassAclServiceEntity trafficClassAclServiceEntity:trafficClassServiceEntity.getTrafficClassAclServiceEntityList()) {
                     MatchesBuilder matchesBuilder = new MatchesBuilder();
-                    matchesBuilder.setAclName("300" + k);
+                    matchesBuilder.setAclName(trafficClassAclServiceEntity.getAclName());
                     matchesList.add(matchesBuilder.build());
                 }
                 trafficClassEntriesBuilder.setMatches(matchesList);
@@ -289,10 +289,10 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
                 TrafficPolicyEntriesBuilder trafficPolicyEntriesBuilder = new TrafficPolicyEntriesBuilder();
                 trafficPolicyEntriesBuilder.setPolicyName(trafficPolicyServiceEntity.getTrafficPolicyName());
                 List<Policy> policyList = new ArrayList<>();
-                for (int k = 1; k < 4; k++) {
+                for (TrafficPolicyNodeServiceEntity trafficPolicyNodeServiceEntity:trafficPolicyServiceEntity.getTrafficPolicyNodeServiceEntityList()) {
                     PolicyBuilder policyBuilder = new PolicyBuilder();
-                    policyBuilder.setBehaveName("b" + k);
-                    policyBuilder.setClassName("c" + k);
+                    policyBuilder.setBehaveName(trafficPolicyNodeServiceEntity.getBehaveName());
+                    policyBuilder.setClassName(trafficPolicyNodeServiceEntity.getClassName());
                     policyList.add(policyBuilder.build());
                 }
                 trafficPolicyEntriesBuilder.setPolicy(policyList);

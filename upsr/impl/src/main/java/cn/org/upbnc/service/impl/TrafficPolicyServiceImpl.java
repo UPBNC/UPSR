@@ -9,6 +9,7 @@ import cn.org.upbnc.service.TrafficPolicyService;
 import cn.org.upbnc.service.entity.TrafficPolicy.*;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.xml.TrafficAclXml;
+import sun.dc.pr.PRError;
 
 import java.util.*;
 
@@ -242,30 +243,80 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
     private AclInfoServiceEntity aclInfoEntityToAclInfoServiceEntity(AclInfoEntity aclInfoEntity) {
         AclInfoServiceEntity aclInfoServiceEntity = new AclInfoServiceEntity();
         aclInfoServiceEntity.setAclName(aclInfoEntity.getAclName());
+        List<AclRuleInfoServiceEntity> aclRuleInfoServiceEntityList = new ArrayList<>();
+        for(AclRuleInfoEntity aclRuleInfoEntity:aclInfoEntity.getAclRuleInfoEntityList()){
+            AclRuleInfoServiceEntity aclRuleInfoServiceEntity = aclRuleInfoEntityToAclRuleInfoServiceEntity(aclRuleInfoEntity);
+            aclRuleInfoServiceEntityList.add(aclRuleInfoServiceEntity);
+        }
+        aclInfoServiceEntity.setAclRuleInfoServiceEntityList(aclRuleInfoServiceEntityList);
         return aclInfoServiceEntity;
     }
 
     private TrafficClassServiceEntity trafficClassInfoEntityToTrafficClassServiceEntity(TrafficClassInfoEntity trafficClassInfoEntity) {
         TrafficClassServiceEntity trafficClassServiceEntity = new TrafficClassServiceEntity();
         trafficClassInfoEntity.setTrafficClassName(trafficClassInfoEntity.getTrafficClassName());
+        List<TrafficClassAclServiceEntity> trafficClassAclServiceEntityList = new ArrayList<>();
+        for(TrafficClassAclInfoEntity trafficClassAclInfoEntity:trafficClassInfoEntity.getTrafficClassAclInfoEntityList()){
+            TrafficClassAclServiceEntity trafficClassAclServiceEntity = trafficClassAclInfoEntityToTrafficClassAclServiceEntity(trafficClassAclInfoEntity);
+            trafficClassAclServiceEntityList.add(trafficClassAclServiceEntity);
+        }
+        trafficClassServiceEntity.setTrafficClassAclServiceEntityList(trafficClassAclServiceEntityList);
         return trafficClassServiceEntity;
     }
 
     private TrafficBehaveServiceEntity trafficBehaveInfoEntityToTrafficBehaveServiceEntity(TrafficBehaveInfoEntity trafficBehaveInfoEntity) {
         TrafficBehaveServiceEntity trafficBehaveServiceEntity = new TrafficBehaveServiceEntity();
         trafficBehaveServiceEntity.setTrafficBehaveName(trafficBehaveInfoEntity.getTrafficBehaveName());
+        trafficBehaveServiceEntity.setRedirectTunnelName(trafficBehaveInfoEntity.getRedirectTunnelName());
         return trafficBehaveServiceEntity;
     }
 
     private TrafficPolicyServiceEntity trafficPolicyInfoEntityToTrafficPolicyServiceEntity(TrafficPolicyInfoEntity trafficPolicyInfoEntity) {
         TrafficPolicyServiceEntity trafficPolicyServiceEntity = new TrafficPolicyServiceEntity();
         trafficPolicyServiceEntity.setTrafficPolicyName(trafficPolicyInfoEntity.getTrafficPolicyName());
+        List<TrafficPolicyNodeServiceEntity> trafficPolicyNodeServiceEntityList = new ArrayList<>();
+        for(TrafficPolicyNodeInfoEntity trafficPolicyNodeInfoEntity:trafficPolicyInfoEntity.getTrafficPolicyNodeInfoEntityList()){
+            TrafficPolicyNodeServiceEntity trafficPolicyNodeServiceEntity = trafficPolicyNodeInfoEntityToTrafficPolicyNodeServiceEntity(trafficPolicyNodeInfoEntity);
+            trafficPolicyNodeServiceEntityList.add(trafficPolicyNodeServiceEntity);
+        }
+        trafficPolicyServiceEntity.setTrafficPolicyNodeServiceEntityList(trafficPolicyNodeServiceEntityList);
         return trafficPolicyServiceEntity;
     }
 
     private TrafficIfPolicyServiceEntity trafficIfPolicyInfoEntityToTrafficIfPolicyServiceEntity(TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity) {
         TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity = new TrafficIfPolicyServiceEntity();
         trafficIfPolicyServiceEntity.setIfName(trafficIfPolicyInfoEntity.getIfName());
+        trafficIfPolicyServiceEntity.setPolicyName(trafficIfPolicyInfoEntity.getPolicyName());
+        trafficIfPolicyServiceEntity.setDirection(trafficIfPolicyInfoEntity.getDirection());
         return trafficIfPolicyServiceEntity;
+    }
+
+    private AclRuleInfoServiceEntity aclRuleInfoEntityToAclRuleInfoServiceEntity(AclRuleInfoEntity aclRuleInfoEntity) {
+        AclRuleInfoServiceEntity aclRuleInfoServiceEntity = new AclRuleInfoServiceEntity();
+        aclRuleInfoServiceEntity.setRuleId(aclRuleInfoEntity.getRuleId());
+        aclRuleInfoServiceEntity.setRuleType(aclRuleInfoEntity.getRuleType());
+        aclRuleInfoServiceEntity.setProtoType(aclRuleInfoEntity.getProtoType());
+        aclRuleInfoServiceEntity.setSourcce(aclRuleInfoEntity.getSourcce());
+        aclRuleInfoServiceEntity.setSourcceWild(aclRuleInfoEntity.getSourcceWild());
+        aclRuleInfoServiceEntity.setSourcePortOp(aclRuleInfoEntity.getSourcePortOp());
+        aclRuleInfoServiceEntity.setSourcePort(aclRuleInfoEntity.getSourcePort());
+        aclRuleInfoServiceEntity.setDestination(aclRuleInfoEntity.getDestination());
+        aclRuleInfoServiceEntity.setDestinationWild(aclRuleInfoEntity.getDestinationWild());
+        aclRuleInfoServiceEntity.setDestinationPortOp(aclRuleInfoEntity.getDestinationPortOp());
+        aclRuleInfoServiceEntity.setDestinationPort(aclRuleInfoEntity.getDestinationPort());
+        return aclRuleInfoServiceEntity;
+    }
+
+    private TrafficClassAclServiceEntity trafficClassAclInfoEntityToTrafficClassAclServiceEntity(TrafficClassAclInfoEntity trafficClassAclInfoEntity) {
+        TrafficClassAclServiceEntity trafficClassAclServiceEntity = new TrafficClassAclServiceEntity();
+        trafficClassAclServiceEntity.setAclName(trafficClassAclInfoEntity.getAclName());
+        return trafficClassAclServiceEntity;
+    }
+
+    private TrafficPolicyNodeServiceEntity trafficPolicyNodeInfoEntityToTrafficPolicyNodeServiceEntity(TrafficPolicyNodeInfoEntity trafficPolicyNodeInfoEntity){
+        TrafficPolicyNodeServiceEntity trafficPolicyNodeServiceEntity = new TrafficPolicyNodeServiceEntity();
+        trafficPolicyNodeServiceEntity.setClassName(trafficPolicyNodeInfoEntity.getClassName());
+        trafficPolicyNodeServiceEntity.setBehaveName(trafficPolicyNodeInfoEntity.getBehaveName());
+        return trafficPolicyNodeServiceEntity;
     }
 }
