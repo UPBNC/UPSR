@@ -1,5 +1,6 @@
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficClassAclInfo;
 import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficClassInfo;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -28,20 +29,25 @@ public class TrafficClassifier {
 
     public static List<STrafficClassInfo> getSTrafficClassFromXml(String xml) {
         List<STrafficClassInfo> sTrafficClassInfoList = new ArrayList<>();
-
         if (null == xml || xml.isEmpty()) {//判断xml是否为空
             return sTrafficClassInfoList;
         }
         SAXReader reader = new SAXReader();
-        org.dom4j.Document document = null;
         try {
-            document = reader.read(new InputSource(new StringReader(xml)));
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
             List<Element> qosClassifierElements = root.element("data").element("qos").element("qosCbQos").element("qosClassifiers").elements("qosClassifier");
             for (org.dom4j.Element qosClassifier : qosClassifierElements) {
                 STrafficClassInfo sTrafficClassInfo = new STrafficClassInfo();
                 sTrafficClassInfo.setTrafficClassName(qosClassifier.elementText("classifierName"));
-
+                List<STrafficClassAclInfo> sTrafficClassAclInfoList = new ArrayList<>();
+                List<Element> qosRuleAclElements = qosClassifier.element("qosRuleAcls").elements("qosRuleAcl");
+                for (org.dom4j.Element qosRuleAcl : qosRuleAclElements) {
+                    STrafficClassAclInfo sTrafficClassAclInfo = new STrafficClassAclInfo();
+                    sTrafficClassAclInfo.setAclName(qosRuleAcl.elementText("aclName"));
+                    sTrafficClassAclInfoList.add(sTrafficClassAclInfo);
+                }
+                sTrafficClassInfo.setsTrafficClassAclInfoList(sTrafficClassAclInfoList);
                 sTrafficClassInfoList.add(sTrafficClassInfo);
             }
         } catch (DocumentException e) {

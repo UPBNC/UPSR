@@ -43,7 +43,7 @@ public class TrafficBehaviorXml {
             for (org.dom4j.Element qosBehavior : qosBehaviorElements) {
                 STrafficBehaveInfo sTrafficBehaveInfo = new STrafficBehaveInfo();
                 sTrafficBehaveInfo.setTrafficBehaveName(qosBehavior.elementText("behaviorName"));
-
+                sTrafficBehaveInfo.setRedirectTunnelName(qosBehavior.element("qosActRdrTnls").element("qosActRdrTnl").elementText("ifName"));
                 sTrafficBehaveInfoList.add(sTrafficBehaveInfo);
             }
         } catch (DocumentException e) {

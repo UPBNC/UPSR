@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficPolicyNodeInfo;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -33,15 +34,22 @@ public class TrafficPolicyXml {
             return sTrafficPolicyInfoList;
         }
         SAXReader reader = new SAXReader();
-        org.dom4j.Document document = null;
         try {
-            document = reader.read(new InputSource(new StringReader(xml)));
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
             List<Element> qosPolicyElements = root.element("data").element("qos").element("qosCbQos").element("qosPolicys").elements("qosPolicy");
             for (org.dom4j.Element qosPolicy : qosPolicyElements) {
                 STrafficPolicyInfo sTrafficPolicyInfo = new STrafficPolicyInfo();
                 sTrafficPolicyInfo.setTrafficPolicyName(qosPolicy.elementText("policyName"));
-
+                List<STrafficPolicyNodeInfo> sTrafficPolicyNodeInfoList = new ArrayList<>();
+                List<Element> qosPolicyNodeElements = root.element("qosPolicyNodes").elements("qosPolicyNode");
+                for (org.dom4j.Element qosPolicyNode : qosPolicyNodeElements) {
+                    STrafficPolicyNodeInfo sTrafficPolicyNodeInfo = new STrafficPolicyNodeInfo();
+                    sTrafficPolicyNodeInfo.setClassName(qosPolicyNode.elementText("classifierName"));
+                    sTrafficPolicyNodeInfo.setBehaveName(qosPolicyNode.elementText("behaviorName"));
+                    sTrafficPolicyNodeInfoList.add(sTrafficPolicyNodeInfo);
+                }
+                sTrafficPolicyInfo.setsTrafficPolicyNodeInfoList(sTrafficPolicyNodeInfoList);
                 sTrafficPolicyInfoList.add(sTrafficPolicyInfo);
             }
         } catch (DocumentException e) {

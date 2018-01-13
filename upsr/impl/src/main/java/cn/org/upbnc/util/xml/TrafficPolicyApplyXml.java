@@ -44,7 +44,8 @@ public class TrafficPolicyApplyXml {
             for (org.dom4j.Element qosIfQos : qosIfQosElements) {
                 STrafficIfPolicyInfo sTrafficIfPolicyInfo = new STrafficIfPolicyInfo();
                 sTrafficIfPolicyInfo.setIfName(qosIfQos.elementText("ifName"));
-
+                sTrafficIfPolicyInfo.setDirection(qosIfQos.element("qosPolicyApplys").element("qosPolicyApply").elementText("direction"));
+                sTrafficIfPolicyInfo.setPolicyName(qosIfQos.element("qosPolicyApplys").element("qosPolicyApply").elementText("policyName"));
                 sTrafficIfPolicyInfoList.add(sTrafficIfPolicyInfo);
             }
         } catch (DocumentException e) {

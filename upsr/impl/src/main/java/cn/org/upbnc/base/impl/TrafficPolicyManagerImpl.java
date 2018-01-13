@@ -8,6 +8,7 @@ import cn.org.upbnc.util.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,12 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
 
         for (SAclInfo sAclInfo : sAclInfoList) {
             AclInfoEntity aclInfoEntity = this.sAclInfoToAclInfoEntity(sAclInfo);
+            List<AclRuleInfoEntity> aclRuleInfoEntityList = new ArrayList<>();
+            for (SAclRuleInfo sAclRuleInfo:sAclInfo.getsAclRuleInfoList()) {
+                AclRuleInfoEntity aclRuleInfoEntity = this.sAclRuleInfoToAclRuleInfoEntity(sAclRuleInfo);
+                aclRuleInfoEntityList.add(aclRuleInfoEntity);
+            }
+            aclInfoEntity.setAclRuleInfoEntityList(aclRuleInfoEntityList);
             if (aclInfoEntityMaps.containsKey(routerID)) {
                 aclInfoEntityMaps.get(routerID).put(aclInfoEntity.getAclName(),aclInfoEntity);
             } else {
@@ -94,11 +101,15 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
         LOG.info("commandTrafficClassifierXml : " + commandTrafficClassifierXml);
         String outPutTrafficClassifierXml = netconfController.sendMessage(netconfClient,commandTrafficClassifierXml);
         LOG.info("outPutTrafficClassifierXml : " + outPutTrafficClassifierXml);
-
         List<STrafficClassInfo> sTrafficClassInfoList = TrafficClassifier.getSTrafficClassFromXml(outPutTrafficClassifierXml);
-
         for (STrafficClassInfo sTrafficClassInfo : sTrafficClassInfoList) {
             TrafficClassInfoEntity trafficClassInfoEntity = this.sTrafficClassInfoToTrafficClassInfoEntity(sTrafficClassInfo);
+            List<TrafficClassAclInfoEntity> trafficClassAclInfoEntityList = new ArrayList<>();
+            for (STrafficClassAclInfo sTrafficClassAclInfo : sTrafficClassInfo.getsTrafficClassAclInfoList()){
+                TrafficClassAclInfoEntity trafficClassAclInfoEntity = sTrafficClassAclInfoToTrafficClassAclInfoEntity(sTrafficClassAclInfo);
+                trafficClassAclInfoEntityList.add(trafficClassAclInfoEntity);
+            }
+            trafficClassInfoEntity.setTrafficClassAclInfoEntityList(trafficClassAclInfoEntityList);
             if (trafficClassInfoEntityMaps.containsKey(routerID)) {
                 trafficClassInfoEntityMaps.get(routerID).put(sTrafficClassInfo.getTrafficClassName(),trafficClassInfoEntity);
             } else {
@@ -141,6 +152,12 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
 
         for (STrafficPolicyInfo sTrafficPolicyInfo : sTrafficPolicyInfoList) {
             TrafficPolicyInfoEntity trafficPolicyInfoEntity = this.sTrafficPolicyInfoToTrafficPolicyInfoEntity(sTrafficPolicyInfo);
+            List<TrafficPolicyNodeInfoEntity> trafficPolicyNodeInfoEntityList = new ArrayList<>();
+            for (STrafficPolicyNodeInfo sTrafficPolicyNodeInfo:sTrafficPolicyInfo.getsTrafficPolicyNodeInfoList()) {
+                TrafficPolicyNodeInfoEntity trafficPolicyNodeInfoEntity = sTrafficPolicyNodeInfoToTrafficPolicyNodeInfoEntity(sTrafficPolicyNodeInfo);
+                trafficPolicyNodeInfoEntityList.add(trafficPolicyNodeInfoEntity);
+            }
+            trafficPolicyInfoEntity.setTrafficPolicyNodeInfoEntityList(trafficPolicyNodeInfoEntityList);
             if (trafficPolicyInfoEntityMaps.containsKey(routerID)) {
                 trafficPolicyInfoEntityMaps.get(routerID).put(sTrafficPolicyInfo.getTrafficPolicyName(),trafficPolicyInfoEntity);
             } else {
@@ -215,6 +232,7 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     private TrafficBehaveInfoEntity sTrafficBehaveInfoToTrafficBehaveInfoEntity(STrafficBehaveInfo sTrafficBehaveInfo) {
         TrafficBehaveInfoEntity trafficBehaveInfoEntity = new TrafficBehaveInfoEntity();
         trafficBehaveInfoEntity.setTrafficBehaveName(sTrafficBehaveInfo.getTrafficBehaveName());
+        trafficBehaveInfoEntity.setRedirectTunnelName(sTrafficBehaveInfo.getRedirectTunnelName());
         return trafficBehaveInfoEntity;
     }
 
@@ -227,6 +245,37 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     private TrafficIfPolicyInfoEntity sTrafficIfPolicyInfoToTrafficIfPolicyInfoEntity(STrafficIfPolicyInfo sTrafficIfPolicyInfo) {
         TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity = new TrafficIfPolicyInfoEntity();
         trafficIfPolicyInfoEntity.setIfName(sTrafficIfPolicyInfo.getIfName());
+        trafficIfPolicyInfoEntity.setDirection(sTrafficIfPolicyInfo.getDirection());
+        trafficIfPolicyInfoEntity.setPolicyName(sTrafficIfPolicyInfo.getPolicyName());
         return trafficIfPolicyInfoEntity;
+    }
+
+    private AclRuleInfoEntity sAclRuleInfoToAclRuleInfoEntity(SAclRuleInfo sAclRuleInfo) {
+        AclRuleInfoEntity aclRuleInfoEntity = new AclRuleInfoEntity();
+        aclRuleInfoEntity.setRuleId(sAclRuleInfo.getRuleId());
+        aclRuleInfoEntity.setRuleType(sAclRuleInfo.getRuleType());
+        aclRuleInfoEntity.setProtoType(sAclRuleInfo.getProtoType());
+        aclRuleInfoEntity.setSourcce(sAclRuleInfo.getSourcce());
+        aclRuleInfoEntity.setSourcceWild(sAclRuleInfo.getSourcceWild());
+        aclRuleInfoEntity.setSourcePortOp(sAclRuleInfo.getSourcePortOp());
+        aclRuleInfoEntity.setSourcePort(sAclRuleInfo.getSourcePort());
+        aclRuleInfoEntity.setDestination(sAclRuleInfo.getDestination());
+        aclRuleInfoEntity.setDestinationWild(sAclRuleInfo.getDestinationWild());
+        aclRuleInfoEntity.setDestinationPortOp(sAclRuleInfo.getProtoType());
+        aclRuleInfoEntity.setDestinationPort(sAclRuleInfo.getDestinationPort());
+        return aclRuleInfoEntity;
+    }
+
+    private TrafficClassAclInfoEntity sTrafficClassAclInfoToTrafficClassAclInfoEntity(STrafficClassAclInfo sTrafficClassAclInfo) {
+        TrafficClassAclInfoEntity trafficClassAclInfoEntity = new TrafficClassAclInfoEntity();
+        trafficClassAclInfoEntity.setAclName(sTrafficClassAclInfo.getAclName());
+        return trafficClassAclInfoEntity;
+    }
+
+    private TrafficPolicyNodeInfoEntity sTrafficPolicyNodeInfoToTrafficPolicyNodeInfoEntity(STrafficPolicyNodeInfo sTrafficPolicyNodeInfo){
+        TrafficPolicyNodeInfoEntity trafficPolicyNodeInfoEntity = new TrafficPolicyNodeInfoEntity();
+        trafficPolicyNodeInfoEntity.setClassName(sTrafficPolicyNodeInfo.getClassName());
+        trafficPolicyNodeInfoEntity.setBehaveName(sTrafficPolicyNodeInfo.getBehaveName());
+        return trafficPolicyNodeInfoEntity;
     }
 }
