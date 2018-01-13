@@ -42,12 +42,14 @@ public class TrafficPolicyXml {
                 STrafficPolicyInfo sTrafficPolicyInfo = new STrafficPolicyInfo();
                 sTrafficPolicyInfo.setTrafficPolicyName(qosPolicy.elementText("policyName"));
                 List<STrafficPolicyNodeInfo> sTrafficPolicyNodeInfoList = new ArrayList<>();
-                List<Element> qosPolicyNodeElements = root.element("qosPolicyNodes").elements("qosPolicyNode");
-                for (org.dom4j.Element qosPolicyNode : qosPolicyNodeElements) {
-                    STrafficPolicyNodeInfo sTrafficPolicyNodeInfo = new STrafficPolicyNodeInfo();
-                    sTrafficPolicyNodeInfo.setClassName(qosPolicyNode.elementText("classifierName"));
-                    sTrafficPolicyNodeInfo.setBehaveName(qosPolicyNode.elementText("behaviorName"));
-                    sTrafficPolicyNodeInfoList.add(sTrafficPolicyNodeInfo);
+                if (qosPolicy.element("qosPolicyNodes") != null) {
+                    List<Element> qosPolicyNodeElements = qosPolicy.element("qosPolicyNodes").elements("qosPolicyNode");
+                    for (org.dom4j.Element qosPolicyNode : qosPolicyNodeElements) {
+                        STrafficPolicyNodeInfo sTrafficPolicyNodeInfo = new STrafficPolicyNodeInfo();
+                        sTrafficPolicyNodeInfo.setClassName(qosPolicyNode.elementText("classifierName"));
+                        sTrafficPolicyNodeInfo.setBehaveName(qosPolicyNode.elementText("behaviorName"));
+                        sTrafficPolicyNodeInfoList.add(sTrafficPolicyNodeInfo);
+                    }
                 }
                 sTrafficPolicyInfo.setsTrafficPolicyNodeInfoList(sTrafficPolicyNodeInfoList);
                 sTrafficPolicyInfoList.add(sTrafficPolicyInfo);
