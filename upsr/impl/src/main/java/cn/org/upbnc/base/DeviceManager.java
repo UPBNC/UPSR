@@ -35,4 +35,5 @@ public interface DeviceManager {
 
     Map<String,List<Device>> getAreaDeviceList();
 
+    String getVpnNameByIfname(String routerId, String ifName);
 }

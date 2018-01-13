@@ -27,6 +27,7 @@ public class BaseInterface {
     private RoutePolicyManager routePolicyManager;
     private StatisticsManager statisticsManager;
     private TrafficPolicyManager trafficPolicyManager;
+    private DedicatedBandwidthManager dedicatedBandwidthManager;
 
     public BaseInterface() {
     }
@@ -47,6 +48,7 @@ public class BaseInterface {
             this.routePolicyManager = RoutePolicyManagerImpl.getInstance();
             this.statisticsManager = StatisticsManagerImpl.getInstance();
             this.trafficPolicyManager = TrafficPolicyManagerImpl.getInstance();
+            this.dedicatedBandwidthManager = DedicatedBandwidthManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         } catch (Exception e) {
             LOG.info("BaseInterface init failure! " + e.getMessage());
@@ -144,6 +146,13 @@ public class BaseInterface {
             this.trafficPolicyManager = TrafficPolicyManagerImpl.getInstance();
         }
         return trafficPolicyManager;
+    }
+
+    public DedicatedBandwidthManager getDedicatedBandwidthManager() {
+        if (null == this.dedicatedBandwidthManager) {
+            this.dedicatedBandwidthManager = DedicatedBandwidthManagerImpl.getInstance();
+        }
+        return dedicatedBandwidthManager;
     }
 
     ///....

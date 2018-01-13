@@ -37,8 +37,8 @@ public class StatisticServiceImpl implements StatisticService {
     private NetConfManager netConfManager;
     private DeviceManager deviceManager;
     private StatisticsManager statisticsManager;
-    private Map<String,List<IfStatisticsEntity>> ifStatisticsEntityMaps;
-    private Map<String,List<IfClearedStatEntity>> ifClearedStatEntityMaps;
+    private Map<String,List<IfStatisticsEntity>> ifStatisticsEntityMaps = new HashMap<>();
+    private Map<String,List<IfClearedStatEntity>> ifClearedStatEntityMaps = new HashMap<>();
     private Map<String,List<CpuInfoEntity>> cpuInfoEntityMaps = new HashMap<>();
     private Map<String,List<MemoryInfoEntity>> memoryInfoEntityMaps = new HashMap<>();
     public static NetconfDevice netconfController = new NetconfDevice();
@@ -133,7 +133,11 @@ public class StatisticServiceImpl implements StatisticService {
             List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
             List<IfClearedStatEntity> ifClearedStatEntityList = ifClearedStatEntityMaps.get(rid);
             for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
-                ifClearedStatServiceEntityList.add(ifClearedStatEntityToIfClearedStatServiceEntity(ifClearedStatEntity));
+                String vpnName = deviceManager.getVpnNameByIfname(rid,ifClearedStatEntity.getIfName());
+                IfClearedStatServiceEntity ifClearedStatServiceEntity =
+                        ifClearedStatEntityToIfClearedStatServiceEntity(ifClearedStatEntity);
+                ifClearedStatServiceEntity.setVpnName(vpnName);
+                ifClearedStatServiceEntityList.add(ifClearedStatServiceEntity);
             }
             ret.put(rid,ifClearedStatServiceEntityList);
         }

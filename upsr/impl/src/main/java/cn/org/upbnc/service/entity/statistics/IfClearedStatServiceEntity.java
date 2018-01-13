@@ -44,6 +44,7 @@ public class IfClearedStatServiceEntity {
     private String rcvMutiPacketRate;
     private String sendBroadPacketRate;
     private String rcvBroadPacketRate;
+    private String vpnName;
 
     public String getRouterId() {
         return routerId;
@@ -387,5 +388,13 @@ public class IfClearedStatServiceEntity {
 
     public void setRcvBroadPacketRate(String rcvBroadPacketRate) {
         this.rcvBroadPacketRate = rcvBroadPacketRate;
+    }
+
+    public String getVpnName() {
+        return vpnName;
+    }
+
+    public void setVpnName(String vpnName) {
+        this.vpnName = vpnName;
     }
 }

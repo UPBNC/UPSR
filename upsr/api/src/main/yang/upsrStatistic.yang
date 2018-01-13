@@ -36,6 +36,7 @@ module upsrStatistic {
             leaf outUseRate { type string; }
             leaf rcvErrorPacket { type string; }
             leaf sendErrorPacket { type string; }
+            leaf vpnName { type string; }
         }
     }
     grouping ifStatisticsGroup{

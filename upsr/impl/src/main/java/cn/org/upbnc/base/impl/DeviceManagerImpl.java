@@ -218,6 +218,17 @@ public class DeviceManagerImpl implements DeviceManager {
         return ret;
     }
 
+    @Override
+    public String getVpnNameByIfname(String routerId, String ifName) {
+        Device device = this.getDevice(routerId);
+        DeviceInterface deviceInterface = device.getDeviceInterfaceByIfName(ifName);
+        if (deviceInterface != null && deviceInterface.getVpn() != null)
+        {
+             return deviceInterface.getVpn().getVpnName();
+        }
+        return null;
+    }
+
     // 更新Device
     private Device updateDevice(Device device, BgpDevice bgpDevice) {
         Device ret = null;

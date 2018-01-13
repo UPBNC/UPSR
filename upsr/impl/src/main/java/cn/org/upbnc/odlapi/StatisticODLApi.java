@@ -204,6 +204,7 @@ public class StatisticODLApi implements UpsrStatisticService {
                 ifClearedBuilder.setOutUseRate(ifClearedStatServiceEntity.getOutUseRate());
                 ifClearedBuilder.setRcvErrorPacket(ifClearedStatServiceEntity.getRcvErrorPacket());
                 ifClearedBuilder.setSendErrorPacket(ifClearedStatServiceEntity.getSendErrorPacket());
+                ifClearedBuilder.setVpnName(ifClearedStatServiceEntity.getVpnName());
                 ifClearedList.add(ifClearedBuilder.build());
             }
             routerIfClearedBuilder.setRouterId(rid);

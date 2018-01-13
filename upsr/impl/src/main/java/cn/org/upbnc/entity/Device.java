@@ -438,4 +438,18 @@ public class Device {
         }
         return null;
     }
+
+    public DeviceInterface getDeviceInterfaceByIfName(String ifName){
+        if (this.deviceInterfaceList == null){
+            return null;
+        }
+        Iterator<DeviceInterface> deviceInterfaceIterator = this.deviceInterfaceList.iterator();
+        while (deviceInterfaceIterator.hasNext()){
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            if (deviceInterface.getName().equals(ifName)){
+                return deviceInterface;
+            }
+        }
+        return null;
+    }
 }
