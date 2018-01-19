@@ -359,7 +359,9 @@ public class TunnelODLApi implements UpsrTunnelService {
             PingResultBuilder pingResultBuilder = new PingResultBuilder();
             pingResultBuilder.setPacketSend(pingTunnelServiceEntity.getPacketSend());
             pingResultBuilder.setPacketRecv(pingTunnelServiceEntity.getPacketRecv());
-            pingResultBuilder.setLossRatio(pingTunnelServiceEntity.getLossRatio());
+            if (pingTunnelServiceEntity.getLossRatio() != null) {
+                pingResultBuilder.setLossRatio(pingTunnelServiceEntity.getLossRatio() + "%");
+            }
             pingResultBuilder.setRttValue(pingTunnelServiceEntity.getRttValue());
             pingTunnelInstanceOutputBuilder.setPingResult(pingResultBuilder.build());
             pingTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
@@ -440,7 +442,9 @@ public class TunnelODLApi implements UpsrTunnelService {
                 (DetectTunnelServiceEntity) map.get(ResponseEnum.BODY.getName());
         pingResultBuilder.setPacketSend(detectTunnelServiceEntity.getPacketSend());
         pingResultBuilder.setPacketRecv(detectTunnelServiceEntity.getPacketRecv());
-        pingResultBuilder.setLossRatio(detectTunnelServiceEntity.getLossRatio() + "%");
+        if (detectTunnelServiceEntity.getLossRatio() != null) {
+            pingResultBuilder.setLossRatio(detectTunnelServiceEntity.getLossRatio() + "%");
+        }
         pingResultBuilder.setRttValue(detectTunnelServiceEntity.getRttValue());
         return pingResultBuilder;
     }

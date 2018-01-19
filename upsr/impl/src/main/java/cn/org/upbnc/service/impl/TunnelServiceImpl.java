@@ -739,7 +739,7 @@ public class TunnelServiceImpl implements TunnelService {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
+        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,6000);
         PingTunnelServiceEntity pingTunnelServiceEntity = new PingTunnelServiceEntity();
         pingTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
         pingTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
@@ -773,7 +773,7 @@ public class TunnelServiceImpl implements TunnelService {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
+        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,2500);
         STraceLspResultInfo traceMainResult = this.traceLsp(netconfClient, tunnelName, lspPath);
         DetectTunnelServiceEntity detectTunnelServiceEntity = new DetectTunnelServiceEntity();
         detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
@@ -793,7 +793,7 @@ public class TunnelServiceImpl implements TunnelService {
         return resultMap;
     }
 
-    private SPingLspResultInfo pingLsp(NetconfClient netconfClient, String tunnelName, String lspPath) {
+    private SPingLspResultInfo pingLsp(NetconfClient netconfClient, String tunnelName, String lspPath, long sleepTime) {
         String pingLspXml = TunnelDetectXml.startLspPingXml(tunnelName, lspPath);
         LOG.info("pingLspXml : " + pingLspXml);
         String pingLspOutPutXml = netconfController.sendMessage(netconfClient, pingLspXml);
@@ -801,7 +801,7 @@ public class TunnelServiceImpl implements TunnelService {
             return null;
         }
         try {
-            sleep(2500);
+            sleep(sleepTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -26,12 +26,13 @@ public class StatisticsThread extends Thread {
 
     @Override
     public void run() {
+        statisticsApi.setStatistics();
         while (stopMe != true) {
             try {
+                Thread.sleep(statisticInterval);
                 if (switchValve.equals("1")) {
                     statisticsApi.setStatistics();
                 }
-                Thread.sleep(statisticInterval);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

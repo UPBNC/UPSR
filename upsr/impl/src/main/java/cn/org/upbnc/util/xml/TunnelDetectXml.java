@@ -114,6 +114,7 @@ public class TunnelDetectXml {
     }
     public static SPingLspResultInfo pingLspResultFromResultXml(String xml){
         SPingLspResultInfo sPingLspResultInfo = new SPingLspResultInfo();
+        int rtt = 0,packNum = 0;
         try {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
@@ -126,9 +127,13 @@ public class TunnelDetectXml {
             if (lspPingResultElement.element("pingResultDetails") != null) {
                 List<Element> pingResultDetailElements = lspPingResultElement.element("pingResultDetails").elements("pingResultDetail");
                 for (org.dom4j.Element pingResultDetail : pingResultDetailElements) {
-                    sPingLspResultInfo.setRttValue(pingResultDetail.elementText("rtt"));
-                    break;
+                    rtt = rtt + Integer.parseInt(pingResultDetail.elementText("rtt"));
+                    packNum = packNum + 1;
                 }
+                if (packNum != 0) {
+                    rtt = rtt / packNum;
+                }
+                sPingLspResultInfo.setRttValue("" + rtt);
             }
         } catch (Exception e) {
                 LOG.info(e.toString());
