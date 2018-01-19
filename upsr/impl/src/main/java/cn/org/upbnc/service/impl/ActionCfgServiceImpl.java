@@ -192,7 +192,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             LOG.info(d.getRouterId() + " outPutCommitXml: " + outPutCommitXml);
             List<SCheckPointInfo> sCheckPointInfoList = ActionCfgXml.getCheckPointInfoFromXml(outPutCommitXml);
             List<CheckPointInfoServiceEntity> checkPointInfoServiceEntityList = sCheckPointInfoToCheckPointInfoServiceEntity(sCheckPointInfoList);
-            checkInfoMap.put(routerId,checkPointInfoServiceEntityList);
+            checkInfoMap.put(d.getRouterId(),checkPointInfoServiceEntityList);
         }
         return checkInfoMap;
     }

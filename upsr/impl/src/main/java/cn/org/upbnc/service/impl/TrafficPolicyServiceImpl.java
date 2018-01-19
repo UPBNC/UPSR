@@ -4,6 +4,7 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.TrafficPolicyManager;
+import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.TrafficPolicy.*;
 import cn.org.upbnc.service.TrafficPolicyService;
 import cn.org.upbnc.service.entity.TrafficPolicy.*;
@@ -48,6 +49,16 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
             return false;
         }
         return trafficPolicyManager.syncTrafficPolicyConf(routerId, netconfClient);
+    }
+
+    @Override
+    public boolean syncTrafficPolicyConf() {
+        boolean flag = true;
+        List<Device> devices = deviceManager.getDeviceList();
+        for (Device device : devices) {
+            flag = syncTrafficPolicyConf(device.getRouterId());
+        }
+        return flag;
     }
 
     @Override

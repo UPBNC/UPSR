@@ -148,8 +148,12 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("getCfgCommit begin");
         GetCfgCommitOutputBuilder getCfgCommitOutputBuilder = new GetCfgCommitOutputBuilder();
         getCfgCommitOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
-        Map<String, Object> resultMap
-                = this.actionCfgApi.getCfgCommitPointInfo(input.getRouterId(), input.getCommitId());
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.getActionCfgApi().getCfgCommitPointInfo(null, null);
+        } else {
+            resultMap = this.getActionCfgApi().getCfgCommitPointInfo(input.getRouterId(), input.getCommitId());
+        }
         Map<String, List<CheckPointInfoServiceEntity>> checkInfoMap =
                 (Map<String, List<CheckPointInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<CommitRouters> commitRoutersList = new ArrayList<>();

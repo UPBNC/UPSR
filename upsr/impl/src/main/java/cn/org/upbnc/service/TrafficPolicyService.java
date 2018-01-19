@@ -8,9 +8,8 @@ import java.util.Map;
 
 public interface TrafficPolicyService {
     boolean setBaseInterface(BaseInterface baseInterface);
-
+    boolean syncTrafficPolicyConf();
     boolean syncTrafficPolicyConf(String routerId);
-
     Map<String,List<AclInfoServiceEntity>> getAclInfo(String routerId, String aclName);
     Map<String,List<TrafficClassServiceEntity>> getTrafficClassInfo(String routerId, String trafficClassName);
     Map<String,List<TrafficBehaveServiceEntity>> getTrafficBehaveInfo(String routerId, String trafficBehaveName);

@@ -55,6 +55,7 @@ public class ConfSyncApiImpl implements ConfSyncApi {
             result += this.serviceInterface.getTunnelPolicyService().syncTunnelPolicyConf();
             result += "\n";
         }
+        serviceInterface.getTrafficPolicyService().syncTrafficPolicyConf();
         result += "sync device configure end.";
         LOG.info("sync ret : " + result);
         return CodeEnum.SUCCESS.getMessage();
