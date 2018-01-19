@@ -780,8 +780,10 @@ public class TunnelODLApi implements UpsrTunnelService {
                     mainPathBuilder = new MainPathBuilder();
                     mainPathBuilder.setIndex(key);
                     if (null != map.get(key).getAddressLocal()) {
-                        Map<String, Object> remainingband = getStatisticsApi().getRemainingband(map.get(key).getDevice().getRouterId(),
-                                map.get(key).getAddressLocal().getAddress());
+                        Map<String, Object> remainingbandMap = getStatisticsApi().getRemainingband(map.get(key).getDevice().getRouterId(),
+                                map.get(key).getAddressLocal());
+                        Map<String, Object> remainingband =
+                                (Map<String, Object>)remainingbandMap.get(ResponseEnum.BODY.getName());
                         band = Math.min(band, ((Integer) remainingband.get("band")).intValue());
                         mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
                         mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());

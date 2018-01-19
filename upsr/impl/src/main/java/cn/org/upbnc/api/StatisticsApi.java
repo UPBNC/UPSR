@@ -1,5 +1,6 @@
 package cn.org.upbnc.api;
 
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 
@@ -15,5 +16,6 @@ public interface StatisticsApi {
     Map<String, Object> getDedicateBand(String routerId,String ifName);
     Map<String, Object> getOutUsedBand(String routerId,String ifName);
     Map<String, Object> getRemainingband(String routerId,String ifName);
+    Map<String, Object> getRemainingband(String routerId, Address ifIp);
     void setStatistics();
 }

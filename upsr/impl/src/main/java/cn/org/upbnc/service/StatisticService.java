@@ -1,6 +1,7 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.entity.statistics.CpuInfoServiceEntity;
@@ -21,5 +22,6 @@ public interface StatisticService {
     Map<String,Integer> getDedicateBand(String routerId, String ifName);
     Map<String,Integer> getOutUsedBand(String routerId, String ifName);
     Map<String,Integer> getRemainingband(String routerId, String ifName);
+    Map<String,Integer> getRemainingband(String routerId, Address ifIp);
     void setStatistics();
 }

@@ -126,13 +126,23 @@ module upsrStatistic {
             }
         }
     }
-    rpc statisticSwitch {
+    rpc updateStatisticSwitch {
         input {
             leaf switchValue { type string; }
             leaf statisticInterval { type string; }
         }
         output {
             leaf result { type string; }
+        }
+    }
+
+    rpc getStatisticSwitch {
+        input {
+        }
+        output {
+            leaf result { type string; }
+            leaf switchValue { type string; }
+            leaf statisticInterval { type string; }
         }
     }
 }

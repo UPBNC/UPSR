@@ -1,6 +1,7 @@
 package cn.org.upbnc.service.impl;
 
 import cn.org.upbnc.base.*;
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
@@ -132,7 +133,29 @@ public class StatisticServiceImpl implements StatisticService {
         ret.put("band",new Integer(remainingBand));
         return ret;
     }
-
+    @Override
+    public Map<String, Integer> getRemainingband(String routerId, Address ifIp) {
+        Map<String, Integer> ret = new HashMap<>();
+        int remainingBand = 1024;
+        String ifName = deviceManager.getIfnameByIfAddress(routerId, ifIp);
+        if (ifName != null){
+            String dedicateBand = dedicatedBandwidthManager.getIfBand(routerId, ifName);
+            if (dedicateBand != null) {
+                remainingBand = Integer.parseInt(dedicateBand);
+            }
+            List<IfClearedStatEntity> ifClearedStatEntityList = ifClearedStatEntityMaps.get(routerId);
+            if (ifClearedStatEntityList != null) {
+                for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
+                    if (ifClearedStatEntity.getIfName().equals(ifName)) {
+                        remainingBand = remainingBand - 1024 * Integer.parseInt(ifClearedStatEntity.getOutUseRate()) / 100;
+                        break;
+                    }
+                }
+            }
+        }
+        ret.put("band",new Integer(remainingBand));
+        return ret;
+    }
     @Override
     public void setStatistics() {
         String routerId;

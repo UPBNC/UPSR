@@ -8,10 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.DeviceManager;
-import cn.org.upbnc.entity.BgpDevice;
-import cn.org.upbnc.entity.BgpDeviceInterface;
-import cn.org.upbnc.entity.Device;
-import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
 
@@ -228,7 +225,16 @@ public class DeviceManagerImpl implements DeviceManager {
         }
         return null;
     }
-
+    @Override
+    public String getIfnameByIfAddress(String routerId, Address ifIp) {
+        Device device = this.getDevice(routerId);
+        DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(ifIp.getAddress());
+        if (deviceInterface != null )
+        {
+            return deviceInterface.getName();
+        }
+        return null;
+    }
     // 更新Device
     private Device updateDevice(Device device, BgpDevice bgpDevice) {
         Device ret = null;

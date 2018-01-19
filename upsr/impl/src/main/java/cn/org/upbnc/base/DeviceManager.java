@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.BgpDevice;
 import cn.org.upbnc.entity.Device;
 
@@ -36,4 +37,5 @@ public interface DeviceManager {
     Map<String,List<Device>> getAreaDeviceList();
 
     String getVpnNameByIfname(String routerId, String ifName);
+    String getIfnameByIfAddress(String routerId, Address ifIp);
 }

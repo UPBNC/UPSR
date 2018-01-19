@@ -108,9 +108,9 @@ public class StatisticODLApi implements UpsrStatisticService {
     }
 
     @Override
-    public Future<RpcResult<StatisticSwitchOutput>> statisticSwitch(StatisticSwitchInput input) {
+    public Future<RpcResult<UpdateStatisticSwitchOutput>> updateStatisticSwitch(UpdateStatisticSwitchInput input) {
         LOG.info("statisticSwitch end");
-        StatisticSwitchOutputBuilder statisticSwitchOutputBuilder = new StatisticSwitchOutputBuilder();
+        UpdateStatisticSwitchOutputBuilder statisticSwitchOutputBuilder = new UpdateStatisticSwitchOutputBuilder();
         StatisticsThread statisticsThread = StatisticsThread.getInstance();
         if (input.getSwitchValue() != null) {
             statisticsThread.setSwitchValve(input.getSwitchValue());
@@ -140,6 +140,9 @@ public class StatisticODLApi implements UpsrStatisticService {
             for (MemoryInfoServiceEntity memoryInfoServiceEntity : memoryInfoMap.get(rid)) {
                 MemoryInfoBuilder memoryInfoBuilder = new MemoryInfoBuilder();
                 memoryInfoBuilder.setEntIndex(memoryInfoServiceEntity.getEntIndex());
+                memoryInfoBuilder.setOsMemoryUsage(memoryInfoServiceEntity.getOsMemoryUsage());
+                memoryInfoBuilder.setOsMemoryTotal(memoryInfoServiceEntity.getOsMemoryTotal());
+                memoryInfoBuilder.setOsMemoryUse(memoryInfoServiceEntity.getOsMemoryUse());
                 memoryInfoList.add(memoryInfoBuilder.build());
             }
             memoryInfoStatBuilder.setMemoryInfo(memoryInfoList);
@@ -167,6 +170,10 @@ public class StatisticODLApi implements UpsrStatisticService {
             for (CpuInfoServiceEntity cpuInfoServiceEntity : cpuInfoMap.get(rid)) {
                 CpuInfoBuilder cpuInfoBuilder = new CpuInfoBuilder();
                 cpuInfoBuilder.setEntIndex(cpuInfoServiceEntity.getEntIndex());
+                cpuInfoBuilder.setSystemCpuUsage(cpuInfoServiceEntity.getSystemCpuUsage());
+                cpuInfoBuilder.setOvloadThreshold(cpuInfoServiceEntity.getOvloadThreshold());
+                cpuInfoBuilder.setPosition(cpuInfoServiceEntity.getPosition());
+                cpuInfoBuilder.setUnovloadThreshold(cpuInfoServiceEntity.getUnovloadThreshold());
                 cpuInfoList.add(cpuInfoBuilder.build());
             }
             cpuInfoStatBuilder.setRouterId(rid);
@@ -243,5 +250,19 @@ public class StatisticODLApi implements UpsrStatisticService {
         getIfStatisticsOutputBuilder.setRouterIfStatistics(routerIfStatisticsList);
         LOG.info("getIfStatistics end");
         return RpcResultBuilder.success(getIfStatisticsOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetStatisticSwitchOutput>> getStatisticSwitch(GetStatisticSwitchInput input) {
+        LOG.info("getStatisticSwitch end");
+        GetStatisticSwitchOutputBuilder getStatisticSwitchOutputBuilder = new GetStatisticSwitchOutputBuilder();
+        StatisticsThread statisticsThread = StatisticsThread.getInstance();
+        LOG.info("switch   : " + statisticsThread.getSwitchValve());
+        LOG.info("interval : " + statisticsThread.getStatisticInterval());
+        getStatisticSwitchOutputBuilder.setStatisticInterval("" + statisticsThread.getStatisticInterval());
+        getStatisticSwitchOutputBuilder.setSwitchValue(statisticsThread.getSwitchValve());
+        getStatisticSwitchOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("getStatisticSwitch end");
+        return RpcResultBuilder.success(getStatisticSwitchOutputBuilder.build()).buildFuture();
     }
 }

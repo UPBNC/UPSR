@@ -1,6 +1,7 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.StatisticsApi;
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
@@ -123,6 +124,15 @@ public class StatisticsApiImpl implements StatisticsApi {
     public Map<String, Object> getRemainingband(String routerId, String ifName) {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String,Integer> remainingbandMap = statisticService.getRemainingband(routerId,ifName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),remainingbandMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getRemainingband(String routerId, Address ifIp) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,Integer> remainingbandMap = statisticService.getRemainingband(routerId,ifIp);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),remainingbandMap);
         return resultMap;
