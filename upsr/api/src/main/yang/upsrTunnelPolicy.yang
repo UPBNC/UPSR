@@ -9,7 +9,7 @@ module upsrTunnelPolicy {
 
     grouping tunnelPolicy {
         leaf policyName { type string; }
-        leaf routerId{type string;}
+        //leaf routerId{type string;}
         leaf description{type string;}
         leaf tnlPolicyType{type string;}
         list tpNexthops {
@@ -42,6 +42,26 @@ module upsrTunnelPolicy {
             list tunnelPolicys {
                 uses tunnelPolicy;
             }
+        }
+    }
+
+    rpc updateTunnelPolicy {
+        input {
+            leaf routerId { type string; }
+            uses tunnelPolicy;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc deleteTunnelPolicy {
+        input {
+            leaf routerId { type string; }
+            leaf policyName { type string; }
+        }
+        output {
+            leaf result { type string; }
         }
     }
 }

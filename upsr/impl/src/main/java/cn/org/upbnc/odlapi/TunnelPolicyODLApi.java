@@ -11,10 +11,7 @@ import cn.org.upbnc.enumtype.TnlPolicyTypeEnum;
 import cn.org.upbnc.service.entity.TunnelPolicy.TnlSelSeqEntity;
 import cn.org.upbnc.service.entity.TunnelPolicy.TpNexthopEntity;
 import cn.org.upbnc.service.entity.TunnelPolicy.TunnelPolicyEntity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.UpsrTunnelPolicyService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicys;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicysBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.TnlSelSeqs;
@@ -72,7 +69,7 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
         List<TunnelPolicys> tunnelPolicysList = new ArrayList<>();
         for (TunnelPolicyEntity tunnelPolicyEntity : tunnelPolicyEntityList) {
             TunnelPolicysBuilder tunnelPolicysBuilder = new TunnelPolicysBuilder();
-            tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
+//            tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
             tunnelPolicysBuilder.setPolicyName(tunnelPolicyEntity.getTnlPolicyName());
             tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
             //tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
@@ -169,4 +166,23 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
         return RpcResultBuilder.success(getTunnelPolicysOutputBuilder.build()).buildFuture();
     }
 
+    @Override
+    public Future<RpcResult<UpdateTunnelPolicyOutput>> updateTunnelPolicy(UpdateTunnelPolicyInput input) {
+        UpdateTunnelPolicyOutputBuilder updateTunnelPolicyOutputBuilder = new UpdateTunnelPolicyOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            updateTunnelPolicyOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(updateTunnelPolicyOutputBuilder.build()).buildFuture();
+        }
+        return RpcResultBuilder.success(updateTunnelPolicyOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<DeleteTunnelPolicyOutput>> deleteTunnelPolicy(DeleteTunnelPolicyInput input) {
+        DeleteTunnelPolicyOutputBuilder deleteTunnelPolicyOutputBuilder = new DeleteTunnelPolicyOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            deleteTunnelPolicyOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(deleteTunnelPolicyOutputBuilder.build()).buildFuture();
+        }
+        return RpcResultBuilder.success(deleteTunnelPolicyOutputBuilder.build()).buildFuture();
+    }
 }
