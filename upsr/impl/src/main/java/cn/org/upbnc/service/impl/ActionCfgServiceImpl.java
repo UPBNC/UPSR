@@ -12,6 +12,7 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ActionCfgService;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.xml.ActionCfgXml;
 import cn.org.upbnc.util.xml.CandidateXml;
 import cn.org.upbnc.util.xml.RunningXml;
 import cn.org.upbnc.xmlcompare.Util;
@@ -77,6 +78,31 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         resultMap.put(ResponseEnum.MESSAGE.getName(), cliList);
         return resultMap;
     }
+
+    @Override
+    public Map<String, Object> commitCfgChane(String routerId, String cfgType) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String commitXml = ActionCfgXml.getCommitCfgXml();
+        Device device = deviceManager.getDevice(routerId);
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        String outPutXml = netconfController.sendMessage(netconfClient, commitXml);
+        LOG.info(outPutXml);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> cancelCfgChane(String routerId, String cfgType) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String cancelXml = ActionCfgXml.getCancelCfgXml();
+        Device device = deviceManager.getDevice(routerId);
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        String outPutXml = netconfController.sendMessage(netconfClient, cancelXml);
+        LOG.info(outPutXml);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return resultMap;
+    }
+
     private String getCandidateCfgXml(Device device, String cfgType) {
         String xml;
         if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
@@ -84,7 +110,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
             xml = CandidateXml.getCandidateTunnelXml();
         } else {
-            xml = CandidateXml.getCandidateXml();
+//            xml = CandidateXml.getCandidateXml();
+            return null;
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String outPutXml = netconfController.sendMessage(netconfClient, xml);
@@ -97,7 +124,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
             xml = RunningXml.getRunningTunnelXml();
         } else {
-            xml = RunningXml.getRunningXml();
+//            xml = RunningXml.getRunningXml();
+            return null;
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String outPutXml = netconfController.sendMessage(netconfClient, xml);

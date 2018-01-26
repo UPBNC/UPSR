@@ -7,4 +7,6 @@ import java.util.Map;
 public interface ActionCfgApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
     Map<String, Object> getCfgChane(String routerId, String cfgType);
+    Map<String, Object> commitCfgChane(String routerId, String cfgType);
+    Map<String, Object> cancelCfgChane(String routerId, String cfgType);
 }

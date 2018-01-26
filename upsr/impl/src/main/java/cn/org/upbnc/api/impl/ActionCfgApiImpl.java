@@ -25,6 +25,18 @@ public class ActionCfgApiImpl implements ActionCfgApi {
     }
 
     @Override
+    public Map<String, Object> commitCfgChane(String routerId, String cfgType) {
+        Map<String, Object> resultMap = actionCfgService.commitCfgChane(routerId,cfgType);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> cancelCfgChane(String routerId, String cfgType) {
+        Map<String, Object> resultMap = actionCfgService.cancelCfgChane(routerId,cfgType);
+        return resultMap;
+    }
+
+    @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
         boolean ret = true;
         try {

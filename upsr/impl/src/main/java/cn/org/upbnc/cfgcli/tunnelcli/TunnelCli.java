@@ -38,6 +38,9 @@ public class TunnelCli {
     }
 
     public static List<String> tunnelCfgCli(String candidateCfg, String runningCfg) {
-        return null;
+        List<String> cliList = new ArrayList<>();
+        ActionEntity actionEntity = XmlUtils.compare(candidateCfg, runningCfg);
+        LOG.info(actionEntity.getPath());
+        return cliList;
     }
 }

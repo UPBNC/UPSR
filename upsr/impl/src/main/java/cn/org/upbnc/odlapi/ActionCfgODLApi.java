@@ -102,6 +102,7 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("cancelCfgChane begin");
         LOG.info(input.getCfgType());
         LOG.info(input.getRouterId());
+        this.actionCfgApi.cancelCfgChane(input.getRouterId(),input.getCfgType());
         cancelCfgChangeOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("cancelCfgChane begin");
         return RpcResultBuilder.success(cancelCfgChangeOutputBuilder.build()).buildFuture();
@@ -113,8 +114,9 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("confirmCfgChane begin");
         LOG.info(input.getCfgType());
         LOG.info(input.getRouterId());
+        this.actionCfgApi.commitCfgChane(input.getRouterId(),input.getCfgType());
         confirmCfgChangeOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
-        LOG.info("confirmCfgChane begin");
+        LOG.info("confirmCfgChane end");
         return RpcResultBuilder.success(confirmCfgChangeOutputBuilder.build()).buildFuture();
     }
 

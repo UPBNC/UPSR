@@ -10,7 +10,57 @@ public class CandidateXml {
         return null;
     }
     public static String getCandidateTunnelXml() {
-        String xml = "";
+        String xml = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <candidate/>\n" +
+                "    </source>\n" +
+                "    <filter>\n" +
+                "      <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "        <ifm:interfaces>\n" +
+                "          <ifm:interface>\n" +
+                "            <ifm:ifName/>\n" +
+                "            <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n" +
+                "            <ifm:ifDescr/>\n" +
+                "            <ifm:ipv4Config>\n" +
+                "              <ifm:addrCfgType/>\n" +
+                "              <ifm:unNumIfName/>\n" +
+                "            </ifm:ipv4Config>\n" +
+                "          </ifm:interface>\n" +
+                "        </ifm:interfaces>\n" +
+                "      </ifm:ifm>\n" +
+                "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                "        <mpls:mplsTe>\n" +
+                "          <mpls:srTeTunnels>\n" +
+                "            <mpls:srTeTunnel>\n" +
+                "              <mpls:tunnelName/>\n" +
+                "              <mpls:mplsTunnelEgressLSRId/>\n" +
+                "              <mpls:mplsTunnelIndex/>\n" +
+                "              <mpls:mplsTunnelBandwidth/>\n" +
+                "              <mpls:mplsTeTunnelSetupPriority/>\n" +
+                "              <mpls:holdPriority/>\n" +
+                "              <mpls:hotStandbyEnable/>\n" +
+                "              <mpls:resvForBinding/>\n" +
+                "              <mpls:srTeTunnelPaths>\n" +
+                "                <mpls:srTeTunnelPath>\n" +
+                "                  <mpls:pathType/>\n" +
+                "                  <mpls:explicitPathName/>\n" +
+                "                </mpls:srTeTunnelPath>\n" +
+                "              </mpls:srTeTunnelPaths>\n" +
+                "              <mpls:tunnelInterface>\n" +
+                "                <mpls:interfaceName/>\n" +
+                "                <mpls:lsp_tpEnable/>\n" +
+                "                <mpls:statEnable/>\n" +
+                "                <mpls:mplsteServiceClass/>\n" +
+                "              </mpls:tunnelInterface>\n" +
+                "              <mpls:mplsTeTunnelBfd/>\n" +
+                "            </mpls:srTeTunnel>\n" +
+                "          </mpls:srTeTunnels>\n" +
+                "        </mpls:mplsTe>\n" +
+                "      </mpls:mpls>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>";
         return xml;
     }
     public static String getCandidateSrLabelXml() {
