@@ -83,16 +83,17 @@ public class TunnelServiceImpl implements TunnelService {
         boolean createExplicitPathFlag = createExplicitPath(netconfClient, tunnelServiceEntity);
         if (createExplicitPathFlag) {
             boolean createTunnelFlag = createTunnel(netconfClient, tunnelServiceEntity);
-            boolean createBfdFlg = this.createBfdSessions(netconfClient, tunnelServiceEntity);
-            if (createTunnelFlag && createBfdFlg) {
-                addTunnel(tunnelServiceEntity);
-                map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            if (createTunnelFlag) {
+                boolean createBfdFlg = this.createBfdSessions(netconfClient, tunnelServiceEntity);
+                if(!createBfdFlg){
+                    map.put(ResponseEnum.MESSAGE.getName(), "create bfd error,which name is : " + tunnelServiceEntity.getTunnelName());
+                }else {
+                    addTunnel(tunnelServiceEntity);
+                    map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+                }
             } else {
                 if(!createTunnelFlag) {
                     map.put(ResponseEnum.MESSAGE.getName(), "create tunnel error,which name is : " + tunnelServiceEntity.getTunnelName());
-                }
-                if(!createBfdFlg){
-                    map.put(ResponseEnum.MESSAGE.getName(), "create bfd error,which name is : " + tunnelServiceEntity.getTunnelName());
                 }
             }
         }
@@ -119,26 +120,30 @@ public class TunnelServiceImpl implements TunnelService {
         if (null != destDevice) {
             tunnel.setDestDeviceName(destDevice.getDeviceName());
         }
-        // Bfd dynamic
-        BfdSession bfdSession = new BfdSession();
-        bfdSession.setDevice(device);
-        bfdSession.setMinRecvTime(tunnelServiceEntity.getBfdrxInterval());
-        bfdSession.setMinSendTime(tunnelServiceEntity.getBfdtxInterval());
-        bfdSession.setMultiplier(tunnelServiceEntity.getBfdMultiplier());
-        bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
-        tunnel.setBfdSession(bfdSession);
-        tunnel.setDynamicBfd(bfdSession);
 
-        // Bfd static
-        // Tunnel
-        BfdSession bfdTunnel = this.getBfdSessionByType(tunnelServiceEntity.getTunnelBfd(),BfdTypeEnum.Tunnel,device);
-        tunnel.setTunnelBfd(bfdTunnel);
-        // Master
-        BfdSession bfdMaster = this.getBfdSessionByType(tunnelServiceEntity.getMasterBfd(),BfdTypeEnum.Master,device);
-        tunnel.setDynamicBfd(bfdMaster);
-
+        // Bfd
         // Bfd type of tunnel
         tunnel.setBfdType(tunnelServiceEntity.getBfdType());
+        if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            // Bfd dynamic
+            BfdSession bfdSession = new BfdSession();
+            bfdSession.setDevice(device);
+            bfdSession.setMinRecvTime(tunnelServiceEntity.getBfdrxInterval());
+            bfdSession.setMinSendTime(tunnelServiceEntity.getBfdtxInterval());
+            bfdSession.setMultiplier(tunnelServiceEntity.getBfdMultiplier());
+            bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
+            tunnel.setBfdSession(bfdSession);
+            tunnel.setDynamicBfd(bfdSession);
+        }else if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()) {
+            // Bfd static
+            // Tunnel
+            BfdSession bfdTunnel = this.getBfdSessionByType(tunnelServiceEntity.getTunnelBfd(), BfdTypeEnum.Tunnel, device);
+            tunnel.setTunnelBfd(bfdTunnel);
+            // Master
+            BfdSession bfdMaster = this.getBfdSessionByType(tunnelServiceEntity.getMasterBfd(), BfdTypeEnum.Master, device);
+            tunnel.setMasterBfd(bfdMaster);
+        }
+
 
         AdjLabel label;
         if (tunnelServiceEntity.getMainPath().size() > 0) {
@@ -199,10 +204,13 @@ public class TunnelServiceImpl implements TunnelService {
         srTeTunnel.setMplsTunnelEgressLSRId(egressLSRId);
         srTeTunnel.setMplsTunnelIndex(tunnelId);
         srTeTunnel.setMplsTunnelBandwidth(bandwidth);
+
         // Dynamic bfd start
-        srTeTunnel.setMplsTeTunnelBfdMinTx(bfdMinTx);
-        srTeTunnel.setMplsTeTunnelBfdMinnRx(bfdMinRx);
-        srTeTunnel.setMplsTeTunnelBfdDetectMultiplier(multiplier);
+        //if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            srTeTunnel.setMplsTeTunnelBfdMinTx(bfdMinTx);
+            srTeTunnel.setMplsTeTunnelBfdMinnRx(bfdMinRx);
+            srTeTunnel.setMplsTeTunnelBfdDetectMultiplier(multiplier);
+        //}
         // Dynamic bfd end
 
         List<SSrTeTunnelPath> srTeTunnelPaths = new ArrayList<>();
@@ -727,14 +735,19 @@ public class TunnelServiceImpl implements TunnelService {
     private boolean createBfdSessions(NetconfClient netconfClient, TunnelServiceEntity tunnelServiceEntity){
         boolean ret = false;
         if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()){
-            ret = true;
-            return ret;
+            return true;
         }else{
             SBfdCfgSession tunnelBfd = this.getSBfdCfgSessionFromServiceEntity(tunnelServiceEntity.getTunnelBfd(),tunnelServiceEntity);
             SBfdCfgSession masterBfd = this.getSBfdCfgSessionFromServiceEntity(tunnelServiceEntity.getMasterBfd(),tunnelServiceEntity);
             List<SBfdCfgSession> sBfdCfgSessions = new ArrayList<SBfdCfgSession>();
             sBfdCfgSessions.add(tunnelBfd);
             sBfdCfgSessions.add(masterBfd);
+
+            // while tunnelBfd and masterBfd is NULL
+            // not need to set static bfd
+            if(sBfdCfgSessions.isEmpty()){
+                return true;
+            }
 
             String xml = BfdCfgSessionXml.createBfdCfgSessionsXml(sBfdCfgSessions);
             LOG.info(xml);

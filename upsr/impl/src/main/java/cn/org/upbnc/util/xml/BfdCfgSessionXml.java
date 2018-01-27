@@ -14,7 +14,8 @@ public class BfdCfgSessionXml {
     private static final Logger LOG = LoggerFactory.getLogger(cn.org.upbnc.util.xml.BfdCfgSessionXml.class);
 
     public static String createBfdCfgSessionsXml(List<SBfdCfgSession> bfdCfgSessions) {
-        String head = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+        String head ="<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"+
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config >\n";
 
         String target = "    <target>\n" +
@@ -99,7 +100,7 @@ public class BfdCfgSessionXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 org.dom4j.Element root = document.getRootElement();
-                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
                 for (org.dom4j.Element element : childElements) {
                     sBfdCfgSession = new SBfdCfgSession();
                     sBfdCfgSession.setSessName(element.elementText("sessName"));
@@ -134,7 +135,7 @@ public class BfdCfgSessionXml {
     private static String getBfdSession(SBfdCfgSession sBfdCfgSession) {
         String ret =
                 "        <bfdCfgSession xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"create\">\n" +
-                "            < sessName >"+ sBfdCfgSession.getSessName() +"</sessName >\n" +
+                "            <sessName >"+ sBfdCfgSession.getSessName() +"</sessName >\n" +
                 "            <minTxInt >" + sBfdCfgSession.getMinTxInt() + "</minTxInt >\n" +
                 "            <minRxInt >" + sBfdCfgSession.getMinRxInt() + "</minRxInt >\n" +
                 "            <linkType >" + sBfdCfgSession.getLinkType() + "</linkType >\n" +
