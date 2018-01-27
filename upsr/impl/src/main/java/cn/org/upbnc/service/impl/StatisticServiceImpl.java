@@ -12,13 +12,12 @@ import cn.org.upbnc.service.entity.StatisticsEntity;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.netconf.SIfClearedStat;
-import cn.org.upbnc.util.xml.IfClearedStatXml;
+import cn.org.upbnc.util.xml.StatisticXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class StatisticServiceImpl implements StatisticService {
     private static final Logger LOG = LoggerFactory.getLogger(StatisticServiceImpl.class);
@@ -87,9 +86,9 @@ public class StatisticServiceImpl implements StatisticService {
             routerId = device.getRouterId();
             netconfClient = this.netConfManager.getNetconClient(routerId);
             if (null != netconfClient) {
-                String sendMsg = IfClearedStatXml.getIfClearedStatXml("");
+                String sendMsg = StatisticXml.getIfClearedStatXml("");
                 String result = netconfController.sendMessage(netconfClient, sendMsg);
-                List<SIfClearedStat> sIfClearedStats = IfClearedStatXml.getIfClearedStatFromXml(result);
+                List<SIfClearedStat> sIfClearedStats = StatisticXml.getIfClearedStatFromXml(result);
                 List<Statistics> statistics = new ArrayList<>();
                 Statistics statistic;
                 for (SIfClearedStat sIfClearedStat : sIfClearedStats) {

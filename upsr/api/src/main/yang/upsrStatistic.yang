@@ -35,4 +35,14 @@ module upsrStatistic {
             }
         }
     }
+
+    rpc statisticSwitch {
+        input {
+            leaf switchValue { type string; }
+            leaf statisticInterval { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
 }

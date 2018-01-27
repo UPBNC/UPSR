@@ -3,14 +3,12 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.StatisticsApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.StatisticsEntity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.GetStatisticInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.GetStatisticOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.GetStatisticOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.UpsrStatisticService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.Statistics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.StatisticsBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -90,4 +88,21 @@ public class StatisticODLApi implements UpsrStatisticService {
         return statisticsList;
     }
 
+    @Override
+    public Future<RpcResult<StatisticSwitchOutput>> statisticSwitch(StatisticSwitchInput input) {
+        LOG.info("statisticSwitch end");
+        StatisticSwitchOutputBuilder statisticSwitchOutputBuilder = new StatisticSwitchOutputBuilder();
+        StatisticsThread statisticsThread = StatisticsThread.getInstance();
+        if (input.getSwitchValue() != null) {
+            statisticsThread.setSwitchValve(input.getSwitchValue());
+        }
+        if (input.getStatisticInterval() != null) {
+            statisticsThread.setStatisticInterval(Long.valueOf(input.getStatisticInterval()).longValue());
+        }
+        statisticSwitchOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("switch   : " + statisticsThread.getSwitchValve());
+        LOG.info("interval : " + statisticsThread.getStatisticInterval());
+        LOG.info("statisticSwitch end");
+        return RpcResultBuilder.success(statisticSwitchOutputBuilder.build()).buildFuture();
+    }
 }

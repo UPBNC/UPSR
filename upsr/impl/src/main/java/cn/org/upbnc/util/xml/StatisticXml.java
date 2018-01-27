@@ -10,8 +10,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IfClearedStatXml {
-    private static final Logger LOG = LoggerFactory.getLogger(IfClearedStatXml.class);
+public class StatisticXml {
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticXml.class);
 
     public static String getIfClearedStatXml(String ifName) {
         String start = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
