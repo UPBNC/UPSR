@@ -28,24 +28,24 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
     @Override
     public Future<RpcResult<GetRoutePolicysOutput>> getRoutePolicys(GetRoutePolicysInput input) {
         GetRoutePolicysOutputBuilder getRoutePolicysOutputBuilder = new GetRoutePolicysOutputBuilder();
-        LOG.info("getRoutePolicys input : " + input);
-        getRoutePolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
-
-        List<RoutePolicy> routePolicyList = new ArrayList<>();
-        for (int i = 1;i < 3; i++) {
-            RoutePolicyBuilder routePolicyBuilder = new RoutePolicyBuilder();
-            routePolicyBuilder.setPolicyName("policy_" + i);
-
-            List<RoutePolicyNode> routePolicyNodeList = new ArrayList<>();
-            for (int j = 1; j < 3; j++) {
-                RoutePolicyNodeBuilder routePolicyNodeBuilder = new RoutePolicyNodeBuilder();
-                routePolicyNodeBuilder.setNodeSequence(j + "0");
-                routePolicyNodeList.add(routePolicyNodeBuilder.build());
-            }
-            routePolicyBuilder.setRoutePolicyNode(routePolicyNodeList);
-            routePolicyList.add(routePolicyBuilder.build());
-        }
-        getRoutePolicysOutputBuilder.setRoutePolicy(routePolicyList);
+//        LOG.info("getRoutePolicys input : " + input);
+//        getRoutePolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+//
+//        List<RoutePolicy> routePolicyList = new ArrayList<>();
+//        for (int i = 1;i < 3; i++) {
+//            RoutePolicyBuilder routePolicyBuilder = new RoutePolicyBuilder();
+//            routePolicyBuilder.setPolicyName("policy_" + i);
+//
+//            List<RoutePolicyNode> routePolicyNodeList = new ArrayList<>();
+//            for (int j = 1; j < 3; j++) {
+//                RoutePolicyNodeBuilder routePolicyNodeBuilder = new RoutePolicyNodeBuilder();
+//                routePolicyNodeBuilder.setNodeSequence(j + "0");
+//                routePolicyNodeList.add(routePolicyNodeBuilder.build());
+//            }
+//            routePolicyBuilder.setRoutePolicyNode(routePolicyNodeList);
+//            routePolicyList.add(routePolicyBuilder.build());
+//        }
+//        getRoutePolicysOutputBuilder.setRoutePolicy(routePolicyList);
         return RpcResultBuilder.success(getRoutePolicysOutputBuilder.build()).buildFuture();
     }
 }
