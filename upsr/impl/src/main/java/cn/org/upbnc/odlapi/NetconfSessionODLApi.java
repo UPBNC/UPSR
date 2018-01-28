@@ -190,7 +190,26 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
 
     @Override
     public Future<RpcResult<ActConnectOutput>> actConnect(ActConnectInput input) {
-        return null;
+        boolean ret = false;
+        String action = input.getAction();
+        ActConnectOutputBuilder actConnectOutputBuilder = new ActConnectOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            actConnectOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(actConnectOutputBuilder.build()).buildFuture();
+        } else {
+            if ("主动断开".equals(action)) {
+                ret = (boolean) this.getNetconfSessionApi().delNetconfSession(input.getRouterId()).get(ResponseEnum.BODY.getName());
+            }
+            if ("主动连接".equals(action)) {
+                ret = this.getNetconfSessionApi().reconnectNetconfSession(input.getRouterId());
+            }
+            if (ret) {
+                actConnectOutputBuilder.setResult("success");
+                return RpcResultBuilder.success(actConnectOutputBuilder.build()).buildFuture();
+            }
+        }
+        actConnectOutputBuilder.setResult("failed");
+        return RpcResultBuilder.success(actConnectOutputBuilder.build()).buildFuture();
     }
 
     public void close() {
