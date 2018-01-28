@@ -17,7 +17,9 @@ import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.enumtype.VpnEnum.VpnAdvertiseCommunityEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnApplyLabelEnum;
+import cn.org.upbnc.enumtype.VpnEnum.VpnFrrStatusEnum;
 import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.DeviceBindBuilder;
@@ -360,7 +362,8 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             bindDevice.setApplyLabel(VpnApplyLabelEnum.netconf2cmd(vpnInstance.getApplyLabel()));
                             bindDevice.setTunnelPolicy(vpnInstance.getImportTunnelPolicyName());
                             bindDevice.setTtlMode(vpnInstance.getTtlMode());
-                            bindDevice.setVpnFrr(vpnInstance.getVpnFrr());
+                            bindDevice.setVpnFrr("true".equals(vpnInstance.getVpnFrr())?
+                                    VpnFrrStatusEnum.ENABLED.getName():VpnFrrStatusEnum.DISENABLED.getName());
                             bindDevice.setNotes(vpnInstance.getNote());
                             if (null != vpnInstance.getDeviceInterfaceList()) {
                                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.
@@ -409,7 +412,8 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             eBgp.setEbgpPreference(vpnInstance.getEbgpPreference());
                             eBgp.setIbgpPreference(vpnInstance.getIbgpPreference());
                             eBgp.setLocalPreference(vpnInstance.getLocalPreference());
-                            eBgp.setAdvertiseCommunity(vpnInstance.getAdvertiseCommunity());
+                            eBgp.setAdvertiseCommunity("true".equals(vpnInstance.getAdvertiseCommunity())?
+                                    VpnAdvertiseCommunityEnum.ENABLED.getName():VpnAdvertiseCommunityEnum.DISENABLED.getName());
                             bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());
                         }
