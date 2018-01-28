@@ -6,7 +6,18 @@ import cn.org.upbnc.util.netconf.NetconfClient;
 import java.util.List;
 
 public interface TunnelPolicyManager {
+
     List<TunnelPolicy> getAllTunnelPolicys(String routerID);
+
     List<TunnelPolicy> getAllTunnelPolicys();
+
+    TunnelPolicy getTunnelPolicy(String name);
+
+    boolean createTunnelPolicy(TunnelPolicy tunnelPolicy);
+
+    boolean deleteTunnelPolicyByName(String name);
+
+    boolean deleteTunnelPolicy(TunnelPolicy tunnelPolicy);
+
     boolean syncTunnelPolicyConf(NetconfClient netconfClient, String routerID);
 }

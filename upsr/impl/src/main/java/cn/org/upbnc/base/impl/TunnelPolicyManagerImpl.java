@@ -12,23 +12,23 @@ import cn.org.upbnc.util.xml.TunnelPolicyXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceManagerImpl.class);
     private static TunnelPolicyManager instance = null;
-    private List<TunnelPolicy> tunnelPolicyList = null;
+//    private List<TunnelPolicy> tunnelPolicyList = null;
+    private Map<String,TunnelPolicy> tunnelPolicyMap;
 
-    public TunnelPolicyManagerImpl() {
-        this.tunnelPolicyList = new ArrayList<TunnelPolicy>();
+    private TunnelPolicyManagerImpl() {
+        this.tunnelPolicyMap = new HashMap<String,TunnelPolicy>();
     }
 
-    public TunnelPolicyManagerImpl(List<TunnelPolicy> tunnelPolicyList) {
-        this.tunnelPolicyList = tunnelPolicyList;
-    }
+//    public TunnelPolicyManagerImpl(List<TunnelPolicy> tunnelPolicyList) {
+//        this.tunnelPolicyList = tunnelPolicyList;
+//    }
 
     public static TunnelPolicyManager getInstance() {
         if (null == instance) {
@@ -39,27 +39,85 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
 
     @Override
     public List<TunnelPolicy> getAllTunnelPolicys(String routerID) {
-        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
-        if(null==this.tunnelPolicyList){
-            return tunnelPolicyList;
+        if(this.tunnelPolicyMap.isEmpty()){
+            return null;
         }
-        for(TunnelPolicy t :this.tunnelPolicyList){
+        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
+        Collection<TunnelPolicy> collection = this.tunnelPolicyMap.values();
+        for(TunnelPolicy t : collection){
             if(t.getRouterID().equals(routerID)){
                 tunnelPolicyList.add(t);
             }
         }
         return tunnelPolicyList;
+//        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
+//        if(null==this.tunnelPolicyList){
+//            return tunnelPolicyList;
+//        }
+//        for(TunnelPolicy t :this.tunnelPolicyList){
+//            if(t.getRouterID().equals(routerID)){
+//                tunnelPolicyList.add(t);
+//            }
+//        }
+//        return tunnelPolicyList;
     }
 
+    @Override
     public List<TunnelPolicy> getAllTunnelPolicys() {
-        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
-        if(null==this.tunnelPolicyList){
-            return tunnelPolicyList;
-        }
-        return this.tunnelPolicyList;
-
+        return new ArrayList<>(this.tunnelPolicyMap.values());
+//        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
+//        if(null==this.tunnelPolicyList){
+//            return tunnelPolicyList;
+//        }
+//        return this.tunnelPolicyList;
     }
 
+    @Override
+    public TunnelPolicy getTunnelPolicy(String name){
+//        TunnelPolicy tunnelPolicyList
+        if(null != name) {
+            return this.tunnelPolicyMap.get(name);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean createTunnelPolicy(TunnelPolicy tunnelPolicy){
+        boolean isCreate = false;
+        if(null != tunnelPolicy) {
+            isCreate = createTunnelPolicyToDevice(tunnelPolicy);
+            if(isCreate) {
+                this.tunnelPolicyMap.put(tunnelPolicy.getTnlPolicyName(), tunnelPolicy);
+            }
+        }
+        return isCreate;
+    }
+
+    @Override
+    public boolean deleteTunnelPolicyByName(String name){
+        boolean isDelete = false;
+        if(null!= name){
+            isDelete = deleteTunnelPolicyFromDeviceByName(name);
+            if(isDelete) {
+                this.tunnelPolicyMap.remove(name);
+            }
+        }
+        return isDelete;
+    }
+
+    @Override
+    public boolean deleteTunnelPolicy(TunnelPolicy tunnelPolicy){
+        boolean isDelete = false;
+        if(null!= tunnelPolicy){
+            isDelete = deleteTunnelPolicyFromDevice(tunnelPolicy);
+            if(isDelete) {
+                this.tunnelPolicyMap.remove(tunnelPolicy.getTnlPolicyName());
+            }
+        }
+        return isDelete;
+    }
+
+    @Override
     public boolean syncTunnelPolicyConf(NetconfClient netconfClient,String routerID) {
         if(null==netconfClient){
             return  false;
@@ -79,7 +137,8 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
             if(null==tunnelPolicy){
                 break;
             }
-            this.tunnelPolicyList.add(tunnelPolicy);
+            //this.tunnelPolicyList.add(tunnelPolicy);
+            this.tunnelPolicyMap.put(tunnelPolicy.getTnlPolicyName(),tunnelPolicy);
         }
         return true;
     }
@@ -142,5 +201,20 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
         tnlSelSeq.setLoadBalanceNum(sTnlSelSeq.getLoadBalanceNum());
         tnlSelSeq.setUnmix(sTnlSelSeq.isUnmix());
         return  tnlSelSeq;
+    }
+
+    private boolean createTunnelPolicyToDevice(TunnelPolicy tunnelPolicy){
+        boolean ret = false;
+        return ret;
+    }
+
+    private boolean deleteTunnelPolicyFromDeviceByName(String name){
+        boolean ret = false;
+        return ret;
+    }
+
+    private boolean deleteTunnelPolicyFromDevice(TunnelPolicy tunnelPolicy){
+        boolean ret = false;
+        return ret;
     }
 }

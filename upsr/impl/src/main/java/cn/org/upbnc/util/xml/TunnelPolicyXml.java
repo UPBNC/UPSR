@@ -29,6 +29,11 @@ public class TunnelPolicyXml {
                 "</rpc>";
     }
 
+    public static String deleteTunnelPolicyXml(List<String> tnl) {
+        return null;
+    }
+
+
     public static List<STunnelPolicy> getSTunnelPolicyFromXml(String xml){
         List<STunnelPolicy> sTunnelPolicyList = new ArrayList<>();
         if(null==xml||xml.isEmpty()){//判断xml是否为空
