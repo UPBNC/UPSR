@@ -80,6 +80,7 @@ public class VPNServiceImpl implements VPNService {
         List<DeviceInterface> deviceInterfaceList = updateVpnInstance.getDeviceInterfaceList();
         List<NetworkSeg> networkSegList = updateVpnInstance.getNetworkSegList();
 
+
         boolean ret = false;
         Device device = null;
         VPNInstance vpnInstance = null;
