@@ -17,6 +17,7 @@ import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.enumtype.VpnEnum.VpnApplyLabelEnum;
 import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.DeviceBindBuilder;
@@ -244,6 +245,12 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     String network = null;
                     String mask = null;
                     Address peerIP_Address = null;
+                    String routerImportPolicy = null;
+                    String routerExportPolicy = null;
+                    String ebgpPreference = null;
+                    String ibgpPreference = null;
+                    String localPreference = null;
+                    String advertiseCommunity = null;
 
                     if (null != ebgp) {
                         peerIP = ebgp.getPeerIP();
@@ -257,6 +264,12 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(mask, AddressTypeEnum.V4));
                             networkSegList.add(networkSeg);
                         }
+                        routerImportPolicy = ebgp.getRouterImportPolicy();
+                        routerExportPolicy = ebgp.getRouterExportPolicy();
+                        ebgpPreference = ebgp.getEbgpPreference();
+                        ibgpPreference = ebgp.getIbgpPreference();
+                        localPreference = ebgp.getLocalPreference();
+                        advertiseCommunity = ebgp.getAdvertiseCommunity();
                     }
                     if (null != peerIP) {
                         peerIP_Address = new Address(peerIP, AddressTypeEnum.V4);
@@ -279,8 +292,10 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     //调用系统Api层函数
                     UpdateVpnInstance updateVpnInstance = new UpdateVpnInstance(vpnName, routerId, businessArea,
                             vpnRd, vpnRT, vpnRT, peerAs, peerIP_Address, null, importDirect,
-                            deviceInterfaceList, networkSegList);
-                    updateVpnInstance.setNote(bindDevice.getNotes());
+                            deviceInterfaceList, networkSegList,bindDevice.getTunnelPolicy(),bindDevice.getVpnFrr(),bindDevice.getApplyLabel(),
+                            bindDevice.getTtlMode(),routerImportPolicy,routerExportPolicy,ebgpPreference,ibgpPreference,
+                            localPreference,advertiseCommunity,bindDevice.getNotes());
+
                     ret = (boolean) this.getVpnInstanceApi().updateVpnInstance(updateVpnInstance
                     ).get(ResponseEnum.BODY.getName());
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
@@ -342,6 +357,10 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             bindDevice.setVpnExport(vpnInstance.getExportRT());
                             bindDevice.setVpnImport(vpnInstance.getImportRT());
                             bindDevice.setVpnRd(vpnInstance.getRd());
+                            bindDevice.setApplyLabel(VpnApplyLabelEnum.netconf2cmd(vpnInstance.getApplyLabel()));
+                            bindDevice.setTunnelPolicy(vpnInstance.getImportTunnelPolicyName());
+                            bindDevice.setTtlMode(vpnInstance.getTtlMode());
+                            bindDevice.setVpnFrr(vpnInstance.getVpnFrr());
                             bindDevice.setNotes(vpnInstance.getNote());
                             if (null != vpnInstance.getDeviceInterfaceList()) {
                                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.
@@ -390,6 +409,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             eBgp.setEbgpPreference(vpnInstance.getEbgpPreference());
                             eBgp.setIbgpPreference(vpnInstance.getIbgpPreference());
                             eBgp.setLocalPreference(vpnInstance.getLocalPreference());
+                            eBgp.setAdvertiseCommunity(vpnInstance.getAdvertiseCommunity());
                             bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());
                         }

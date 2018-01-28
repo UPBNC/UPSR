@@ -36,7 +36,17 @@ public interface VpnInstanceManager {
                                   Integer importDirectRouteEnable,
                                   List<DeviceInterface> deviceInterfaceList,
                                   List<NetworkSeg> networkSegList,
-                                  String note);
+                                  String note,
+                                  String importTunnelPolicyName,
+                                  String vpnFrr,
+                                  String applyLabel,
+                                  String ttlMode,
+                                  String ebgpPreference,
+                                  String ibgpPreference,
+                                  String localPreference,
+                                  String importRoutePolicyName,
+                                  String exportRoutePolicyName,
+                                  String advertiseCommunity);
 
     VPNInstance updateVpnInstance(VPNInstance vpnInstance);
 

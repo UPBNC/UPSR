@@ -131,7 +131,17 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
                                          String businessRegion, String rd, String importRT,
                                          String exportRT, Integer peerAS, Address peerIP,
                                          Integer routeSelectDelay, Integer importDirectRouteEnable,
-                                         List<DeviceInterface> deviceInterfaceList, List<NetworkSeg> networkSegList, String note) {
+                                         List<DeviceInterface> deviceInterfaceList, List<NetworkSeg> networkSegList, String note,
+                                         String importTunnelPolicyName,
+                                         String vpnFrr,
+                                         String applyLabel,
+                                         String ttlMode,
+                                         String ebgpPreference,
+                                         String ibgpPreference,
+                                         String localPreference,
+                                         String importRoutePolicyName,
+                                         String exportRoutePolicyName,
+                                         String advertiseCommunity) {
         LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName});
         if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty())
             return null;
@@ -186,6 +196,16 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
                 this.vpnInstanceList.add(vpnInstance);
             }
         }
+        vpnInstance.setImportTunnelPolicyName(importTunnelPolicyName);
+        vpnInstance.setVpnFrr(vpnFrr);
+        vpnInstance.setApplyLabel(applyLabel);
+        vpnInstance.setTtlMode(ttlMode);
+        vpnInstance.setEbgpPreference(ebgpPreference);
+        vpnInstance.setIbgpPreference(ibgpPreference);
+        vpnInstance.setLocalPreference(localPreference);
+        vpnInstance.setImportRoutePolicyName(importRoutePolicyName);
+        vpnInstance.setExportRoutePolicyName(exportRoutePolicyName);
+        vpnInstance.setAdvertiseCommunity(advertiseCommunity);
         LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT});
         return vpnInstance;
     }

@@ -13,7 +13,7 @@ public class SBgpVrfAF {
     }
 
     public void setPreferenceExternal(String preferenceExternal) {
-        this.preferenceExternal = preferenceExternal;
+        this.preferenceExternal = (preferenceExternal == null || preferenceExternal.equals(""))? "255":preferenceExternal;
     }
 
     public String getPreferenceInternal() {
@@ -21,7 +21,7 @@ public class SBgpVrfAF {
     }
 
     public void setPreferenceInternal(String preferenceInternal) {
-        this.preferenceInternal = preferenceInternal;
+        this.preferenceInternal = (preferenceInternal == null || preferenceInternal.equals(""))? "255":preferenceInternal;
     }
 
     public String getPreferenceLocal() {
@@ -29,7 +29,7 @@ public class SBgpVrfAF {
     }
 
     public void setPreferenceLocal(String preferenceLocal) {
-        this.preferenceLocal = preferenceLocal;
+        this.preferenceLocal = (preferenceLocal == null || preferenceLocal.equals(""))? "255":preferenceLocal;
     }
 
     public List<SPeerAF> getPeerAFs() {

@@ -135,6 +135,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         if (netconfSession.isFlag()) {
             saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, NetConfStatusEnum.Unknown.name());
             NetConf netConf = this.netConfManager.addDevice(netconf);
+            String message = getStatus(netConf.getStatus().name());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), message);
             saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, netConf.getStatus().name());
             if (netConf.getStatus() == NetConfStatusEnum.Connected) {
                 if ((null != netconf) && (null != netconf.getIp())) {
@@ -161,7 +163,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             }
         } else {
             device.setSysName("");
-//            this.netConfManager.setDevice(netconf.getRouterID(), setStatus(netconfSession.getStatus()));
         }
         return resultMap;
     }
