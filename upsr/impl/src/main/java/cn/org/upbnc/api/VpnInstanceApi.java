@@ -38,4 +38,6 @@ public interface VpnInstanceApi {
     Map<String, Object> isContainVpnName(String vpnName);
 
     Map<String, Object> isContainRd(String routerId, String rd);
+
+    Map<String, Object> createTunnelsByVpnTemplate(String vpnName);
 }

@@ -42,5 +42,7 @@ public interface VPNService {
 
     Map<String, Object> isContainRd(String routerId, String rd);
 
+    public Map<String, Object> createTunnelsByVpnTemplate(String vpnName);
+
     String getTest();
 }

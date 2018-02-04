@@ -45,4 +45,7 @@ public interface TunnelManager {
 
     Map<String,Tunnel> syncTunnelsConf(String routerId, NetconfClient netconfClient);
 
+    Map<String, Map<String, Tunnel>> getTunnelMap();
+
+    Map<String, Map<Integer, BfdSession>> getBfdSessionMap();
 }

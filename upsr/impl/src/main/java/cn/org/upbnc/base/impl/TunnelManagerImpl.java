@@ -250,6 +250,16 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
+    @Override
+    public Map<String, Map<String, Tunnel>> getTunnelMap() {
+        return tunnelMap;
+    }
+
+    @Override
+    public Map<String, Map<Integer, BfdSession>> getBfdSessionMap() {
+        return bfdSessionMap;
+    }
+
     private boolean createTunnelListTotalToDevice(List<Tunnel> tunnels, NetconfClient netconfClient){
         List<SSrTeTunnel> srTeTunnels = new ArrayList<SSrTeTunnel>();
         List<SExplicitPath> explicitPaths = new ArrayList<SExplicitPath>();

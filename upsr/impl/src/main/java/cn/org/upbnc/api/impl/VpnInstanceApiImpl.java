@@ -166,4 +166,8 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         }
         return (null == this.vpnService) ? null : this.vpnService.isContainRd(routerId, rd);
     }
+
+    public Map<String, Object> createTunnelsByVpnTemplate(String vpnName) {
+        return (null == this.vpnService) ? null : this.vpnService.createTunnelsByVpnTemplate(vpnName);
+    }
 }

@@ -4,7 +4,8 @@ public enum BfdMinIntervalEnum {
     TunnelMinTX(1, "300"),
     TunnelMinRX(2, "300"),
     LSPMinTX(3, "200"),
-    LSPMinRX(4,"200");
+    LSPMinRX(4,"200"),
+    Multiplier(5,"3");
 
 
     private int code;

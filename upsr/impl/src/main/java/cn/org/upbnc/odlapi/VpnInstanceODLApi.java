@@ -311,6 +311,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                 }
                 //vpnInstanceUpdateOutputBuilder.setResult("success");
                 vpnInstanceUpdateOutputBuilder.setMessage(message);
+                vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
                 return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
             }
         }

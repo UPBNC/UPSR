@@ -45,6 +45,9 @@ public class VPNServiceImpl implements VPNService {
     private Map<String, List<String>> tunnelMapTemp;
     private Map<String, List<Integer>> bfdDiscriminatorTemp;
 
+//    private Map<String, Map<String, Tunnel>> tunnelMapTemp;
+//    private Map<String, List<Integer>> bfdDiscriminatorTemp;
+
     public static VPNService getInstance() {
         if (null == ourInstance) {
             ourInstance = new VPNServiceImpl();
@@ -796,84 +799,147 @@ public class VPNServiceImpl implements VPNService {
      * Create Tunnels TunnelPolicys Bfds from topo
      *
      *********************************************/
+    @Override
+    public Map<String, Object> createTunnelsByVpnTemplate(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
 
-    public void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies){
+        Map<String,List<Tunnel>> tunnelsMap = new HashMap<>();
+        List<TunnelPolicy> tunnelPolicyList = new ArrayList<>();
+        this.createTunnelsFromTopo(tunnelsMap, tunnelPolicyList);
 
+        Map<String,List<Tunnel>> tunnelsRouterKeyMap = new HashMap<>();
+
+        for (List<Tunnel> list: tunnelsMap.values()) {
+            for(Tunnel t : list){
+                String routerId = t.getDevice().getRouterId();
+                List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
+                if(tunnels == null){
+                    tunnels = new ArrayList<Tunnel>();
+                    tunnelsRouterKeyMap.put(routerId,tunnels);
+                }
+                tunnels.add(t);
+            }
+        }
+
+        for(String routerId : tunnelsRouterKeyMap.keySet()) {
+            List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
+            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+            this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
+        }
+        return resultMap;
+    }
+
+    private void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies){
+
+        // Tunnel id & bfd local id map
+        // Attention: create ids
         this.tunnelMapTemp = new HashMap<>();
         this.bfdDiscriminatorTemp = new HashMap<>();
+        this.getCurrentTunnelData(this.tunnelMapTemp,this.bfdDiscriminatorTemp);
 
+        //建立区域：上海、北京等
         Map<String,List<Device>> area =this.deviceManager.getAreaDeviceList();
 //        Map<String,List<Tunnel>> tunnels = new HashMap<String, List<Tunnel>>();
 //        List<TunnelPolicy> tunnelPolicies = new ArrayList<TunnelPolicy>();
 
+        // 按照区域分割，循环创建隧道，
+        // 仅限实体，不下发到设备命令
         Set<Map.Entry<String,List<Device>>> areaSet = area.entrySet();
         Iterator<Map.Entry<String,List<Device>>> iterator = areaSet.iterator();
         while(iterator.hasNext()){
             Map.Entry<String,List<Device>> entry = iterator.next();
-            this.createByArea(entry,area,tunnelPolicies,tunnels);
+            this.createTunnelsByArea(entry,area,tunnelPolicies,tunnels);
         }
-
 
         return;
     }
 
-    private void createByArea(Map.Entry<String,List<Device>> entry,
+    // 通过区域创建隧道
+    // 仅限实体，不下发到设备命令
+    private void createTunnelsByArea(Map.Entry<String,List<Device>> entry,
                               Map<String,List<Device>> area,
                               List<TunnelPolicy> tunnelPolicies,
                               Map<String,List<Tunnel>> tunnels){
 
         String currentArea = entry.getKey();
         List<Device> currentDevice = entry.getValue();
-        Set<String> allArea = new HashSet<>(area.keySet());
-        // remove current area
-        allArea.remove(currentArea);
+        // create other areas' routerId
+        Set<String> otherAreas = new HashSet<>(area.keySet());
+        // remove current area routerId
+        otherAreas.remove(currentArea);
 
+        // 循环本区域里设备，和其他区域里设备创建隧道
+        // 本区域内不创建隧道
         for(Device device:currentDevice){
-            for(String other : allArea){
-                List<Device> list = area.get(other);
-                this.createByDeviceToOtherArea(device,list,tunnelPolicies,tunnels);
+            for(String other : otherAreas){
+                List<Device> otherDeveicelist = area.get(other);
+                this.createTunnelsByDeviceToOtherArea(device,otherDeveicelist,tunnelPolicies,tunnels);
             }
         }
 
         return;
     }
 
-    private void createByDeviceToOtherArea(Device device,
+    // 本设备和其他区域里设备创建隧道
+    private void createTunnelsByDeviceToOtherArea(Device device,
                                            List<Device> list,
                                            List<TunnelPolicy> tunnelPolicies,
                                            Map<String,List<Tunnel>> tunnels){
+        // 本设备和选定区域里的设备，循环建立隧道
         for(Device t : list){
             this.createTPByDeviceSrcToDeviceDest(device,t,tunnelPolicies,tunnels);
         }
         return;
     }
 
+    /*
+    R1------->R2  | Tunnel_1
+                  | Tunnel_2
+                  | Tunnel_3
+    R1------->R3  | Tunnel_11
+                  | Tunnel_21
+                  | Tunnel_31
+    policy:
+         policy1  |TpNexthop | Tunnel_1
+                             | Tunnel_2
+                             | Tunnel_3
+                  |TpNexthop | Tunnel_1
+                             | Tunnel_2
+                             | Tunnel_3
+     */
+
     private void createTPByDeviceSrcToDeviceDest(Device s,Device d,
                                                  List<TunnelPolicy> tunnelPolicies,
                                                  Map<String,List<Tunnel>> tunnels){
         String keySD = s.getSysName() + "_" + d.getSysName();
         String keyDS = d.getSysName() + "_" + s.getSysName();
-
+        if ((tunnels.get(keySD) != null) || (tunnels.get(keyDS) != null)) {
+            LOG.info("Tunnel has benn created : " + keySD);
+        }
+        //tunnels
         List<Tunnel> listSD = new ArrayList<Tunnel>();
         List<Tunnel> listDS = new ArrayList<Tunnel>();
         tunnels.put(keySD,listSD);
         tunnels.put(keyDS,listDS);
 
+        //tunnelPolicies：为不同的设备创建policy
         TunnelPolicy tpS = this.getTunnelPolicy(s.getRouterId(),tunnelPolicies);
         TunnelPolicy tpD = this.getTunnelPolicy(d.getRouterId(),tunnelPolicies);
         List<TpNexthop> tpNexthopsS = tpS.getTpNexthops();
         List<TpNexthop> tpNexthopsD = tpD.getTpNexthops();
-
+        //为不同设备的policey创建Nexthop，设备上相同目的提的隧道被放入同一Nexthop中
         TpNexthop tpNexthopS = this.getTpNextHopFromDest(d.getRouterId(),tpNexthopsS);
         TpNexthop tpNexthopD = this.getTpNextHopFromDest(s.getRouterId(),tpNexthopsD);
 
+        //不同区域的两个设备之间，在每个设备上分别需要创建三条隧道到，隧道属性相同，除了serviceclass不同
         TunnelServiceClass tscAF1 = new TunnelServiceClass();
         tscAF1.setAf1(true);
         TunnelServiceClass tscAF3 = new TunnelServiceClass();
         tscAF3.setAf3(true);
         TunnelServiceClass tscEF = new TunnelServiceClass();
         tscEF.setEf(true);
-
+        //正反向同时创建隧道，并放入各自设备的隧道链表当中
+        // 将创建好的隧道名称放入各自设备的policy中，相同目的地的隧道放在policy的同一Nexthop中
         this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscAF1);
         this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscAF3);
         this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscEF);
@@ -892,23 +958,32 @@ public class VPNServiceImpl implements VPNService {
         Tunnel tunnelSD = new Tunnel();
         Tunnel tunnelDS = new Tunnel();
 
-        tunnelSD.setDevice(s);
-        tunnelSD.setBfdType(BfdTypeEnum.Static.getCode());
-        tunnelSD.setDestRouterId(d.getRouterId());
-        tunnelSD.setServiceClass(tsc);
-        tunnelSD.setTunnelName(this.getTunnelName(s.getRouterId()));
+        tunnelSD = this.createAutoTunnelByVpn(s,d,tsc);
         tpNexthopS.addTpTunnels(tunnelSD.getTunnelName());
+        listSD.add(tunnelSD);
 
-        tunnelDS.setDevice(d);
-        tunnelDS.setBfdType(BfdTypeEnum.Static.getCode());
-        tunnelDS.setDestRouterId(s.getRouterId());
-        tunnelDS.setServiceClass(tsc);
-        tunnelDS.setTunnelName(this.getTunnelName(s.getRouterId()));
+        tunnelDS = this.createAutoTunnelByVpn(d,s,tsc);
         tpNexthopD.addTpTunnels(tunnelDS.getTunnelName());
+        listDS.add(tunnelDS);
 
         this.createBfdByDeviceSrcToDeviceDest(tunnelSD,tunnelDS);
-
         return;
+    }
+
+    private String getTunelIdByTunnelName(String tunnelName) {
+        String[] tunnel = tunnelName.split("Tunnel");
+        return tunnel[1];
+    }
+
+    private Tunnel createAutoTunnelByVpn(Device s, Device d, TunnelServiceClass tsc) {
+        Tunnel tunnel = new Tunnel();
+        tunnel.setDevice(s);
+        tunnel.setBfdType(BfdTypeEnum.Static.getCode());
+        tunnel.setDestRouterId(d.getRouterId());
+        tunnel.setServiceClass(tsc);
+        tunnel.setTunnelName(this.getTunnelName(s.getRouterId()));
+        tunnel.setTunnelId(this.getTunelIdByTunnelName(tunnel.getTunnelName()));
+        return tunnel;
     }
 
     private void createBfdByDeviceSrcToDeviceDest(Tunnel tunnelSD,Tunnel tunnelDS){
@@ -918,45 +993,45 @@ public class VPNServiceImpl implements VPNService {
         BfdSession bfdDSLSP = new BfdSession();
 
         String bfdSDTunnelLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
-        String bfdDSTunnelLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+        String bfdDSTunnelLocal = this.getBfdDiscriminator(tunnelDS.getDevice().getRouterId());
         String bfdSDLSPLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
-        String bfdDSLSPLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+        String bfdDSLSPLocal = this.getBfdDiscriminator(tunnelDS.getDevice().getRouterId());
 
-        bfdSDTunnel.setBfdName(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName());
-        bfdSDTunnel.setType(BfdTypeEnum.Tunnel.getCode());
-        bfdSDTunnel.setMinSendTime(BfdMinIntervalEnum.TunnelMinTX.getName());
-        bfdSDTunnel.setMinRecvTime(BfdMinIntervalEnum.TunnelMinRX.getName());
-        bfdSDTunnel.setDiscriminatorLocal(bfdSDTunnelLocal);
-        bfdSDTunnel.setDiscriminatorRemote(bfdDSTunnelLocal);
+        bfdSDTunnel = this.createAutoTunnelBfdByVpn(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName(),
+                BfdTypeEnum.Tunnel.getCode(), bfdSDTunnelLocal, bfdDSTunnelLocal);
         tunnelSD.setTunnelBfd(bfdSDTunnel);
 
-        bfdDSTunnel.setBfdName(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName());
-        bfdDSTunnel.setType(BfdTypeEnum.Tunnel.getCode());
-        bfdDSTunnel.setMinSendTime(BfdMinIntervalEnum.TunnelMinTX.getName());
-        bfdDSTunnel.setMinRecvTime(BfdMinIntervalEnum.TunnelMinRX.getName());
-        bfdDSTunnel.setDiscriminatorLocal(bfdDSTunnelLocal);
-        bfdDSTunnel.setDiscriminatorRemote(bfdSDTunnelLocal);
+        bfdDSTunnel = this.createAutoTunnelBfdByVpn(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName(),
+                BfdTypeEnum.Tunnel.getCode(),bfdDSTunnelLocal,bfdSDTunnelLocal);
         tunnelDS.setTunnelBfd(bfdDSTunnel);
 
-        bfdSDLSP.setBfdName(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Master.getName());
-        bfdSDLSP.setType(BfdTypeEnum.Master.getCode());
-        bfdSDLSP.setMinSendTime(BfdMinIntervalEnum.LSPMinTX.getName());
-        bfdSDLSP.setMinRecvTime(BfdMinIntervalEnum.LSPMinRX.getName());
-        bfdSDLSP.setDiscriminatorLocal(bfdSDLSPLocal);
-        bfdSDLSP.setDiscriminatorRemote(bfdDSLSPLocal);
+        bfdSDLSP = this.createAutoTunnelBfdByVpn(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Master.getName(),
+                BfdTypeEnum.Master.getCode(), bfdSDLSPLocal, bfdDSLSPLocal);
         tunnelSD.setMasterBfd(bfdSDLSP);
 
-        bfdDSLSP.setBfdName(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Master.getName());
-        bfdDSLSP.setType(BfdTypeEnum.Master.getCode());
-        bfdDSLSP.setMinSendTime(BfdMinIntervalEnum.LSPMinTX.getName());
-        bfdDSLSP.setMinRecvTime(BfdMinIntervalEnum.LSPMinRX.getName());
-        bfdDSLSP.setDiscriminatorLocal(bfdDSLSPLocal);
-        bfdDSLSP.setDiscriminatorRemote(bfdSDLSPLocal);
+        bfdDSLSP = this.createAutoTunnelBfdByVpn(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Master.getName(),
+                BfdTypeEnum.Master.getCode(), bfdDSLSPLocal, bfdSDLSPLocal);
         tunnelDS.setMasterBfd(bfdDSLSP);
-
         return;
     }
 
+    private BfdSession createAutoTunnelBfdByVpn(String bfdName, int bfdType, String local, String remote) {
+        BfdSession bfdSession = new BfdSession();
+        bfdSession.setBfdName(bfdName);
+        bfdSession.setType(new Integer(bfdType));
+        if (BfdTypeEnum.Master.getCode() == bfdType) {
+            bfdSession.setMinSendTime(BfdMinIntervalEnum.LSPMinTX.getName());
+            bfdSession.setMinRecvTime(BfdMinIntervalEnum.LSPMinRX.getName());
+        } else {
+            bfdSession.setMinSendTime(BfdMinIntervalEnum.TunnelMinTX.getName());
+            bfdSession.setMinRecvTime(BfdMinIntervalEnum.TunnelMinRX.getName());
+        }
+        bfdSession.setDiscriminatorLocal(local);
+        bfdSession.setDiscriminatorRemote(remote);
+        bfdSession.setMultiplier(BfdMinIntervalEnum.Multiplier.getName());
+
+        return bfdSession;
+    }
 
     private TunnelPolicy getTunnelPolicy(String routerId,List<TunnelPolicy> tunnelPolicies){
         TunnelPolicy tunnelPolicy = null;
@@ -1003,8 +1078,7 @@ public class VPNServiceImpl implements VPNService {
                 return tunnelName;
             }
 
-            if (!(tunnelManager.isTunnelNameAndIdUsed(routerId, tunnelName, index +"")) &&
-                    !tunnelNameList.contains(tunnelName)) {
+            if (!tunnelNameList.contains(tunnelName)) {
                 tunnelNameList.add(tunnelName);
                 return tunnelName;
             }
@@ -1024,8 +1098,7 @@ public class VPNServiceImpl implements VPNService {
                 this.bfdDiscriminatorTemp.put(routerId,bfdIdList);
                 return index + "";
             }
-            if (!tunnelManager.isBfdDiscriminatorLocalUsed(routerId,index) &&
-                    !bfdIdList.contains(new Integer(index))) {
+            if (!bfdIdList.contains(new Integer(index))) {
                 bfdIdList.add(new Integer(index));
                 return index + "";
             }
@@ -1040,5 +1113,40 @@ public class VPNServiceImpl implements VPNService {
         List<TunnelPolicy> tunnelPolicies = new ArrayList<TunnelPolicy>();
     }
 
+    private void getCurrentTunnelData(Map<String, List<String>> tunnelMapTemp,
+                                      Map<String, List<Integer>> bfdDiscriminatorTemp){
+
+        for(Map.Entry<String,Map<String,Tunnel>> e: this.tunnelManager.getTunnelMap().entrySet()){
+            String routerId = e.getKey();
+            Map<String,Tunnel> map= e.getValue();
+
+            List<String> tunnelIdList = new ArrayList<String>(map.keySet());
+            tunnelMapTemp.put(routerId,tunnelIdList);
+        }
+
+        for(Map.Entry<String,Map<Integer,BfdSession>> e: this.tunnelManager.getBfdSessionMap().entrySet()){
+            String routerId = e.getKey();
+            Map<Integer,BfdSession> map = e.getValue();
+
+            List<Integer> bfdLocalList = new ArrayList<Integer>(map.keySet());
+            bfdDiscriminatorTemp.put(routerId,bfdLocalList);
+        }
+        return;
+    }
+
+//    private void cloneCurrentData(Map<String, List> destMap,Map<String, Map> sourceMap){
+//
+//        if( null!= sourceMap && !sourceMap.isEmpty()){
+//            for(Map.Entry<String,Map> e : sourceMap.entrySet()){
+//                String routerId = e.getKey();
+//                Map map = e.getValue();
+//
+//                List destList = new ArrayList(map.keySet());
+//                destMap.put(routerId,destList);
+//            }
+//        }
+//
+//        return;
+//    }
 
 }

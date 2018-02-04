@@ -33,7 +33,7 @@ public class SrTeTunnelXml {
                     "            <tunnelName>" + srTeTunnel.getTunnelName() + "</tunnelName>\n" +
                     "            <mplsTunnelEgressLSRId>" + srTeTunnel.getMplsTunnelEgressLSRId() + "</mplsTunnelEgressLSRId>\n" +
                     "            <mplsTunnelIndex>" + srTeTunnel.getMplsTunnelIndex() + "</mplsTunnelIndex>\n" +
-                    "            <hotStandbyEnable>true</hotStandbyEnable>" +
+                    "            <hotStandbyEnable>true</hotStandbyEnable>\n" +
                     "            <mplsTeTunnelSetupPriority>" + srTeTunnel.getMplsTeTunnelSetupPriority() + "</mplsTeTunnelSetupPriority>\n" +
                     "            <holdPriority>" + srTeTunnel.getHoldPriority() + "</holdPriority>\n";
             if (!("".equals(srTeTunnel.getMplsTunnelBandwidth()))) {
@@ -108,13 +108,13 @@ public class SrTeTunnelXml {
                             "          </ipv4Config>\n" +
                             "        </interface>\n" +
                             "      </interfaces>\n" +
-                            "    </ifm>\n" +
-                            "  </config>\n";
+                            "    </ifm>\n";
             middle = middle + pathsStart + middleEnd;
         }
         String end =
-                "</edit-config>" +
-                        "</rpc>";
+                "  </config>\n" +
+                "</edit-config>\n" +
+                "</rpc>";
         return start + middle + end;
     }
 
