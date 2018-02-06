@@ -87,7 +87,7 @@ public class CaculaterPaths {
         currentPath.setDst(src);
         currentPaths.add(currentPath);
 
-        while( currentPathNum < MAX_PATH && currentStep < MaxStep && currentPaths.isEmpty()){
+        while( currentPathNum < MAX_PATH && currentStep < MaxStep && !currentPaths.isEmpty()){
 
             // circle the current
             for(PathUtil p : currentPaths){
@@ -96,11 +96,13 @@ public class CaculaterPaths {
                 List<NodeNeighbor> list = neighbors.getNeighborList();
                 for(NodeNeighbor n : list){
                     PathUtil tempP = createPaths(p,n);
-                    if(tempP.getDst().equals(dst)){
-                        ret.add(tempP);
-                        currentPathNum++;
-                    }else{
-                        tempCurrentPaths.add(tempP);
+                    if(tempP != null) {
+                        if (tempP.getDst().equals(dst)) {
+                            ret.add(tempP);
+                            currentPathNum++;
+                        } else {
+                            tempCurrentPaths.add(tempP);
+                        }
                     }
                 }
             }
@@ -116,7 +118,8 @@ public class CaculaterPaths {
 
     private static PathUtil createPaths(PathUtil p,NodeNeighbor n){
 
-        if(!p.isContainsNode(n.getTargetNode())){
+        // 判断节点路径是否包含已有节点,且不等于开始节点。
+        if(!p.isContainsNode(n.getTargetNode()) && !p.getSrc().equals(n.getTargetNode())){
             PathUtil np = new PathUtil(p);
             np.addNode(n.getTargetNode(),n.getWeight());
             return np;

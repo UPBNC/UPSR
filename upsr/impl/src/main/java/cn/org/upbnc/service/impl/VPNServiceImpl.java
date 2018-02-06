@@ -27,6 +27,7 @@ import cn.org.upbnc.util.path.PathUtil;
 import cn.org.upbnc.util.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import java.util.*;
 
@@ -830,11 +831,11 @@ public class VPNServiceImpl implements VPNService {
             }
         }
 
-        for(String routerId : tunnelsRouterKeyMap.keySet()) {
-            List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
-            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
-            this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
-        }
+//        for(String routerId : tunnelsRouterKeyMap.keySet()) {
+//            List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
+//            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+//            this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
+//        }
         return resultMap;
     }
 
@@ -867,11 +868,19 @@ public class VPNServiceImpl implements VPNService {
         Map<String, Label> labelMap = new HashMap<>();
         int index = 1;
         for (String routerId : pathUtil.getPath()) {
-            Label label = new Label();
             Device device = deviceManager.getDevice(routerId);
+            if (device == null) {
+                LOG.info("path device is not found " + routerId);
+                return null;
+            }
+            if ((device.getNodeLabel() == null) || (device.getNodeLabel().getValue() == 0)) {
+                LOG.info("the prefix label is not found" + routerId);
+                return null;
+            }
+            Label label = new Label();
             label.setType(LabelTypeEnum.PREFIX.getCode());
             label.setValue(device.getNodeLabel().getValue());
-            labelMap.put(index + "",label);
+            labelMap.put(index + "", label);
         }
         explicitPath.setLabelMap(labelMap);
         return explicitPath;

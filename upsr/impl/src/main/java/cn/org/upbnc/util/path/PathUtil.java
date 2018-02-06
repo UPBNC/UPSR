@@ -35,7 +35,7 @@ public class PathUtil {
         this.firstWeight = p.firstWeight;
         this.totalWeight = p.totalWeight;
         this.step = p.step;
-        this.path = new ArrayList<>(path);
+        this.path = new ArrayList<>(p.path);
     }
 
     public String getSrc() {
@@ -87,6 +87,7 @@ public class PathUtil {
         }
     }
 
+    // 判断路径是否存在节点
     public boolean isContainsNode(String node){
         return this.path.contains(node);
     }
