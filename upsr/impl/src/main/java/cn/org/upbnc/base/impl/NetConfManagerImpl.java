@@ -19,18 +19,18 @@ import java.util.List;
 import java.util.Map;
 
 public class NetConfManagerImpl implements NetConfManager {
-
     private static NetConfManager instance = null;
     public static Map<String, NetconfClient> netconfClientMap = new HashMap<>();
-    public static NetconfDevice netconfController =  new NetconfDevice();
+    public static NetconfDevice netconfController = new NetconfDevice();
     private NetconfClient netconfClient;
     public static Map<String, NetConf> netConfMap = new HashMap<>();
 
     private NetConfManagerImpl() {
-        if(null == netconfController) {
+        if (null == netconfController) {
             netconfController = new NetconfDevice();
         }
     }
+
 
     public static NetConfManager getInstance() {
         if (null == instance) {
@@ -48,8 +48,8 @@ public class NetConfManagerImpl implements NetConfManager {
     public NetConf addDevice(NetConf netConf) {
         netConfMap.put(netConf.getIp().getAddress(), netConf);
         boolean connect = true;
-        if (netconfClientMap.containsKey(netConf.getIp())) {
-            if (netconfClientMap.get(netConf.getIp()).isFlag()) {
+        if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
+            if (netconfClientMap.get(netConf.getIp().getAddress()).isFlag()) {
                 connect = false;
             }
         }
