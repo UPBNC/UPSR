@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.OspfLinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.OspfNodeAttributes;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,8 +251,8 @@ public class BGPManagerImpl implements BGPManager {
             upsrLink.setDeviceInterface2(destinationDeviceInterface);
 
             // Find a igp Link
-            //Link1 link1 = link.getAugmentation(Link1.class);
-            Link1 link1 = link.augmentation(Link1.class);
+            Link1 link1 = link.getAugmentation(Link1.class);
+//            Link1 link1 = link.augmentation(Link1.class);
             IgpLinkAttributes igpLinkAttributes =link1.getIgpLinkAttributes();
 
             // Set metric
@@ -261,8 +260,8 @@ public class BGPManagerImpl implements BGPManager {
             igpLinkAttributes.getName();
 
             // Find a ospf Link
-            //IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.getAugmentation(IgpLinkAttributes1.class);
-            IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.augmentation(IgpLinkAttributes1.class);
+            IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.getAugmentation(IgpLinkAttributes1.class);
+//            IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.augmentation(IgpLinkAttributes1.class);
             OspfLinkAttributes ospfLinkAttributes = igpLinkAttributes1.getOspfLinkAttributes();
             LOG.info(ospfLinkAttributes.getTed().toString());
 
@@ -291,8 +290,8 @@ public class BGPManagerImpl implements BGPManager {
             device.setName(node.getNodeId().getValue());
 
             // Find a igp node
-            //Node1 node1 = node.getAugmentation(Node1.class);
-            Node1 node1 = node.augmentation(Node1.class);
+            Node1 node1 = node.getAugmentation(Node1.class);
+//            Node1 node1 = node.augmentation(Node1.class);
             IgpNodeAttributes igpNodeAttributes = node1.getIgpNodeAttributes();
             this.setDeviceRouterInfo(igpNodeAttributes,device);
 
@@ -353,8 +352,8 @@ public class BGPManagerImpl implements BGPManager {
     }
 
     private void setDeviceRouterIp(IgpNodeAttributes igpNodeAttributes,Device device){
-        //IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.getAugmentation(IgpNodeAttributes1.class);
-        IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.augmentation(IgpNodeAttributes1.class);
+        IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.getAugmentation(IgpNodeAttributes1.class);
+//        IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.augmentation(IgpNodeAttributes1.class);
         OspfNodeAttributes ospfNodeAttributes = igpNodeAttributes1.getOspfNodeAttributes();
         Address address = new Address(ospfNodeAttributes.getTed().getTeRouterIdIpv4().getValue(), AddressTypeEnum.V4);
         device.setAddress(address);
@@ -377,19 +376,19 @@ public class BGPManagerImpl implements BGPManager {
                 deviceInterface.setDeviceName(device.getDeviceName());
 
                 // Add interface ip;
-                //TerminationPoint1 tp1 = tp.getAugmentation(TerminationPoint1.class);
-                TerminationPoint1 tp1 = tp.augmentation(TerminationPoint1.class);
-                if(null != tp1) {
-                    IgpTerminationPointAttributes itpa = tp1.getIgpTerminationPointAttributes();
-                    if(null != itpa) {
-                        Ip ip = (Ip) itpa.getTerminationPointType();
-                        List<IpAddress> ipAddresses = ip.getIpAddress();
-                        if (null != ipAddresses && !ipAddresses.isEmpty()) {
-                            Address ad = new Address(ipAddresses.get(0).getIpv4Address().getValue(), AddressTypeEnum.V4);
-                            deviceInterface.setIp(ad);
-                        }
-                    }
-                }
+//                TerminationPoint1 tp1 = tp.getAugmentation(TerminationPoint1.class);
+////                TerminationPoint1 tp1 = tp.augmentation(TerminationPoint1.class);
+//                if(null != tp1) {
+//                    IgpTerminationPointAttributes itpa = tp1.getIgpTerminationPointAttributes();
+//                    if(null != itpa) {
+//                        Ip ip = (Ip) itpa.getTerminationPointType();
+//                        List<IpAddress> ipAddresses = ip.getIpAddress();
+//                        if (null != ipAddresses && !ipAddresses.isEmpty()) {
+//                            Address ad = new Address(ipAddresses.get(0).getIpv4Address().getValue(), AddressTypeEnum.V4);
+//                            deviceInterface.setIp(ad);
+//                        }
+//                    }
+//                }
 
                 // Add interface into device
                 deviceInterface.setDevice(device);
