@@ -16,16 +16,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cn.org.upbnc.util.netconf.L3vpnIf;
+import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInstanceManagerImpl  implements VpnInstanceManager {
+import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfClientMap;
+import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
+
+public class VpnInstanceManagerImpl implements VpnInstanceManager {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceManagerImpl.class);
     private static VpnInstanceManager instance = null;
-    private List<VPNInstance>  vpnInstanceList =  null;
+    private List<VPNInstance> vpnInstanceList = null;
 
 
     @Override
@@ -33,95 +37,84 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
         return "VpnInstanceManagerImpl{}";
     }
 
-    private VpnInstanceManagerImpl()
-    {
-       LOG.info("VpnInstanceManagerImpl");
-       this.vpnInstanceList = new ArrayList<VPNInstance>();
+    private VpnInstanceManagerImpl() {
+        LOG.info("VpnInstanceManagerImpl");
+        this.vpnInstanceList = new ArrayList<VPNInstance>();
     }
-    public static VpnInstanceManager getInstance()
-    {
+
+    public static VpnInstanceManager getInstance() {
         LOG.info("VpnInstanceManager");
-        if(null == instance)
-        {
+        if (null == instance) {
             instance = new VpnInstanceManagerImpl();
         }
         return instance;
     }
-    public boolean addVpnInstance(VPNInstance vpnInstance)
-    {
-        if(null == vpnInstance)
-        {
+
+    public boolean addVpnInstance(VPNInstance vpnInstance) {
+        if (null == vpnInstance) {
             return false;
         }
         vpnInstanceList.add(vpnInstance);
         return true;
     }
-    public boolean delVpnInstance(Integer id)
-    {
+
+    public boolean delVpnInstance(Integer id) {
         VPNInstance vpnInstance = null;
-        Iterator<VPNInstance> iter =  vpnInstanceList.iterator();
-        while(iter.hasNext())
-        {
+        Iterator<VPNInstance> iter = vpnInstanceList.iterator();
+        while (iter.hasNext()) {
             vpnInstance = iter.next();
-            if(id == vpnInstance.getId().intValue())
-            {
+            if (id == vpnInstance.getId().intValue()) {
                 iter.remove();
                 return true;
             }
         }
         return false;
     }
-    public boolean delVpnInstance(String vpnName)
-    {
-        if(null == vpnName)
+
+    public boolean delVpnInstance(String vpnName) {
+        if (null == vpnName)
             return false;
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             vpnInstance = iter.next();
-            if(true == vpnInstance.getVpnName().equals(vpnName) )
-            {
+            if (true == vpnInstance.getVpnName().equals(vpnName)) {
                 iter.remove();
                 return true;
             }
         }
         return false;
     }
-    public VPNInstance getVpnIstance(Integer id)
-    {
+
+    public VPNInstance getVpnIstance(Integer id) {
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             vpnInstance = iter.next();
-            if(id  == vpnInstance.getId().intValue())
-            {
+            if (id == vpnInstance.getId().intValue()) {
                 return vpnInstance;
             }
         }
         return null;
     }
-    public VPNInstance getVpnIstance(String vpnName)
-    {
+
+    public VPNInstance getVpnIstance(String vpnName) {
         LOG.info("enter getVpnIstance vpnName = {}", new Object[]{vpnName});
-        if(null == vpnName)
+        if (null == vpnName)
             return null;
 
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             vpnInstance = iter.next();
-            if(true == vpnInstance.getVpnName().equals(vpnName))
-            {
+            if (true == vpnInstance.getVpnName().equals(vpnName)) {
                 LOG.info("$$$$$$$$$$$$$enter getVpnIstance-02$$$$$$$$$");
-                NetconfDevice netDevice  = new NetconfDevice();
-                NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
-                String sendMsg =  VpnXml.getVpnXml(vpnName);
-                LOG.info("get sendMsg={}", new Object[]{sendMsg} );
+                NetconfDevice netDevice = new NetconfDevice();
+                NetconfClient netconfClient = netDevice.createClient("192.168.1.113", 22, "192.168.1.3", "root", "Huawei@123");
+                String sendMsg = VpnXml.getVpnXml(vpnName);
+                LOG.info("get sendMsg={}", new Object[]{sendMsg});
                 String result = netDevice.sendMessage(netconfClient, sendMsg);
-                LOG.info("get result={}", new Object[]{result} );
+                LOG.info("get result={}", new Object[]{result});
 
                 return vpnInstance;
             }
@@ -129,22 +122,21 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
 
         return null;
     }
-    public VPNInstance getVpnInstance(String routerId)
-    {
-        if(null == routerId)
+
+    public VPNInstance getVpnInstance(String routerId) {
+        if (null == routerId)
             return null;
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             vpnInstance = iter.next();
-            if(true == vpnInstance.getRd().equals(routerId))
-            {
+            if (true == vpnInstance.getRd().equals(routerId)) {
                 return vpnInstance;
             }
         }
         return null;
     }
+
     public VPNInstance updateVpnInstance(String vpnName,
                                          Device device,
                                          String businessRegion,
@@ -156,16 +148,14 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
                                          Integer routeSelectDelay,
                                          Integer importDirectRouteEnable,
                                          List<DeviceInterface> deviceInterfaceList,
-                                         List<NetworkSeg> networkSegList)
-    {
-        LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName} );
-        if(null == vpnName)
+                                         List<NetworkSeg> networkSegList) {
+        LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName});
+        if (null == vpnName)
             return null;
 
 
-        VPNInstance  vpnInstance = getVpnInstance(vpnName);
-        if(null != vpnInstance)
-        {
+        VPNInstance vpnInstance = getVpnInstance(vpnName);
+        if (null != vpnInstance) {
             LOG.info("################enter updateVpnInstance-01###################");
             vpnInstance.setDevice(device);
             vpnInstance.setBusinessRegion(businessRegion);
@@ -179,49 +169,52 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
             vpnInstance.setDeviceInterfaceList(deviceInterfaceList);
             vpnInstance.setNetworkSegList(networkSegList);
 
-        }
-        else
-        {
-            Integer id = 0 ;
-            vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, businessRegion,rd,
+        } else {
+            Integer id = 0;
+            vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, businessRegion, rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
-            if(null != vpnInstance) {
+            if (null != vpnInstance) {
                 this.vpnInstanceList.add(vpnInstance);
             }
         }
-        if(null != vpnInstance)
-        {
-            LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT} );
-            NetconfDevice netDevice  = new NetconfDevice();
-            NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
-            //Netconf netconf = NetConfManagerImpl.getInstance().addDevice(new NetConf("192.168.1.3", 22, "root", "Huawei@123"));
-            String sendMsg = VpnXml.createVpnXml(vpnName, "this is SR device", rd, exportRT, null);
-            LOG.info("sendMsg={}", new Object[]{sendMsg} );
-            String result = netDevice.sendMessage(netconfClient, sendMsg);
-            LOG.info("result={}", new Object[]{result} );
+        if (null != vpnInstance) {
+            LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT});
+            if (netconfClientMap.containsKey("192.168.1.3")) {
+                if (netconfClientMap.get("192.168.1.3").isFlag()) {
+//                    NetconfDevice netDevice  = new NetconfDevice();
+//                    NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
+                    //Netconf netconf = NetConfManagerImpl.getInstance().addDevice(new NetConf("192.168.1.3", 22, "root", "Huawei@123"));
+                    L3vpnInstance l3vpnInstance = new L3vpnInstance();
+                    l3vpnInstance.setVrfName(vpnName);
+                    l3vpnInstance.setVrfDescription("this is SR device");
+                    l3vpnInstance.setVrfRD(rd);
+                    l3vpnInstance.setVrfRTValue(exportRT);
+                    l3vpnInstance.setL3vpnIfs(null);
+                    String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
+                    LOG.info("sendMsg={}", new Object[]{sendMsg});
+                    String result = netconfController.sendMessage(netconfClientMap.get("192.168.1.3"), sendMsg);
+                    LOG.info("result={}", new Object[]{result});
+                }
+            }
         }
         return vpnInstance;
     }
 
-    public VPNInstance  updateVpnInstance(VPNInstance vpnInstance)
-    {
-        if(null == vpnInstance)
+    public VPNInstance updateVpnInstance(VPNInstance vpnInstance) {
+        if (null == vpnInstance)
             return null;
-        VPNInstance  findVpnInstance = getVpnInstance(vpnInstance.getVpnName());
-        if(null != findVpnInstance)
-        {
+        VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getVpnName());
+        if (null != findVpnInstance) {
             vpnInstance.setId(findVpnInstance.getId());
             findVpnInstance = vpnInstance;
             return findVpnInstance;
-        }
-        else
-        {
+        } else {
             vpnInstanceList.add(vpnInstance);
         }
         return vpnInstance;
     }
-    public List<VPNInstance> getVpnInstanceList()
-    {
+
+    public List<VPNInstance> getVpnInstanceList() {
         return vpnInstanceList;
     }
 

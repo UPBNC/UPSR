@@ -22,7 +22,7 @@ public class NetConfManagerImpl implements NetConfManager {
 
     private static NetConfManager instance = null;
     public static Map<String, NetconfClient> netconfClientMap = new HashMap<>();
-    private NetconfDevice netconfController;
+    public static NetconfDevice netconfController;
     private NetconfClient netconfClient;
     public static Map<String, NetConf> netConfMap = new HashMap<>();
 

@@ -1,22 +1,26 @@
 package cn.org.upbnc.util.xml;
 
 import cn.org.upbnc.util.netconf.L3vpnIf;
+import cn.org.upbnc.util.netconf.L3vpnInstance;
+import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VpnXml {
-    private static int message_id = 100;
+    private static final Logger LOG = LoggerFactory.getLogger(VpnXml.class);
 
-    public static int genarate_message_id() {
-        if (message_id > 65535)
-            message_id = 100;
-        else
-            message_id++;
-        return message_id;
-    }
-
-    public static String createVpnXml(String vrfName, String vrfDescription, String vrfRD, String vrfRTValue, List<L3vpnIf> l3vpnIfs) {
-        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + genarate_message_id() + "\">\n" +
+    public static String createVpnXml(L3vpnInstance l3vpnInstance) {
+        String vrfName = l3vpnInstance.getVrfName();
+        String vrfDescription = l3vpnInstance.getVrfDescription();
+        String vrfRD = l3vpnInstance.getVrfRD();
+        String vrfRTValue = l3vpnInstance.getVrfRTValue();
+        List<L3vpnIf> l3vpnIfs = l3vpnInstance.getL3vpnIfs();
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
                 "      <running/>\n" +
@@ -47,7 +51,7 @@ public class VpnXml {
                 "              </vpnInstAFs>\n" +
                 "              <l3vpnIfs>\n";
         String middle = "";
-        if(null != l3vpnIfs) {
+        if (null != l3vpnIfs) {
             for (L3vpnIf l3vpnIf : l3vpnIfs) {
                 middle = middle + "                <l3vpnIf>\n" +
                         "                  <ifName>" + l3vpnIf.getIfName() + "</ifName>\n" +
@@ -56,7 +60,6 @@ public class VpnXml {
                         "                </l3vpnIf>\n";
             }
         }
-
         String end = "              </l3vpnIfs>\n" +
                 "            </l3vpnInstance>\n" +
                 "          </l3vpnInstances>\n" +
@@ -70,7 +73,7 @@ public class VpnXml {
     }
 
     public static String getVpnXml(String vrfName) {
-        String str = "<rpc message-id =\"" + genarate_message_id() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>\n" +
                 "  <filter type=\"subtree\">\n" +
                 "    <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
@@ -96,5 +99,40 @@ public class VpnXml {
                 "</get>" +
                 "</rpc>";
         return str;
+    }
+
+    public static List<L3vpnInstance> getVpnFromXml(String xml) {
+        List<L3vpnInstance> l3vpnInstanceList = new ArrayList<>();
+        List<L3vpnIf> l3vpnIfs;
+        L3vpnInstance l3vpnInstance;
+        L3vpnIf l3vpnIf;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                for (org.dom4j.Element child : childElements) {
+                    l3vpnInstance = new L3vpnInstance();
+                    l3vpnIfs = new ArrayList<>();
+                    l3vpnInstance.setVrfName(child.elementText("vrfName"));
+                    l3vpnInstance.setVrfDescription(child.elementText("vrfDescription"));
+                    l3vpnInstance.setVrfRD(child.element("vpnInstAFs").elements().get(0).elementText("vrfRD"));
+                    l3vpnInstance.setVrfRTValue(child.element("vpnInstAFs").elements().get(0).element("vpnTargets").elements().get(0).elementText("vrfRTValue"));
+                    for (org.dom4j.Element children : child.element("l3vpnIfs").elements()) {
+                        l3vpnIf = new L3vpnIf();
+                        l3vpnIf.setIfName(children.elementText("ifName"));
+                        l3vpnIf.setIpv4Addr(children.elementText("ipv4Addr"));
+                        l3vpnIf.setSubnetMask(children.elementText("subnetMask"));
+                        l3vpnIfs.add(l3vpnIf);
+                    }
+                    l3vpnInstance.setL3vpnIfs(l3vpnIfs);
+                    l3vpnInstanceList.add(l3vpnInstance);
+                }
+            } catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return l3vpnInstanceList;
     }
 }
