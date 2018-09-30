@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.GigabitEthernet;
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import org.dom4j.io.SAXReader;
@@ -32,6 +33,7 @@ public class VpnXml {
                 "    <target>\n" +
                 "      <running/>\n" +
                 "    </target>\n" +
+                "     <error-option>rollback-on-error</error-option>" +
                 "    <config>\n" +
                 "      <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
                 "        <l3vpncomm>\n" +
@@ -142,4 +144,86 @@ public class VpnXml {
         }
         return l3vpnInstanceList;
     }
+
+    public static String getDeleteL3vpnXml(String vrfName) {
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "  <edit-config>\n" +
+                "     <target>\n" +
+                "\t\t<running/>\n" +
+                "\t  </target>\n" +
+                "\t  <default-operation>none</default-operation>\n" +
+                "\t  <error-option>rollback-on-error</error-option>\n" +
+                "    <config>\n" +
+                "      <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
+                "        <l3vpncomm>\n" +
+                "          <l3vpnInstances>\n" +
+                "            <l3vpnInstance nc:operation=\"delete\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "              <vrfName>" + vrfName + "</vrfName>\n" +
+                "            </l3vpnInstance>\n" +
+                "          </l3vpnInstances>\n" +
+                "        </l3vpncomm>\n" +
+                "      </l3vpn>\n" +
+                "    </config>\n" +
+                "  </edit-config>\n" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getGigabitEthernetsXml() {
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <filter type=\"subtree\">\n" +
+                "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "      <ifm:interfaces>\n" +
+                "        <ifm:interface>\n" +
+                "          <ifm:ifName/>\n" +
+                "          <ifm:ifIndex/>\n" +
+                "          <ifm:ifClass/>\n" +
+                "          <ifm:ifPhyType>GigabitEthernet</ifm:ifPhyType>\n" +
+                "          <ifm:ifNumber/>\n" +
+                "          <ifm:vrfName/>\n" +
+                "          <ifm:ifDynamicInfo>\n" +
+                "            <ifm:ifOperStatus/>\n" +
+                "            <ifm:ifPhyStatus/>\n" +
+                "            <ifm:ifLinkStatus/>\n" +
+                "          </ifm:ifDynamicInfo>\n" +
+                "          <ifm:ipv4Oper/>\n" +
+                "        </ifm:interface>\n" +
+                "      </ifm:interfaces>\n" +
+                "    </ifm:ifm>\n" +
+                "  </filter>\n" +
+                "</get>" +
+                "</rpc>";
+        return str;
+    }
+
+    public static List<GigabitEthernet> getGigabitEthernetsFromXml(String xml) {
+        List<GigabitEthernet> gigabitEthernets = new ArrayList<>();
+        GigabitEthernet gigabitEthernet;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
+                for (org.dom4j.Element child : childElements) {
+                    gigabitEthernet = new GigabitEthernet();
+                    gigabitEthernet.setIfName(child.elementText("ifName"));
+                    gigabitEthernet.setIfIndex(child.elementText("ifIndex"));
+                    gigabitEthernet.setIfPhyType(child.elementText("ifPhyType"));
+                    gigabitEthernet.setIfNumber(child.elementText("ifNumber"));
+                    gigabitEthernet.setVrfName(child.elementText("vrfName"));
+                    gigabitEthernet.setIfClass(child.elementText("ifClass"));
+                    gigabitEthernet.setIfOperStatus(child.elements("ifDynamicInfo").get(0).elementText("ifOperStatus"));
+                    gigabitEthernet.setIfPhyStatus(child.elements("ifDynamicInfo").get(0).elementText("ifPhyStatus"));
+                    gigabitEthernet.setIfLinkStatus(child.elements("ifDynamicInfo").get(0).elementText("ifLinkStatus"));
+                    gigabitEthernets.add(gigabitEthernet);
+                }
+            } catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return gigabitEthernets;
+    }
+
 }
