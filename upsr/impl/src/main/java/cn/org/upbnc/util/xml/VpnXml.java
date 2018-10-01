@@ -122,21 +122,30 @@ public class VpnXml {
                 org.dom4j.Element root = document.getRootElement();
                 List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
                 for (org.dom4j.Element child : childElements) {
-                    l3vpnInstance = new L3vpnInstance();
-                    l3vpnIfs = new ArrayList<>();
-                    l3vpnInstance.setVrfName(child.elementText("vrfName"));
-                    l3vpnInstance.setVrfDescription(child.elementText("vrfDescription"));
-                    l3vpnInstance.setVrfRD(child.element("vpnInstAFs").elements().get(0).elementText("vrfRD"));
-                    l3vpnInstance.setVrfRTValue(child.element("vpnInstAFs").elements().get(0).element("vpnTargets").elements().get(0).elementText("vrfRTValue"));
-                    for (org.dom4j.Element children : child.element("l3vpnIfs").elements()) {
-                        l3vpnIf = new L3vpnIf();
-                        l3vpnIf.setIfName(children.elementText("ifName"));
-                        l3vpnIf.setIpv4Addr(children.elementText("ipv4Addr"));
-                        l3vpnIf.setSubnetMask(children.elementText("subnetMask"));
-                        l3vpnIfs.add(l3vpnIf);
+                    if ("_public_".equals(child.elementText("vrfName")) || "__LOCAL_OAM_VPN__".equals(child.elementText("vrfName"))
+                            || "__dcn_vpn__".equals(child.elementText("vrfName"))) {
+                        LOG.info("this instance is invalid.");
+                    } else {
+                        l3vpnInstance = new L3vpnInstance();
+                        l3vpnIfs = new ArrayList<>();
+                        l3vpnInstance.setVrfName(child.elementText("vrfName"));
+                        l3vpnInstance.setVrfDescription(child.elementText("vrfDescription"));
+                        l3vpnInstance.setVrfRD(child.element("vpnInstAFs").elements().get(0).elementText("vrfRD"));
+                        l3vpnInstance.setVrfRTValue(child.element("vpnInstAFs").elements().get(0).element("vpnTargets").elements().get(0).elementText("vrfRTValue"));
+                        try {
+                            for (org.dom4j.Element children : child.element("l3vpnIfs").elements()) {
+                                l3vpnIf = new L3vpnIf();
+                                l3vpnIf.setIfName(children.elementText("ifName"));
+                                l3vpnIf.setIpv4Addr(children.elementText("ipv4Addr"));
+                                l3vpnIf.setSubnetMask(children.elementText("subnetMask"));
+                                l3vpnIfs.add(l3vpnIf);
+                            }
+                        } catch (Exception e) {
+                            continue;
+                        }
+                        l3vpnInstance.setL3vpnIfs(l3vpnIfs);
+                        l3vpnInstanceList.add(l3vpnInstance);
                     }
-                    l3vpnInstance.setL3vpnIfs(l3vpnIfs);
-                    l3vpnInstanceList.add(l3vpnInstance);
                 }
             } catch (Exception e) {
                 LOG.info(e.toString());
