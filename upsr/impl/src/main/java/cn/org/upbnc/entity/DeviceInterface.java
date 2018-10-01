@@ -18,6 +18,8 @@ public class DeviceInterface {
     private Address mask;
     private Address mac;
     private VPNInstance vpn;
+    private Integer bgpStatus;
+    private AdjLabel adjLabel;
 
     public DeviceInterface() {
         this.id = 0;
@@ -30,12 +32,15 @@ public class DeviceInterface {
         this.mac = null;
         this.vpn = null;
         this.deviceName = null;
+        this.bgpStatus = 0;
+        this.adjLabel = null;
     }
 
     public DeviceInterface(String name, Address ip, Address mask) {
         this.name = name;
         this.ip = ip;
         this.mask = mask;
+        this.bgpStatus = 0;
     }
 
     public DeviceInterface(Integer id,
@@ -47,7 +52,9 @@ public class DeviceInterface {
                            Address ip,
                            Address mask,
                            Address mac,
-                           VPNInstance vpn) {
+                           VPNInstance vpn,
+                           Integer bgpStatus,
+                           AdjLabel adjLabel) {
         this.id = id;
         this.device = device;
         this.deviceName = deviceName;
@@ -58,6 +65,8 @@ public class DeviceInterface {
         this.mask = mask;
         this.mac = mac;
         this.vpn = vpn;
+        this.bgpStatus = bgpStatus;
+        this.adjLabel = adjLabel;
     }
 
     public Integer getId() {
@@ -139,5 +148,21 @@ public class DeviceInterface {
 
     public VPNInstance getVpn() {
         return vpn;
+    }
+
+    public AdjLabel getAdjLabel() {
+        return adjLabel;
+    }
+
+    public void setAdjLabel(AdjLabel adjLabel) {
+        this.adjLabel = adjLabel;
+    }
+
+    public void setBgpStatus(Integer bgpStatus) {
+        this.bgpStatus = bgpStatus;
+    }
+
+    public Integer getBgpStatus() {
+        return bgpStatus;
     }
 }

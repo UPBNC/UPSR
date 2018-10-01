@@ -8,7 +8,25 @@
 package cn.org.upbnc.entity;
 
 public class AdjLabel extends Label {
+    Address addressLocal;
+    Address addressRemote;
     public AdjLabel() {
 
+    }
+
+    public Address getAddressLocal() {
+        return addressLocal;
+    }
+
+    public void setAddressLocal(Address addressLocal) {
+        this.addressLocal = addressLocal;
+    }
+
+    public Address getAddressRemote() {
+        return addressRemote;
+    }
+
+    public void setAddressRemote(Address addressRemote) {
+        this.addressRemote = addressRemote;
     }
 }

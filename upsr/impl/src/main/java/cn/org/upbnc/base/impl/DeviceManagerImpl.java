@@ -66,7 +66,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDevice(String routerId) {
         if(null != routerId) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(routerId.equals(device.getRouterId())){
                     return device;
@@ -80,7 +80,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDeviceByDeviceName(String deviceName) {
         if(null != deviceName) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(deviceName.equals(device.getDeviceName())){
                     return device;
@@ -110,7 +110,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDeviceByNetconfIP(String deviceIP) {
         if(null != deviceIP) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(null != device.getNetConf()) {
                     if (deviceIP.equals(device.getNetConf().getIp().getAddress())) {
@@ -147,7 +147,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDevice(String routerId) {
         if(null != routerId) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(routerId.equals(device.getRouterId())){
                     deviceIterator.remove();
@@ -179,7 +179,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDeviceByDeviceName(String deviceName) {
         if(null != deviceName) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(deviceName.equals(device.getDeviceName())){
                     deviceIterator.remove();
@@ -211,7 +211,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDeviceByNetconfIP(String deviceIP) {
         if(null != deviceIP) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(null != device.getNetConf()) {
                     if (deviceIP.equals(device.getNetConf().getIp().getAddress())) {
@@ -243,6 +243,12 @@ public class DeviceManagerImpl implements DeviceManager {
 
     @Override
     public List<Device> updateDeviceListByBgpDeviceList(List<BgpDevice> bgpDeviceList){
+        // 清空Device的Bgp状态
+        Iterator<Device> deviceIterator = this.deviceList.iterator();
+        while(deviceIterator.hasNext()){
+            deviceIterator.next().setBgpDevice(null);
+        }
+
         // 当 BGP 为空，不处理
         if(null == bgpDeviceList || bgpDeviceList.isEmpty()){
             return this.deviceList;
@@ -265,6 +271,7 @@ public class DeviceManagerImpl implements DeviceManager {
     }
 
 
+
     // 更新Device
     private Device updateDevice(Device device,BgpDevice bgpDevice){
         Device ret = null;
@@ -277,6 +284,7 @@ public class DeviceManagerImpl implements DeviceManager {
         ret.setAddress(bgpDevice.getAddress());
         ret.setDeviceTypeEnum(bgpDevice.getDeviceTypeEnum());
         ret.setName(bgpDevice.getName());
+        ret.setRouterId(bgpDevice.getRouterId());
 
         //添加端口
         List<DeviceInterface> deviceInterfaces = ret.getDeviceInterfaceList();
@@ -288,6 +296,13 @@ public class DeviceManagerImpl implements DeviceManager {
     }
 
     private List<DeviceInterface> updateDeviceInterface(Device device,List<DeviceInterface> deviceInterfaces, List<BgpDeviceInterface> bgpDeviceInterfaces){
+        //清空当前的BgpStatus
+        Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaces.iterator();
+        while(deviceInterfaceIterator.hasNext()){
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            deviceInterface.setBgpStatus(0);
+        }
+
         // 如果Bgp没有接口上报，直接返回
         if(null == bgpDeviceInterfaces|| bgpDeviceInterfaces.isEmpty()){
             return deviceInterfaces;
@@ -339,7 +354,7 @@ public class DeviceManagerImpl implements DeviceManager {
         ret.setId(bgpDeviceInterface.getId());
         ret.setName(bgpDeviceInterface.getName());
         ret.setDeviceName(bgpDeviceInterface.getBgpDeviceName());
+        ret.setBgpStatus(1);
         return ret;
     }
-
 }

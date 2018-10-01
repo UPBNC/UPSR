@@ -52,8 +52,9 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
                                      List<NetworkSeg> networkSegList)
     {
         boolean ret = false;
-        if(null == this.vpnService)
+        if(null == this.vpnService) {
             return false;
+        }
         ret= this.vpnService.updateVpnInstance(vpnName,routerId,businessRegion,rd,importRT, exportRT,
                 peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,deviceInterfaceList,networkSegList);
         return ret;
@@ -74,9 +75,9 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     {
         return (null == this.vpnService)?null:this.vpnService.getVpnInstance(routerId, vpnName);
     }
-    public List<VPNInstance> getVpnInstanceList()
+    public List<VPNInstance> getVpnInstanceList(String vpnName)
     {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceList();
+        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceList(vpnName);
     }
 
     public String getTest() {

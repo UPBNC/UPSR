@@ -10,7 +10,9 @@ package cn.org.upbnc.entity;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Device {
     // Base property
@@ -28,6 +30,8 @@ public class Device {
     //private SRInfo srInfo;
     private Integer minNodeSID;
     private Integer maxNodeSID;
+    private NodeLabel nodeLabel;
+    private List<AdjLabel> adjLabelList;
 
     private Integer srStatus;
     private Integer bgpAS;
@@ -35,7 +39,8 @@ public class Device {
 
     private List<DeviceInterface> deviceInterfaceList;
     private LoopBack loopBack;
-    private List<VPNInstance> vpnInstanceList;
+    //private List<VPNInstance> vpnInstanceList;
+    private Map<String /*vpnName*/, VPNInstance> vpnInstanceMap;
     private List<Tunnel> tunnelList;
     private List<Prefix> prefixList;
 
@@ -59,7 +64,7 @@ public class Device {
         this.ospfId = 0;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
         this.loopBack = null;
-        this.vpnInstanceList = new ArrayList<VPNInstance>();
+        this.vpnInstanceMap = new HashMap<String, VPNInstance>();
         this.tunnelList = new ArrayList<Tunnel>();
         this.prefixList = new ArrayList<Prefix>();
         this.bgpDevice = null;
@@ -82,7 +87,7 @@ public class Device {
                   Integer ospfId,
                   List<DeviceInterface> deviceInterfaceList,
                   LoopBack loopBack,
-                  List<VPNInstance> vpnInstanceList,
+                  Map<String, VPNInstance> vpnInstanceMap,
                   List<Tunnel> tunnelList,
                   List<Prefix> prefixList,
                   BgpDevice bgpDevice,
@@ -102,17 +107,24 @@ public class Device {
         this.bgpAS = bgpAS;
         this.ospfId = ospfId;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
-//        this.deviceInterfaceList = deviceInterfaceList; //?
+        if(null != deviceInterfaceList) {
+            this.deviceInterfaceList.addAll(deviceInterfaceList);
+        }
         this.loopBack = loopBack;
-        this.vpnInstanceList = new ArrayList<VPNInstance>();
-        this.vpnInstanceList.addAll(vpnInstanceList);
-//        this.vpnInstanceList = vpnInstanceList;//?
+        this.vpnInstanceMap = new HashMap<String, VPNInstance>();
+        if(null != vpnInstanceMap) {
+            this.vpnInstanceMap.putAll(vpnInstanceMap);
+        }
+
         this.tunnelList = new ArrayList<Tunnel>();
-        this.tunnelList.addAll(tunnelList);
-//        this.tunnelList = tunnelList;//?
+        if(null != tunnelList) {
+            this.tunnelList.addAll(tunnelList);
+        }
+
         this.prefixList = new ArrayList<Prefix>();
-        this.prefixList.addAll(prefixList);
+        if(null != prefixList) {
+            this.prefixList.addAll(prefixList);
+        }
         this.bgpDevice = bgpDevice;
         this.deviceTypeEnum = deviceTypeEnum;
     }
@@ -121,6 +133,18 @@ public class Device {
         this.routerId = routerId;
         this.deviceName = deviceName;
         this.netConf = netConf;
+        if(null == deviceInterfaceList) {
+            this.deviceInterfaceList = new ArrayList<DeviceInterface>();
+        }
+        if(null == vpnInstanceMap) {
+            this.vpnInstanceMap = new HashMap<String, VPNInstance>();
+        }
+        if(null == tunnelList) {
+            this.tunnelList = new ArrayList<Tunnel>();
+        }
+        if(null == prefixList) {
+            this.prefixList = new ArrayList<Prefix>();
+        }
     }
 
     public void setId(Integer id) {
@@ -231,7 +255,9 @@ public class Device {
 
     public void setDeviceInterfaceList(List<DeviceInterface> deviceInterfaceList) {
         this.deviceInterfaceList.clear();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
+        if(null != deviceInterfaceList && !deviceInterfaceList.isEmpty()) {
+            this.deviceInterfaceList.addAll(deviceInterfaceList);
+        }
     }
 
 
@@ -243,13 +269,15 @@ public class Device {
         this.loopBack = loopBack;
     }
 
-    public List<VPNInstance> getVpnInstanceList() {
-        return vpnInstanceList;
+    public Map<String, VPNInstance> getVpnInstanceMap() {
+        return vpnInstanceMap;
     }
 
-    public void setVpnInstanceList(List<VPNInstance> vpnInstanceList) {
-        this.vpnInstanceList.clear();
-        this.vpnInstanceList.addAll(vpnInstanceList);
+    public void setVpnInstanceMap(Map<String, VPNInstance> vpnInstanceMap) {
+        this.vpnInstanceMap = vpnInstanceMap;
+    }
+    public void addVpnInstance(String vpnName, VPNInstance vpnInstance) {
+        this.vpnInstanceMap.put(vpnName, vpnInstance);
     }
 
     public List<Tunnel> getTunnelList() {
@@ -275,7 +303,9 @@ public class Device {
 
     public void setPrefixList(List<Prefix> prefixList) {
         this.prefixList.clear();
-        this.prefixList.addAll(prefixList);
+        if(null != prefixList && !prefixList.isEmpty()) {
+            this.prefixList.addAll(prefixList);
+        }
     }
 
     public Address getAddress() {
@@ -287,7 +317,9 @@ public class Device {
     }
 
     public void addDeviceInterface(DeviceInterface deviceInterface){
-        this.deviceInterfaceList.add(deviceInterface);
+        if(null != deviceInterface) {
+            this.deviceInterfaceList.add(deviceInterface);
+        }
     }
 
     public void setDeviceTypeEnum(DeviceTypeEnum deviceTypeEnum){
@@ -296,6 +328,22 @@ public class Device {
 
     public DeviceTypeEnum getDeviceTypeEnum() {
         return deviceTypeEnum;
+    }
+
+    public Label getNodeLabel() {
+        return nodeLabel;
+    }
+
+    public void setNodeLabel(NodeLabel nodeLabel) {
+        this.nodeLabel = nodeLabel;
+    }
+
+    public List<AdjLabel> getAdjLabelList() {
+        return adjLabelList;
+    }
+
+    public void setAdjLabelList(List<AdjLabel> adjLabelList) {
+        this.adjLabelList = adjLabelList;
     }
 
     public void setBgpDevice(BgpDevice bgpDevice) {

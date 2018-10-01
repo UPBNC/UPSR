@@ -19,6 +19,7 @@ public interface VpnInstanceManager {
     VPNInstance getVpnIstance(Integer id);
     VPNInstance getVpnIstance(String routerId, String vpnName);
     VPNInstance updateVpnInstance(String vpnName,
+                                     String routerId,
                                      Device device,
                                      String businessRegion,
                                      String rd,
