@@ -142,9 +142,10 @@ public class VpnXml {
                             }
                         } catch (Exception e) {
                             continue;
+                        }finally {
+                            l3vpnInstance.setL3vpnIfs(l3vpnIfs);
+                            l3vpnInstanceList.add(l3vpnInstance);
                         }
-                        l3vpnInstance.setL3vpnIfs(l3vpnIfs);
-                        l3vpnInstanceList.add(l3vpnInstance);
                     }
                 }
             } catch (Exception e) {
@@ -228,15 +229,19 @@ public class VpnXml {
                     gigabitEthernet.setIfPhyStatus(child.elements("ifDynamicInfo").get(0).elementText("ifPhyStatus"));
                     gigabitEthernet.setIfLinkStatus(child.elements("ifDynamicInfo").get(0).elementText("ifLinkStatus"));
                     gigabitEthernet.setIfOperMac(child.elements("ifDynamicInfo").get(0).elementText("ifOperMac"));
-                    gigabitEthernet.setIfIpAddr(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("ifIpAddr"));
-                    gigabitEthernet.setSubnetMask(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("subnetMask"));
-                    gigabitEthernets.add(gigabitEthernet);
+                    try {
+                        gigabitEthernet.setIfIpAddr(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("ifIpAddr"));
+                        gigabitEthernet.setSubnetMask(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("subnetMask"));
+                    } catch (Exception e) {
+                        continue;
+                    }finally {
+                        gigabitEthernets.add(gigabitEthernet);
+                    }
                 }
-                return gigabitEthernets;
             } catch (Exception e) {
                 LOG.info(e.toString());
             }
         }
-        return null;
+        return gigabitEthernets;
     }
 }
