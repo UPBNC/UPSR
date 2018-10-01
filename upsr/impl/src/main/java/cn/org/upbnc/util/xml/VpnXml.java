@@ -186,6 +186,7 @@ public class VpnXml {
                 "            <ifm:ifOperStatus/>\n" +
                 "            <ifm:ifPhyStatus/>\n" +
                 "            <ifm:ifLinkStatus/>\n" +
+                "             <ifm:ifOperMac/>" +
                 "          </ifm:ifDynamicInfo>\n" +
                 "          <ifm:ipv4Oper/>\n" +
                 "        </ifm:interface>\n" +
@@ -217,6 +218,9 @@ public class VpnXml {
                     gigabitEthernet.setIfOperStatus(child.elements("ifDynamicInfo").get(0).elementText("ifOperStatus"));
                     gigabitEthernet.setIfPhyStatus(child.elements("ifDynamicInfo").get(0).elementText("ifPhyStatus"));
                     gigabitEthernet.setIfLinkStatus(child.elements("ifDynamicInfo").get(0).elementText("ifLinkStatus"));
+                    gigabitEthernet.setIfOperMac(child.elements("ifDynamicInfo").get(0).elementText("ifOperMac"));
+                    gigabitEthernet.setIfIpAddr(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("ifIpAddr"));
+                    gigabitEthernet.setSubnetMask(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("subnetMask"));
                     gigabitEthernets.add(gigabitEthernet);
                 }
             } catch (Exception e) {
@@ -225,5 +229,4 @@ public class VpnXml {
         }
         return gigabitEthernets;
     }
-
 }
