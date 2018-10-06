@@ -60,7 +60,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
     @Override
     public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
-        if((null == routerId)||(null == deviceName)||(null == deviceIP)||(0 == devicePort)){
+        if((null == routerId)||routerId.isEmpty()
+                ||(null == deviceName)||deviceName.isEmpty()
+                ||(null == deviceIP)||deviceIP.isEmpty()||(0 == devicePort)){
             return false;
         }
         NetConf netconf = null;
@@ -94,7 +96,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
     @Override
     public boolean delNetconfSession(String routerId) {
-        if(null == routerId){
+        if((null == routerId)||routerId.isEmpty()){
             return false;
         }
         LOG.info("routerId = {}", new Object[]{routerId});
@@ -110,7 +112,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
     @Override
     public NetconfSession getNetconfSession(String routerId) {
-        if(null == routerId){
+        if((null == routerId)||routerId.isEmpty()){
             return null;
         }
         LOG.info("routerId = {}", new Object[]{routerId});

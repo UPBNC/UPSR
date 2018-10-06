@@ -51,8 +51,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     {
         List<VPNInstance> vpnInstanceList = null;
         List<VpnInstances> retVpnInstanceList = new LinkedList<VpnInstances>() ;
-        List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
-        List<NetSegment> netSegments = new LinkedList<NetSegment>();
         VpnInstancesBuilder retVpnInstance = null;
         GetVpnInstancesOutputBuilder vpnInstanceOutputBuilder = new GetVpnInstancesOutputBuilder();
 
@@ -77,6 +75,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
                     retVpnInstance.setPeerAS(vpnInstance.getPeerAS());
                     retVpnInstance.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
                     retVpnInstance.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
+                    List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
+                    List<NetSegment> netSegments = new LinkedList<NetSegment>();
                     if((null != vpnInstance.getDeviceInterfaceList())&&(0 != vpnInstance.getDeviceInterfaceList().size()))
                     {
                         for (DeviceInterface deviceInterface:vpnInstance.getDeviceInterfaceList()) {
@@ -100,8 +100,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
                     retVpnInstance.setNetSegment(netSegments);
                     retVpnInstanceList.add(retVpnInstance.build());
                 }
+                vpnInstanceOutputBuilder.setVpnInstances(retVpnInstanceList);
+                return RpcResultBuilder.success(vpnInstanceOutputBuilder.build()).buildFuture();
             }
-            vpnInstanceOutputBuilder.setVpnInstances(retVpnInstanceList);
         }
         //LOG.info("enter vpnInstance#s##");
         //以下是业务代码

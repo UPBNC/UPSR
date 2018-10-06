@@ -1,0 +1,52 @@
+module upsrInterface {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrInterface";
+    prefix "upsrInterface";
+
+    revision "2018-11-19" {
+        description "Initial revision of upsrInterface model";
+    }
+    grouping InterfaceInfo
+    {
+        leaf ifnetName {
+            type string;
+        }
+        leaf ifnetIP {
+            type string;
+        }
+        leaf ifnetMask {
+            type string;
+        }
+        leaf ifnetMac {
+            type string;
+        }
+        leaf vpnName {
+            type string;
+        }
+        leaf ifnetStatus {
+            type int32;
+        }
+        leaf srStatus {
+            type int32;
+        }
+        leaf linkStatus {
+            type int32;
+        }
+        leaf runningStatus {
+            type int32;
+        }
+    }
+    grouping InterfaceListInfo {
+        list devInterfaces {
+            uses InterfaceInfo;
+        }
+    }
+    rpc getInterfaces {
+        output {
+            leaf result {
+                type string;
+            }
+            uses InterfaceListInfo;
+        }
+    }
+}

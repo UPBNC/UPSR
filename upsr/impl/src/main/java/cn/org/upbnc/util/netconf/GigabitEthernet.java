@@ -17,6 +17,33 @@ public class GigabitEthernet {
     private String ifOperStatus;
     private String ifPhyStatus;
     private String ifLinkStatus;
+    private String ifOperMac;
+    private String ifIpAddr;
+    private String subnetMask;
+
+    public String getIfIpAddr() {
+        return ifIpAddr;
+    }
+
+    public void setIfIpAddr(String ifIpAddr) {
+        this.ifIpAddr = ifIpAddr;
+    }
+
+    public String getSubnetMask() {
+        return subnetMask;
+    }
+
+    public void setSubnetMask(String subnetMask) {
+        this.subnetMask = subnetMask;
+    }
+
+    public String getIfOperMac() {
+        return ifOperMac;
+    }
+
+    public void setIfOperMac(String ifOperMac) {
+        this.ifOperMac = ifOperMac;
+    }
 
     public String getIfName() {
         return ifName;

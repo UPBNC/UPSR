@@ -8,10 +8,7 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.service.impl.NetconfSessionServiceImpl;
-import cn.org.upbnc.service.impl.SRServiceImpl;
-import cn.org.upbnc.service.impl.TopoServiceImpl;
-import cn.org.upbnc.service.impl.VPNServiceImpl;
+import cn.org.upbnc.service.impl.*;
 import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +23,7 @@ public class ServiceInterface {
     private SRService srService;
     private TopoService topoService;
     private NetconfSessionService netconfSessionService;
+    private InterfaceService interfaceService ;
 
     public ServiceInterface(){
         // Base Interface
@@ -36,6 +34,7 @@ public class ServiceInterface {
         this.srService = null;
         this.topoService = null;
         this.netconfSessionService = null;
+        this.interfaceService = null;
     }
 
     public void init(){
@@ -63,6 +62,7 @@ public class ServiceInterface {
             ret = ret &&this.topoService.setBaseInterface(this.baseInterface);
             ret = ((true == ret )? this.vpnService.setBaseInterface(this.baseInterface):false);
             ret = ((true == ret )? this.netconfSessionService.setBaseInterface(this.baseInterface):false);
+            ret = ((true == ret )? this.interfaceService.setBaseInterface(this.baseInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -112,5 +112,11 @@ public class ServiceInterface {
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
         }
         return this.netconfSessionService;
+    }
+    public InterfaceService getInterfaceService() {
+        if(null == this.interfaceService) {
+            this.interfaceService = InterfaceServiceImpl.getInstance();
+        }
+        return this.interfaceService;
     }
 }

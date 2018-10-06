@@ -23,7 +23,6 @@ import java.util.List;
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
-import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class VPNServiceImpl implements VPNService {
         Device device = null;
         VPNInstance vpnInstance = null;
         LOG.info("service updateVpnInstance-01");
-        if(null == this.vpnInstanceManager)
+        if((null == routerId)||(routerId.isEmpty())||(null == this.vpnInstanceManager))
         {
             return false;
         }
@@ -142,7 +141,7 @@ public class VPNServiceImpl implements VPNService {
     }
     public boolean delVpnInstance(String routerId,String vpnName)
     {
-        if((null == routerId)||(null == vpnName))
+        if((null == routerId)||(routerId.isEmpty())||(null == vpnName)||(vpnName.isEmpty()))
         {
             return false;
         }
@@ -187,7 +186,7 @@ public class VPNServiceImpl implements VPNService {
             return null;
         }
         */
-        if((null == routerId)||(null == vpnName)) {
+        if((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty()) {
             return null;
         }
         Device device = this.deviceManager.getDevice(routerId);
@@ -233,6 +232,10 @@ public class VPNServiceImpl implements VPNService {
     }
     public List<VPNInstance> getVpnInstanceList(String vpnName)
     {
+        if(null == vpnName)
+        {
+            return null;
+        }
         List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
         List<VPNInstance> vpnInstances = new LinkedList<VPNInstance>();
         if(true == vpnName.equals("")) {
