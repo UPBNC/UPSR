@@ -32,6 +32,6 @@ public interface VPNService {
     VPNInstance getVpnInstance(Integer id);
     VPNInstance getVpnInstance(String routerId, String vpnName);
     List<VPNInstance> getVpnInstanceList(String vpnName);
-
+    List<VPNInstance> getVpnInstanceListFromDevice(String vpnName);
     String getTest();
 }

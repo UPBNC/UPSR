@@ -77,7 +77,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     }
     public List<VPNInstance> getVpnInstanceList(String vpnName)
     {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceList(vpnName);
+        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceListFromDevice(vpnName);
     }
 
     public String getTest() {
