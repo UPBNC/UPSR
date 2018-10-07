@@ -30,6 +30,7 @@ public class VPNInstance {
     private boolean RefreshFlag;
     private String note;
     private String importRoutePolicyName;
+    private String importTunnelPolicyName;
     private String exportRoutePolicyName;
     private String ebgpPreference;
     private String ibgpPreference;
@@ -51,7 +52,10 @@ public class VPNInstance {
         this.routeSelectDelay = 0;
         this.importDirectRouteEnable = 2;
         this.networkSegList = new ArrayList<NetworkSeg>();
-        RefreshFlag = false;
+        this.RefreshFlag = false;
+        this.note=null;
+        this.importRoutePolicyName=null;
+        this.importTunnelPolicyName=null;
     }
 
     public VPNInstance(Integer id,
@@ -116,6 +120,13 @@ public class VPNInstance {
         this.importRoutePolicyName = importRoutePolicyName;
     }
 
+    public String getImportTunnelPolicyName() {
+        return importTunnelPolicyName;
+    }
+
+    public void setImportTunnelPolicyName(String importTunnelPolicyName) {
+        this.importTunnelPolicyName = importTunnelPolicyName;
+    }
     public String getEbgpPreference() {
         return ebgpPreference;
     }

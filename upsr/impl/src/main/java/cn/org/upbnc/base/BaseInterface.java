@@ -23,6 +23,7 @@ public class BaseInterface {
     private LinkManager linkManager;
     private IniSectionManager iniSectionManager;
     private TunnelManager tunnelManager;
+    private TunnelPolicyManager tunnelPolicyManager;
 
     public BaseInterface() {
     }
@@ -39,6 +40,7 @@ public class BaseInterface {
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
             this.iniSectionManager = IniSectionManagerImpl.getInstance();
             this.tunnelManager = TunnelManagerImpl.getInstance();
+            this.tunnelPolicyManager=TunnelPolicyManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         } catch (Exception e) {
             LOG.info("BaseInterface init failure! " + e.getMessage());
@@ -108,6 +110,13 @@ public class BaseInterface {
             this.iniSectionManager = IniSectionManagerImpl.getInstance();
         }
         return this.iniSectionManager;
+    }
+
+    public TunnelPolicyManager getTunnelPolicyManager(){
+        if(null==this.tunnelPolicyManager){
+            this.tunnelPolicyManager=TunnelPolicyManagerImpl.getInstance();
+        }
+        return this.tunnelPolicyManager;
     }
 
     ///....
