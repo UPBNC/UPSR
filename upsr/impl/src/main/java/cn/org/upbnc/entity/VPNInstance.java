@@ -199,4 +199,16 @@ public class VPNInstance {
     public void setRouterId(String routerId) {
         this.routerId = routerId;
     }
+
+    public boolean isIfmBinded(String ifmName){
+        if(null==ifmName){
+            return false;
+        }
+        for(DeviceInterface deviceInterface:deviceInterfaceList){
+            if(deviceInterface.getName().equals(ifmName)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

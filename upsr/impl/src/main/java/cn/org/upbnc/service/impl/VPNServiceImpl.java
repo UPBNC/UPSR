@@ -16,9 +16,7 @@ import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.VPNService;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
@@ -104,33 +102,49 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("service updateVpnInstance null == device.getNetConf().getIp()");
         }
 
+        L3vpnInstance l3vpnInstance =  new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIf);
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+
         vpnInstance=this.vpnInstanceManager.getVpnInstance(routerId,vpnName);
 
         if(null==vpnInstance){
             //create vpn
             LOG.info("vpnInstance is null,add VPN {}",vpnName);
 
+            String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
+            LOG.info("sendMsg={}", new Object[]{sendMsg});
+            String result = netconfController.sendMessage(netconfClient, sendMsg);
+            LOG.info("result={}", new Object[]{result});
+            ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+
         }else{
-            //update vpn
+            //modify vpn
             LOG.info("VPN {} is already exist ,update",vpnName);
+            boolean isRdChanged=false;
+            boolean isRtChanged=false;
+            boolean isIfmChanged=false;
+            if(rd!=vpnInstance.getRd()){
+                //delete rd,add rd rt ebgp
+                isRdChanged=true;
+                isRtChanged=true;
+                //String sendMsg = VpnXml.modifyVpnXml(isRdChanged,isRtChanged,isEbgpChanged,isIfmChanged,l3vpnInstance);
+            }else{
+                if(exportRT!=vpnInstance.getExportRT()){
+                    isRtChanged=true;
+                }
+            }
+
+            if(l3vpnIf.equals(vpnInstance.getDeviceInterfaceList())){
+                isIfmChanged=true;
+            }
 
         }
 
-        L3vpnInstance l3vpnInstance =  new L3vpnInstance(vpnName, null, rd, exportRT, l3vpnIf);
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-        String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
-        LOG.info("sendMsg={}", new Object[]{sendMsg});
-        String result = netconfController.sendMessage(netconfClient, sendMsg);
-        LOG.info("result={}", new Object[]{result});
-        ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+        //vpn info update in vpnManager
         if(true == ret)
         {
-            vpnInstance = this.vpnInstanceManager.updateVpnInstance(vpnName,routerId, device,businessRegion,rd,importRT, exportRT,
+            this.vpnInstanceManager.updateVpnInstance(vpnName,routerId, device,businessRegion,rd,importRT, exportRT,
                     peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,deviceInterfaceList,networkSegList);
-            if(null != vpnInstance)
-            {
-                device.addVpnInstance(vpnName, vpnInstance);
-            }
         }
 
         return true;
@@ -207,13 +221,13 @@ public class VPNServiceImpl implements VPNService {
         }
         VPNInstance vpnInsntance = null;
         for (L3vpnInstance l3vpnInstance:l3vpnInstances) {
-            vpnInsntance = mapL3vpnInstanceToVPNInstance(l3vpnInstance,vpnName,routerId);
+            vpnInsntance = mapL3vpnInstanceToVPNInstance(l3vpnInstance,routerId);
         }
         return vpnInsntance;
     }
     public List<VPNInstance> getVpnInstanceListFromDevice(String vpnName)
     {
-        List<VPNInstance> vpnInstancelist=null;
+        List<VPNInstance> vpnInstancelist=new LinkedList<VPNInstance>();
         List<Device>  deviceList = this.deviceManager.getDeviceList();
         for (Device device:deviceList) {
             NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
@@ -224,7 +238,10 @@ public class VPNServiceImpl implements VPNService {
             List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
             if(null != l3vpnInstances) {
                 for(L3vpnInstance l3vpnInstance:l3vpnInstances){
-                    vpnInstancelist.add(mapL3vpnInstanceToVPNInstance(l3vpnInstance,vpnName,device.getRouterId()));
+                    VPNInstance tmpVPNInstance=mapL3vpnInstanceToVPNInstance(l3vpnInstance,device.getRouterId());
+                    if(null!=tmpVPNInstance){
+                        vpnInstancelist.add(tmpVPNInstance);
+                    }
                 }
             }
         }
@@ -257,16 +274,8 @@ public class VPNServiceImpl implements VPNService {
 
 
 
-    public VPNInstance mapL3vpnInstanceToVPNInstance(L3vpnInstance l3vpnInstance,String vpnName,String routerId){
-        if(!l3vpnInstance.getVrfName().equals(vpnName)){
-            LOG.info("can't find  vpnName={}", new Object[]{vpnName});
-            return null;
-        }
 
-        return mapL3vpnInstanceToVPNInstance(l3vpnInstance,routerId);
-    }
-
-    public VPNInstance mapL3vpnInstanceToVPNInstance(L3vpnInstance l3vpnInstance,String routerId){
+    private VPNInstance mapL3vpnInstanceToVPNInstance(L3vpnInstance l3vpnInstance,String routerId){
         if(l3vpnInstance==null||l3vpnInstance.getVrfName()==null||routerId==null){
             LOG.info("get l3vpnInstance={} routerId={}", new Object[]{l3vpnInstance.toString(),routerId});
             return null;
@@ -302,4 +311,5 @@ public class VPNServiceImpl implements VPNService {
         }
         return vpnInstance;
     }
+    
 }
