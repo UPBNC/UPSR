@@ -17,11 +17,11 @@ import cn.org.upbnc.service.entity.DevInterfaceInfo;
 import cn.org.upbnc.util.netconf.GigabitEthernet;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.xml.VpnXml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
@@ -139,6 +139,11 @@ public class InterfaceServiceImpl implements InterfaceService{
             }
             return devInterfaceInfos;
         }
+        return null;
+    }
+
+    @Override
+    public String syncInterfaceConf() {
         return null;
     }
 }
