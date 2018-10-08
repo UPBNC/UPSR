@@ -6,7 +6,7 @@ import java.util.List;
 public class TpNexthopEntity {//Rule for binding a TE tunnel to a destination address, so that the VPN traffic destined for
     // that destination address can be transmitted over the TE tunnel.
 
-
+    private String tnlPolicyName;
     private String nexthopIPaddr;//KEY   Destination IP address to be bound to a tunnel
 
     private boolean downSwitch;//Enable tunnel switching. After this option is selected, if the bound TE tunnel is
@@ -22,6 +22,7 @@ public class TpNexthopEntity {//Rule for binding a TE tunnel to a destination ad
     // max-elements  "16"
 
     public TpNexthopEntity() {
+        this.tnlPolicyName=null;
         this.nexthopIPaddr = null;
         this.downSwitch = false;
         this.ignoreDestCheck = false;
@@ -29,13 +30,23 @@ public class TpNexthopEntity {//Rule for binding a TE tunnel to a destination ad
         this.tpTunnels = new ArrayList<String>();
     }
 
-    public TpNexthopEntity(String nexthopIPaddr, boolean downSwitch, boolean ignoreDestCheck, boolean isIncludeLdp,
+    public TpNexthopEntity(String tnlPolicyName,String nexthopIPaddr, boolean downSwitch, boolean ignoreDestCheck,
+                           boolean isIncludeLdp,
                            List<String> tpTunnels) {
+        this.tnlPolicyName=tnlPolicyName;
         this.nexthopIPaddr = nexthopIPaddr;
         this.downSwitch = downSwitch;
         this.ignoreDestCheck = ignoreDestCheck;
         this.isIncludeLdp = isIncludeLdp;
         this.tpTunnels = tpTunnels;
+    }
+
+    public String getTnlPolicyName() {
+        return tnlPolicyName;
+    }
+
+    public void setTnlPolicyName(String tnlPolicyName) {
+        this.tnlPolicyName = tnlPolicyName;
     }
 
     public String getNexthopIPaddr() {

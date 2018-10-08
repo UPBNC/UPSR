@@ -39,6 +39,9 @@ public class TunnelPolicyXml {
         try {
             document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
+            if(null==root.element("data").element("tnlm")){
+                return sTunnelPolicyList;
+            }
             List<Element> tunnelPolicyElements = root.element("data").element("tnlm").element("tunnelPolicys").elements("tunnelPolicy");
             if(null==tunnelPolicyElements&&tunnelPolicyElements.size()==0){
                 return sTunnelPolicyList;

@@ -2,6 +2,7 @@ package cn.org.upbnc.service.entity.TunnelPolicy;
 
 public class TnlSelSeqEntity {//Sequence in which different types of tunnels are selected. If the value is INVALID, no tunnel type has been configured
 
+    private  String tnlPolicyName;
     private int loadBalanceNum;//range "1..64;default "1";Sequence in which different types of tunnels are selected. The available tunnel types are CR-LSP, and LSP. LSP tunnels refer to LDP LSP tunnels here
 
     private String selTnlType1;
@@ -17,6 +18,7 @@ public class TnlSelSeqEntity {//Sequence in which different types of tunnels are
     private boolean unmix;
 
     public TnlSelSeqEntity() {
+        tnlPolicyName=null;
         loadBalanceNum=1;
         selTnlType1="invaild";
         selTnlType2="invaild";
@@ -26,8 +28,10 @@ public class TnlSelSeqEntity {//Sequence in which different types of tunnels are
         unmix=false;
     }
 
-    public TnlSelSeqEntity(int loadBalanceNum, String selTnlType1, String selTnlType2, String selTnlType3,
+    public TnlSelSeqEntity(String tnlPolicyName,int loadBalanceNum, String selTnlType1, String selTnlType2,
+                           String selTnlType3,
                            String selTnlType4, String selTnlType5, boolean unmix) {
+        this.tnlPolicyName=tnlPolicyName;
         this.loadBalanceNum = loadBalanceNum;
         this.selTnlType1 = selTnlType1;
         this.selTnlType2 = selTnlType2;
@@ -35,6 +39,14 @@ public class TnlSelSeqEntity {//Sequence in which different types of tunnels are
         this.selTnlType4 = selTnlType4;
         this.selTnlType5 = selTnlType5;
         this.unmix = unmix;
+    }
+
+    public String getTnlPolicyName() {
+        return tnlPolicyName;
+    }
+
+    public void setTnlPolicyName(String tnlPolicyName) {
+        this.tnlPolicyName = tnlPolicyName;
     }
 
     public int getLoadBalanceNum() {
