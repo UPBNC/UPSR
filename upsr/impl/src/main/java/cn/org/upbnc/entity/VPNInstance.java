@@ -6,6 +6,10 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package cn.org.upbnc.entity;
+import cn.org.upbnc.util.netconf.L3vpnIf;
+import cn.org.upbnc.util.netconf.L3vpnInstance;
+import cn.org.upbnc.util.netconf.bgp.BgpVrf;
+
 import java.util.ArrayList;
 import java.util.List;
 public class VPNInstance {
@@ -215,6 +219,88 @@ public class VPNInstance {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public List<Boolean> compareVpnInfo(String vpnName,
+                                String routerId,
+                                String businessRegion,
+                                String rd,
+                                String importRT,
+                                String exportRT,
+                                Integer peerAS,
+                                Address peerIP,
+                                Integer routeSelectDelay,
+                                Integer importDirectRouteEnable,
+                                List<DeviceInterface> deviceInterfaceList,
+                                List<NetworkSeg> networkSegList) {
+
+        List<Boolean> compList = new ArrayList<Boolean>();
+        boolean isRdChanged=false;
+        boolean isRtChanged=false;
+        boolean isIfmChanged=false;
+        boolean isEbgpChanged=false;
+        if(rd!=this.rd){
+            isRdChanged=true;
+            isRtChanged=true;
+            isEbgpChanged=true;
+        }else{
+            if(exportRT!=this.exportRT){
+                isRtChanged=true;
+            }
+            if(!compareEbgpInfoIsEqual(peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,networkSegList)){
+                isEbgpChanged=true;
+            }
+        }
+        if(!compareDeviceInterfaceListInfoIsEqual(deviceInterfaceList)){
+            isIfmChanged=true;
+        }
+
+        compList.add(isRdChanged);
+        compList.add(isRtChanged);
+        compList.add(isIfmChanged);
+        compList.add(isEbgpChanged);
+        return compList;
+    }
+
+    public boolean compareEbgpInfoIsEqual(Integer peerAS,
+                                 Address peerIP,
+                                 Integer routeSelectDelay,
+                                 Integer importDirectRouteEnable,
+                                 List<NetworkSeg> networkSegList){
+        if(peerAS==this.peerAS&&peerIP.getAddress()==this.peerIP.getAddress()&&importDirectRouteEnable==this.importDirectRouteEnable&&routeSelectDelay==this.routeSelectDelay){
+            if(compareNetworkSegListInfoIsEqual(networkSegList)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean compareNetworkSegListInfoIsEqual(List<NetworkSeg> networkSegList){
+        if(networkSegList==null&&this.networkSegList==null){
+            return  true;
+        }
+        if(networkSegList.size()!=this.networkSegList.size()){
+            return false;
+        }
+        for (Object object : networkSegList) {
+            if (!this.networkSegList.contains(object))
+                return false;
+        }
+        return true;
+    }
+
+    public boolean compareDeviceInterfaceListInfoIsEqual(List<DeviceInterface> deviceInterfaceList){
+        if(deviceInterfaceList==null&&this.deviceInterfaceList==null){
+            return  true;
+        }
+        if(deviceInterfaceList.size()!=this.deviceInterfaceList.size()){
+            return false;
+        }
+        for (Object object : deviceInterfaceList) {
+            if (!this.deviceInterfaceList.contains(object))
+                return false;
+        }
+        return true;
     }
 
 }

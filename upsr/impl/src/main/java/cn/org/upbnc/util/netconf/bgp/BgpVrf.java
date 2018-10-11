@@ -1,5 +1,7 @@
 package cn.org.upbnc.util.netconf.bgp;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BgpVrf {
@@ -14,8 +16,8 @@ public class BgpVrf {
     public BgpVrf(){
         this.vrfName=null;
         this.BgpPeers =null;
-        this.NetworkRoutes =null;
-        this.ImportRoutes =null;
+        this.NetworkRoutes =new ArrayList<NetworkRoute>();
+        this.ImportRoutes =new ArrayList<ImportRoute>();
     }
 
     public BgpVrf(String vrfName, List<BgpPeer> BgpPeers, List<NetworkRoute> NetworkRoutes, List<ImportRoute> ImportRoutes){
@@ -24,6 +26,8 @@ public class BgpVrf {
         this.NetworkRoutes = NetworkRoutes;
         this.ImportRoutes = ImportRoutes;
     }
+
+
 
 
     public String getVrfName() {
