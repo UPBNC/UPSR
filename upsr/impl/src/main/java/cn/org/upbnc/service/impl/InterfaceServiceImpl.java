@@ -10,8 +10,10 @@ package cn.org.upbnc.service.impl;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
+import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.InterfaceService;
 import cn.org.upbnc.service.entity.DevInterfaceInfo;
 import cn.org.upbnc.util.netconf.GigabitEthernet;
@@ -20,6 +22,7 @@ import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,6 +68,9 @@ public class InterfaceServiceImpl implements InterfaceService{
 
     @Override
     public List<DevInterfaceInfo> getInterfaceList(String routerId) {
+        String ifnetStatus = null;
+        String srStatus = null;
+
         if((null == routerId)||(routerId.isEmpty()))
         {
             return null;
@@ -79,9 +85,11 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != deviceInterfaceList)
         {
             for(DeviceInterface deviceInterface:deviceInterfaceList) {
+                ifnetStatus = (1 == deviceInterface.getStatus()) ? "up" :"down";
+                srStatus = (1 == deviceInterface.getSrStatus()) ? "up" :"down";
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
-                        deviceInterface.getStatus(),deviceInterface.getSrStatus(),
+                        ifnetStatus, srStatus,
                         null,null);
                 if(null != deviceInterface.getIp()) {
                     devInterfaceInfo.setIfnetIP(deviceInterface.getIp().getAddress());
@@ -95,6 +103,10 @@ public class InterfaceServiceImpl implements InterfaceService{
                 }
                 if(null != deviceInterface.getVpn()) {
                     devInterfaceInfo.setVpnName(deviceInterface.getVpn().getVpnName());
+                }
+                if(null != deviceInterface.getAdjLabel())
+                {
+                    devInterfaceInfo.setAdjLabel(deviceInterface.getAdjLabel());
                 }
                 devInterfaceInfos.add(devInterfaceInfo);
             }
@@ -142,8 +154,64 @@ public class InterfaceServiceImpl implements InterfaceService{
         return null;
     }
 
+
     @Override
-    public String syncInterfaceConf() {
-        return null;
+    public String toString() {
+        return "InterfaceServiceImpl{" +
+                "baseInterface=" + baseInterface +
+                ", netConfManager=" + netConfManager +
+                ", deviceManager=" + deviceManager +
+                '}';
+    }
+    public boolean updateDeviceInterface (DeviceInterface deviceInterface , DevInterfaceInfo devInterfaceInfo) {
+
+        if((null == deviceInterface)||(null == devInterfaceInfo)) {
+            return false;
+        }
+        deviceInterface.setIp(new Address(devInterfaceInfo.getIfnetIP(), AddressTypeEnum.V4));
+        deviceInterface.setMask(new Address(devInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4));
+        deviceInterface.setMac(new Address(devInterfaceInfo.getIfnetMac(), AddressTypeEnum.MAC));
+        if((null != deviceInterface.getVpn())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
+            //deviceInterface.setVpn();
+        }
+        deviceInterface.setRefreshFlag(true);
+        return true;
+
+    }
+    @Override
+    public boolean syncInterfaceConf() {
+        if(null != this.deviceManager) {
+            for (Device device:this.deviceManager.getDeviceList()) {
+                List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
+                List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
+                //1 memory interface set invalid
+                for (DeviceInterface deviceInterface:deviceInterfaceList)
+                {
+                    deviceInterface.setRefreshFlag(false);
+                }
+                //2 compare memory interface and device interface
+                //3 sync device interface to memory interface and refresh memory interface status
+                for (DeviceInterface deviceInterface:deviceInterfaceList) {
+                    for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
+                        if(true == deviceInterfaceInfo.getIfnetName().equals(deviceInterface.getName())) {
+                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
+                        }
+                    }
+                }
+
+                //4 delete invalid memory interface
+                DeviceInterface deviceInterfaceGet = null;
+                Iterator<DeviceInterface> iter = deviceInterfaceList.iterator();
+                while(iter.hasNext())
+                {
+                    deviceInterfaceGet = iter.next();
+                    if(false == deviceInterfaceGet.isRefreshFlag()) {
+                        iter.remove();
+                    }
+                }
+            }
+           // List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice();
+        }
+        return true;
     }
 }

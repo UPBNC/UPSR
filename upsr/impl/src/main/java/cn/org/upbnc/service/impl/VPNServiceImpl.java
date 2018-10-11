@@ -14,9 +14,6 @@ import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.VPNService;
-
-import java.util.*;
-
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
@@ -123,7 +120,7 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
-            ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+            ret = CheckXml.checkOk(result).equals("ok");
 
         }else{
             //modify vpn
@@ -177,7 +174,7 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get result={}", new Object[]{result});
-        boolean ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+        boolean ret =  CheckXml.checkOk(result).equals("ok");
         if(true == ret) {
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }
@@ -348,7 +345,7 @@ public class VPNServiceImpl implements VPNService {
     }
 
     @Override
-    public String syncVpnInstanceConf() {
-        return null;
+    public boolean syncVpnInstanceConf() {
+        return true;
     }
 }

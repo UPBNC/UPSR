@@ -19,6 +19,9 @@ import cn.org.upbnc.service.entity.NetconfSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class NetconfSessionServiceImpl implements NetconfSessionService{
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionServiceImpl.class);
     private static NetconfSessionService ourInstance = new NetconfSessionServiceImpl();
@@ -59,7 +62,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
 
     @Override
-    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
+    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
         if((null == routerId)||routerId.isEmpty()
                 ||(null == deviceName)||deviceName.isEmpty()
                 ||(null == deviceIP)||deviceIP.isEmpty()||(0 == devicePort)){
@@ -69,6 +72,10 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
+            device.setDeviceName(deviceName);
+            //device.setDataCenter();
+            //device.setDeviceType();
+
             netconf = device.getNetConf();
             if((deviceIP != netconf.getIp().getAddress())||(devicePort != netconf.getPort())
                     ||(userName != netconf.getUser())||(userPassword != netconf.getPassword()))
@@ -84,10 +91,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         {
             netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
             device = this.deviceManager.addDevice(deviceName,routerId);
-            //device = new Device(routerId, deviceName, netconf);
             if((null == netconf)||(null == device)) {
                 return false;
             }
+            //device.setDataCenter();
+            //device.setDeviceType();
             device.setNetConf(netconf);
             this.netConfManager.addDevice(netconf);
         }
@@ -120,10 +128,29 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
-            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), null,device.getSysName(), device.getNetConf().getIp().getAddress(),
+            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), null,null,device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
         }
         return netconfSession;
+    }
+
+    @Override
+    public List<NetconfSession> getNetconfSession() {
+        NetconfSession netconfSession = null;
+        List<NetconfSession> netconfSessionList = null;
+        List<Device>   deviceList = this.deviceManager.getDeviceList();
+        if((null == deviceList)||(0 == deviceList.size())) {
+            return  null;
+        }
+        netconfSessionList = new LinkedList<NetconfSession>();
+        for (Device device:deviceList) {
+            netconfSession = getNetconfSession(device.getRouterId());
+            if(null != netconfSession)
+            {
+                netconfSessionList.add(netconfSession);
+            }
+        }
+        return netconfSessionList;
     }
 
     @Override

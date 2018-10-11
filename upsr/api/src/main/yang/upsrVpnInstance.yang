@@ -73,6 +73,18 @@ module upsrVpnInstance {
             uses vpnInstanceListInfo;
         }
     }
+    rpc getVpnInstanceList {
+        input {
+            leaf vpnName {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
     rpc delVpnInstance
     {
         input {

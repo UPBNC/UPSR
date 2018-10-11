@@ -47,6 +47,8 @@ public class Device {
     private DeviceTypeEnum deviceTypeEnum;
     private BgpDevice bgpDevice;
 
+    private OspfProcess ospfProcess;
+
     public Device() {
         this.id = 0;
         this.name = null;
