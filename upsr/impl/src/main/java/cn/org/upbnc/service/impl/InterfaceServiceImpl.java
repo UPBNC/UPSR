@@ -195,6 +195,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                     for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
                         if(true == deviceInterfaceInfo.getIfnetName().equals(deviceInterface.getName())) {
                             updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
+
                         }
                     }
                 }

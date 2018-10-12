@@ -10,10 +10,7 @@ package cn.org.upbnc.base.impl;
 import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
@@ -168,7 +165,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstance;
     }
 
-    public VPNInstance updateVpnInstance(String routerId,VPNInstance vpnInstance){
+    public VPNInstance updateVpnInstance(VPNInstance vpnInstance){
         if (null == vpnInstance) {
             return null;
         }
@@ -183,7 +180,23 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstance;
     }
 
+
     public List<VPNInstance> getVpnInstanceList() {
+        return vpnInstanceList;
+    }
+
+    public List<VPNInstance> getVpnInstanceListByRouterId(String routerId){
+        LOG.info("enter getVpnIstance routerid={} ", new Object[]{routerId});
+        if ((null == routerId)||routerId.isEmpty()) {
+            return null;
+        }
+        List<VPNInstance> vpnInstanceList = new ArrayList<VPNInstance>();
+        for(VPNInstance vpnInstance:this.vpnInstanceList){
+            if(vpnInstance.getRouterId().equals(routerId)){
+                vpnInstanceList.add(vpnInstance);
+            }
+        }
+
         return vpnInstanceList;
     }
 

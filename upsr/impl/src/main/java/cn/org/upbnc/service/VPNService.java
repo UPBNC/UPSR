@@ -29,9 +29,9 @@ public interface VPNService {
                               List<NetworkSeg> networkSegList);
     boolean delVpnInstance(Integer id);
     boolean delVpnInstance(String routerId,String vpnName);
-    VPNInstance getVpnInstance(Integer id);
-    VPNInstance getVpnInstance(String routerId, String vpnName);
     List<VPNInstance> getVpnInstanceList(String vpnName);
+    VPNInstance getVpnInstance(String routerId, String vpnName);
+    VPNInstance getVpnInstanceFromDevice(String routerId, String vpnName);
     List<VPNInstance> getVpnInstanceListFromDevice(String vpnName);
     boolean syncVpnInstanceConf();
     String getTest();

@@ -13,6 +13,7 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.service.VPNService;
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
@@ -26,6 +27,7 @@ import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -180,23 +182,8 @@ public class VPNServiceImpl implements VPNService {
         }
         return ret;
     }
-    public VPNInstance getVpnInstance(Integer id)
-    {
-        VPNInstance vpnInsntance = this.vpnInstanceManager.getVpnInstance(id);
-        if((null == vpnInsntance)||(null != vpnInsntance.getDevice())||(null != vpnInsntance.getDevice().getNetConf())){
-            return null;
-        }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(vpnInsntance.getDevice().getNetConf().getIp().getAddress());
 
-        LOG.info("enter getVpnIstance");
-        String sendMsg = VpnXml.getVpnXml(vpnInsntance.getVpnName());
-        LOG.info("get sendMsg={}", new Object[]{sendMsg});
-        String result = netconfController.sendMessage(netconfClient, sendMsg);
-        LOG.info("get result={}", new Object[]{result});
-
-        return vpnInsntance;
-    }
-    public VPNInstance getVpnInstance(String routerId, String vpnName)
+    public VPNInstance getVpnInstanceFromDevice(String routerId, String vpnName)
     {
         /*
         VPNInstance vpnInsntance = this.vpnInstanceManager.getVpnIstance(routerId, vpnName);
@@ -247,7 +234,36 @@ public class VPNServiceImpl implements VPNService {
                         vpnInstancelist.add(tmpVPNInstance);
                     }
                 }
+            }else{
+                return null;
             }
+        }
+        return vpnInstancelist;
+    }
+
+    public List<VPNInstance> getVpnInstanceListFromDevice(String routerId,String vpnName)
+    {
+        List<VPNInstance> vpnInstancelist=new LinkedList<VPNInstance>();
+        Device device=this.deviceManager.getDevice(routerId);
+        if(device==null){
+            return vpnInstancelist;
+        }
+
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        LOG.info("enter getVpnInstanceListFromDevice");
+        String sendMsg = VpnXml.getVpnXml(vpnName);
+        LOG.info("get sendMsg={}", new Object[]{sendMsg});
+        String result = netconfController.sendMessage(netconfClient, sendMsg);
+        List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
+        if(null != l3vpnInstances) {
+            for(L3vpnInstance l3vpnInstance:l3vpnInstances){
+                VPNInstance tmpVPNInstance=mapL3vpnInstanceToVPNInstance(l3vpnInstance,device.getRouterId());
+                if(null!=tmpVPNInstance){
+                    vpnInstancelist.add(tmpVPNInstance);
+                }
+            }
+        }else{
+            return null;
         }
         return vpnInstancelist;
     }
@@ -271,6 +287,21 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         return vpnInstances;
+    }
+
+    public  VPNInstance getVpnInstance(String routerId, String vpnName){
+        if((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty()) {
+            return null;
+        }
+        List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
+        List<VPNInstance> vpnInstances = new LinkedList<VPNInstance>();
+        for (VPNInstance vpnInstance:vpnInstanceList) {
+            if(vpnName.equals(vpnInstance.getVpnName())&&routerId.equals(vpnInstance.getRouterId())) {
+                return vpnInstance;
+            }
+        }
+
+        return null;
     }
     public String getTest() {
         return null;
@@ -346,6 +377,36 @@ public class VPNServiceImpl implements VPNService {
 
     @Override
     public boolean syncVpnInstanceConf() {
+        if(null==vpnInstanceManager){
+            LOG.info("syncVpnInstanceConf is failed, vpnInstanceManager is null");
+            return false;
+        }
+        if(null!=vpnInstanceManager.getVpnInstanceList()){
+            for(VPNInstance vpnInstanceFromMem :vpnInstanceManager.getVpnInstanceList()){
+                vpnInstanceFromMem.setRefreshFlag(false);
+            }
+        }
+        for(Device device:deviceManager.getDeviceList()){
+            if(device.getNetConf().getStatus()== NetConfStatusEnum.Connected) {
+                List<VPNInstance> vpnInstanceListFromDevice = getVpnInstanceListFromDevice(device.getRouterId(), "");
+                if (null != vpnInstanceListFromDevice) {
+                    for (VPNInstance vpnInstanceFromDevice : vpnInstanceListFromDevice) {
+                        vpnInstanceFromDevice.setRefreshFlag(true);
+                        vpnInstanceManager.updateVpnInstance(vpnInstanceFromDevice);
+                    }
+                    for (VPNInstance vpnInstanceFromMem : vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId())) {
+                        if (!vpnInstanceFromMem.isRefreshFlag()) {
+                            vpnInstanceManager.delVpnInstance(vpnInstanceFromMem.getRouterId(), vpnInstanceFromMem.getVpnName());
+                        }
+                    }
+                } else {
+                    LOG.info("Can not get device's VPN info which device routerId=" + device.getRouterId());
+                }
+            }else{
+                LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            }
+        }
+
         return true;
     }
 }
