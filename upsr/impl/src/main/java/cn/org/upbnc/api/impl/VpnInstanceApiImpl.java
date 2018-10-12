@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class VpnInstanceApiImpl implements VpnInstanceApi {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceApiImpl.class);
@@ -76,7 +77,9 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     {
         return (null == this.vpnService)?null:this.vpnService.getVpnInstanceListFromDevice(vpnName);
     }
-
+    public Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName) {
+        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceMap(vpnName);
+    }
     public String getTest() {
         return null;
     }

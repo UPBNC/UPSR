@@ -346,7 +346,7 @@ public class VPNServiceImpl implements VPNService {
         }
         return vpnInstance;
     }
-
+   
     private BgpVrf mapEbgpInfoToBgpVfr(String vfrName,Integer peerAS, Address peerIP, Integer routeSelectDelay, Integer importDirectRouteEnable,
                                        List<NetworkSeg> networkSegList){
         BgpVrf bgpVrf=new BgpVrf();
@@ -375,6 +375,9 @@ public class VPNServiceImpl implements VPNService {
         return bgpVrf;
     }
 
+ /*
+    // sync vpnInstance configure
+     */
     @Override
     public boolean syncVpnInstanceConf() {
         if(null==vpnInstanceManager){
@@ -408,5 +411,48 @@ public class VPNServiceImpl implements VPNService {
         }
 
         return true;
+    }
+
+    /*
+    // list to map for rest api
+     */
+    @Override
+    public Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName) {
+        Boolean findFlag = false;
+        if(null == vpnName)
+        {
+            return null;
+        }
+        List<VPNInstance> vpnInstances = null;
+        Map<String, List<VPNInstance>> vpnInstanceMap = new HashMap<String, List<VPNInstance>>();
+        List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
+
+        if(true == vpnName.equals("")) {
+            for (VPNInstance vpnInstance:vpnInstanceList) {
+                vpnInstances = new LinkedList<VPNInstance>();
+                vpnInstances.add(vpnInstance);
+                if(vpnInstanceMap.containsKey(vpnInstance.getVpnName())) {
+                    vpnInstanceMap.get(vpnInstance.getVpnName()).add(vpnInstance);
+                }
+                else
+                {
+                    vpnInstanceMap.put(vpnInstance.getVpnName(), vpnInstances);
+                }
+            }
+        }
+        else
+        {
+            vpnInstances = new LinkedList<VPNInstance>();
+            for (VPNInstance vpnInstance:vpnInstanceList) {
+                if(true == vpnName.equals(vpnInstance.getVpnName())) {
+                    vpnInstances.add(vpnInstance);
+                    findFlag = true;
+                }
+            }
+            if(true == findFlag) {
+                vpnInstanceMap.put(vpnName, vpnInstances);
+            }
+        }
+        return vpnInstanceMap;
     }
 }

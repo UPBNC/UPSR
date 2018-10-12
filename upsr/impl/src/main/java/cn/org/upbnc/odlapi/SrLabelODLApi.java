@@ -14,6 +14,7 @@ import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.impl.UpsrProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srgblabelinfo.SrgbPrefixSidBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -47,13 +48,19 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         if(SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(getSrgbLabelOutputBuilder.build()).buildFuture();
         }else{
-
+            this.getSrLabelApi();
         }
         Device device = srLabelApi.getDevice(input.getRouterId());
 
         getSrgbLabelOutputBuilder.setRouterId(device.getRouterId());
         getSrgbLabelOutputBuilder.setSrEnabled("1");
-        //getSrgbLabelOutputBuilder.setSrgbPrefixSid(device.getNodeLabel().getValue()+"");
+        SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
+        srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
+        srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
+        srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
+        srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
+        srgbPrefixSidBuilder.setPrefixId(device.getNodeLabel().getValue().toString());
+        getSrgbLabelOutputBuilder.setSrgbPrefixSid(srgbPrefixSidBuilder.build());
 
         LOG.info("getSrgbLabel end");
         return RpcResultBuilder.success(getSrgbLabelOutputBuilder.build()).buildFuture();
@@ -65,8 +72,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         if(SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(updateSrgbLabelOutputBuilder.build()).buildFuture();
         }else{
-
-
+            this.getSrLabelApi();
         }
 
         LOG.info("updateSrgbLabel eng");
@@ -80,7 +86,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         if(SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(updateIntfLabelOutputBuilder.build()).buildFuture();
         }else{
-
+            this.getSrLabelApi();
         }
         srLabelApi.updateIntfLabel(input.getRouterId(),input.getIntfLocalAddress(),
                 input.getIntfRemoteAddress(),input.getIntfLabelVal());
@@ -95,7 +101,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         if(SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(delIntfLabelOutputBuilder.build()).buildFuture();
         }else{
-
+            this.getSrLabelApi();
         }
         LOG.info("delIntfLabel end");
         return RpcResultBuilder.success(delIntfLabelOutputBuilder.build()).buildFuture();
@@ -108,7 +114,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         if(SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(getIntfLabelOutputBuilder.build()).buildFuture();
         }else{
-
+            this.getSrLabelApi();
         }
         LOG.info("getIntfLabel end");
         return RpcResultBuilder.success(getIntfLabelOutputBuilder.build()).buildFuture();

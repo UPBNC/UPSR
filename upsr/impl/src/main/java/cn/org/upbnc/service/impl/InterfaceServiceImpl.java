@@ -199,7 +199,24 @@ public class InterfaceServiceImpl implements InterfaceService{
                         }
                     }
                 }
+                //4 add new device interface from device to memory
+                for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
+                    boolean compareFlag = false;
+                    for (DeviceInterface deviceInterface:deviceInterfaceList) {
+                        if(true == deviceInterface.getName().equals(deviceInterfaceInfo.getIfnetName())) {
+                            compareFlag = true;
+                        }
+                    }
+                    if(false == compareFlag) {
 
+                        DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),
+                                null, deviceInterfaceInfo.getIfnetName(),null, new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
+                                new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
+                                new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
+                                null, null, null);
+                        deviceInterfaceList.add(devInterface);
+                    }
+                }
                 //4 delete invalid memory interface
                 DeviceInterface deviceInterfaceGet = null;
                 Iterator<DeviceInterface> iter = deviceInterfaceList.iterator();

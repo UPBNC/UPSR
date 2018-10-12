@@ -6,6 +6,7 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.AdjLabel;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.NodeLabel;
+import cn.org.upbnc.entity.OspfProcess;
 import cn.org.upbnc.service.SrLabelService;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
@@ -82,7 +83,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     @Override
     public String syncNodeLabel(String routerId) {
         Device device = null;
-        LOG.info("syncNodeLabel begin");
+        LOG.info("syncNodeLabel begin " + routerId);
         device = deviceManager.getDevice(routerId);
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         String commandGetSrNodeLabelXml = SrLabelXml.getSrNodeLabelXml();
@@ -91,10 +92,31 @@ public class SrLabelServiceImpl implements SrLabelService {
         LOG.info("output xml: " + outPutXml);
         NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getSrNodeLabelFromgSrNodeLabelXml(outPutXml);
         NodeLabel nodeLabel = new NodeLabel();
+        OspfProcess ospfProcess = new OspfProcess();
+        ospfProcess.setAreaId(netconfSrLabelInfo.getOspfAreaId());
+        ospfProcess.setProcessId(Integer.parseInt(netconfSrLabelInfo.getOspfProcessId()));
         nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()));
         device.setNodeLabel(nodeLabel);
+        device.setOspfProcess(ospfProcess);
 
         String commandGetSrNodeLabelRangeXml = SrLabelXml.getSrNodeLabelRangeXml();
+        LOG.info("command sid range xml: " + commandGetSrNodeLabelRangeXml);
+        String outPutLabelRange = netconfController.sendMessage(netconfClient,commandGetSrNodeLabelRangeXml);
+        LOG.info("command out sid range xml: " + outPutLabelRange);
+        netconfSrLabelInfo = SrLabelXml.getSrNodeLabelRangeFromNodeLabelRangeXml(outPutLabelRange);
+        device.setMinNodeSID(Integer.parseInt(netconfSrLabelInfo.getSrgbBegin()));
+        device.setMaxNodeSID(Integer.parseInt(netconfSrLabelInfo.getSrgbEnd()));
+        LOG.info("syncNodeLabel end " + routerId);
+        return null;
+    }
+
+    public String syncNodeLabel() {
+        LOG.info("syncNodeLabel begin");
+        if(this.deviceManager !=null ) {
+            for (Device device : this.deviceManager.getDeviceList()) {
+                this.syncNodeLabel(device.getRouterId());
+            }
+        }
         LOG.info("syncNodeLabel end");
         return null;
     }
@@ -122,6 +144,13 @@ public class SrLabelServiceImpl implements SrLabelService {
         if(this.deviceManager !=null ) {
             for (Device device:this.deviceManager.getDeviceList()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+                String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
+                LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);
+                String outPutAdjLabelRangeXml = netconfController.sendMessage(netconfClient,commandGetSrAdjLabelRangeXml);
+                LOG.info("output xml: " + outPutAdjLabelRangeXml);
+                NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getAdjLabelRangeFromAdjLabelRangeXml(outPutAdjLabelRangeXml);
+                device.setMinAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjLowerSid()));
+                device.setMaxAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjUpperSid()));
                 String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
                 LOG.info("command xml: " + commandGetSrAdjLabelXml);
                 String outPutXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);

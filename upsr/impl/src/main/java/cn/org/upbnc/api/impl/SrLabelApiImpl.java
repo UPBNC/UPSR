@@ -19,13 +19,14 @@ public class SrLabelApiImpl implements SrLabelApi {
 
     @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
-        boolean ret = false;
+        boolean ret = true;
         try {
-            if(this.serviceInterface == null) {
+            if(this.serviceInterface == null){
                 this.serviceInterface = serviceInterface;
                 this.srLabelService = serviceInterface.getSrLabelService();
             }
         }catch (Exception e){
+            ret = false;
             LOG.info(e.toString());
         }
         return ret;

@@ -11,6 +11,7 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.entity.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface VPNService {
     // Set BaseInterface
@@ -33,6 +34,7 @@ public interface VPNService {
     VPNInstance getVpnInstance(String routerId, String vpnName);
     VPNInstance getVpnInstanceFromDevice(String routerId, String vpnName);
     List<VPNInstance> getVpnInstanceListFromDevice(String vpnName);
+    Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName);
     boolean syncVpnInstanceConf();
     String getTest();
 }
