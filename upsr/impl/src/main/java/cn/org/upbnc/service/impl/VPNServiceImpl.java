@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class VPNServiceImpl implements VPNService {
