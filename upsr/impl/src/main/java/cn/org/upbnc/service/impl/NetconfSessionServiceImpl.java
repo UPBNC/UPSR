@@ -14,13 +14,18 @@ import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.NetConf;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.service.NetconfSessionService;
 import cn.org.upbnc.service.entity.NetconfSession;
+import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.xml.HostNameXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class NetconfSessionServiceImpl implements NetconfSessionService{
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionServiceImpl.class);
@@ -81,7 +86,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                     ||(userName != netconf.getUser())||(userPassword != netconf.getPassword()))
             {
                 netconf.setUser(userName);
-                netconf.setPassword(userPassword);
+                if(true != userPassword.equals("")) {
+                    netconf.setPassword(userPassword);
+                }
                 netconf.setPort(devicePort);
                 netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
                 this.netConfManager.addDevice(netconf);
@@ -98,6 +105,21 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             device.setDeviceType(deviceType);
             device.setNetConf(netconf);
             this.netConfManager.addDevice(netconf);
+        }
+        if((null != netconf) &&(null != netconf.getIp())) {
+            NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
+            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "connected" :"connecting" ;
+            device.setSrStatus(connStatus );
+            if(NetConfStatusEnum.Connected == netconfStat.getStatus()) {
+                NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
+                String sendMsg = HostNameXml.getHostNameXml();
+                LOG.info("get sendMsg= "+ sendMsg + "\n");
+                String result = netconfController.sendMessage(netconfClient, sendMsg);
+                LOG.info("get result="+result + "\n");
+                String sysName = HostNameXml.getHostNameFromXml(result);
+                device.setSysName(sysName);
+            }
+
         }
         return true;
     }
@@ -128,8 +150,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
-            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), null,null,device.getSysName(), device.getNetConf().getIp().getAddress(),
+            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
+            netconfSession.setStatus(device.getSrStatus());
         }
         return netconfSession;
     }

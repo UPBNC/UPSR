@@ -31,4 +31,6 @@ public interface LinkManager {
 
     // Update Link
     List<Link> updateLinkListByBgpLinkList(List<Device> devices,List<BgpLink> bgpLinkList);
+
+    DeviceInterface getPeerDeviceInterface(DeviceInterface deviceInterface);
 }

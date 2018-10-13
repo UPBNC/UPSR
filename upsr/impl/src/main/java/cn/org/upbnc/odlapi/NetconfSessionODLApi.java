@@ -69,13 +69,14 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                 for (NetconfSession netconfSession:netconfSessionList) {
                     devNetconfInfobuilder = new DevicesBuilder();
                     devNetconfInfobuilder.setDeviceName(netconfSession.getDeviceName());
-                    devNetconfInfobuilder.setSystemName(netconfSession.getSysName());
+                    devNetconfInfobuilder.setSysName(netconfSession.getSysName());
                     devNetconfInfobuilder.setCenterName(netconfSession.getDeviceDesc());
                     devNetconfInfobuilder.setDeviceType(netconfSession.getDeviceType());
                     devNetconfInfobuilder.setRouterId(netconfSession.getRouterId());
                     devNetconfInfobuilder.setSshIp(netconfSession.getDeviceIP());
                     devNetconfInfobuilder.setSshPort(netconfSession.getDevicePort());
                     devNetconfInfobuilder.setUserName(netconfSession.getUserName());
+                    devNetconfInfobuilder.setConnectStatus(netconfSession.getStatus());
                     devNetconfInfoList.add(devNetconfInfobuilder.build());
                 }
                 netconfOutputBuilder.setDevices(devNetconfInfoList);
@@ -173,7 +174,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                 netconfOutputBuilder.setDeviceName(netconfSession.getDeviceName());
                 netconfOutputBuilder.setCenterName(netconfSession.getDeviceDesc());
                 netconfOutputBuilder.setDeviceType(netconfSession.getDeviceType());
-                netconfOutputBuilder.setSystemName(netconfSession.getSysName());
+                netconfOutputBuilder.setSysName(netconfSession.getSysName());
                 netconfOutputBuilder.setSshIp(netconfSession.getDeviceIP());
                 netconfOutputBuilder.setSshPort(netconfSession.getDevicePort());
                 netconfOutputBuilder.setUserName(netconfSession.getDeviceName());

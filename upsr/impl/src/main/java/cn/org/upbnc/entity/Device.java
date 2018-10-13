@@ -9,10 +9,7 @@ package cn.org.upbnc.entity;
 
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Device {
     // Base property
@@ -37,7 +34,8 @@ public class Device {
     private NodeLabel nodeLabel;
     private List<AdjLabel> adjLabelList;
 
-    private Integer srStatus;
+    //private Integer srStatus;
+    private String srStatus;
     private Integer bgpAS;
     private Integer ospfId;
 
@@ -67,7 +65,8 @@ public class Device {
         this.netConf = null;
         this.minNodeSID = 0;
         this.maxNodeSID = 0;
-        this.srStatus = 0;
+//        this.srStatus = 0;
+        this.srStatus = null;
         this.bgpAS = 0;
         this.ospfId = 0;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
@@ -92,7 +91,8 @@ public class Device {
                   NetConf netConf,
                   Integer minNodeSID,
                   Integer maxNodeSID,
-                  Integer srStatus,
+                  //Integer srStatus,
+                  String srStatus,
                   Integer bgpAS,
                   Integer ospfId,
                   List<DeviceInterface> deviceInterfaceList,
@@ -252,14 +252,22 @@ public class Device {
     }
 
 
-    public Integer getSrStatus() {
+//    public Integer getSrStatus() {
+//        return srStatus;
+//    }
+//
+//    public void setSrStatus(Integer srStatus) {
+//        this.srStatus = srStatus;
+//    }
+
+
+    public String getSrStatus() {
         return srStatus;
     }
 
-    public void setSrStatus(Integer srStatus) {
+    public void setSrStatus(String srStatus) {
         this.srStatus = srStatus;
     }
-
 
     public Integer getBgpAS() {
         return bgpAS;
@@ -359,7 +367,7 @@ public class Device {
         return deviceTypeEnum;
     }
 
-    public Label getNodeLabel() {
+    public NodeLabel getNodeLabel() {
         return nodeLabel;
     }
 
@@ -405,5 +413,20 @@ public class Device {
 
     public void setMaxAdjSID(Integer maxAdjSID) {
         this.maxAdjSID = maxAdjSID;
+    }
+
+    public DeviceInterface getDeviceInterfaceByAddress(String address){
+        if (this.deviceInterfaceList == null){
+            return null;
+        }
+        Iterator<DeviceInterface> deviceInterfaceIterator = this.deviceInterfaceList.iterator();
+        while (deviceInterfaceIterator.hasNext()){
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            if ((deviceInterface.getIp() != null) && (deviceInterface.getIp().getAddress() != null) &&
+                    deviceInterface.getIp().getAddress().equals(address)){
+                return deviceInterface;
+            }
+        }
+        return null;
     }
 }

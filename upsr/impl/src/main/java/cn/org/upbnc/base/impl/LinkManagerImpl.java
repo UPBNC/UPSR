@@ -165,4 +165,19 @@ public class LinkManagerImpl implements LinkManager {
         }
         return null;
     }
+
+    @Override
+    public DeviceInterface getPeerDeviceInterface(DeviceInterface deviceInterface) {
+        if(this.linkList == null){
+            return null;
+        }
+        Iterator<Link> linkIterator = this.linkList.iterator();
+        while (linkIterator.hasNext()){
+            Link link = linkIterator.next();
+            if(link.getDeviceInterface1() == deviceInterface){
+                return link.getDeviceInterface2();
+            }
+        }
+        return null;
+    }
 }

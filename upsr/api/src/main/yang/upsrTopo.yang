@@ -6,40 +6,34 @@ module upsrTopo {
     revision "2018-11-19" {
         description "Initial revision of upsrTopo model";
     }
+    import upsrSrLabel {
+        prefix upsrSrLabel;
+    }
 
     grouping nodeInfo {
         list nodes {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
+            leaf srEnabled { type string; }
+            leaf deviceName { type string; }
+            uses upsrSrLabel:srGlobal;
             list deviceInterfaces {
-                leaf ifAddress {
-                    type string;
-                }
+                uses upsrSrLabel:srInterface;
             }
         }
     }
 
     grouping linkInfo {
         list links {
-            leaf linkId {
-                type string;
-            }
+            leaf linkId { type string; }
             container source {
-                leaf routerId {
-                    type string;
-                }
-                leaf ifAddress {
-                    type string;
-                }
+                leaf routerId { type string; }
+                leaf ifAddress { type string; }
+                leaf adjlabel { type string; }
             }
             container dest {
-                leaf routerId {
-                    type string;
-                }
-                leaf ifAddress {
-                    type string;
-                }
+                leaf routerId { type string; }
+                leaf ifAddress { type string; }
+                leaf adjlabel { type string; }
             }
         }
     }
