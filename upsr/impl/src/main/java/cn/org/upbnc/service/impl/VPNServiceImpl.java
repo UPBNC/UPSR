@@ -205,20 +205,14 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get vpnInfo sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get vpnInfo result={}", new Object[]{result});
-        boolean ret =  CheckXml.checkOk(result).equals("ok");
-        if(!ret) {
-            return null;
-        }
+
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
 
         sendMsg= EbgpXml.getEbgpXml(vpnName);
         LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
         result=netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get vpnInfo result={}", new Object[]{result});
-        ret =  CheckXml.checkOk(result).equals("ok");
-        if(!ret) {
-            return null;
-        }
+
         List<BgpVrf> bgpVrfList= EbgpXml.getEbgpFromXml(result);
 
         if(null == l3vpnInstances) {
@@ -264,18 +258,18 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
-        boolean ret =  CheckXml.checkOk(result).equals("ok");
-        if(!ret) {
-            LOG.info("Get vpn info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
-        }
+//        boolean ret =  CheckXml.checkOk(result).equals("ok");
+//        if(!ret) {
+//            LOG.info("Get vpn info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
+//        }
         sendMsg= EbgpXml.getEbgpXml(vpnName);
         LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
         result=netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get vpnInfo result={}", new Object[]{result});
-        ret =  CheckXml.checkOk(result).equals("ok");
-        if(!ret) {
-            LOG.info("Get ebgp info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
-        }
+//        ret =  CheckXml.checkOk(result).equals("ok");
+//        if(!ret) {
+//            LOG.info("Get ebgp info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
+//        }
         List<BgpVrf> bgpVrfList= EbgpXml.getEbgpFromXml(result);
         VPNInstance vpnInsntance = null;
         if(null != l3vpnInstances) {
@@ -537,4 +531,5 @@ public class VPNServiceImpl implements VPNService {
         }
         return  new Address(ipMask,AddressTypeEnum.V4);
     }
+
 }
