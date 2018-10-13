@@ -76,7 +76,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         } else {
             //调用系统Api层函数
             vpnInstanceList = this.getVpnInstanceApi().getVpnInstanceList(input.getVpnName());
-            if ((null != vpnInstanceList) && (0 != vpnInstanceList.size())) {
+            if ((null != vpnInstanceList)) {
                 vpnInstanceOutputBuilder.setResult("success");
                 for (VPNInstance vpnInstance : vpnInstanceList) {
                     retVpnInstance = new VpnInstancesInfoBuilder();
