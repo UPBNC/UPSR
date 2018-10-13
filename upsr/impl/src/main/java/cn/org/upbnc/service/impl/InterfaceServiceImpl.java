@@ -184,6 +184,9 @@ public class InterfaceServiceImpl implements InterfaceService{
             for (Device device:this.deviceManager.getDeviceList()) {
                 List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
                 List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
+                if(null == deviceInterfaceInfoList) {
+                    continue;
+                }
                 //1 memory interface set invalid
                 for (DeviceInterface deviceInterface:deviceInterfaceList)
                 {

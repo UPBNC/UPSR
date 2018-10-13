@@ -212,7 +212,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
         List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
         UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
-        LOG.info("enter vpnInstanceUpdate-01");
+        LOG.info("enter vpnInstanceUpdate");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
