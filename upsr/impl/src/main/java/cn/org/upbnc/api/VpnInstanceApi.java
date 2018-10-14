@@ -37,4 +37,6 @@ public interface VpnInstanceApi {
     List<VPNInstance> getVpnInstanceList(String vpnName);
     Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName);
     String getTest();
+    boolean isContainVpnName(String vpnName);
+    boolean isContainRd(String routerId,String rd);
 }
