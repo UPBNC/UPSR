@@ -57,7 +57,7 @@ public class SrLabelXml {
             for (Element child : childElements) {
                 AdjLabel adjLabel = new AdjLabel();
                 adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));
-                adjLabel.setAddressLocal(new Address(child.elementText("remoteIpAddress"), AddressTypeEnum.V4));
+                adjLabel.setAddressRemote(new Address(child.elementText("remoteIpAddress"), AddressTypeEnum.V4));
                 adjLabel.setValue(Integer.valueOf(child.elementText("segmentId")));
                 adjLabelList.add(adjLabel);
             }

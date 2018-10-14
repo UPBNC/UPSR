@@ -104,10 +104,11 @@ public class LinkManagerImpl implements LinkManager {
 
     private boolean compareInterfaces(DeviceInterface a,DeviceInterface b){
         if(null != a && null != b){
-            boolean bDeviceName = a.getDeviceName().equals(b.getDeviceName());
+            //boolean bDeviceName = a.getDeviceName().equals(b.getDeviceName());
             //boolean bInterfacename = a.getName().equals(b.getName());
             boolean bIp = a.getIp().getAddress().equals(b.getIp().getAddress());
-            return bDeviceName&&bIp;
+            //return bDeviceName&&bIp;
+            return bIp;
         }
         return false;
     }

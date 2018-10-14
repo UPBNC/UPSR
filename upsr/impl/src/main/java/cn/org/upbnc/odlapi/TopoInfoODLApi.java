@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 public class TopoInfoODLApi implements UpsrTopoService {
-    private static final Logger LOG = LoggerFactory.getLogger(UpsrProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TopoInfoODLApi.class);
     Session session;
     TopoInfoApi topoInfoApi;
 
@@ -80,8 +80,8 @@ public class TopoInfoODLApi implements UpsrTopoService {
             }
             boolean linkExist = false;
             for (Links links:linksList){
-                if((links.getDest().equals(link.getDeviceInterface1().getIp().getAddress())) &&
-                    links.getSource().equals(link.getDeviceInterface2().getIp().getAddress())){
+                if((links.getDest().getIfAddress().equals(link.getDeviceInterface1().getIp().getAddress())) &&
+                    links.getSource().getIfAddress().equals(link.getDeviceInterface2().getIp().getAddress())){
                     linkExist = true;
                     break;
                 }
@@ -95,11 +95,17 @@ public class TopoInfoODLApi implements UpsrTopoService {
             //sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
             sourceBuilder.setRouterId(this.getRouterId(topoInfo,link.getDeviceInterface1().getDeviceName()));
             sourceBuilder.setIfAddress(link.getDeviceInterface1().getIp().getAddress());
+            if (link.getDeviceInterface1().getAdjLabel() !=  null) {
+                sourceBuilder.setAdjlabel(link.getDeviceInterface1().getAdjLabel().getValue().toString());
+            }
             linksBuilder.setSource(sourceBuilder.build());
             DestBuilder destBuilder = new DestBuilder();
             //destBuilder.setRouterId(link.getDeviceInterface2().getDevice().getRouterId());
             destBuilder.setRouterId(this.getRouterId(topoInfo,link.getDeviceInterface2().getDeviceName()));
             destBuilder.setIfAddress(link.getDeviceInterface2().getIp().getAddress());
+            if (link.getDeviceInterface2().getAdjLabel() != null) {
+                destBuilder.setAdjlabel(link.getDeviceInterface2().getAdjLabel().getValue().toString());
+            }
             linksBuilder.setDest(destBuilder.build());
             linksList.add(linksBuilder.build());
         }

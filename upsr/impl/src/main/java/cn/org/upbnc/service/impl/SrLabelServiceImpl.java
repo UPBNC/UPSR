@@ -20,12 +20,13 @@ import cn.org.upbnc.util.xml.SrLabelXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class SrLabelServiceImpl implements SrLabelService {
-    private static final Logger LOG = LoggerFactory.getLogger(SRServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SrLabelServiceImpl.class);
     private static SrLabelService ourInstance = null;
     private BaseInterface baseInterface;
     private NetConfManager netConfManager = null;
@@ -184,9 +185,18 @@ public class SrLabelServiceImpl implements SrLabelService {
                 LOG.info("command xml: " + commandGetSrAdjLabelXml);
                 String outPutXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);
                 LOG.info("output xml: " + outPutXml);
-                if (CheckXml.checkOk(outPutXml).equals("ok")) {
-                    List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
-                    device.setAdjLabelList(adjLabelList);
+                List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
+                device.setAdjLabelList(adjLabelList);
+                Iterator<AdjLabel> adjLabelIterator = adjLabelList.iterator();
+                while(adjLabelIterator.hasNext()) {
+                    AdjLabel adjLabel = adjLabelIterator.next();
+                    DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(adjLabel.getAddressLocal().getAddress());
+                    if ((deviceInterface != null) && (linkManager != null)){
+                        DeviceInterface deviceInterface1Peer = linkManager.getPeerDeviceInterface(deviceInterface);
+                        if (deviceInterface1Peer != null) {
+                            deviceInterface.setAdjLabel(adjLabel);
+                        }
+                    }
                 }
             }
         }
