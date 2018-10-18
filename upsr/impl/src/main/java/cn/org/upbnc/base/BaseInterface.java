@@ -21,6 +21,7 @@ public class BaseInterface {
     private NetConfManager netConfManager;
     private VpnInstanceManager vpnInstanceManager;
     private LinkManager linkManager;
+    private IniSectionManager iniSectionManager;
 
     public BaseInterface() {
     }
@@ -35,6 +36,7 @@ public class BaseInterface {
             this.netConfManager = NetConfManagerImpl.getInstance();
             this.bgpManager = BGPManagerImpl.getInstance();
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
+            this.iniSectionManager = IniSectionManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         }catch (Exception e){
             LOG.info("BaseInterface init failure! "+e.getMessage());
@@ -92,6 +94,12 @@ public class BaseInterface {
             this.linkManager = LinkManagerImpl.getInstance();
         }
         return this.linkManager;
+    }
+    public IniSectionManager getIniSectionManager() {
+        if(null == this.iniSectionManager) {
+            this.iniSectionManager = IniSectionManagerImpl.getInstance();
+        }
+        return this.iniSectionManager;
     }
 
     ///....

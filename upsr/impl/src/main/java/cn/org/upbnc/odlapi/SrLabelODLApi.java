@@ -17,12 +17,16 @@ import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.impl.UpsrProvider;
 import cn.org.upbnc.util.xml.SrLabelXml;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.updatesrlabel.input.IntfLabel;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Future;
 
 public class SrLabelODLApi implements UpsrSrLabelService{
@@ -58,7 +62,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         getSrgbLabelOutputBuilder.setRouterId(device.getRouterId());
         getSrgbLabelOutputBuilder.setSrEnabled("1");
         SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
-        Integer prefixLabel = device.getNodeLabel().getValue() + device.getMinNodeSID();
+        Integer prefixLabel = new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID());
         srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
         srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
         srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
@@ -78,16 +82,16 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }else{
             this.getSrLabelApi();
         }
-        Integer prefixLabel = Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
-                                            Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin());
+        Integer prefixLabel = new Integer( Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                                            Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
         if(input.getSrEnabled().equals(SrStatus.DISENABLED.getName())){
-            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
-            srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
-                                                input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
-        } else if(input.getSrEnabled().equals(SrStatus.ENABLED.getName())){
             srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationDelete);
             srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
-                    input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationDelete);
+                                                input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationDelete);
+        } else if(input.getSrEnabled().equals(SrStatus.ENABLED.getName())){
+            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
+            srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
+                    input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
         } else{
 
         }
@@ -134,5 +138,59 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }
         LOG.info("getIntfLabel end");
         return RpcResultBuilder.success(getIntfLabelOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<UpdateSrLabelOutput>> updateSrLabel(UpdateSrLabelInput input) {
+        UpdateSrLabelOutputBuilder updateSrLabelOutputBuilder = new UpdateSrLabelOutputBuilder();
+        LOG.info("updateSrLabel begin");
+        if(SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
+        }else{
+            this.getSrLabelApi();
+        }
+
+        if (input == null || input.getRouterId() == null){
+            LOG.info("updateSrLabel input is null");
+            return null;
+        }
+
+        String routerId = input.getRouterId();
+        String srStatus = input.getSrEnabled();
+        SrgbPrefixSid srgbPrefixSid = input.getSrgbPrefixSid();
+        List<IntfLabel> intfLabelList = input.getIntfLabel();
+        if (srStatus != null && srStatus.equals(SrStatus.DISENABLED.getName())){
+            Integer prefixLabel = new Integer( Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
+            srLabelApi.updateNodeLabel(input.getRouterId(),String.valueOf(prefixLabel),SrLabelXml.ncOperationDelete);
+            srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
+                    input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationDelete);
+            Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
+            while (intfLabelIterator.hasNext()){
+                IntfLabel intfLabel = intfLabelIterator.next();
+                srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                        intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+            }
+        } else if (srStatus != null && srStatus.equals(SrStatus.ENABLED.getName())){
+            Integer prefixLabel = new Integer(Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
+            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
+            srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
+                    input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
+            Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
+            while (intfLabelIterator.hasNext()){
+                IntfLabel intfLabel = intfLabelIterator.next();
+                if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())){
+                    srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                            intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+                }else {
+                    srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                            intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationMerge);
+                }
+            }
+        }
+        updateSrLabelOutputBuilder.setResult("success");
+        LOG.info("updateSrLabel begin");
+        return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
     }
 }

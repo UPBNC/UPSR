@@ -85,6 +85,9 @@ module upsrVpnInstance {
              leaf deviceName {
                 type string;
              }
+             leaf routerId {
+                type string;
+             }
              leaf vpnRd {
                 type string;
              }

@@ -7,12 +7,9 @@
  */
 package cn.org.upbnc.base;
 
-import java.io.File;
-
 public interface IniSectionManager {
-    String  getValue(String section, String key);
+    String  getValue(String section, String key, final String defaultvalue);
     Boolean setValue(String section, String key, String value);
-    String  getValue(File file, String section, String key);
-    Boolean setValue(File file, String section, String key, String value);
+    boolean storeFile();
 
 }

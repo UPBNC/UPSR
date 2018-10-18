@@ -12,7 +12,9 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.LinkManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.*;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
+import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.service.SrLabelService;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
@@ -65,12 +67,14 @@ public class SrLabelServiceImpl implements SrLabelService {
         device = deviceManager.getDevice(routerId);
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
-                device.getOspfProcess().getAreaId(),device.getOspfProcess().getIntfName(),"index",labelVal);
+                device.getOspfProcess().getAreaId(),device.getOspfProcess().getIntfName(),"index",labelVal,action);
         LOG.info("command xml: " + commandSetSrNodeLabelXml);
         String outPutXml = netconfController.sendMessage(netconfClient,commandSetSrNodeLabelXml);
         if (CheckXml.checkOk(outPutXml).equals("ok")){
             NodeLabel nodeLabel =  device.getNodeLabel();
             nodeLabel.setValue(Integer.parseInt(labelVal));
+            device.setNodeLabel(nodeLabel);
+            device.setSrStatus(SrStatus.ENABLED.getName());
         }
         LOG.info("updateNodeLabel end");
         return null;
@@ -117,6 +121,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()));
         device.setNodeLabel(nodeLabel);
         device.setOspfProcess(ospfProcess);
+        device.setSrStatus(SrStatus.ENABLED.getName());
 
         String commandGetSrNodeLabelRangeXml = SrLabelXml.getSrNodeLabelRangeXml();
         LOG.info("command sid range xml: " + commandGetSrNodeLabelRangeXml);
@@ -150,11 +155,10 @@ public class SrLabelServiceImpl implements SrLabelService {
         LOG.info("updateIntfLabel begin");
         device = deviceManager.getDevice(routerId);
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        DeviceInterface localDeviceInterface = device.getDeviceInterfaceByAddress(localAddress);
         if(remoteAddress == null) {
-            DeviceInterface localDeviceInterface = device.getDeviceInterfaceByAddress(localAddress);
             DeviceInterface remoteDeviceInterface = linkManager.getPeerDeviceInterface(localDeviceInterface);
             if (remoteDeviceInterface == null) {
-                //若无法找到对端则失败
                 return null;
             }
             peerAddress = remoteDeviceInterface.getIp().getAddress();
@@ -166,7 +170,11 @@ public class SrLabelServiceImpl implements SrLabelService {
         String outPutXml = netconfController.sendMessage(netconfClient,commandUpdateXml);
         LOG.info("output xml: " + outPutXml);
         if (CheckXml.checkOk(outPutXml).equals("ok")){
-
+            AdjLabel adjLabel = new AdjLabel();
+            adjLabel.setAddressLocal(new Address(localAddress, AddressTypeEnum.V4));
+            adjLabel.setAddressRemote(new Address(remoteAddress,AddressTypeEnum.V4));
+            adjLabel.setValue(Integer.parseInt(labelVal));
+            localDeviceInterface.setAdjLabel(adjLabel);
         }
         LOG.info("updateIntfLabel end");
         return null;
@@ -202,6 +210,10 @@ public class SrLabelServiceImpl implements SrLabelService {
                         DeviceInterface deviceInterface1Peer = linkManager.getPeerDeviceInterface(deviceInterface);
                         if (deviceInterface1Peer != null) {
                             deviceInterface.setAdjLabel(adjLabel);
+                            deviceInterface.setSrStatus(SrStatus.ENABLED.getName());
+                        }else{
+                            deviceInterface.setAdjLabel(null);
+                            deviceInterface.setSrStatus(null);
                         }
                     }
                 }

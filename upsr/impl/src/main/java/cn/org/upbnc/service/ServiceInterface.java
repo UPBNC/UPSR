@@ -95,6 +95,11 @@ public class ServiceInterface {
     // Start Bussiness
     public void startBusiness(){
 
+        this.netconfSessionService.recoverNetconfSession();
+        this.interfaceService.syncInterfaceConf();
+        this.vpnService.syncVpnInstanceConf();
+        this.srLabelService.syncIntfLabel();
+        this.srLabelService.syncNodeLabel();
 
         // Start topology service at last
         this.topoService.startService();
