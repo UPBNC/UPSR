@@ -251,12 +251,12 @@ public class VPNInstance {
         boolean isRtChanged=false;
         boolean isIfmChanged=false;
         boolean isEbgpChanged=false;
-        if(rd!=this.rd){
+        if(!rd.equals(this.rd)){
             isRdChanged=true;
             isRtChanged=true;
             isEbgpChanged=true;
         }else{
-            if(exportRT!=this.exportRT){
+            if(!exportRT.equals(this.exportRT)){
                 isRtChanged=true;
             }
             if(!compareEbgpInfoIsEqual(peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,networkSegList)){
@@ -279,7 +279,7 @@ public class VPNInstance {
                                  Integer routeSelectDelay,
                                  Integer importDirectRouteEnable,
                                  List<NetworkSeg> networkSegList){
-        if(peerAS==this.peerAS&&peerIP.getAddress()==this.peerIP.getAddress()&&importDirectRouteEnable==this.importDirectRouteEnable&&routeSelectDelay==this.routeSelectDelay){
+        if(peerAS==this.peerAS&&peerIP.getAddress().equals(this.peerIP.getAddress())&&importDirectRouteEnable==this.importDirectRouteEnable){
             if(compareNetworkSegListInfoIsEqual(networkSegList)){
                 return true;
             }

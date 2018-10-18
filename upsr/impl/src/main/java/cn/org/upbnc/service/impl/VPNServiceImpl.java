@@ -118,10 +118,17 @@ public class VPNServiceImpl implements VPNService {
             //create vpn
             LOG.info("vpnInstance is null,add VPN {}",vpnName);
 
-            String sendMsg = VpnXml.createVpnXml(l3vpnInstance)+EbgpXml.createEbgpXml(bgpVrf);
+            String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
             //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
-            String result = netconfController.sendMessage(netconfClient, sendMsg);
+            String result;
+            result = netconfController.sendMessage(netconfClient, sendMsg);
+
+             sendMsg = EbgpXml.createEbgpXml(bgpVrf);
+            //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
+            LOG.info("sendMsg={}", new Object[]{sendMsg});
+             result = netconfController.sendMessage(netconfClient, sendMsg);
+
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
 
