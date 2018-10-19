@@ -77,7 +77,7 @@ public class InterfaceServiceImpl implements InterfaceService{
             return null;
         }
         Device device = this.deviceManager.getDevice(routerId);
-        if((null == device)||(null == device.getNetConf())) {
+        if(null == device) {
             return null;
         }
         DevInterfaceInfo devInterfaceInfo = null;
@@ -188,7 +188,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != devInterfaceInfo.getIfnetMac()) {
             deviceInterface.setMac(new Address(devInterfaceInfo.getIfnetMac(), AddressTypeEnum.MAC));
         }
-        if((null != deviceInterface.getVpn())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
+        if((null != deviceInterface.getVpn())&&(null != devInterfaceInfo.getVpnName())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
             //deviceInterface.setVpn();
         }
         if(null!=devInterfaceInfo.getIfnetStatus()){
@@ -220,24 +220,15 @@ public class InterfaceServiceImpl implements InterfaceService{
                     deviceInterface.setRefreshFlag(false);
                 }
                 //2 compare memory interface and device interface
-                //3 sync device interface to memory interface and refresh memory interface status
-//                for (DeviceInterface deviceInterface:deviceInterfaceList) {
-//                    for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
-//                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())) {
-//                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
-//
-//                        }
-//                    }
-//                }
-                //4 add new device interface from device to memory
+                //3 add new device interface from device to memory
                 for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
                     boolean compareFlag = false;
-                    for (DeviceInterface deviceInterface:deviceInterfaceList) {
-                        if(null == deviceInterfaceInfo.getIfnetIP()) {
-                            break;
-                        }
 
-                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())){
+                    for (DeviceInterface deviceInterface:deviceInterfaceList) {
+                        if(null == deviceInterfaceInfo.getIfnetIP()) { // some interface on device ip is null
+                            break;  //for create deviceInterface
+                        }
+                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())){ //// deviceInterface.getIp() can't be null
                             compareFlag = true;
                             updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
                             break;
@@ -265,7 +256,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                     }
                 }
             }
-           // List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice();
+           
         }
         return true;
     }

@@ -89,8 +89,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             device.setDeviceType(deviceType);
 
             netconf = device.getNetConf();
-            if((null != netconf)&&((deviceIP != netconf.getIp().getAddress())||(devicePort != netconf.getPort())
-                    ||(userName != netconf.getUser())||(userPassword != netconf.getPassword())))
+            if((null != netconf)&&((true != deviceIP.equals(netconf.getIp().getAddress()))||(devicePort != netconf.getPort())
+                    ||(true != userName.equals(netconf.getUser()))||(true != userPassword.equals(netconf.getPassword()))))
             {
                 netconf.setUser(userName);
                 if(true != userPassword.equals("")) {
@@ -123,7 +123,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
         if((null != netconf) &&(null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
-            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "connected" :"connecting" ;
+            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "已连接" :"未连接" ;
             netconf.setStatus(netconfStat.getStatus());
             if(NetConfStatusEnum.Connected == netconfStat.getStatus()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
@@ -148,7 +148,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
-            this.netConfManager.deleteDevice(device.getNetConf());
+            if(null != device.getNetConf()) {
+                this.netConfManager.deleteDevice(device.getNetConf());
+            }
             this.deviceManager.delDevice(routerId);
             return true;
         }
@@ -177,7 +179,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                 String connStatus = "未连接";
                 //get status from device for avoiding connect break in use
 
-                NetConf netconf = device.getNetConf();
+                NetConf netconf = device.getNetConf(); // can't be null
                 if ((null != netconf.getIp()) && (null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
                     NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
                     connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "已连接" : "未连接";

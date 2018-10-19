@@ -7,10 +7,12 @@
  */
 package cn.org.upbnc.api.impl;
 
+import cn.org.upbnc.api.SrLabelApi;
 import cn.org.upbnc.api.TopoInfoApi;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.ServiceInterface;
+import cn.org.upbnc.service.SrLabelService;
 import cn.org.upbnc.service.TopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.linkinfo.Links;
 import org.slf4j.Logger;
@@ -22,8 +24,10 @@ import java.util.List;
 public class TopoInfoApiImpl implements TopoInfoApi {
     private static final Logger LOG = LoggerFactory.getLogger(TopoInfoApiImpl.class);
     private static TopoInfoApi ourInstance = new TopoInfoApiImpl();
+    private static boolean inited = false;
     private ServiceInterface serviceInterface;
     private TopoService topoService;
+    private SrLabelService srLabelService;
 
     public static TopoInfoApi getInstance() {
         return ourInstance;
@@ -32,6 +36,7 @@ public class TopoInfoApiImpl implements TopoInfoApi {
     private TopoInfoApiImpl() {
         this.serviceInterface = null;
         this.topoService = null;
+        this.srLabelService = null;
     }
     @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
@@ -40,6 +45,7 @@ public class TopoInfoApiImpl implements TopoInfoApi {
             if(serviceInterface != null) {
                 this.serviceInterface = serviceInterface;
                 this.topoService = serviceInterface.getTopoService();
+                this.srLabelService = serviceInterface.getSrLabelService();
             }
             ret = true;
         }catch (Exception e){
@@ -96,6 +102,10 @@ public class TopoInfoApiImpl implements TopoInfoApi {
 
             topoInfo.setLinkList(linkList);
             return topoInfo;
+        }
+        if (inited == false) {
+            srLabelService.syncIntfLabel();
+            inited = true;
         }
         return this.topoService.getTopoInfo();
     }
