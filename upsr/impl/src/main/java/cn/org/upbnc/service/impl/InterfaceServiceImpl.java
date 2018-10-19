@@ -86,7 +86,6 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != deviceInterfaceList)
         {
             for(DeviceInterface deviceInterface:deviceInterfaceList) {
-                ifnetStatus = (1 == deviceInterface.getStatus()) ? "up" :"down";
                 srStatus = (SrStatus.ENABLED.getName() == deviceInterface.getSrStatus()) ? "up" :"down";
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
@@ -108,6 +107,15 @@ public class InterfaceServiceImpl implements InterfaceService{
                 if(null != deviceInterface.getAdjLabel())
                 {
                     devInterfaceInfo.setAdjLabel(deviceInterface.getAdjLabel());
+                }
+                if(null!=deviceInterface.getIfPhyStatus()){
+                    devInterfaceInfo.setIfnetStatus(deviceInterface.getIfPhyStatus());
+                }
+                if(null!=deviceInterface.getIfOperStatus()){
+                    devInterfaceInfo.setRunningStatus(deviceInterface.getIfOperStatus());
+                }
+                if(null!=deviceInterface.getIfLinkStatus()){
+                    devInterfaceInfo.setLinkStatus(deviceInterface.getIfLinkStatus());
                 }
                 devInterfaceInfos.add(devInterfaceInfo);
             }
@@ -140,14 +148,15 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != gigabitEthernets)
         {
             for (GigabitEthernet gigabitEthernet:gigabitEthernets) {
+
                 devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
-                        gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),null,
-                        null, null,null);
+                        gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(),
+                        null, gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus());
                 LOG.info("gigabitEthernet getIfName={} getIfIpAddr={} " +
-                        "getSubnetMask={} getIfOperMac={} getVrfName={} ",
+                        "getSubnetMask={} getIfOperMac={} getVrfName={} getIfPhyStatus={} getIfLinkStatus={} getIfOperStatus+{}",
                         new Object[]{gigabitEthernet.getIfName(), gigabitEthernet.getIfIpAddr(),
                                 gigabitEthernet.getSubnetMask(), gigabitEthernet.getIfOperMac(),
-                                gigabitEthernet.getVrfName()});
+                                gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(), gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus()});
                 devInterfaceInfos.add(devInterfaceInfo);
             }
             return devInterfaceInfos;
@@ -182,6 +191,16 @@ public class InterfaceServiceImpl implements InterfaceService{
         if((null != deviceInterface.getVpn())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
             //deviceInterface.setVpn();
         }
+        if(null!=devInterfaceInfo.getIfnetStatus()){
+            deviceInterface.setIfPhyStatus(devInterfaceInfo.getIfnetStatus());
+        }
+        if(null!=devInterfaceInfo.getLinkStatus()){
+            deviceInterface.setIfLinkStatus(devInterfaceInfo.getLinkStatus());
+        }
+        if(null!=devInterfaceInfo.getRunningStatus()){
+            deviceInterface.setIfOperStatus(devInterfaceInfo.getRunningStatus());
+        }
+
         deviceInterface.setRefreshFlag(true);
         return true;
 
@@ -226,7 +245,8 @@ public class InterfaceServiceImpl implements InterfaceService{
                     }
                     if(false == compareFlag) {
                         DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),null,null,
-                                null, deviceInterfaceInfo.getIfnetName(),null, new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
+                                null, deviceInterfaceInfo.getIfnetName(),deviceInterfaceInfo.getRunningStatus(),deviceInterfaceInfo.getIfnetStatus(),
+                                deviceInterfaceInfo.getLinkStatus(), new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
                                 null, null, null);

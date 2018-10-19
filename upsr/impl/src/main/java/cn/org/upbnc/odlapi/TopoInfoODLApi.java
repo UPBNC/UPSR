@@ -147,6 +147,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
                 if (deviceInterface.getAdjLabel() != null) {
                     deviceInterfacesBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
                 }
+                if (deviceInterface.getIfPhyStatus() != null) {
+                    deviceInterfacesBuilder.setPhyStatus(deviceInterface.getIfPhyStatus());
+                }
                 deviceInterfaces.add(deviceInterfacesBuilder.build());
             }
             nodesBuilder.setDeviceInterfaces(deviceInterfaces);
