@@ -22,11 +22,8 @@ module upsrSrLabel {
         leaf ifName { type string; }
         leaf srEnabled { type string; }
         leaf adjlabel { type string; }
-<<<<<<< HEAD
         leaf phyStatus{type string;}
-=======
         leaf isSrDomain { type string; }
->>>>>>> 64e5b9082a13de184bc69a677ebba655511d6af8
     }
     grouping srgbLabelInfo {
         leaf routerId { type string; }
