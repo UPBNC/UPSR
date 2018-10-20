@@ -36,6 +36,7 @@ public interface VPNService {
     List<VPNInstance> getVpnInstanceListFromDevice(String vpnName);
     Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName);
     boolean syncVpnInstanceConf();
+    boolean syncVpnInstanceConf(String routerId);
     boolean isContainVpnName(String vpnName);
     boolean isContainRd(String routerId,String rd);
 

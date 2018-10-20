@@ -15,10 +15,13 @@ public interface SrLabelService {
     boolean setBaseInterface(BaseInterface baseInterface);
     boolean updateNodeLabel(String routerId, String labelVal, String action);
     boolean updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
-    boolean syncNodeLabel(String routerId);
-    String syncNodeLabel();
+
     boolean updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal,String action);
-    String syncIntfLabel();
+
     String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
     Device getDevice(String routerId);
+    boolean syncNodeLabel();
+    boolean syncNodeLabel(String routerId);
+    boolean syncIntfLabel();
+    boolean syncIntfLabel(String routerId);
 }
