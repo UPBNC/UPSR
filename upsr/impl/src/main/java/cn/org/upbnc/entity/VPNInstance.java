@@ -279,7 +279,8 @@ public class VPNInstance {
                                  Integer routeSelectDelay,
                                  Integer importDirectRouteEnable,
                                  List<NetworkSeg> networkSegList){
-        if(peerAS==this.peerAS&&peerIP.getAddress().equals(this.peerIP.getAddress())&&importDirectRouteEnable==this.importDirectRouteEnable){
+        if(peerAS==this.peerAS&&peerIP.getAddress().equals(this.peerIP.getAddress())
+                &&importDirectRouteEnable==this.importDirectRouteEnable){
             if(compareNetworkSegListInfoIsEqual(networkSegList)){
                 return true;
             }
@@ -313,6 +314,14 @@ public class VPNInstance {
                 return false;
         }
         return true;
+    }
+
+    public boolean ebgpIsNull(){
+        if((null==peerAS||0==peerAS)&&(null==peerIP||peerIP.getAddress().equals(""))&&
+                (null==importDirectRouteEnable||0==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
+            return true;
+        }
+        return false;
     }
 
 }

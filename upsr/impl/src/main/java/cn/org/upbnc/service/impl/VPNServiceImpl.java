@@ -161,7 +161,12 @@ public class VPNServiceImpl implements VPNService {
                     importDirectRouteEnable,
                     deviceInterfaceList,
                     networkSegList);
-            String sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,bgpVrf);
+            String sendMsg ="";
+            if(vpnInstance.ebgpIsNull()){
+                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,null);
+            }else{
+                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,bgpVrf);
+            }
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
@@ -458,6 +463,11 @@ public class VPNServiceImpl implements VPNService {
    
     private BgpVrf mapEbgpInfoToBgpVfr(String vfrName,Integer peerAS, Address peerIP, Integer routeSelectDelay, Integer importDirectRouteEnable,
                                        List<NetworkSeg> networkSegList){
+
+        if((null==peerAS||0==peerAS)&&(null==peerIP||peerIP.getAddress().equals(""))&&
+                (null==importDirectRouteEnable||0==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
+            return null;
+        }
         BgpVrf bgpVrf=new BgpVrf();
 
         bgpVrf.setVrfName(vfrName);
@@ -472,10 +482,12 @@ public class VPNServiceImpl implements VPNService {
         }
         bgpVrf.setBgpPeers(bgpPeerList);
 
-        if(importDirectRouteEnable==1){
+
+        if((null!=importDirectRouteEnable)&&(importDirectRouteEnable==1)){
             ImportRoute importRoute=new ImportRoute("direct","0");
             importRouteList.add(importRoute);
         }
+
         bgpVrf.setImportRoutes(importRouteList);
         if(networkSegList!=null){
             for(NetworkSeg networkSeg:networkSegList){
