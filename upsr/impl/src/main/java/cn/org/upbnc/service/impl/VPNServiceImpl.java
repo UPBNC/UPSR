@@ -132,13 +132,17 @@ public class VPNServiceImpl implements VPNService {
             result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
-
+            if(!ret){
+                return false;
+            }
              sendMsg = EbgpXml.createEbgpXml(bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
              result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
-
+            if(!ret){
+                return false;
+            }
 
         }else{
             //modify vpn
@@ -160,11 +164,19 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
+            ret = CheckXml.checkOk(result).equals("ok");
+            if(!ret){
+                return false;
+            }
+
             sendMsg = VpnUpdateXml.getUpdateVpnAddXml(modifyMap,l3vpnInstance,bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
+            if(!ret){
+                return false;
+            }
         }
         //vpn info update in vpnManager
         if(true == ret)
