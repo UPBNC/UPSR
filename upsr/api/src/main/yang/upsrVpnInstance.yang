@@ -98,27 +98,26 @@ module upsrVpnInstance {
              leaf vpnImport {
                 type string;
              }
-             leaf-list ifName {
-                type string;
+             list bindIf {
+                leaf ifName {
+                    type string;
+                }
+                leaf ifAddress {
+                    type string;
+                }
+                leaf ifNetMask {
+                    type string;
+                }
              }
              uses eBgpInfo;
         }
     }
     grouping updateBindDevices {
         list deviceBind {
-             leaf deviceName {
-                type string;
-             }
              leaf routerId {
                 type string;
              }
              leaf vpnRd {
-                type string;
-             }
-             leaf vpnExport {
-                type string;
-             }
-             leaf vpnImport {
                 type string;
              }
              list bindIfNet {
@@ -128,7 +127,7 @@ module upsrVpnInstance {
                  leaf ifAddress {
                      type string;
                  }
-                 leaf ifNetmask {
+                 leaf ifNetMask {
                      type string;
                  }
              }
