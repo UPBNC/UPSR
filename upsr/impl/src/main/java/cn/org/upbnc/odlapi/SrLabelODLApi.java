@@ -174,9 +174,9 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         } else if (srStatus != null && srStatus.equals(SrStatus.ENABLED.getName())){
             Integer prefixLabel = new Integer(Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
                     Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
-            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
             srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
                     input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
+            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
             Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
             while (intfLabelIterator.hasNext()){
                 IntfLabel intfLabel = intfLabelIterator.next();

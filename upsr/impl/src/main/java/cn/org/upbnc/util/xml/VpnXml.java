@@ -39,26 +39,32 @@ public class VpnXml {
                 "        <l3vpncomm>\n" +
                 "          <l3vpnInstances>\n" +
                 "            <l3vpnInstance>\n" +
-                "              <vrfName>" + vrfName + "</vrfName>\n" +
-                "              <vrfDescription>" + vrfDescription + "</vrfDescription>\n" +
+                "              <vrfName>" + vrfName + "</vrfName>\n";
+        if (!(null == vrfDescription || ("").equals(vrfDescription))) {
+            String start1 =
+                    "              <vrfDescription>" + vrfDescription + "</vrfDescription>\n";
+            start = start + start1;
+        }
+        String start2 =
+
                 "              <asNotationCfg/>\n" +
-                "              <vpnInstAFs>\n" +
-                "                <vpnInstAF>\n" +
-                "                  <afType>ipv4uni</afType>\n" +
-                "                  <vrfRD>" + vrfRD + "</vrfRD>\n" +
-                "                  <vpnTargets>\n" +
-                "                    <vpnTarget>\n" +
-                "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
-                "                      <vrfRTType>export_extcommunity</vrfRTType>\n" +
-                "                    </vpnTarget>\n" +
-                "                    <vpnTarget>\n" +
-                "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
-                "                      <vrfRTType>import_extcommunity</vrfRTType>\n" +
-                "                    </vpnTarget>\n" +
-                "                  </vpnTargets>\n" +
-                "                </vpnInstAF>\n" +
-                "              </vpnInstAFs>\n" +
-                "              <l3vpnIfs>\n";
+                        "              <vpnInstAFs>\n" +
+                        "                <vpnInstAF>\n" +
+                        "                  <afType>ipv4uni</afType>\n" +
+                        "                  <vrfRD>" + vrfRD + "</vrfRD>\n" +
+                        "                  <vpnTargets>\n" +
+                        "                    <vpnTarget>\n" +
+                        "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
+                        "                      <vrfRTType>export_extcommunity</vrfRTType>\n" +
+                        "                    </vpnTarget>\n" +
+                        "                    <vpnTarget>\n" +
+                        "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
+                        "                      <vrfRTType>import_extcommunity</vrfRTType>\n" +
+                        "                    </vpnTarget>\n" +
+                        "                  </vpnTargets>\n" +
+                        "                </vpnInstAF>\n" +
+                        "              </vpnInstAFs>\n" +
+                        "              <l3vpnIfs>\n";
         String middle = "";
         String ipv4Addr;
         String subnetMask;
@@ -91,7 +97,7 @@ public class VpnXml {
                 "  </edit-config>\n" +
                 "</rpc>";
 
-        return start + middle + end;
+        return start + start2 + middle + end;
     }
 
     public static String getVpnXml(String vrfName) {

@@ -26,6 +26,7 @@ import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.EbgpXml;
 import cn.org.upbnc.util.xml.VpnUpdateXml;
 import cn.org.upbnc.util.xml.VpnXml;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatevpninstance.input.VpnInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,34 +197,44 @@ public class VPNServiceImpl implements VPNService {
         if((null == vpnName)||(vpnName.isEmpty())) {
             return false;
         }
+
         List<Device> deviceList = this.deviceManager.getDeviceList();
         for (Device device:deviceList) {
             if(null == device.getNetConf())  //may be some device generate by bgpls
             {
                 continue;
             }
-            NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-            //LOG.info("enter getVpnIstance");
-            String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
-            LOG.info("get sendMsg={}", new Object[]{sendMsg});
-            String result = netconfController.sendMessage(netconfClient, sendMsg);
-            LOG.info("get result={}", new Object[]{result});
-            boolean ret =  CheckXml.checkOk(result).equals("ok");
-            if(true != ret) {
-                return false;
+            List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId());
+            for (VPNInstance vpnInstance:vpnInstanceList) {
+
+                if(true == vpnName.equals(vpnInstance.getVpnName())) {
+
+
+                    NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+                    //LOG.info("enter getVpnIstance");
+                    String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
+                    LOG.info("get sendMsg={}", new Object[]{sendMsg});
+                    String result = netconfController.sendMessage(netconfClient, sendMsg);
+                    LOG.info("get result={}", new Object[]{result});
+                    boolean ret =  CheckXml.checkOk(result).equals("ok");
+                    if(true != ret) {
+                        return false;
+                    }
+                    this.vpnInstanceManager.delVpnInstance(device.getRouterId(), vpnName);
+                }
+
             }
-            this.vpnInstanceManager.delVpnInstance(device.getRouterId(), vpnName);
 
         }
         return  true;
     }
     public boolean delVpnInstance(String routerId,String vpnName)
     {
-        if((null == routerId)||(null == vpnName)||(vpnName.isEmpty()))
+        if((null == vpnName)||(vpnName.isEmpty()))
         {
             return false;
         }
-        if(true == routerId.equals("")) {
+        if((null == routerId)||(true == routerId.equals(""))) {
             return delVpnInstanceByName(vpnName);
         }
 

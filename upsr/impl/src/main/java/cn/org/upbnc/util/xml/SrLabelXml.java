@@ -114,7 +114,7 @@ public class SrLabelXml {
         }
         return netconfSrLabelInfo;
     }
-    public static String getSrNodeLabelXml() {
+    public static String getSrNodeLabelXml(String processId) {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>                                                                                  \n" +
                 "  <filter type=\"subtree\">                                                            \n" +
@@ -122,6 +122,7 @@ public class SrLabelXml {
                 "      <ospfv2:ospfv2comm>                                                              \n" +
                 "        <ospfv2:ospfSites>                                                             \n" +
                 "          <ospfv2:ospfSite>                                                            \n" +
+                "           <processId>" + processId + "</processId>                                      \n" +
                 "            <ospfv2:areas>                                                             \n" +
                 "              <ospfv2:area>                                                            \n" +
                 "                <ospfv2:interfaces>                                                    \n" +
@@ -141,7 +142,7 @@ public class SrLabelXml {
                 "</get>                                                                                 \n" +
                 "</rpc>";
     }
-    public static NetconfSrLabelInfo getSrNodeLabelFromgSrNodeLabelXml(String xml){
+    public static NetconfSrLabelInfo getSrNodeLabelFromgSrNodeLabelXml(String xml,String processId,String ifName){
         NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
         if (!("".equals(xml))) {
             try {
@@ -151,14 +152,17 @@ public class SrLabelXml {
                 List<Element> ospfSiteElements = root.element("data").element("ospfv2").element("ospfv2comm").element("ospfSites").elements("ospfSite");
 
                 for (org.dom4j.Element ospfSiteElement : ospfSiteElements) {
-                    List<Element> interfaceElements = ospfSiteElement.element("areas").element("area").element("interfaces").elements("interface");
-                    for (Element interfaceElement : interfaceElements) {
-                        if ("0".equals(interfaceElement.element("srInterface").elementText("prefixLabel")) == false) {
-                            netconfSrLabelInfo.setOspfAreaId(ospfSiteElement.element("areas").element("area").elementText("areaId"));
-                            netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
-                            netconfSrLabelInfo.setPrefixIfName(interfaceElement.elementText("ifName"));
-                            netconfSrLabelInfo.setPrefixLabel(interfaceElement.element("srInterface").elementText("prefixLabel"));
+                    if(ospfSiteElement.elementText("processId").equals(processId)) {
+                        netconfSrLabelInfo.setOspfAreaId(ospfSiteElement.element("areas").element("area").elementText("areaId"));
+                        List<Element> interfaceElements = ospfSiteElement.element("areas").element("area").element("interfaces").elements("interface");
+                        for (Element interfaceElement : interfaceElements) {
+                            if (ifName.equals(interfaceElement.elementText("ifName")) == true) {
+                                netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
+                                netconfSrLabelInfo.setPrefixIfName(interfaceElement.elementText("ifName"));
+                                netconfSrLabelInfo.setPrefixLabel(interfaceElement.element("srInterface").elementText("prefixLabel"));
+                            }
                         }
+                        break;
                     }
                 }
             }catch (Exception e){
@@ -273,4 +277,80 @@ public class SrLabelXml {
                 "</rpc>";
     }
 
+    public static String getOspfProcessXml() {
+        return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get>                                                                                             \n" +
+                "  <filter type=\"subtree\">                                                                       \n" +
+                "    <ospfv2:ospfv2 xmlns:ospfv2=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">              \n" +
+                "      <ospfv2:ospfv2comm>                                                                         \n" +
+                "        <ospfv2:ospfSites>                                                                        \n" +
+                "          <ospfv2:ospfSite>                                                                       \n" +
+                "            <routerId/>                                                                           \n" +
+                "          </ospfv2:ospfSite>                                                                      \n" +
+                "        </ospfv2:ospfSites>                                                                       \n" +
+                "      </ospfv2:ospfv2comm>                                                                        \n" +
+                "    </ospfv2:ospfv2>                                                                              \n" +
+                "  </filter>                                                                                       \n" +
+                "</get>                                                                                            \n" +
+                "</rpc>";
+    }
+
+    public static NetconfSrLabelInfo getOspfProcessFromOspfProcessXml(String xml,String routerId) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<Element> ospfSiteElements = root.element("data").element("ospfv2").element("ospfv2comm").element("ospfSites").elements("ospfSite");
+                for (org.dom4j.Element ospfSiteElement : ospfSiteElements) {
+                    String routerIdElement = ospfSiteElement.elementText("routerId");
+                    if(routerIdElement.equals(routerId) == true){
+                        netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
+                        break;
+                    }
+                }
+            }catch (Exception e){
+                LOG.info(e.toString());
+            }
+        }
+        return netconfSrLabelInfo;
+    }
+
+    public static String getLoopBackXml() {
+        return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                           \n" +
+                "  <filter type=\"subtree\">                                                                       \n" +
+                "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">                          \n" +
+                "      <ifm:interfaces>                                                                            \n" +
+                "        <ifm:interface>                                                                           \n" +
+                "          <ifm:ifName/>                                                                           \n" +
+                "          <ifm:ipv4Oper/>                                                                         \n" +
+                "          <ifm:ifPhyType>LoopBack</ifm:ifPhyType>                                                 \n" +
+                "        </ifm:interface>                                                                          \n" +
+                "      </ifm:interfaces>                                                                           \n" +
+                "    </ifm:ifm>                                                                                    \n" +
+                "  </filter>                                                                                       \n" +
+                "</get>                                                                                            \n" +
+                "</rpc>";
+    }
+
+    public static String getLoopBackFromLoopBackXml(String xml, String routerId) {
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<Element> interfaceElements = root.element("data").element("ifm").element("interfaces").elements("interface");
+                for (org.dom4j.Element interfaceElement : interfaceElements) {
+                    if (routerId.equals(interfaceElement.element("ipv4Oper").element("ipv4Addrs").element("ipv4Addr").elementText("ifIpAddr"))) {
+                        return interfaceElement.elementText("ifName");
+                    }
+                }
+            }catch (Exception e){
+                LOG.info(e.toString());
+            }
+        }
+        return null;
+    }
 }
