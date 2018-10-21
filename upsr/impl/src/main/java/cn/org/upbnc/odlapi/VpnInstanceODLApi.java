@@ -286,7 +286,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
 
                     if(null != ebgp) {
                         peerIP = ebgp.getPeerIP();
-                        peerAs = ebgp.getPeerAS();
+                        if((null != ebgp.getPeerAS())&&(true != ebgp.getPeerAS().equals(""))) {
+                            peerAs = Integer.parseInt(ebgp.getPeerAS()) ;
+                        }
                         importDirect = ebgp.getImportDirect();
                         network = ebgp.getNetwork();
                         mask = ebgp.getMask();
@@ -336,12 +338,14 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
                     if (true == ret) {
                         message += "routerId "+ routerId + "is success!\\n";
+                        vpnInstanceUpdateOutputBuilder.setResult("success");
                     }
                     else {
                         message += " routerId "+ routerId + "is failed!\\n";
+                        vpnInstanceUpdateOutputBuilder.setResult("failed");
                     }
                 }
-                vpnInstanceUpdateOutputBuilder.setResult("success");
+                //vpnInstanceUpdateOutputBuilder.setResult("success");
                 vpnInstanceUpdateOutputBuilder.setMessage(message);
                 return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
             }
@@ -420,7 +424,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                                     eBgp.setNetwork(eBgp_network_seg_front.getAddress().getAddress());
                                     eBgp.setMask(eBgp_network_seg_front.getMask().getAddress());
                                 }
-                                eBgp.setPeerAS(vpnInstance.getPeerAS());
+                                eBgp.setPeerAS(vpnInstance.getPeerAS().toString());
                                 if(null != vpnInstance.getPeerIP()) {
                                     eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
                                 }

@@ -480,13 +480,16 @@ public class VPNServiceImpl implements VPNService {
         List<NetworkRoute> networkRouteList = new ArrayList<NetworkRoute>();
 
         BgpPeer bgpPeer = null;
-        if (null != peerIP) {
+       
+        if((null != peerIP)&&(null != peerAS)) {
             bgpPeer = new BgpPeer(peerIP.getAddress(), peerAS.toString());
             bgpPeerList.add(bgpPeer);
         }
         bgpVrf.setBgpPeers(bgpPeerList);
 
 
+        if((null!=importDirectRouteEnable)&&(importDirectRouteEnable==1)){
+            ImportRoute importRoute=new ImportRoute("direct","0");
         if ((null != importDirectRouteEnable) && (importDirectRouteEnable == 1)) {
             ImportRoute importRoute = new ImportRoute("direct", "0");
             importRouteList.add(importRoute);

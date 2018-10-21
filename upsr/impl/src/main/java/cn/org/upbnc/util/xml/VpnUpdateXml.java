@@ -48,7 +48,10 @@ public class VpnUpdateXml {
                         "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>\n" +
                         "            <asNotationCfg/>\n";
         String vpnInstAFs = "            <vpnInstAFs xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n";
-        String l3vpnIfs = "            <l3vpnIfs xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n";
+        String l3vpnIfs = "";
+        if (l3vpnInstance.getL3vpnIfs().size() > 0) {
+            l3vpnIfs = "            <l3vpnIfs xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n";
+        }
         String l3vpnEnd = "          </l3vpnInstance>\n" +
                 "        </l3vpnInstances>\n" +
                 "      </l3vpncomm>\n" +
