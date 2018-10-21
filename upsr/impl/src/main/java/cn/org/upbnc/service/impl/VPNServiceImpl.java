@@ -165,7 +165,7 @@ public class VPNServiceImpl implements VPNService {
             if(vpnInstance.ebgpIsNull()){
                 sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,null);
             }else{
-                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,bgpVrf);
+                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,new BgpVrf(vpnName,null,null,null));
             }
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
