@@ -45,19 +45,24 @@ public class SrLabelXml {
     public static List<AdjLabel> getSrAdjLabelFromSrAdjLabelXml(String xml){
         List<AdjLabel> adjLabelList = new ArrayList<>();
         if ("".equals(xml)){
-            return null;
+            return adjLabelList;
         }
         try {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
+            if (root.element("data").elements().size() == 0){
+                return adjLabelList;
+            }
             List<Element> childElements = root.element("data").elements().get(0).elements().get(0).elements();
             for (Element child : childElements) {
-                AdjLabel adjLabel = new AdjLabel();
-                adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));
-                adjLabel.setAddressRemote(new Address(child.elementText("remoteIpAddress"), AddressTypeEnum.V4));
-                adjLabel.setValue(Integer.valueOf(child.elementText("segmentId")));
-                adjLabelList.add(adjLabel);
+                if (child.elementText("segmentId") != null) {
+                    AdjLabel adjLabel = new AdjLabel();
+                    adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));
+                    adjLabel.setAddressRemote(new Address(child.elementText("remoteIpAddress"), AddressTypeEnum.V4));
+                    adjLabel.setValue(Integer.valueOf(child.elementText("segmentId")));
+                    adjLabelList.add(adjLabel);
+                }
             }
         } catch (DocumentException e) {
             LOG.info(e.toString());

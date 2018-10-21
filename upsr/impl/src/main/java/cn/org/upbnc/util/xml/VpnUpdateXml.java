@@ -58,11 +58,23 @@ public class VpnUpdateXml {
                 "</rpc>";
         result = start;
         if (rdChange && map.get("isIfmChanged")) {
-            result = result + ebgp + vpn + vpnInstAFs + l3vpnIfs + l3vpnEnd;
+            if (null == bgpVrf) {
+                result = result + vpn + vpnInstAFs + l3vpnIfs + l3vpnEnd;
+            } else {
+                result = result + ebgp + vpn + vpnInstAFs + l3vpnIfs + l3vpnEnd;
+            }
         } else if (rdChange) {
-            result = result + ebgp + vpn + vpnInstAFs + l3vpnEnd;
+            if (null == bgpVrf) {
+                result = result + vpn + vpnInstAFs + l3vpnEnd;
+            } else {
+                result = result + ebgp + vpn + vpnInstAFs + l3vpnEnd;
+            }
         } else if (map.get("isIfmChanged") && map.get("isEbgpChanged")) {
-            result = result + ebgp + vpn + l3vpnIfs + l3vpnEnd;
+            if (null == bgpVrf) {
+                result = result + vpn + l3vpnIfs + l3vpnEnd;
+            } else {
+                result = result + ebgp + vpn + l3vpnIfs + l3vpnEnd;
+            }
         } else if (map.get("isIfmChanged")) {
             result = result + vpn + l3vpnIfs + l3vpnEnd;
         } else if (map.get("isEbgpChanged")) {
@@ -140,69 +152,93 @@ public class VpnUpdateXml {
                 "      </l3vpncomm>\n" +
                 "    </l3vpn>\n";
 
-        String bgpStart =
-                "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
-                        "        <bgpcomm>\n" +
-                        "          <bgpVrfs>\n" +
-                        "            <bgpVrf nc:operation=\"create\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
-                        "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n" +
-                        "                    <bgpPeers>\n";
-        String bgpPeers = "";
-        if (null != bgpVrf.getBgpPeers()) {
-            for (BgpPeer bgpPeer : bgpVrf.getBgpPeers()) {
-                bgpPeers = bgpPeers + "                       <bgpPeer>\n" +
-                        "                         <peerAddr>" + bgpPeer.getPeerAddr() + "</peerAddr>\n" +
-                        "                         <remoteAs>" + bgpPeer.getRemoteAs() + "</remoteAs>\n" +
-                        "                           </bgpPeer>\n";
-            }
-        }
-        String middle = "                      </bgpPeers>\n" +
-                "              <bgpVrfAFs>\n" +
-                "                <bgpVrfAF>\n" +
-                "                  <afType>ipv4uni</afType>\n" +
-                "                  <importRoutes>\n";
-        String importRoutes = "";
-        if (null != bgpVrf.getImportRoutes()) {
-            for (ImportRoute importRoute : bgpVrf.getImportRoutes()) {
-                importRoutes = importRoutes + "                    <importRoute>\n" +
-                        "                      <importProtocol>" + importRoute.getImportProtocol() + "</importProtocol>\n" +
-                        "                      <importProcessId>" + importRoute.getImportProcessId() + "</importProcessId>\n" +
-                        "                    </importRoute>\n";
-            }
-        }
-        String middle1 =
-                "                  </importRoutes>\n" +
-                        "                  <networkRoutes>\n";
         String networkRoutes = "";
-        if (null != bgpVrf.getNetworkRoutes()) {
-            for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
-                networkRoutes = networkRoutes +
-                        "                    <networkRoute>\n" +
-                        "                      <networkAddress>" + networkRoute.getNetworkAddress() + "</networkAddress>\n" +
-                        "                      <maskLen>" + networkRoute.getMaskLen() + "</maskLen>\n" +
-                        "                    </networkRoute>\n";
+        String bgpStart = "";
+        String bgpPeers = "";
+        String importRoutes = "";
+        String bgpEnd = "";
+        String middle1 = "";
+        String middle = "";
+        if (null != bgpVrf) {
+            bgpStart =
+                    "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
+                            "        <bgpcomm>\n" +
+                            "          <bgpVrfs>\n" +
+                            "            <bgpVrf nc:operation=\"create\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                            "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n" +
+                            "                    <bgpPeers>\n";
+
+            if (null != bgpVrf.getBgpPeers()) {
+                for (BgpPeer bgpPeer : bgpVrf.getBgpPeers()) {
+                    bgpPeers = bgpPeers + "                       <bgpPeer>\n" +
+                            "                         <peerAddr>" + bgpPeer.getPeerAddr() + "</peerAddr>\n" +
+                            "                         <remoteAs>" + bgpPeer.getRemoteAs() + "</remoteAs>\n" +
+                            "                           </bgpPeer>\n";
+                }
             }
+            middle = "                      </bgpPeers>\n" +
+                    "              <bgpVrfAFs>\n" +
+                    "                <bgpVrfAF>\n" +
+                    "                  <afType>ipv4uni</afType>\n" +
+                    "                  <importRoutes>\n";
+
+            if (null != bgpVrf.getImportRoutes()) {
+                for (ImportRoute importRoute : bgpVrf.getImportRoutes()) {
+                    importRoutes = importRoutes + "                    <importRoute>\n" +
+                            "                      <importProtocol>" + importRoute.getImportProtocol() + "</importProtocol>\n" +
+                            "                      <importProcessId>" + importRoute.getImportProcessId() + "</importProcessId>\n" +
+                            "                    </importRoute>\n";
+                }
+            }
+            middle1 =
+                    "                  </importRoutes>\n" +
+                            "                  <networkRoutes>\n";
+
+            if (null != bgpVrf.getNetworkRoutes()) {
+                for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
+                    networkRoutes = networkRoutes +
+                            "                    <networkRoute>\n" +
+                            "                      <networkAddress>" + networkRoute.getNetworkAddress() + "</networkAddress>\n" +
+                            "                      <maskLen>" + networkRoute.getMaskLen() + "</maskLen>\n" +
+                            "                    </networkRoute>\n";
+                }
+            }
+            bgpEnd =
+                    "                  </networkRoutes>\n" +
+                            "                </bgpVrfAF>\n" +
+                            "              </bgpVrfAFs>\n" +
+                            "            </bgpVrf>\n" +
+                            "          </bgpVrfs>\n" +
+                            "        </bgpcomm>\n" +
+                            "      </bgp>\n";
         }
-        String bgpEnd =
-                "                  </networkRoutes>\n" +
-                        "                </bgpVrfAF>\n" +
-                        "              </bgpVrfAFs>\n" +
-                        "            </bgpVrf>\n" +
-                        "          </bgpVrfs>\n" +
-                        "        </bgpcomm>\n" +
-                        "      </bgp>\n";
+
         String end = "  </config>\n" +
                 "</edit-config>" +
                 "</rpc>";
         result = start;
-        String ebgp = bgpStart + bgpPeers + middle + importRoutes + middle1 + networkRoutes + bgpEnd;
+        String ebgp = "";
+        ebgp = bgpStart + bgpPeers + middle + importRoutes + middle1 + networkRoutes + bgpEnd;
         String intf = l3vpnIfsStart + l3vpnIfsMiddle + l3vpnIfsEnd;
         if (rdChange && map.get("isIfmChanged") && l3vpnIfList.size() > 0) {
-            result = result + vpnStart + vpnInstAFs + intf + VpnEnd + ebgp;
+            if (null == bgpVrf) {
+                result = result + vpnStart + vpnInstAFs + intf + VpnEnd;
+            } else {
+                result = result + vpnStart + vpnInstAFs + intf + VpnEnd + ebgp;
+            }
         } else if (rdChange) {
-            result = result + vpnStart + vpnInstAFs + VpnEnd + ebgp;
+            if (null == bgpVrf) {
+                result = result + vpnStart + vpnInstAFs + VpnEnd;
+            } else {
+                result = result + vpnStart + vpnInstAFs + VpnEnd + ebgp;
+            }
+
         } else if (map.get("isIfmChanged") && map.get("isEbgpChanged")) {
-            result = result + vpnStart + intf + VpnEnd + ebgp;
+            if (null == bgpVrf) {
+                result = result + vpnStart + intf + VpnEnd;
+            } else {
+                result = result + vpnStart + intf + VpnEnd + ebgp;
+            }
         } else if (map.get("isIfmChanged")) {
             result = result + vpnStart + intf + VpnEnd;
         } else if (map.get("isEbgpChanged")) {
