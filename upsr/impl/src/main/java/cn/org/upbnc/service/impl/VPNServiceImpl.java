@@ -160,10 +160,16 @@ public class VPNServiceImpl implements VPNService {
                     deviceInterfaceList,
                     networkSegList);
             String sendMsg = "";
+            L3vpnInstance l3vpnInstance1=new L3vpnInstance();
+            l3vpnInstance1=l3vpnInstance;
+            if(null==vpnInstance.getDeviceInterfaceList()||vpnInstance.getDeviceInterfaceList().size()==0){
+                List<L3vpnIf> l3vpnIfs=new ArrayList<>();
+                l3vpnInstance1.setL3vpnIfs(l3vpnIfs);
+            }
             if (vpnInstance.ebgpIsNull()) {
-                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap, l3vpnInstance, null);
+                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap, l3vpnInstance1, null);
             } else {
-                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap, l3vpnInstance, new BgpVrf(vpnName, null, null, null));
+                sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap, l3vpnInstance1, new BgpVrf(vpnName, null, null, null));
             }
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -521,6 +527,8 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         for (Device device : deviceManager.getDeviceList()) {
+
+
             syncVpnInstanceConf(device.getRouterId());
         }
 
