@@ -69,7 +69,8 @@ public class SrLabelServiceImpl implements SrLabelService {
         }
         LOG.info("updateNodeLabel begin");
         device = deviceManager.getDevice(routerId);
-        if(null == device) {
+        if ((null == device) ||
+                (SrLabelXml.ncOperationDelete.equals(action) && device.getSrStatus() == SrStatus.DISENABLED.getName())){
             return false;
         }
         if ((device != null) && (device.getNodeLabel() != null) && (device.getNodeLabel().getValue() == Integer.parseInt(labelVal))){
@@ -249,7 +250,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         Device device = null;
         LOG.info("updateIntfLabel begin");
         device = deviceManager.getDevice(routerId);
-        if((null == device)||(null == device.getNetConf())) {
+        if(("".equals(labelVal)) || (null == device)||(null == device.getNetConf())) {
             return  false;
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());

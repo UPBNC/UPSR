@@ -463,10 +463,10 @@ public class VPNServiceImpl implements VPNService {
             if (bgpVrf.getImportRoutes().get(0).equals("direct")) {
                 vpnInstance.setImportDirectRouteEnable(1);
             } else {
-                vpnInstance.setImportDirectRouteEnable(0);
+                vpnInstance.setImportDirectRouteEnable(2);
             }
         } else {
-            vpnInstance.setImportDirectRouteEnable(0);
+            vpnInstance.setImportDirectRouteEnable(2);
         }
 
     }
@@ -494,7 +494,7 @@ public class VPNServiceImpl implements VPNService {
         bgpVrf.setBgpPeers(bgpPeerList);
 
 
-        if ((null != importDirectRouteEnable) && (importDirectRouteEnable == 1)) {
+        if ((null != importDirectRouteEnable) && importDirectRouteEnable.equals(1)) {
             ImportRoute importRoute = new ImportRoute("direct", "0");
             importRouteList.add(importRoute);
         }
