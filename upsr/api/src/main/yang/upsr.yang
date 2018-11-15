@@ -1,0 +1,9 @@
+module upsr {
+    yang-version 1.1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsr";
+    prefix "upsr";
+
+    revision "2017-08-30" { // TODO change revision to date of model creation
+        description "Initial revision of upsr model";
+    }
+}
