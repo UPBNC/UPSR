@@ -10,7 +10,7 @@ package cn.org.upbnc.base.entity;
 public class Address {
     // Local
     private String address;
-    private Integer type; //4:IPv4  6:IPv6
+    private Integer type; //4:IPv4  6:IPv6  8:mask
     //...get set
 
 
