@@ -7,10 +7,10 @@
  */
 package cn.org.upbnc.cli.commands;
 
+import cn.org.upbnc.cli.api.UpsrCliCommands;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-import cn.org.upbnc.cli.api.UpsrCliCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

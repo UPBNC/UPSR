@@ -7,8 +7,8 @@
  */
 package cn.org.upbnc.cli.impl;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import cn.org.upbnc.cli.api.UpsrCliCommands;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
