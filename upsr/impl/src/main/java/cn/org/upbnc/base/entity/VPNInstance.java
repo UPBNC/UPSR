@@ -1,5 +1,5 @@
 package cn.org.upbnc.base.entity;
-
+import java.util.List;
 public class VPNInstance {
     private Integer id;
     private Device device;

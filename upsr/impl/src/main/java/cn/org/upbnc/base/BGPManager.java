@@ -6,8 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package cn.org.upbnc.base;
-
+import java.util.List;
 import cn.org.upbnc.base.entity.BGPConnect;
 public interface BGPManager {
-    private list<BGPConnect>   BGPConnectList;
+    private List<BGPConnect>   BGPConnectList;
 }

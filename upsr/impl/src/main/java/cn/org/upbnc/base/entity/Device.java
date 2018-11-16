@@ -34,6 +34,9 @@ public class Device {
     private List<VPNInstance> vpnInstanceList;
     private List<Tunnel> tunnelList;
 
+
+
+
     //private Integer status;
 
 //    // Local property

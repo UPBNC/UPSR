@@ -7,10 +7,11 @@
  */
 package cn.org.upbnc.base;
 
+import java.util.List;
 import cn.org.upbnc.base.entity.Device;
 
 public interface DeviceManager {
-    private list<Device>   DeviceList;
+    private List<Device>   DeviceList;
     Device addDevice(String name, String routerId);
     Device getDevice(String routerId);
 }

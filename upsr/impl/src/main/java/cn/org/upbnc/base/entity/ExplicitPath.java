@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package cn.org.upbnc.base.entity;
-
+import java.util.List;
 public class ExplicitPath {
     // Local
     private Integer ID;
