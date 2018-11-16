@@ -7,30 +7,29 @@
  */
 package cn.org.upbnc.base.impl;
 
-import cn.org.upbnc.base.BGPManager;
-import cn.org.upbnc.base.entity.BGPConnect;
+import cn.org.upbnc.base.DeviceManager;
+import cn.org.upbnc.base.LabelManager;
+import cn.org.upbnc.base.entity.Label;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BGPManagerImpl implements BGPManager {
-    private static BGPManager instance = null;
+public class LabelManagerImpl implements LabelManager {
+    private static LabelManager instance = null;
+    private List<Label> labelList;
 
-    private List<BGPConnect> bgpConnectList;
-
-    private BGPManagerImpl(){
-
-        this.bgpConnectList = new ArrayList<BGPConnect>();
-        return;
+    private LabelManagerImpl(){
+        this.labelList = new ArrayList<Label>();
     }
-    public static BGPManager getInstance(){
+
+    public static LabelManager getInstance() {
         if(null == instance) {
-            instance = new BGPManagerImpl();
+            instance = new LabelManagerImpl();
         }
         return instance;
     }
 
     void test(){
-        this.bgpConnectList.clear();
+        this.labelList.clear();
     }
 }

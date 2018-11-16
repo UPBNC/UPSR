@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 Copyright (c) 2018 BNC, Inc. and others.  All rights reserved.
+ * Copyright © 2018 Copyright (c) 2018 UP & BNC, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DeviceManagerImpl implements DeviceManager {
-    private static DeviceManagerImpl instance = null;
+    private static DeviceManager instance = null;
     private Map<String,Device> mapInstance;
 
     private DeviceManagerImpl() {
@@ -33,8 +33,6 @@ public class DeviceManagerImpl implements DeviceManager {
         Device device = null;
         if(null != name && null != routerId) {
             device = new Device();
-            device.setName(name);
-            device.setRouterId(routerId);
             this.mapInstance.put(routerId, device);
         }
         return device;

@@ -9,5 +9,5 @@ package cn.org.upbnc.base;
 import java.util.List;
 import cn.org.upbnc.base.entity.Link;
 public interface LinkManager {
-    private List<Link>   TopoLinkList;
+
 }

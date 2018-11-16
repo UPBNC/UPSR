@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 Copyright (c) 2018 BNC, Inc. and others.  All rights reserved.
+ * Copyright © 2018 Copyright (c) 2018 UP & BNC, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -21,59 +21,86 @@ public class BGPConnect {
     private Address remote;
     private String as;
 
-    public void setId(Integer id) {
+    public BGPConnect() {
+        this.id = 0;
+        this.name = null;
+        this.status = 0;
+        this.device = null;
+        this.local = null;
+        this.remote = null;
+        this.as = null;
+    }
+
+    public BGPConnect(Integer id,
+                      String name,
+                      Integer status,
+                      Device device,
+                      Address local,
+                      Address remote,
+                      String as) {
         this.id = id;
+        this.name = name;
+        this.status = status;
+        this.device = device;
+        this.local = local;
+        this.remote = remote;
+        this.as = as;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getStatus() {
         return status;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
+
 
     public Device getDevice() {
         return device;
     }
 
-    public void setLocal(Address local) {
-        this.local = local;
+    public void setDevice(Device device) {
+        this.device = device;
     }
 
     public Address getLocal() {
         return local;
     }
 
-    public void setRemote(Address remote) {
-        this.remote = remote;
+    public void setLocal(Address local) {
+        this.local = local;
     }
 
     public Address getRemote() {
         return remote;
     }
 
-    public void setAs(String as) {
-        this.as = as;
+    public void setRemote(Address remote) {
+        this.remote = remote;
     }
 
     public String getAs() {
         return as;
+    }
+
+    public void setAs(String as) {
+        this.as = as;
     }
 }

@@ -7,6 +7,5 @@
  */
 package cn.org.upbnc.base;
 
-import java.util.List;
 public interface TunnelManager {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 Copyright (c) 2018 BNC, Inc. and others.  All rights reserved.
+ * Copyright © 2018 Copyright (c) 2018 UP & BNC, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,6 +12,16 @@ public class Address {
     private String address;
     private Integer type; //4:IPv4  6:IPv6  8:mask
     //...get set
+
+    public Address() {
+        this.address = null;
+        this.type = 0;
+    }
+
+    public Address(String address,Integer type) {
+        this.address = address;
+        this.type = type;
+    }
 
 
     public void setType(Integer type) {

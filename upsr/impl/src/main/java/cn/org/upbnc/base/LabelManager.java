@@ -6,8 +6,6 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package cn.org.upbnc.base;
-import java.util.List;
-import cn.org.upbnc.base.entity.Label;
 public interface  LabelManager {
-	private List<Label>  LabelList;
+
 }
