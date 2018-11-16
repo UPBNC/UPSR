@@ -5,7 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.base;
+package cn.org.upbnc.base.entity;
 
-public interface SIDManager {
+public class Label {
+    // Local
+    private Integer ID;
+    private Device device;
+
+    private Integer type;
+    private Integer value;
+
 }

@@ -5,12 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.base;
+package cn.org.upbnc.base.entity;
 
-import cn.org.upbnc.base.entity.Device;
+public class ExplicitPath {
+    // Local
+    private Integer ID;
+    private Device device;
 
-public interface DeviceManager {
-    private list<Device>   DeviceList;
-    Device addDevice(String name, String routerId);
-    Device getDevice(String routerId);
+    private String pathName;
+    private List<Label> labelList;
+
 }

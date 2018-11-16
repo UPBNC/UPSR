@@ -7,8 +7,7 @@
  */
 package cn.org.upbnc.base;
 
-import cn.org.upbnc.base.entity.NetConfConnect;
-
-public interface NetConfManager {
-    NetConfConnect createNetConfConnect();
+import cn.org.upbnc.base.entity.Label;
+public interface  LabelManager {
+	private list<Label>  LabelList;
 }

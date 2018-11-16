@@ -7,10 +7,17 @@
  */
 package cn.org.upbnc.base.entity;
 
-public class Link {
-    // Base property
-    private Integer id;
-    private String name;
-    private DeviceInterface deviceInterface1;
-    private DeviceInterface deviceInterface2;
+public class Tunnel {
+    // Local
+    private Integer ID;
+    private Device device;
+    private Integer tunnelID;
+    private String description;
+    private Address destIP;
+    private Integer bandWidth;
+    private ExplicitPath masterPath;
+    private ExplicitPath slavePath;
+    private boolean bfdEnable;
+    private BFDSession bfdSession;
+
 }

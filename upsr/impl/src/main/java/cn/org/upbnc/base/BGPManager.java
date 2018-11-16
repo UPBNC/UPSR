@@ -7,5 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.base.entity.BGPConnect;
 public interface BGPManager {
+    private list<BGPConnect>   BGPConnectList;
 }

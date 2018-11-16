@@ -21,7 +21,7 @@ public class Device {
 
     private NetConf netConf;
 
-    private SRInfo srInfo;
+    //private SRInfo srInfo;
     private Integer minNodeSID;
     private Integer maxNodeSID;
 
@@ -32,6 +32,7 @@ public class Device {
     private List<DeviceInterface> deviceInterfaceList;
     private LoopBack loopBack;
     private List<VPNInstance> vpnInstanceList;
+    private List<Tunnel> tunnelList;
 
     //private Integer status;
 

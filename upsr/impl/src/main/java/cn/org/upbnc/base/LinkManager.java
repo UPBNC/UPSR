@@ -7,5 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.base.entity.Link;
 public interface LinkManager {
+    private list<Link>   TopoLinkList;
 }
