@@ -7,11 +7,21 @@
  */
 package cn.org.upbnc.api;
 
+import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.base.impl.BGPManagerImpl;
+import cn.org.upbnc.base.impl.DeviceManagerImpl;
+import cn.org.upbnc.base.impl.NetConfManagerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class APIInterface {
+    private static final Logger LOG = LoggerFactory.getLogger(APIInterface.class);
     public APIInterface(){
 
     }
     public void init(){
+        LOG.info("APIInterface init Start...");
 
+        LOG.info("APIInterface init End!");
     }
 }

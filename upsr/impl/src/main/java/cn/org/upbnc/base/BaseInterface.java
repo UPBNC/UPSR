@@ -10,8 +10,11 @@ package cn.org.upbnc.base;
 import cn.org.upbnc.base.impl.BGPManagerImpl;
 import cn.org.upbnc.base.impl.DeviceManagerImpl;
 import cn.org.upbnc.base.impl.NetConfManagerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseInterface {
+    private static final Logger LOG = LoggerFactory.getLogger(BaseInterface.class);
     private BGPManager bgpManager;
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
@@ -20,9 +23,16 @@ public class BaseInterface {
     }
 
     public void init() {
-        this.deviceManager = DeviceManagerImpl.getInstance();
-        this.netConfManager = NetConfManagerImpl.getInstance();
-        this.bgpManager = BGPManagerImpl.getInstance();
+        try {
+            LOG.info("BaseInterface init Start...");
+            this.deviceManager = DeviceManagerImpl.getInstance();
+            this.netConfManager = NetConfManagerImpl.getInstance();
+            this.bgpManager = BGPManagerImpl.getInstance();
+            LOG.info("BaseInterface init End!");
+        }catch (Exception e){
+            LOG.info("BaseInterface init failure! "+e.getMessage());
+            throw e;
+        }
     }
 
     public DeviceManager getDeviceManager() {

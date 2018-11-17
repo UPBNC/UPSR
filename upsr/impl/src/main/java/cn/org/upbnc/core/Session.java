@@ -25,12 +25,16 @@ public class Session implements Runnable{
 
     private Session(){
         this.status = SystemStatusEnum.OFF;
+        this.baseInterface = new BaseInterface();
+        this.serviceInterface = new ServiceInterface();
+        this.apiInterface = new APIInterface();
     }
     public final static Session getSession(){
         return session;
     }
     // Init itself by another thread
     public void init(){
+        LOG.info("UPSR Session Init");
         new Thread(this).start();
     }
 
@@ -41,17 +45,21 @@ public class Session implements Runnable{
 
     // private init
     private void initReal(){
-        LOG.info("UPSR is Starting");
-        this.status = SystemStatusEnum.STARTING;
+        try {
+            LOG.info("UPSR is Starting");
+            this.status = SystemStatusEnum.STARTING;
 
-        // Doing anything init in order
-        this.baseInterface.init();
-        this.serviceInterface.init();
-        this.apiInterface.init();
+            // Doing anything init in order
+            this.baseInterface.init();
+            this.serviceInterface.init();
+            this.apiInterface.init();
 
 
-        this.status = SystemStatusEnum.ON;
-        LOG.info("UPSR is ON");
+            this.status = SystemStatusEnum.ON;
+            LOG.info("UPSR is ON");
+        }catch (Exception e){
+            LOG.info("UPSR Session init failure! "+e.getMessage());
+        }
     }
 
     @Override

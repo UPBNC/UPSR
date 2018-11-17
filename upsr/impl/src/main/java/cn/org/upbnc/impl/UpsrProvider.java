@@ -30,6 +30,9 @@ public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
      */
     public void init() {
         LOG.info("UpsrProvider Session Initiated");
+        // Init upsr system
+        this.upsr.init();
+        LOG.info("UpsrProvider Session Initiated End!");
     }
 
     /**
@@ -41,7 +44,6 @@ public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
 
     @Override
     public void onSessionInitiated(BindingAwareBroker.ProviderContext session) {
-        // Init upsr system
-        this.upsr.init();
+        LOG.info("UpsrProvider SessionInitiated!");
     }
 }

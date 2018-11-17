@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class NetConfCmd2XmlImpl implements NetConfCmd2Xml {
 
-    private final String path = ""; //可以考虑读配置文件
+    private String path = ""; //可以考虑读配置文件
     private Map<String,Object> hwCmdMap;
     private Map<String,Object> ciscoCmdMap;
 
@@ -40,11 +40,15 @@ public class NetConfCmd2XmlImpl implements NetConfCmd2Xml {
             ///
         }
 
-        //
+        //如果为null，再去文件中找找看
         if(null == ret){
-
+            ret = null; //这是为了编译通过
         }
         return ret;
     }
 
+    //可以删除
+    public String getPath() {
+        return path;
+    }
 }
