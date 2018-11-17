@@ -5,10 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.base.entity;
+package cn.org.upbnc.entity;
 
-public class AdjLabel extends Label {
-    public AdjLabel() {
+public class NodeLable extends Label {
+
+
+    public NodeLable() {
 
     }
 }

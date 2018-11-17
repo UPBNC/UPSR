@@ -8,7 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.DeviceManager;
-import cn.org.upbnc.base.entity.Device;
+import cn.org.upbnc.entity.Device;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,13 +7,17 @@
  */
 package cn.org.upbnc.impl;
 
+import cn.org.upbnc.core.Session;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpsrProvider {
+public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
 
     private static final Logger LOG = LoggerFactory.getLogger(UpsrProvider.class);
+    private final Session upsr = Session.getSession();
 
     private final DataBroker dataBroker;
 
@@ -33,5 +37,11 @@ public class UpsrProvider {
      */
     public void close() {
         LOG.info("UpsrProvider Closed");
+    }
+
+    @Override
+    public void onSessionInitiated(BindingAwareBroker.ProviderContext session) {
+        // Init upsr system
+        this.upsr.init();
     }
 }

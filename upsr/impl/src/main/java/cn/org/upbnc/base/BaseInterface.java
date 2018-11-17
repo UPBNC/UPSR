@@ -7,20 +7,22 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.base.impl.BGPManagerImpl;
 import cn.org.upbnc.base.impl.DeviceManagerImpl;
 import cn.org.upbnc.base.impl.NetConfManagerImpl;
 
 public class BaseInterface {
+    private BGPManager bgpManager;
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
 
     public BaseInterface() {
-        this.init();
     }
 
     public void init() {
         this.deviceManager = DeviceManagerImpl.getInstance();
         this.netConfManager = NetConfManagerImpl.getInstance();
+        this.bgpManager = BGPManagerImpl.getInstance();
     }
 
     public DeviceManager getDeviceManager() {
@@ -35,6 +37,13 @@ public class BaseInterface {
             this.netConfManager = NetConfManagerImpl.getInstance();
         }
         return this.netConfManager;
+    }
+
+    public BGPManager getBgpManager(){
+        if(null == this.bgpManager){
+            this.bgpManager = BGPManagerImpl.getInstance();
+        }
+        return this.bgpManager;
     }
 
     ///....

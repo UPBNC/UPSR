@@ -8,7 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.BGPManager;
-import cn.org.upbnc.base.entity.BGPConnect;
+import cn.org.upbnc.entity.BGPConnect;
 
 import java.util.ArrayList;
 import java.util.List;

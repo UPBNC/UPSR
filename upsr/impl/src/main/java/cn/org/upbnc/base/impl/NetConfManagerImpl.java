@@ -8,7 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.NetConfManager;
-import cn.org.upbnc.base.entity.NetConf;
+import cn.org.upbnc.entity.NetConf;
 
 public class NetConfManagerImpl implements NetConfManager {
 

@@ -8,7 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.LinkManager;
-import cn.org.upbnc.base.entity.Link;
+import cn.org.upbnc.entity.Link;
 
 import java.util.ArrayList;
 import java.util.List;

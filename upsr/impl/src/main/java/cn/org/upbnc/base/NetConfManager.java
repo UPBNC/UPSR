@@ -7,7 +7,7 @@
  */
 package cn.org.upbnc.base;
 
-import cn.org.upbnc.base.entity.NetConf;
+import cn.org.upbnc.entity.NetConf;
 
 public interface NetConfManager {
     NetConf createNetConfConnect();

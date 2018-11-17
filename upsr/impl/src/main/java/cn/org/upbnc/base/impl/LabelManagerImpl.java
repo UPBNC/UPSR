@@ -7,9 +7,8 @@
  */
 package cn.org.upbnc.base.impl;
 
-import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.LabelManager;
-import cn.org.upbnc.base.entity.Label;
+import cn.org.upbnc.entity.Label;
 
 import java.util.ArrayList;
 import java.util.List;

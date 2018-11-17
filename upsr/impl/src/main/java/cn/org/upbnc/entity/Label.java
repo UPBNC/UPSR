@@ -5,29 +5,28 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.base.entity;
+package cn.org.upbnc.entity;
 
-public class LoopBack {
+public class Label {
+    // Local
     private Integer id;
-    private String name;
     private Device device;
-    private Address ip;
-    private Address mask;
 
-    public LoopBack() {
+    private Integer type;
+    private Integer value;
+
+    public Label() {
         this.id = 0;
-        this.name = null;
         this.device = null;
-        this.ip = null;
-        this.mask = null;
+        this.type = 0;
+        this.value = 0;
     }
 
-    public LoopBack(Integer id, String name, Device device, Address ip, Address mask) {
+    public Label(Integer id, Device device, Integer type, Integer value) {
         this.id = id;
-        this.name = name;
         this.device = device;
-        this.ip = ip;
-        this.mask = mask;
+        this.type = type;
+        this.value = value;
     }
 
     public void setId(Integer id) {
@@ -38,6 +37,7 @@ public class LoopBack {
         return id;
     }
 
+
     public Device getDevice() {
         return device;
     }
@@ -46,29 +46,19 @@ public class LoopBack {
         this.device = device;
     }
 
-    public String getName() {
-        return name;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Integer getType() {
+        return type;
     }
 
-
-    public void setIp(Address ip) {
-        this.ip = ip;
+    public Integer getValue() {
+        return value;
     }
 
-    public Address getIp() {
-        return ip;
+    public void setValue(Integer value) {
+        this.value = value;
     }
-
-    public void setMask(Address mask) {
-        this.mask = mask;
-    }
-
-    public Address getMask() {
-        return mask;
-    }
-
 }
