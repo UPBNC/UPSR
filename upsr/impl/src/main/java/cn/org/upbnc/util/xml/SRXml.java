@@ -5,16 +5,20 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.util;
+package cn.org.upbnc.util.xml;
 
-import cn.org.upbnc.enumtype.ManufactureEnum;
-import cn.org.upbnc.util.xml.SRXml;
 import org.dom4j.Document;
 
-public interface NetConfCmd2Xml {
-    // Init xml
-    void initXml();
+import java.util.Map;
 
-    // Get xml
-    SRXml getXMLByManufacture(ManufactureEnum manufacture, String cmd);
+public interface SRXml {
+
+    void initDocument();
+
+    void initDocumentByXmlFile(String path);
+    //替换Xml对应的值
+    void setParameter(Map<String,String> map);
+
+    //获取Document
+    Document getXml();
 }

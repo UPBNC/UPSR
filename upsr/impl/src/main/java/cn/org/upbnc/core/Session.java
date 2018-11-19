@@ -11,6 +11,7 @@ import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.ServiceInterface;
+import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +23,14 @@ public class Session implements Runnable{
     private BaseInterface baseInterface;
     private ServiceInterface serviceInterface;
     private APIInterface apiInterface;
+    private UtilInterface utilInterface;
 
     private Session(){
         this.status = SystemStatusEnum.OFF;
         this.baseInterface = new BaseInterface();
         this.serviceInterface = new ServiceInterface();
         this.apiInterface = new APIInterface();
+        this.utilInterface = new UtilInterface();
     }
     public final static Session getSession(){
         return session;
@@ -36,6 +39,14 @@ public class Session implements Runnable{
     public void init(){
         LOG.info("UPSR Session Init");
         new Thread(this).start();
+    }
+
+    public BaseInterface getBaseInterface(){
+        if(SystemStatusEnum.ON == status ){
+            return this.baseInterface;
+        }else{
+            return null;
+        }
     }
 
 
@@ -53,6 +64,7 @@ public class Session implements Runnable{
             this.baseInterface.init();
             this.serviceInterface.init();
             this.apiInterface.init();
+            this.utilInterface.init();
 
 
             this.status = SystemStatusEnum.ON;
