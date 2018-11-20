@@ -10,6 +10,7 @@ package cn.org.upbnc.base;
 import cn.org.upbnc.base.impl.BGPManagerImpl;
 import cn.org.upbnc.base.impl.DeviceManagerImpl;
 import cn.org.upbnc.base.impl.NetConfManagerImpl;
+import cn.org.upbnc.base.impl.VpnInstanceManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ public class BaseInterface {
     private BGPManager bgpManager;
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
+    private VpnInstanceManager vpnInstanceManager;
 
     public BaseInterface() {
     }
@@ -28,6 +30,7 @@ public class BaseInterface {
             this.deviceManager = DeviceManagerImpl.getInstance();
             this.netConfManager = NetConfManagerImpl.getInstance();
             this.bgpManager = BGPManagerImpl.getInstance();
+            this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         }catch (Exception e){
             LOG.info("BaseInterface init failure! "+e.getMessage());
@@ -54,6 +57,15 @@ public class BaseInterface {
             this.bgpManager = BGPManagerImpl.getInstance();
         }
         return this.bgpManager;
+    }
+
+    public VpnInstanceManager getVpnInstanceManager()
+    {
+        if(null == this.vpnInstanceManager)
+        {
+            this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
+        }
+        return this.vpnInstanceManager;
     }
 
     ///....
