@@ -29,12 +29,12 @@ public class EditConfig implements SRXml{
         target.addElement("candidate");
 
         // config
-        Element config = root.addElement("config");
-        Element system = config.addElement("system:system");
-        system.addAttribute("xmlns:system","http://www.huawei.com/netconf/vrp/huawei-system");
-        Element systemInfo = system.addElement("system:systemInfo");
-        Element sysName = systemInfo.addElement("system:sysName");
-        sysName.addText("SH_Router_PE1");
+//        Element config = root.addElement("config");
+//        Element system = config.addElement("system:system");
+//        system.addAttribute("xmlns:system","http://www.huawei.com/netconf/vrp/huawei-system");
+//        Element systemInfo = system.addElement("system:systemInfo");
+//        Element sysName = systemInfo.addElement("system:sysName");
+//        sysName.addText("SH_Router_PE1");
     }
 
     @Override

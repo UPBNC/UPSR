@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.api;
 
+import cn.org.upbnc.api.impl.TopoTestApiImpl;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.impl.BGPManagerImpl;
 import cn.org.upbnc.base.impl.DeviceManagerImpl;
@@ -16,12 +17,22 @@ import org.slf4j.LoggerFactory;
 
 public class APIInterface {
     private static final Logger LOG = LoggerFactory.getLogger(APIInterface.class);
+    private TopoTestApi topoTestApi;
     public APIInterface(){
 
     }
     public void init(){
-        LOG.info("APIInterface init Start...");
+        try {
+            LOG.info("APIInterface init Start...");
+            this.topoTestApi = TopoTestApiImpl.getInstance();
 
-        LOG.info("APIInterface init End!");
+            LOG.info("APIInterface init End!");
+        }catch (Exception e){
+            LOG.info("APIInterface init Failure!");
+        }
+    }
+
+    public TopoTestApi getTopoTestApi() {
+        return topoTestApi;
     }
 }

@@ -1,0 +1,21 @@
+module topo {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:topo";
+    prefix "topo";
+
+    revision "2018-11-19" {
+        description "Initial revision of topo model";
+    }
+    rpc topo {
+        input {
+            leaf name {
+                type string;
+            }
+        }
+        output {
+            leaf greeting {
+                type string;
+            }
+        }
+    }
+}

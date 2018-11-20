@@ -11,11 +11,15 @@ import cn.org.upbnc.enumtype.ManufactureEnum;
 import cn.org.upbnc.util.NetConfCmd2Xml;
 import cn.org.upbnc.util.xml.EditConfig;
 import cn.org.upbnc.util.xml.SRXml;
+import org.dom4j.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class NetConfCmd2XmlImpl implements NetConfCmd2Xml {
+    private static final Logger LOG = LoggerFactory.getLogger(NetConfCmd2XmlImpl.class);
     private static NetConfCmd2Xml instance = new NetConfCmd2XmlImpl();
     public static NetConfCmd2Xml getInstance() {
         return instance;
@@ -32,9 +36,13 @@ public class NetConfCmd2XmlImpl implements NetConfCmd2Xml {
 
     // Read all XML File in path
     @Override
-    public void initXml(){
-        SRXml editConfig = new EditConfig();
-        this.hwCmdMap.put("EditConfig",editConfig);
+    public void initXml (){
+        LOG.info("Init NetConf Cmd ...");
+//        SRXml editConfig = new EditConfig();
+//        editConfig.initDocument();
+//        Document document = editConfig.getXml();
+//        LOG.info(document.get.toString());
+        LOG.info("Init NetConf Cmd End!");
     }
 
     // Get XML object by Manufacture

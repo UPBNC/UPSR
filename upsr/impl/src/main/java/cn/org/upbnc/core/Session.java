@@ -49,10 +49,33 @@ public class Session implements Runnable{
         }
     }
 
+    public ServiceInterface getServiceInterface(){
+        if(SystemStatusEnum.ON == status ){
+            return this.serviceInterface;
+        }else{
+            return null;
+        }
+    }
 
+    public APIInterface getApiInterface() {
+        if(SystemStatusEnum.ON == status ){
+            return this.apiInterface;
+        }else{
+            return null;
+        }
+    }
 
+    public UtilInterface getUtilInterface(){
+        if(SystemStatusEnum.ON == status ){
+            return this.utilInterface;
+        }else{
+            return null;
+        }
+    }
 
-
+    public SystemStatusEnum getStatus() {
+        return status;
+    }
 
     // private init
     private void initReal(){
