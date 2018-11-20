@@ -10,7 +10,7 @@ package cn.org.upbnc.odlapi;
 import java.util.concurrent.Future;
 
 import cn.org.upbnc.api.APIInterface;
-import cn.org.upbnc.api.TopoTestApi;
+import cn.org.upbnc.api.TopoApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev181119.TopoInput;
@@ -24,13 +24,13 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 public class TopoTestODLApi implements TopoService {
 
     Session session;
-    TopoTestApi topoTestApi;
+    TopoApi topoTestApi;
 
     public TopoTestODLApi(Session session){
         this.session = session;
     }
 
-    private TopoTestApi getTopoTestApi(){
+    private TopoApi getTopoTestApi(){
         if(this.topoTestApi == null) {
             APIInterface apiInterface = session.getApiInterface();
             if (apiInterface != null) {

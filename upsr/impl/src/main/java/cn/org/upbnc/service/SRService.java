@@ -7,6 +7,9 @@
  */
 package cn.org.upbnc.service;
 
-public interface SRService {
+import cn.org.upbnc.base.BaseInterface;
 
+public interface SRService {
+    // Set BaseInterface
+    boolean setBaseInterface(BaseInterface baseInterface);
 }

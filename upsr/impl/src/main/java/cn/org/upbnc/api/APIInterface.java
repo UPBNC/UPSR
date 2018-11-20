@@ -7,24 +7,28 @@
  */
 package cn.org.upbnc.api;
 
-import cn.org.upbnc.api.impl.TopoTestApiImpl;
-import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.base.impl.BGPManagerImpl;
-import cn.org.upbnc.base.impl.DeviceManagerImpl;
-import cn.org.upbnc.base.impl.NetConfManagerImpl;
+import cn.org.upbnc.api.impl.TopoApiImpl;
+import cn.org.upbnc.service.ServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class APIInterface {
     private static final Logger LOG = LoggerFactory.getLogger(APIInterface.class);
-    private TopoTestApi topoTestApi;
-    public APIInterface(){
+    private ServiceInterface serviceInterface;
+    private TopoApi topoTestApi;
 
+    public APIInterface(){
+        // Service Interface
+        this.serviceInterface = null;
+
+        // Init API
+        this.topoTestApi = null;
     }
+
     public void init(){
         try {
             LOG.info("APIInterface init Start...");
-            this.topoTestApi = TopoTestApiImpl.getInstance();
+            this.topoTestApi = TopoApiImpl.getInstance();
 
             LOG.info("APIInterface init End!");
         }catch (Exception e){
@@ -32,7 +36,18 @@ public class APIInterface {
         }
     }
 
-    public TopoTestApi getTopoTestApi() {
+    public boolean setServiceInterface(ServiceInterface serviceInterface){
+        boolean ret = false;
+        try {
+            this.serviceInterface = serviceInterface;
+            ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
+        }catch (Exception e){
+            LOG.info(e.getMessage());
+        }
+        return ret;
+    }
+
+    public TopoApi getTopoTestApi() {
         return topoTestApi;
     }
 }

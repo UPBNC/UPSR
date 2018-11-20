@@ -7,6 +7,11 @@
  */
 package cn.org.upbnc.api;
 
-public interface TopoTestApi {
+import cn.org.upbnc.service.ServiceInterface;
+
+public interface TopoApi {
+    // Set ServiceInterface
+    boolean setServiceInterface(ServiceInterface serviceInterface);
+
     String getTest();
 }

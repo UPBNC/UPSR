@@ -10,6 +10,7 @@ package cn.org.upbnc.impl;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.odlapi.TopoTestODLApi;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -17,12 +18,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
+public class UpsrProvider implements AutoCloseable{
 
     private static final Logger LOG = LoggerFactory.getLogger(UpsrProvider.class);
     private final Session upsr = Session.getSession();
     private final RpcProviderRegistry rpcRegistry;
     private final DataBroker dataBroker;
+
+    //ODL REST Service RpcRegistration start;
+    private BindingAwareBroker.RpcRegistration<TopoService> topoServiceReg;
+    //...
+    //ODL REST Service RpcRegistration end;
 
     public UpsrProvider(RpcProviderRegistry rpcRegistry, final DataBroker dataBroker) {
         this.rpcRegistry = rpcRegistry;
@@ -38,7 +44,7 @@ public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
         this.upsr.init();
 
         // Register service
-        this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
+        this.registerServices();
         LOG.info("Upsr Session Initiated End!");
     }
 
@@ -46,14 +52,17 @@ public class UpsrProvider implements BindingAwareProvider, AutoCloseable{
      * Method called when the blueprint container is destroyed.
      */
     public void close() {
+        // Close Register Service
+        this.closeServices();
         LOG.info("UpsrProvider Closed");
     }
 
-    @Override
-    public void onSessionInitiated(ProviderContext ctx) {
-
-        this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
-        //ctx.addRoutedRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr);
-        LOG.info("UpsrProvider onSessionInitiated!");
+    private void registerServices(){
+        this.topoServiceReg = this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
     }
+
+    private void closeServices(){
+        this.topoServiceReg.close();
+    }
+
 }

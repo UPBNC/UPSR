@@ -15,10 +15,17 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceInterface {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceInterface.class);
+    private BaseInterface baseInterface;
     private VPNService vpnService;
     private SRService srService;
 
     public ServiceInterface(){
+        // Base Interface
+        this.baseInterface = null;
+
+        // Init Service
+        this.vpnService = null;
+        this.srService = null;
     }
 
     public void init(){
@@ -31,7 +38,18 @@ public class ServiceInterface {
             LOG.info("ServiceInterface init failure! "+e.getMessage());
             throw e;
         }
+    }
 
+    public boolean setBaseInterface(BaseInterface baseInterface){
+        boolean ret = false;
+        try {
+            this.baseInterface = baseInterface;
+            ret = this.srService.setBaseInterface(this.baseInterface);
+        }catch (Exception e){
+            LOG.info(e.getMessage());
+            ret = false;
+        }
+        return ret;
     }
 
     public VPNService getVpnService() {
