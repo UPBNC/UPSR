@@ -1,0 +1,78 @@
+module upsrTopo {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrTopo";
+    prefix "upsrTopo";
+
+    revision "2018-11-19" {
+        description "Initial revision of upsrTopo model";
+    }
+
+    grouping nodeInfo {
+        list nodes {
+            leaf routerId {
+                type string;
+            }
+            list deviceInterfaces {
+                leaf ifAddress {
+                    type string;
+                }
+            }
+        }
+    }
+
+    grouping linkInfo {
+        list links {
+            leaf linkId {
+                type string;
+            }
+            container source {
+                leaf routerId {
+                    type string;
+                }
+                leaf ifAddress {
+                    type string;
+                }
+            }
+            container dest {
+                leaf routerId {
+                    type string;
+                }
+                leaf ifAddress {
+                    type string;
+                }
+            }
+        }
+    }
+
+    rpc getNodes {
+        input {
+            leaf routerId {
+                type string;
+            }
+            leaf ifAddress {
+                type string;
+            }
+        }
+        output {
+            uses nodeInfo;
+        }
+    }
+
+    rpc getLinks {
+        input {
+            leaf linkId {
+                type string;
+            }
+        }
+        output {
+            uses linkInfo;
+        }
+    }
+
+	rpc getTopo {
+		output {
+			uses nodeInfo;
+			uses linkInfo;
+		}
+	}
+}
