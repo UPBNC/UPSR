@@ -7,14 +7,12 @@
  */
 package cn.org.upbnc.base.impl;
 
-import cn.org.upbnc.entity.*;
 import cn.org.upbnc.base.VpnInstanceManager;
+import cn.org.upbnc.entity.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class VpnInstanceManagerImpl  implements VpnInstanceManager {
     private static VpnInstanceManager instance = null;
@@ -76,7 +74,19 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
         }
         return false;
     }
-    public VPNInstance  getVpnIstance(String vpnName)
+    public VPNInstance getVpnIstance(Integer id)
+    {
+        Iterator<VPNInstance> iter = vpnInstanceList.iterator();
+        while(iter.hasNext())
+        {
+            if(id  == iter.next().getId().intValue())
+            {
+                return iter.next();
+            }
+        }
+        return null;
+    }
+    public VPNInstance getVpnIstance(String vpnName)
     {
         if(null == vpnName)
             return null;
@@ -161,6 +171,10 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
             vpnInstanceList.add(vpnInstance);
         }
         return vpnInstance;
+    }
+    public List<VPNInstance> getVpnInstanceList()
+    {
+        return vpnInstanceList;
     }
 
 }

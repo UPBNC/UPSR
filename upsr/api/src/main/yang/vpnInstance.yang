@@ -1,0 +1,21 @@
+module vpnInstance {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpnInstance";
+    prefix "vpnInstance";
+
+    revision "2018-11-19" {
+        description "Initial revision of vpnInstance model";
+    }
+    rpc vpnInstance {
+        input {
+            leaf name {
+                type string;
+            }
+        }
+        output {
+            leaf greeting {
+                type string;
+            }
+        }
+    }
+}

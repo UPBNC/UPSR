@@ -52,6 +52,7 @@ public class TopoTestODLApi implements TopoService {
         }else{
             //调用系统Api层函数
             this.getTopoTestApi();
+
         }
 
         //以下是业务代码
