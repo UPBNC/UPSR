@@ -78,6 +78,33 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-topology</artifactId>
     </dependency>
 
+    <!--<dependency>-->
+      <!--<groupId>org.opendaylight.bgpcep</groupId>-->
+      <!--<artifactId>odl-bgpcep-bgp-topology</artifactId>-->
+      <!--<version>0.9.2</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.opendaylight.bgpcep</groupId>-->
+      <!--<artifactId>bgp-topology-provider</artifactId>-->
+      <!--<version>0.9.2</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.opendaylight.bgpcep</groupId>-->
+      <!--<artifactId>odl-bgpcep-bgp-inet</artifactId>-->
+      <!--<version>0.9.2</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.opendaylight.bgpcep</groupId>-->
+      <!--<artifactId>odl-bgpcep-bgp-linkstate</artifactId>-->
+      <!--<version>0.9.2</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.opendaylight.bgpcep</groupId>-->
+      <!--<artifactId>odl-bgpcep-topology-api</artifactId>-->
+      <!--<version>0.9.2</version>-->
+    <!--</dependency>-->
+
+
     <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>

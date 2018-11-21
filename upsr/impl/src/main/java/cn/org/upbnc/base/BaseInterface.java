@@ -11,11 +11,14 @@ import cn.org.upbnc.base.impl.BGPManagerImpl;
 import cn.org.upbnc.base.impl.DeviceManagerImpl;
 import cn.org.upbnc.base.impl.NetConfManagerImpl;
 import cn.org.upbnc.base.impl.VpnInstanceManagerImpl;
+import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BaseInterface {
     private static final Logger LOG = LoggerFactory.getLogger(BaseInterface.class);
+
+    private UtilInterface utilInterface;
     private BGPManager bgpManager;
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
@@ -24,8 +27,10 @@ public class BaseInterface {
     public BaseInterface() {
     }
 
+    // 基础系统初始化
     public void init() {
         try {
+            // 每个基础系统初始化
             LOG.info("BaseInterface init Start...");
             this.deviceManager = DeviceManagerImpl.getInstance();
             this.netConfManager = NetConfManagerImpl.getInstance();
@@ -36,6 +41,21 @@ public class BaseInterface {
             LOG.info("BaseInterface init failure! "+e.getMessage());
             throw e;
         }
+    }
+
+    // 安装工具系统
+    public boolean setUtilInterface(UtilInterface utilInterface) {
+        boolean ret = false;
+        try {
+            this.utilInterface = utilInterface;
+            ret = true;
+            // 每个基础系统安装工具
+            ret = ret && this.bgpManager.setUtilInterface(this.utilInterface);
+        }catch (Exception e){
+            ret = false;
+            LOG.info(e.getMessage());
+        }
+        return ret;
     }
 
     public DeviceManager getDeviceManager() {

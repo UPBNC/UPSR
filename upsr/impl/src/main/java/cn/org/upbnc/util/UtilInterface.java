@@ -8,14 +8,15 @@
 package cn.org.upbnc.util;
 
 import cn.org.upbnc.service.ServiceInterface;
-import cn.org.upbnc.service.impl.SRServiceImpl;
-import cn.org.upbnc.service.impl.VPNServiceImpl;
 import cn.org.upbnc.util.impl.NetConfCmd2XmlImpl;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UtilInterface {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceInterface.class);
+    private DataBroker dataBroker;
     private NetConfCmd2Xml netConfCmd2Xml;
 
     public void init(){
@@ -28,6 +29,14 @@ public class UtilInterface {
             LOG.info("UtilInterface init failure! "+e.getMessage());
             throw e;
         }
+    }
+
+    public void setDataBroker(DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
+    }
+
+    public DataBroker getDataBroker() {
+        return dataBroker;
     }
 
     public NetConfCmd2Xml getNetConfCmd2Xml() {

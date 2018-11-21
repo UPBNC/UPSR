@@ -45,7 +45,7 @@ public class UpsrProvider implements AutoCloseable{
     public void init() {
         LOG.info("Upsr Session Initiated");
         // Init upsr system
-        this.upsr.init();
+        this.upsr.init(this.dataBroker);
 
         // Register service
         this.registerServices();

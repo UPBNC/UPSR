@@ -12,6 +12,7 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.UtilInterface;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,8 @@ public class Session implements Runnable{
     private APIInterface apiInterface;
     private UtilInterface utilInterface;
 
+    private DataBroker dataBroker;
+
     private Session(){
         this.status = SystemStatusEnum.OFF;
         this.baseInterface = new BaseInterface();
@@ -36,8 +39,9 @@ public class Session implements Runnable{
         return session;
     }
     // Init itself by another thread
-    public void init(){
+    public void init(DataBroker dataBroker){
         LOG.info("UPSR Session Init");
+        this.dataBroker = dataBroker;
         new Thread(this).start();
     }
 
@@ -92,6 +96,14 @@ public class Session implements Runnable{
             // Add manager to caller
             this.serviceInterface.setBaseInterface(this.baseInterface);
             this.apiInterface.setServiceInterface(this.serviceInterface);
+
+            // Add util to caller
+            this.apiInterface.setUtilInterface(this.utilInterface);
+            this.serviceInterface.setUtilInterface(this.utilInterface);
+            this.baseInterface.setUtilInterface(this.utilInterface);
+
+            // Add databroker to util
+            this.utilInterface.setDataBroker(this.dataBroker);
 
             this.status = SystemStatusEnum.ON;
             LOG.info("UPSR is ON");

@@ -9,15 +9,21 @@ package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.service.impl.SRServiceImpl;
+import cn.org.upbnc.service.impl.TopoServiceImpl;
 import cn.org.upbnc.service.impl.VPNServiceImpl;
+import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ServiceInterface {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceInterface.class);
+    // Base & Util interface
     private BaseInterface baseInterface;
+    private UtilInterface utilInterface;
+
     private VPNService vpnService;
     private SRService srService;
+    private TopoService topoService;
 
     public ServiceInterface(){
         // Base Interface
@@ -26,6 +32,7 @@ public class ServiceInterface {
         // Init Service
         this.vpnService = null;
         this.srService = null;
+        this.topoService = null;
     }
 
     public void init(){
@@ -33,6 +40,7 @@ public class ServiceInterface {
             LOG.info("ServiceInterface init Start...");
             this.vpnService = VPNServiceImpl.getInstance();
             this.srService = SRServiceImpl.getInstance();
+            this.topoService = TopoServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         }catch (Exception e){
             LOG.info("ServiceInterface init failure! "+e.getMessage());
@@ -40,14 +48,32 @@ public class ServiceInterface {
         }
     }
 
+    // 安装基础系统接口
     public boolean setBaseInterface(BaseInterface baseInterface){
         boolean ret = false;
         try {
             this.baseInterface = baseInterface;
+            // 给每个业务服务安装基础系统
             ret = this.srService.setBaseInterface(this.baseInterface);
+            ret = ret &&this.topoService.setBaseInterface(this.baseInterface);
         }catch (Exception e){
-            LOG.info(e.getMessage());
             ret = false;
+            LOG.info(e.getMessage());
+        }
+        return ret;
+    }
+
+    // 安装工具系统
+    public boolean setUtilInterface(UtilInterface utilInterface) {
+        boolean ret = false;
+        try {
+            this.utilInterface = utilInterface;
+            ret = true;
+            // 给每个业务服务安装工具系统
+            /// ...
+        }catch (Exception e){
+            ret = false;
+            LOG.info(e.getMessage());
         }
         return ret;
     }

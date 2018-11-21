@@ -7,6 +7,10 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.util.UtilInterface;
+
 public interface BGPManager {
+    boolean setUtilInterface(UtilInterface utilInterface);
+    void test();
 
 }
