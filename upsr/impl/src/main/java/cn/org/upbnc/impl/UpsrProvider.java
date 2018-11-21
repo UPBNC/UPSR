@@ -8,11 +8,13 @@
 package cn.org.upbnc.impl;
 
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.odlapi.TopoInfoODLApi;
 import cn.org.upbnc.odlapi.TopoTestODLApi;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev181119.TopoService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class UpsrProvider implements AutoCloseable{
 
     //ODL REST Service RpcRegistration start;
     private BindingAwareBroker.RpcRegistration<TopoService> topoServiceReg;
+    private BindingAwareBroker.RpcRegistration<UpsrTopoService> topoInfoServiceReg;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -57,10 +60,12 @@ public class UpsrProvider implements AutoCloseable{
 
     private void registerServices(){
         this.topoServiceReg = this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
+        this.topoInfoServiceReg = this.rpcRegistry.addRpcImplementation(UpsrTopoService.class, new TopoInfoODLApi(this.upsr));
     }
 
     private void closeServices(){
         this.topoServiceReg.close();
+        this.topoInfoServiceReg.close();
     }
 
 }

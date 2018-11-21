@@ -8,6 +8,7 @@
 package cn.org.upbnc.api;
 
 import cn.org.upbnc.api.impl.TopoApiImpl;
+import cn.org.upbnc.api.impl.TopoInfoApiImpl;
 import cn.org.upbnc.service.ServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ public class APIInterface {
     private static final Logger LOG = LoggerFactory.getLogger(APIInterface.class);
     private ServiceInterface serviceInterface;
     private TopoApi topoTestApi;
+    private TopoInfoApi topoInfoApi;
 
     public APIInterface(){
         // Service Interface
@@ -23,16 +25,19 @@ public class APIInterface {
 
         // Init API
         this.topoTestApi = null;
+        this.topoInfoApi = null;
+
     }
 
     public void init(){
         try {
             LOG.info("APIInterface init Start...");
             this.topoTestApi = TopoApiImpl.getInstance();
+            this.topoInfoApi = TopoInfoApiImpl.getInstance();
 
             LOG.info("APIInterface init End!");
         }catch (Exception e){
-            LOG.info("APIInterface init Failure!");
+            LOG.info("APIInterface init Failure!" + e.getMessage());
         }
     }
 
@@ -49,5 +54,8 @@ public class APIInterface {
 
     public TopoApi getTopoTestApi() {
         return topoTestApi;
+    }
+    public TopoInfoApi getTopoInfoApi() {
+        return topoInfoApi;
     }
 }
