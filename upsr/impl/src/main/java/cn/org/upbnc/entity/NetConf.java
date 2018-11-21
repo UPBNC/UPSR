@@ -7,10 +7,12 @@
  */
 package cn.org.upbnc.entity;
 
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
+
 public class NetConf {
     private Integer id;
     private Device device;
-    private Integer status;
+    private NetConfStatusEnum status;
     private Integer port;
     private Address ip;
     private String user;
@@ -19,14 +21,14 @@ public class NetConf {
     public NetConf() {
         this.id = 0;
         this.device = null;
-        this.status = 0;
+        this.status = NetConfStatusEnum.Disconnect;
         this.port = 0;
         this.ip = null;
         this.user = null;
         this.password = null;
     }
 
-    public NetConf(Integer id, Device device, Integer status, Integer port, Address ip, String user, String password) {
+    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String password) {
         this.id = id;
         this.device = device;
         this.status = status;
@@ -52,11 +54,11 @@ public class NetConf {
         return device;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(NetConfStatusEnum status) {
         this.status = status;
     }
 
-    public Integer getStatus() {
+    public NetConfStatusEnum getStatus() {
         return status;
     }
 
