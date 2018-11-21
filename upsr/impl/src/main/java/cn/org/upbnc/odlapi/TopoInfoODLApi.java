@@ -56,6 +56,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
 
     @Override
     public Future<RpcResult<GetLinksOutput>> getLinks(GetLinksInput input) {
+        /*
+        http://localhost:8181/restconf/operations/upsrTopo:getLinks  :  {"input": { "linkId":"sunxasss"}}
+         */
         GetLinksOutputBuilder getLinksOutputBuilder = new GetLinksOutputBuilder();
         LOG.info("getLinks begin");
         if(SystemStatusEnum.ON != this.session.getStatus()){

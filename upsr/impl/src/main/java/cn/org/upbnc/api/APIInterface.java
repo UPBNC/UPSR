@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.api;
 
+import cn.org.upbnc.api.impl.BgplsSessionApiImpl;
 import cn.org.upbnc.api.impl.TopoApiImpl;
 import cn.org.upbnc.api.impl.TopoInfoApiImpl;
 import cn.org.upbnc.service.ServiceInterface;
@@ -18,6 +19,7 @@ public class APIInterface {
     private ServiceInterface serviceInterface;
     private TopoApi topoTestApi;
     private TopoInfoApi topoInfoApi;
+    private BgplsSessionApi bgplsSessionApi;
 
     public APIInterface(){
         // Service Interface
@@ -26,6 +28,7 @@ public class APIInterface {
         // Init API
         this.topoTestApi = null;
         this.topoInfoApi = null;
+        this.bgplsSessionApi = null;
 
     }
 
@@ -34,6 +37,7 @@ public class APIInterface {
             LOG.info("APIInterface init Start...");
             this.topoTestApi = TopoApiImpl.getInstance();
             this.topoInfoApi = TopoInfoApiImpl.getInstance();
+            this.bgplsSessionApi = BgplsSessionApiImpl.getInstance();
 
             LOG.info("APIInterface init End!");
         }catch (Exception e){
@@ -57,5 +61,9 @@ public class APIInterface {
     }
     public TopoInfoApi getTopoInfoApi() {
         return topoInfoApi;
+    }
+
+    public BgplsSessionApi getBgplsSessionApi() {
+        return bgplsSessionApi;
     }
 }
