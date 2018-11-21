@@ -5,16 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package cn.org.upbnc.service;
+package cn.org.upbnc.api;
 
-import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.entity.*;
+import cn.org.upbnc.service.ServiceInterface;
 
 import java.util.List;
 
-public interface VPNService {
-    // Set BaseInterface
-    boolean setBaseInterface(BaseInterface baseInterface);
+public interface VpnInstanceApi {
+    // Set ServiceInterface
+    boolean setServiceInterface(ServiceInterface serviceInterface);
     boolean updateVpnInstance(String vpnName,
                               Device device,
                               String businessRegion,
@@ -32,6 +32,5 @@ public interface VPNService {
     VPNInstance getVpnInstance(Integer id);
     VPNInstance getVpnInstance(String vpnName);
     List<VPNInstance> getVpnInstanceList();
-
     String getTest();
 }

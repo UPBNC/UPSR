@@ -12,6 +12,5 @@ import cn.org.upbnc.service.ServiceInterface;
 public interface TopoApi {
     // Set ServiceInterface
     boolean setServiceInterface(ServiceInterface serviceInterface);
-
     String getTest();
 }

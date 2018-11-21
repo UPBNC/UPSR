@@ -7,6 +7,29 @@
  */
 package cn.org.upbnc.base;
 
-public interface VpnInstanceManager {
+import cn.org.upbnc.entity.*;
 
+import java.util.List;
+
+public interface VpnInstanceManager {
+    boolean addVpnInstance(VPNInstance vpnInstance);
+    boolean delVpnInstance(Integer id);
+    boolean delVpnInstance(String vpnName);
+    VPNInstance getVpnIstance(Integer id);
+    VPNInstance getVpnIstance(String vpnName);
+    VPNInstance updateVpnInstance(String vpnName,
+                                     Device device,
+                                     String businessRegion,
+                                     String rd,
+                                     String importRT,
+                                     String exportRT,
+                                     Integer peerAS,
+                                     Address peerIP,
+                                     Integer routeSelectDelay,
+                                     Integer importDirectRouteEnable,
+                                     List<DeviceInterface> deviceInterfaceList,
+                                     List<NetworkSeg> networkSegList);
+
+    VPNInstance  updateVpnInstance(VPNInstance vpnInstance);
+    List<VPNInstance> getVpnInstanceList();
 }

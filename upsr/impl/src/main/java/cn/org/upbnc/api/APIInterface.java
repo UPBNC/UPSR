@@ -9,6 +9,7 @@ package cn.org.upbnc.api;
 
 import cn.org.upbnc.api.impl.TopoApiImpl;
 import cn.org.upbnc.api.impl.TopoInfoApiImpl;
+import cn.org.upbnc.api.impl.VpnInstanceApiImpl;
 import cn.org.upbnc.service.ServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public class APIInterface {
     private ServiceInterface serviceInterface;
     private TopoApi topoTestApi;
     private TopoInfoApi topoInfoApi;
+	 private VpnInstanceApi vpnInstanceApi;
 
     public APIInterface(){
         // Service Interface
@@ -26,6 +28,7 @@ public class APIInterface {
         // Init API
         this.topoTestApi = null;
         this.topoInfoApi = null;
+		this.vpnInstanceApi = null;
 
     }
 
@@ -34,6 +37,7 @@ public class APIInterface {
             LOG.info("APIInterface init Start...");
             this.topoTestApi = TopoApiImpl.getInstance();
             this.topoInfoApi = TopoInfoApiImpl.getInstance();
+			this.vpnInstanceApi = VpnInstanceApiImpl.getInstance();
 
             LOG.info("APIInterface init End!");
         }catch (Exception e){
@@ -46,6 +50,7 @@ public class APIInterface {
         try {
             this.serviceInterface = serviceInterface;
             ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
+            ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){
             LOG.info(e.getMessage());
         }
@@ -57,5 +62,9 @@ public class APIInterface {
     }
     public TopoInfoApi getTopoInfoApi() {
         return topoInfoApi;
+    }
+	public VpnInstanceApi getVpnInstanceApi()
+    {
+        return vpnInstanceApi;
     }
 }
