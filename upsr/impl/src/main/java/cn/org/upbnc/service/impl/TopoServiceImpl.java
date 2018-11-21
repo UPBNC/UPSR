@@ -26,6 +26,7 @@ public class TopoServiceImpl implements TopoService {
 
     private TopoServiceImpl() {
         this.baseInterface = null;
+        this.bgpManager = null;
     }
 
     @Override

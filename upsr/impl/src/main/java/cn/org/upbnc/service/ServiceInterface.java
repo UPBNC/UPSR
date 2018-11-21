@@ -91,4 +91,11 @@ public class ServiceInterface {
         }
         return this.srService;
     }
+
+    public TopoService getTopoService(){
+        if(null == this.topoService){
+            this.topoService = TopoServiceImpl.getInstance();
+        }
+        return this.topoService;
+    }
 }

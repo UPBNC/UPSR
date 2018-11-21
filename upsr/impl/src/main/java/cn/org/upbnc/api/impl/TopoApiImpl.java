@@ -9,7 +9,7 @@ package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.TopoApi;
 import cn.org.upbnc.service.ServiceInterface;
-import cn.org.upbnc.service.impl.SRServiceImpl;
+import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +17,7 @@ public class TopoApiImpl implements TopoApi {
     private static final Logger LOG = LoggerFactory.getLogger(TopoApiImpl.class);
     private static TopoApi ourInstance = new TopoApiImpl();
     private ServiceInterface serviceInterface;
+    private TopoService topoService;
     public static TopoApi getInstance() {
         return ourInstance;
     }
@@ -24,22 +25,30 @@ public class TopoApiImpl implements TopoApi {
     private TopoApiImpl() {
         // Init ServiceInterface
         this.serviceInterface = null;
+        this.topoService = null;
     }
 
     @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
         boolean ret = false;
         try{
-            this.serviceInterface = serviceInterface;
-            this.serviceInterface.getSrService();
+            if(null != serviceInterface) {
+                this.serviceInterface = serviceInterface;
+                this.topoService = serviceInterface.getTopoService();
+            }
+            ret = true;
         }catch (Exception e){
+            ret = false;
             LOG.info(e.getMessage());
         }
-        return false;
+        return ret;
     }
 
     @Override
     public String getTest() {
-        return null;
+        this.topoService.test();
+        return "Test";
     }
+
+
 }

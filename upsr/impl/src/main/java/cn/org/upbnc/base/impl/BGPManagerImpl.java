@@ -32,8 +32,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 public class BGPManagerImpl implements BGPManager {
     private static final Logger LOG = LoggerFactory.getLogger(BGPManagerImpl.class);

@@ -59,7 +59,7 @@ public class TopoTestODLApi implements TopoService {
         topoOutputBuilder.setGreeting("Hello " + input.getName());
 
         // Call TopoTestAPI
-        //this.topoTestApi.getTest();
+        this.topoTestApi.getTest();
 
         return RpcResultBuilder.success(topoOutputBuilder.build()).buildFuture();
     }
