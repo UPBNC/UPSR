@@ -9,6 +9,7 @@ package cn.org.upbnc.service.impl;
 
 import cn.org.upbnc.base.BGPManager;
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +25,13 @@ public class TopoServiceImpl implements TopoService {
     private BaseInterface baseInterface;
     private BGPManager bgpManager;
 
+    // Topo数据管理
+    private TopoInfo topoInfo;
+
     private TopoServiceImpl() {
         this.baseInterface = null;
         this.bgpManager = null;
+        this.topoInfo = null;
     }
 
     @Override
@@ -47,7 +52,27 @@ public class TopoServiceImpl implements TopoService {
     }
 
     @Override
+    public TopoInfo getTopoInfo(){
+        if( null == this.topoInfo) {
+            try {
+                //注入回调函数
+                this.bgpManager.getTopoInfo(this);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+        }
+        return this.topoInfo;
+    }
+
+    @Override
     public void test(){
         this.bgpManager.test();
     }
+
+    @Override
+    public void setTopoInfoCb(TopoInfo topoInfo){
+        this.topoInfo = topoInfo;
+        return;
+    }
+
 }

@@ -7,10 +7,18 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.callback.TopoCallback;
+import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.util.UtilInterface;
 
 public interface BGPManager {
+    // Install Util System
     boolean setUtilInterface(UtilInterface utilInterface);
+
+    //
+    TopoInfo getTopoInfo(TopoCallback tcb);
+
+    // For test
     void test();
 
 }

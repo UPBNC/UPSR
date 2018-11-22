@@ -8,7 +8,9 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.BGPManager;
+import cn.org.upbnc.callback.TopoCallback;
 import cn.org.upbnc.entity.BGPConnect;
+import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.util.UtilInterface;
 //import com.google.common.base.Optional;
 
@@ -78,7 +80,7 @@ public class BGPManagerImpl implements BGPManager {
     }
 
     @Override
-    public void test(){
+    public TopoInfo getTopoInfo(TopoCallback tcb){
         try {
             this.getDataBroker();
             ReadTransaction trx = this.dataBroker.newReadOnlyTransaction();
@@ -89,6 +91,7 @@ public class BGPManagerImpl implements BGPManager {
                 public void onSuccess(@NullableDecl Optional<Topology> topologyOptional) {
                     odlTopology= topologyOptional.get();
                     if( null != odlTopology) {
+                        LOG.info("Read Topologic ");
                         LOG.info(odlTopology.getKey().toString());
                     }else {
                         LOG.info("Read but NULL!");
@@ -103,6 +106,35 @@ public class BGPManagerImpl implements BGPManager {
         }catch (Exception e){
             LOG.info(e.getMessage());
         }
+        return null;
+    }
+
+    @Override
+    public void test(){
+//        try {
+//            this.getDataBroker();
+//            ReadTransaction trx = this.dataBroker.newReadOnlyTransaction();
+//            CheckedFuture<Optional<Topology>, ReadFailedException> future = trx.read(LogicalDatastoreType.OPERATIONAL, II_TO_TOPOLOGY_DEFAULT);
+//
+//            Futures.addCallback(future, new FutureCallback<Optional<Topology>>() {
+//                @Override
+//                public void onSuccess(@NullableDecl Optional<Topology> topologyOptional) {
+//                    odlTopology= topologyOptional.get();
+//                    if( null != odlTopology) {
+//                        LOG.info(odlTopology.getKey().toString());
+//                    }else {
+//                        LOG.info("Read but NULL!");
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Throwable throwable) {
+//                    LOG.info("Failed");
+//                }
+//            });
+//        }catch (Exception e){
+//            LOG.info(e.getMessage());
+//        }
 
         return;
     }

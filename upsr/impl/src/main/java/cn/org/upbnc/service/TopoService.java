@@ -8,10 +8,15 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.callback.TopoCallback;
+import cn.org.upbnc.entity.TopoInfo;
 
-public interface TopoService {
+public interface TopoService extends TopoCallback {
     // Set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
+
+    // Get Topology Info
+    TopoInfo getTopoInfo();
 
     // test function
     void test();
