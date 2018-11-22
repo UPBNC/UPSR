@@ -46,14 +46,17 @@ public class VpnXml {
                 "                </vpnInstAF>\n" +
                 "              </vpnInstAFs>\n" +
                 "              <l3vpnIfs>\n";
-        String middle = null;
-        for (L3vpnIf l3vpnIf : l3vpnIfs) {
-            middle = middle + "                <l3vpnIf>\n" +
-                    "                  <ifName>" + l3vpnIf.getIfName() + "</ifName>\n" +
-                    "                  <ipv4Addr>" + l3vpnIf.getIpv4Addr() + "</ipv4Addr>\n" +
-                    "                  <subnetMask>" + l3vpnIf.getSubnetMask() + "</subnetMask>\n" +
-                    "                </l3vpnIf>\n";
+        String middle = "";
+        if(null != l3vpnIfs) {
+            for (L3vpnIf l3vpnIf : l3vpnIfs) {
+                middle = middle + "                <l3vpnIf>\n" +
+                        "                  <ifName>" + l3vpnIf.getIfName() + "</ifName>\n" +
+                        "                  <ipv4Addr>" + l3vpnIf.getIpv4Addr() + "</ipv4Addr>\n" +
+                        "                  <subnetMask>" + l3vpnIf.getSubnetMask() + "</subnetMask>\n" +
+                        "                </l3vpnIf>\n";
+            }
         }
+
         String end = "              </l3vpnIfs>\n" +
                 "            </l3vpnInstance>\n" +
                 "          </l3vpnInstances>\n" +

@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import cn.org.upbnc.util.netconf.L3vpnIf;
+import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.netconf.NetconfDevice;
+import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +26,7 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceManagerImpl.class);
     private static VpnInstanceManager instance = null;
     private List<VPNInstance>  vpnInstanceList =  null;
+
 
     @Override
     public String toString() {
@@ -101,7 +107,7 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
         LOG.info("enter getVpnIstance vpnName = {}", new Object[]{vpnName});
         if(null == vpnName)
             return null;
-        LOG.info("$$$$$$$$$$$$$enter getVpnIstance-01$$$$$$$$$");
+
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while(iter.hasNext())
@@ -110,10 +116,17 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
             if(true == vpnInstance.getVpnName().equals(vpnName))
             {
                 LOG.info("$$$$$$$$$$$$$enter getVpnIstance-02$$$$$$$$$");
+                NetconfDevice netDevice  = new NetconfDevice();
+                NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
+                String sendMsg =  VpnXml.getVpnXml(vpnName);
+                LOG.info("get sendMsg={}", new Object[]{sendMsg} );
+                String result = netDevice.sendMessage(netconfClient, sendMsg);
+                LOG.info("get result={}", new Object[]{result} );
+
                 return vpnInstance;
             }
         }
-        LOG.info("$$$$$$$$$$$$$enter getVpnIstance-03$$$$$$$$$");
+
         return null;
     }
     public VPNInstance getVpnInstance(String routerId)
@@ -175,6 +188,17 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
             if(null != vpnInstance) {
                 this.vpnInstanceList.add(vpnInstance);
             }
+        }
+        if(null != vpnInstance)
+        {
+            LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT} );
+            NetconfDevice netDevice  = new NetconfDevice();
+            NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
+            //Netconf netconf = NetConfManagerImpl.getInstance().addDevice(new NetConf("192.168.1.3", 22, "root", "Huawei@123"));
+            String sendMsg = VpnXml.createVpnXml(vpnName, "this is SR device", rd, exportRT, null);
+            LOG.info("sendMsg={}", new Object[]{sendMsg} );
+            String result = netDevice.sendMessage(netconfClient, sendMsg);
+            LOG.info("result={}", new Object[]{result} );
         }
         return vpnInstance;
     }

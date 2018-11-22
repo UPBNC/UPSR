@@ -37,7 +37,13 @@ public class NetConf {
         this.user = user;
         this.password = password;
     }
-
+    public NetConf(String ip,  Integer port,  String user, String password)
+    {
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.ip.setAddress(ip);
+    }
     public Integer getId() {
         return id;
     }
