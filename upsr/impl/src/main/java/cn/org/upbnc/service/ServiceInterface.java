@@ -56,6 +56,7 @@ public class ServiceInterface {
             // 给每个业务服务安装基础系统
             ret = this.srService.setBaseInterface(this.baseInterface);
             ret = ret &&this.topoService.setBaseInterface(this.baseInterface);
+            ret = ((true == ret )? this.vpnService.setBaseInterface(this.baseInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());

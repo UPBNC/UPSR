@@ -11,6 +11,7 @@ import cn.org.upbnc.entity.*;
 
 import java.util.List;
 
+
 public interface VpnInstanceManager {
     boolean addVpnInstance(VPNInstance vpnInstance);
     boolean delVpnInstance(Integer id);

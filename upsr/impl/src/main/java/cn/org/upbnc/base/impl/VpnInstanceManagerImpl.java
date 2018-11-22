@@ -10,13 +10,17 @@ package cn.org.upbnc.base.impl;
 import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VpnInstanceManagerImpl  implements VpnInstanceManager {
+    private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceManagerImpl.class);
     private static VpnInstanceManager instance = null;
-    private List<VPNInstance>  vpnInstanceList ;
+    private List<VPNInstance>  vpnInstanceList =  null;
 
     @Override
     public String toString() {
@@ -25,10 +29,12 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
 
     private VpnInstanceManagerImpl()
     {
-       this.vpnInstanceList = new LinkedList<VPNInstance>();
+       LOG.info("VpnInstanceManagerImpl");
+       this.vpnInstanceList = new ArrayList<VPNInstance>();
     }
     public static VpnInstanceManager getInstance()
     {
+        LOG.info("VpnInstanceManager");
         if(null == instance)
         {
             instance = new VpnInstanceManagerImpl();
@@ -46,10 +52,11 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
     }
     public boolean delVpnInstance(Integer id)
     {
+        VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter =  vpnInstanceList.iterator();
         while(iter.hasNext())
         {
-            VPNInstance vpnInstance = iter.next();
+            vpnInstance = iter.next();
             if(id == vpnInstance.getId().intValue())
             {
                 iter.remove();
@@ -62,10 +69,11 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
     {
         if(null == vpnName)
             return false;
+        VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while(iter.hasNext())
         {
-            VPNInstance vpnInstance = iter.next();
+            vpnInstance = iter.next();
             if(true == vpnInstance.getVpnName().equals(vpnName) )
             {
                 iter.remove();
@@ -76,40 +84,50 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
     }
     public VPNInstance getVpnIstance(Integer id)
     {
+        VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while(iter.hasNext())
         {
-            if(id  == iter.next().getId().intValue())
+            vpnInstance = iter.next();
+            if(id  == vpnInstance.getId().intValue())
             {
-                return iter.next();
+                return vpnInstance;
             }
         }
         return null;
     }
     public VPNInstance getVpnIstance(String vpnName)
     {
+        LOG.info("enter getVpnIstance vpnName = {}", new Object[]{vpnName});
         if(null == vpnName)
             return null;
+        LOG.info("$$$$$$$$$$$$$enter getVpnIstance-01$$$$$$$$$");
+        VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while(iter.hasNext())
         {
-            if(true == iter.next().getVpnName().equals(vpnName))
+            vpnInstance = iter.next();
+            if(true == vpnInstance.getVpnName().equals(vpnName))
             {
-                return iter.next();
+                LOG.info("$$$$$$$$$$$$$enter getVpnIstance-02$$$$$$$$$");
+                return vpnInstance;
             }
         }
+        LOG.info("$$$$$$$$$$$$$enter getVpnIstance-03$$$$$$$$$");
         return null;
     }
     public VPNInstance getVpnInstance(String routerId)
     {
         if(null == routerId)
             return null;
+        VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while(iter.hasNext())
         {
-            if(true == iter.next().getRd().equals(routerId))
+            vpnInstance = iter.next();
+            if(true == vpnInstance.getRd().equals(routerId))
             {
-                return iter.next();
+                return vpnInstance;
             }
         }
         return null;
@@ -127,11 +145,15 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
                                          List<DeviceInterface> deviceInterfaceList,
                                          List<NetworkSeg> networkSegList)
     {
+        LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName} );
         if(null == vpnName)
             return null;
+
+
         VPNInstance  vpnInstance = getVpnInstance(vpnName);
         if(null != vpnInstance)
         {
+            LOG.info("################enter updateVpnInstance-01###################");
             vpnInstance.setDevice(device);
             vpnInstance.setBusinessRegion(businessRegion);
             vpnInstance.setRd(rd);
@@ -150,7 +172,9 @@ public class VpnInstanceManagerImpl  implements VpnInstanceManager {
             Integer id = 0 ;
             vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, businessRegion,rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
-           vpnInstanceList.add(vpnInstance);
+            if(null != vpnInstance) {
+                this.vpnInstanceList.add(vpnInstance);
+            }
         }
         return vpnInstance;
     }

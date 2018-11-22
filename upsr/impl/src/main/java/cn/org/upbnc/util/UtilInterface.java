@@ -9,7 +9,6 @@ package cn.org.upbnc.util;
 
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.impl.NetConfCmd2XmlImpl;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,6 @@ public class UtilInterface {
     public DataBroker getDataBroker() {
         return dataBroker;
     }
-
     public NetConfCmd2Xml getNetConfCmd2Xml() {
         if(null == this.netConfCmd2Xml){
             this.netConfCmd2Xml = NetConfCmd2XmlImpl.getInstance();

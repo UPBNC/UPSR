@@ -104,7 +104,6 @@ public class Session implements Runnable{
 
             // Add databroker to util
             this.utilInterface.setDataBroker(this.dataBroker);
-
             this.status = SystemStatusEnum.ON;
             LOG.info("UPSR is ON");
         }catch (Exception e){

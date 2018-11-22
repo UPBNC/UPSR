@@ -11,12 +11,14 @@ import cn.org.upbnc.core.Session;
 import cn.org.upbnc.odlapi.BgplsSessionODLApi;
 import cn.org.upbnc.odlapi.TopoInfoODLApi;
 import cn.org.upbnc.odlapi.TopoTestODLApi;
+import cn.org.upbnc.odlapi.VpnInstanceODLApi;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev181119.TopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpninstance.rev181119.VpnInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,7 @@ public class UpsrProvider implements AutoCloseable{
     private BindingAwareBroker.RpcRegistration<TopoService> topoServiceReg;
     private BindingAwareBroker.RpcRegistration<UpsrTopoService> topoInfoServiceReg;
     private BindingAwareBroker.RpcRegistration<UpsrBgplsSessionService> upsrBgplsSessionServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<VpnInstanceService> vpnInstanceServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -65,6 +68,7 @@ public class UpsrProvider implements AutoCloseable{
         this.topoServiceReg = this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
         this.topoInfoServiceReg = this.rpcRegistry.addRpcImplementation(UpsrTopoService.class, new TopoInfoODLApi(this.upsr));
         this.upsrBgplsSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrBgplsSessionService.class,new BgplsSessionODLApi(this.upsr));
+        this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(VpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
     }
 
     private void closeServices(){

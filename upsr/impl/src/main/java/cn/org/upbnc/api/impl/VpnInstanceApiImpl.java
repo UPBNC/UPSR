@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.api.impl;
 
+
 import cn.org.upbnc.api.VpnInstanceApi;
 import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class VpnInstanceApiImpl implements VpnInstanceApi {
-    private static final Logger LOG = LoggerFactory.getLogger(TopoApiImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceApiImpl.class);
     private static VpnInstanceApi ourInstance = new VpnInstanceApiImpl();
     private ServiceInterface serviceInterface;
     private VPNService vpnService;
@@ -36,7 +37,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         if(null != serviceInterface) {
             vpnService = this.serviceInterface.getVpnService();
         }
-        return false;
+        return true;
     }
     public boolean updateVpnInstance(String vpnName,
                                      Device device,

@@ -55,7 +55,9 @@ public class VPNInstance {
         this.id = id;
         this.device = device;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
+        if(null  != deviceInterfaceList) {
+            this.deviceInterfaceList.addAll(deviceInterfaceList);
+        }
         this.vpnName = vpnName;
         this.businessRegion = businessRegion;
         this.rd = rd;
@@ -66,7 +68,9 @@ public class VPNInstance {
         this.routeSelectDelay = routeSelectDelay;
         this.importDirectRouteEnable = importDirectRouteEnable;
         this.networkSegList = new ArrayList<NetworkSeg>();
-        this.networkSegList.addAll(networkSegList);
+        if(null != networkSegList) {
+            this.networkSegList.addAll(networkSegList);
+        }
     }
 
     public Integer getId() {

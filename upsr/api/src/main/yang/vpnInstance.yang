@@ -18,4 +18,86 @@ module vpnInstance {
             }
         }
     }
+    rpc vpnInstanceDel
+    {
+        input {
+            leaf vpnName {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc vpnInstanceUpdate
+    {
+        input {
+            leaf vpnName {
+                type string;
+            }
+            leaf bussRegion {
+                type string;
+            }
+            leaf routeId {
+                type string;
+            }
+            leaf import-RT {
+                type string;
+            }
+            leaf export-RT {
+                type string;
+            }
+            leaf peerAS {
+                type int32;
+            }
+            leaf peerIP {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc vpnInstanceGet
+    {
+        input {
+            leaf vpnName {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+            leaf id {
+                type int32;
+            }
+            leaf vpnName {
+                type string;
+            }
+            leaf bussRegion {
+                type string;
+            }
+
+            leaf routeId {
+                type string;
+            }
+            leaf import-RT {
+                type string;
+            }
+            leaf export-RT {
+                type string;
+            }
+            leaf peerAS {
+                type int32;
+            }
+            leaf peerIP {
+                type string;
+            }
+        }
+    }
 }
