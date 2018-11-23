@@ -7,28 +7,30 @@
  */
 package cn.org.upbnc.entity;
 
+import cn.org.upbnc.enumtype.AddressTypeEnum;
+
 public class Address {
     // Local
     private String address;
-    private Integer type; //4:IPv4  6:IPv6  8:mask
+    private AddressTypeEnum type; //4:IPv4  6:IPv6  8:mac 10:mask
     //...get set
 
     public Address() {
         this.address = null;
-        this.type = 0;
+        this.type = AddressTypeEnum.V4;
     }
 
-    public Address(String address,Integer type) {
+    public Address(String address,AddressTypeEnum type) {
         this.address = address;
         this.type = type;
     }
 
 
-    public void setType(Integer type) {
+    public void setType(AddressTypeEnum type) {
         this.type = type;
     }
 
-    public Integer getType() {
+    public AddressTypeEnum getType() {
         return type;
     }
 

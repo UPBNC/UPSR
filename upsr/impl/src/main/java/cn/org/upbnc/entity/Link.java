@@ -13,19 +13,22 @@ public class Link {
     private String name;
     private DeviceInterface deviceInterface1;
     private DeviceInterface deviceInterface2;
+    private Long metric;
 
     public Link(){
         this.id = 0;
         this.name = null;
         this.deviceInterface1 = null;
         this.deviceInterface2 = null;
+        this.metric = 0L;
     }
 
-    public Link(Integer id, String name, DeviceInterface deviceInterface1, DeviceInterface deviceInterface2) {
+    public Link(Integer id, String name, DeviceInterface deviceInterface1, DeviceInterface deviceInterface2,Long metric) {
         this.id = id;
         this.name = name;
         this.deviceInterface1 = deviceInterface1;
         this.deviceInterface2 = deviceInterface2;
+        this.metric = metric;
     }
 
     public Integer getId() {
@@ -58,5 +61,13 @@ public class Link {
 
     public void setDeviceInterface2(DeviceInterface deviceInterface2) {
         this.deviceInterface2 = deviceInterface2;
+    }
+
+    public Long getMetric() {
+        return metric;
+    }
+
+    public void setMetric(Long metric) {
+        this.metric = metric;
     }
 }

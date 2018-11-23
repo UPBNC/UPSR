@@ -10,6 +10,7 @@ package cn.org.upbnc.entity;
 public class DeviceInterface {
     private Integer id;
     private Device device;
+    private String deviceName;
     private Integer srStatus;
     private String name;
     private Integer status;
@@ -28,10 +29,12 @@ public class DeviceInterface {
         this.mask = null;
         this.mac = null;
         this.vpn = null;
+        this.deviceName = null;
     }
 
     public DeviceInterface(Integer id,
                            Device device,
+                           String deviceName,
                            Integer srStatus,
                            String name,
                            Integer status,
@@ -41,6 +44,7 @@ public class DeviceInterface {
                            VPNInstance vpn) {
         this.id = id;
         this.device = device;
+        this.deviceName = deviceName;
         this.srStatus = srStatus;
         this.name = name;
         this.status = status;
@@ -64,6 +68,14 @@ public class DeviceInterface {
 
     public void setDevice(Device device) {
         this.device = device;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public Integer getSrStatus() {

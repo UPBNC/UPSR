@@ -7,17 +7,21 @@
  */
 package cn.org.upbnc.entity;
 
+import cn.org.upbnc.enumtype.DeviceTypeEnum;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Device {
     // Base property
     private Integer id;
+    private String name;
     private String deviceName;
     private String sysName;
     private String routerId;
     private Integer deviceType;
     private Integer dateCenter;
+    private Address address;
 
     private NetConf netConf;
 
@@ -33,14 +37,19 @@ public class Device {
     private LoopBack loopBack;
     private List<VPNInstance> vpnInstanceList;
     private List<Tunnel> tunnelList;
+    private List<Prefix> prefixList;
+
+    private DeviceTypeEnum deviceTypeEnum;
 
     public Device() {
         this.id = 0;
+        this.name = null;
         this.deviceName = null;
         this.sysName = null;
         this.routerId = null;
         this.deviceType = 0;
         this.dateCenter = 0;
+        this.address = null;
         this.netConf = null;
         this.minNodeSID = 0;
         this.maxNodeSID = 0;
@@ -51,14 +60,18 @@ public class Device {
         this.loopBack = null;
         this.vpnInstanceList = new ArrayList<VPNInstance>();
         this.tunnelList = new ArrayList<Tunnel>();
+        this.prefixList = new ArrayList<Prefix>();
+        this.deviceTypeEnum = DeviceTypeEnum.UNDEFINED;
     }
 
     public Device(Integer id,
+                  String name,
                   String deviceName,
                   String sysName,
                   String routerId,
                   Integer deviceType,
                   Integer dateCenter,
+                  Address address,
                   NetConf netConf,
                   Integer minNodeSID,
                   Integer maxNodeSID,
@@ -68,13 +81,17 @@ public class Device {
                   List<DeviceInterface> deviceInterfaceList,
                   LoopBack loopBack,
                   List<VPNInstance> vpnInstanceList,
-                  List<Tunnel> tunnelList) {
+                  List<Tunnel> tunnelList,
+                  List<Prefix> prefixList,
+                  DeviceTypeEnum deviceTypeEnum) {
         this.id = id;
+        this.name = name;
         this.deviceName = deviceName;
         this.sysName = sysName;
         this.routerId = routerId;
         this.deviceType = deviceType;
         this.dateCenter = dateCenter;
+        this.address =address;
         this.netConf = netConf;
         this.minNodeSID = minNodeSID;
         this.maxNodeSID = maxNodeSID;
@@ -91,6 +108,9 @@ public class Device {
         this.tunnelList = new ArrayList<Tunnel>();
         this.tunnelList.addAll(tunnelList);
 //        this.tunnelList = tunnelList;//?
+        this.prefixList = new ArrayList<Prefix>();
+        this.prefixList.addAll(prefixList);
+        this.deviceTypeEnum = deviceTypeEnum;
     }
 
     public void setId(Integer id) {
@@ -229,5 +249,42 @@ public class Device {
     public void setTunnelList(List<Tunnel> tunnelList) {
         this.tunnelList.clear();
         this.tunnelList.addAll(tunnelList);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Prefix> getPrefixList() {
+        return prefixList;
+    }
+
+    public void setPrefixList(List<Prefix> prefixList) {
+        this.prefixList.clear();
+        this.prefixList.addAll(prefixList);
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public void addDeviceInterface(DeviceInterface deviceInterface){
+        this.deviceInterfaceList.add(deviceInterface);
+    }
+
+    public void setDeviceTypeEnum(DeviceTypeEnum deviceTypeEnum){
+        this.deviceTypeEnum = deviceTypeEnum;
+    }
+
+    public DeviceTypeEnum getDeviceTypeEnum() {
+        return deviceTypeEnum;
     }
 }

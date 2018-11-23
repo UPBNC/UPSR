@@ -15,8 +15,13 @@ public interface BGPManager {
     // Install Util System
     boolean setUtilInterface(UtilInterface utilInterface);
 
+    // Install Callback
+    void setTopoCallback(TopoCallback tcb);
+
     //
-    TopoInfo getTopoInfo(TopoCallback tcb);
+    TopoInfo getTopoInfo();
+
+
 
     // For test
     void test();

@@ -43,6 +43,7 @@ public class TopoServiceImpl implements TopoService {
 
                 // get base manager
                 this.bgpManager = this.baseInterface.getBgpManager();
+                this.bgpManager.setTopoCallback(this);
             }
             ret = true;
         } catch (Exception e) {
@@ -56,7 +57,7 @@ public class TopoServiceImpl implements TopoService {
         if( null == this.topoInfo) {
             try {
                 //注入回调函数
-                this.bgpManager.getTopoInfo(this);
+                this.bgpManager.getTopoInfo();
             } catch (Exception e) {
                 LOG.info(e.getMessage());
             }

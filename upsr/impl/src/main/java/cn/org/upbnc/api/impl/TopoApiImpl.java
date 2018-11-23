@@ -46,7 +46,8 @@ public class TopoApiImpl implements TopoApi {
 
     @Override
     public String getTest() {
-        this.topoService.test();
+        //this.topoService.test();
+        this.topoService.getTopoInfo();
         return "Test";
     }
 
