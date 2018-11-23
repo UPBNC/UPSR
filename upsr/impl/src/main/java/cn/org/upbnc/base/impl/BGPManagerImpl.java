@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.Destination;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.OspfLinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.OspfNodeAttributes;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.Ted;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,16 +126,18 @@ public class BGPManagerImpl implements BGPManager {
             Futures.addCallback(future, new FutureCallback<Optional<Topology>>() {
                 @Override
                 public void onSuccess(@NullableDecl Optional<Topology> topologyOptional) {
-                    odlTopology=  topologyOptional.get();
-                    if( null != odlTopology) {
-                        LOG.info(odlTopology.getKey().toString());
-                        LOG.info("Read Topology from ODL Start...");
-                        topoInfo = getTopoInfoByODLTopo(odlTopology);
-                        tcb.setTopoInfoCb(topoInfo);
-                        LOG.info("Read Topology from ODL End!");
+                    if(null != topologyOptional) {
+                        odlTopology = topologyOptional.get();
+                        if (null != odlTopology) {
+                            LOG.info(odlTopology.getKey().toString());
+                            LOG.info("Read Topology from ODL Start...");
+                            topoInfo = getTopoInfoByODLTopo(odlTopology);
+                            tcb.setTopoInfoCb(topoInfo);
+                            LOG.info("Read Topology from ODL End!");
 
-                    }else {
-                        LOG.info("Read Topology but NULL!");
+                        } else {
+                            LOG.info("Read Topology but NULL!");
+                        }
                     }
                 }
 
@@ -355,8 +359,17 @@ public class BGPManagerImpl implements BGPManager {
         IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.getAugmentation(IgpNodeAttributes1.class);
 //        IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.augmentation(IgpNodeAttributes1.class);
         OspfNodeAttributes ospfNodeAttributes = igpNodeAttributes1.getOspfNodeAttributes();
-        Address address = new Address(ospfNodeAttributes.getTed().getTeRouterIdIpv4().getValue(), AddressTypeEnum.V4);
-        device.setAddress(address);
+        if(null != ospfNodeAttributes){
+           Ted ted = ospfNodeAttributes.getTed();
+           if(null != ted){
+               Ipv4Address ipv4Address = ted.getTeRouterIdIpv4();
+               if(null!=ipv4Address){
+                   Address address = new Address(ipv4Address.getValue(),AddressTypeEnum.V4);
+                   device.setAddress(address);
+               }
+           }
+        }
+        //Address address = new Address(ospfNodeAttributes.getTed().getTeRouterIdIpv4().getValue(), AddressTypeEnum.V4);
     }
 
     private void setDeviceTerminationPoint(Node node,Device device){
@@ -376,19 +389,20 @@ public class BGPManagerImpl implements BGPManager {
                 deviceInterface.setDeviceName(device.getDeviceName());
 
                 // Add interface ip;
-//                TerminationPoint1 tp1 = tp.getAugmentation(TerminationPoint1.class);
-////                TerminationPoint1 tp1 = tp.augmentation(TerminationPoint1.class);
-//                if(null != tp1) {
-//                    IgpTerminationPointAttributes itpa = tp1.getIgpTerminationPointAttributes();
-//                    if(null != itpa) {
-//                        Ip ip = (Ip) itpa.getTerminationPointType();
-//                        List<IpAddress> ipAddresses = ip.getIpAddress();
-//                        if (null != ipAddresses && !ipAddresses.isEmpty()) {
-//                            Address ad = new Address(ipAddresses.get(0).getIpv4Address().getValue(), AddressTypeEnum.V4);
-//                            deviceInterface.setIp(ad);
-//                        }
-//                    }
-//                }
+                TerminationPoint1 tp1 = tp.getAugmentation(TerminationPoint1.class);
+//                TerminationPoint1 tp1 = tp.augmentation(TerminationPoint1.class);
+                if(null != tp1) {
+                    IgpTerminationPointAttributes itpa = tp1.getIgpTerminationPointAttributes();
+                    if(null != itpa) {
+                        Ip ip = (Ip) itpa.getTerminationPointType();
+                        List<IpAddress> ipAddresses = ip.getIpAddress();
+                        if (null != ipAddresses && !ipAddresses.isEmpty()) {
+                            Address ad = new Address(ipAddresses.get(0).getIpv4Address().getValue(), AddressTypeEnum.V4);
+                            deviceInterface.setIp(ad);
+                            LOG.info("IP:"+ad.getAddress());
+                        }
+                    }
+                }
 
                 // Add interface into device
                 deviceInterface.setDevice(device);
