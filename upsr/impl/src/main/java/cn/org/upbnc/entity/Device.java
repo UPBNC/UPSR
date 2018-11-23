@@ -20,7 +20,7 @@ public class Device {
     private String sysName;
     private String routerId;
     private Integer deviceType;
-    private Integer dateCenter;
+    private Integer dataCenter;
     private Address address;
 
     private NetConf netConf;
@@ -48,7 +48,7 @@ public class Device {
         this.sysName = null;
         this.routerId = null;
         this.deviceType = 0;
-        this.dateCenter = 0;
+        this.dataCenter = 0;
         this.address = null;
         this.netConf = null;
         this.minNodeSID = 0;
@@ -70,7 +70,7 @@ public class Device {
                   String sysName,
                   String routerId,
                   Integer deviceType,
-                  Integer dateCenter,
+                  Integer dataCenter,
                   Address address,
                   NetConf netConf,
                   Integer minNodeSID,
@@ -90,7 +90,7 @@ public class Device {
         this.sysName = sysName;
         this.routerId = routerId;
         this.deviceType = deviceType;
-        this.dateCenter = dateCenter;
+        this.dataCenter = dataCenter;
         this.address =address;
         this.netConf = netConf;
         this.minNodeSID = minNodeSID;
@@ -154,12 +154,12 @@ public class Device {
     }
 
 
-    public Integer getDateCenter() {
-        return dateCenter;
+    public Integer getDataCenter() {
+        return dataCenter;
     }
 
-    public void setDateCenter(Integer dateCenter) {
-        this.dateCenter = dateCenter;
+    public void setDataCenter(Integer dataCenter) {
+        this.dataCenter = dataCenter;
     }
 
 
