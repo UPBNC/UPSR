@@ -7,10 +7,7 @@
  */
 package cn.org.upbnc.api;
 
-import cn.org.upbnc.api.impl.BgplsSessionApiImpl;
-import cn.org.upbnc.api.impl.TopoApiImpl;
-import cn.org.upbnc.api.impl.TopoInfoApiImpl;
-import cn.org.upbnc.api.impl.VpnInstanceApiImpl;
+import cn.org.upbnc.api.impl.*;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
@@ -24,6 +21,7 @@ public class APIInterface {
     private TopoInfoApi topoInfoApi;
     private BgplsSessionApi bgplsSessionApi;
     private VpnInstanceApi vpnInstanceApi;
+    private NetconfSessionApi netconfSessionApi;
 
     public APIInterface(){
         // Service Interface
@@ -35,6 +33,8 @@ public class APIInterface {
         this.topoInfoApi = null;
         this.bgplsSessionApi = null;
 		this.vpnInstanceApi = null;
+
+		this.netconfSessionApi = null;
     }
 
     public void init(){
@@ -44,7 +44,7 @@ public class APIInterface {
             this.topoInfoApi = TopoInfoApiImpl.getInstance();
             this.bgplsSessionApi = BgplsSessionApiImpl.getInstance();
 			this.vpnInstanceApi = VpnInstanceApiImpl.getInstance();
-
+            this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
             LOG.info("APIInterface init Failure!" + e.getMessage());
@@ -59,6 +59,7 @@ public class APIInterface {
             ret = true;
             ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
+            ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -93,5 +94,8 @@ public class APIInterface {
 	public VpnInstanceApi getVpnInstanceApi()
     {
         return vpnInstanceApi;
+    }
+    public NetconfSessionApi getNetconfSessionApi(){
+        return netconfSessionApi;
     }
 }

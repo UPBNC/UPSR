@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.entity;
 
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
 
 public class NetConf {
@@ -42,7 +43,7 @@ public class NetConf {
         this.port = port;
         this.user = user;
         this.password = password;
-        this.ip.setAddress(ip);
+        this.ip = new Address(ip, AddressTypeEnum.V4);
     }
     public Integer getId() {
         return id;

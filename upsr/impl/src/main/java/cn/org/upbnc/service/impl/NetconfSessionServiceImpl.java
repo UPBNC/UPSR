@@ -130,7 +130,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDeviceByName(deviceName);
         if(null != device)
         {
-            netconfSession = new NetconfSession(deviceName, null,device.getNetConf().getIp().getAddress(),
+            netconfSession = new NetconfSession(deviceName, null,device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
         }
         return netconfSession;
@@ -145,7 +145,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDeviceByIP(deviceIP);
         if(null != device)
         {
-            netconfSession = new NetconfSession(device.getDeviceName(), null,device.getNetConf().getIp().getAddress(),
+            netconfSession = new NetconfSession(device.getDeviceName(), null, device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
         }
         return netconfSession;

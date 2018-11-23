@@ -1,1 +1,1 @@
-cmd /k mvn clean install -Dmaven.test.skip=true
+cmd /k mvn clean install -T 1C  -DskipTests  -Dcheckstyle.skip=True  -Dmaven.compile.fork=true 

@@ -11,6 +11,8 @@ import cn.org.upbnc.entity.NetConf;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.entity.NetconfSession;
 
+import java.util.List;
+
 public interface NetconfSessionApi {
 
     boolean setServiceInterface(ServiceInterface serviceInterface);
@@ -21,5 +23,6 @@ public interface NetconfSessionApi {
     boolean delNetconfSession(String deviceIP, Integer devicePort);
     NetconfSession getNetconfSession(String deviceName);
     NetconfSession getNetconfSession(String deviceIP, Integer devicePort);
+    List<NetconfSession> getNetconfSessionList(String deviceName);
 
 }

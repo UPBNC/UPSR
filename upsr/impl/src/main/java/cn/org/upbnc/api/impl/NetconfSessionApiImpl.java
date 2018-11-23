@@ -14,6 +14,8 @@ import cn.org.upbnc.service.entity.NetconfSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class NetconfSessionApiImpl implements NetconfSessionApi{
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionApiImpl.class);
     private static NetconfSessionApi ourInstance = new NetconfSessionApiImpl();
@@ -70,5 +72,10 @@ public class NetconfSessionApiImpl implements NetconfSessionApi{
             return null;
         }
         return this.netconfSessionService.getNetconfSessionByIP(deviceIP);
+    }
+
+    @Override
+    public List<NetconfSession> getNetconfSessionList(String deviceName) {
+        return null;
     }
 }

@@ -10,15 +10,17 @@ package cn.org.upbnc.service.entity;
 public class NetconfSession {
     private String deviceName;
     private String deviceDesc;
+    private String sysName;
     private String deviceIP;
     private Integer devicePort;
     private String userName;
     private String status;
 
 
-    public NetconfSession(String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName) {
+    public NetconfSession(String deviceName, String deviceDesc, String sysName, String deviceIP, Integer devicePort, String userName) {
         this.deviceName = deviceName;
         this.deviceDesc = deviceDesc;
+        this.sysName = sysName;
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
@@ -70,5 +72,13 @@ public class NetconfSession {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSysName() {
+        return sysName;
+    }
+
+    public void setSysName(String sysName) {
+        this.sysName = sysName;
     }
 }
