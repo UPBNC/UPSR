@@ -17,7 +17,7 @@ public class Device {
     private String sysName;
     private String routerId;
     private Integer deviceType;
-    private Integer dateCenter;
+    private Integer dataCenter;
 
     private NetConf netConf;
 
@@ -40,7 +40,7 @@ public class Device {
         this.sysName = null;
         this.routerId = null;
         this.deviceType = 0;
-        this.dateCenter = 0;
+        this.dataCenter = 0;
         this.netConf = null;
         this.minNodeSID = 0;
         this.maxNodeSID = 0;
@@ -74,7 +74,7 @@ public class Device {
         this.sysName = sysName;
         this.routerId = routerId;
         this.deviceType = deviceType;
-        this.dateCenter = dateCenter;
+        this.dataCenter = dateCenter;
         this.netConf = netConf;
         this.minNodeSID = minNodeSID;
         this.maxNodeSID = maxNodeSID;
@@ -82,17 +82,26 @@ public class Device {
         this.bgpAS = bgpAS;
         this.ospfId = ospfId;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
-//        this.deviceInterfaceList = deviceInterfaceList; //?
+        if(null != deviceInterfaceList) {
+            this.deviceInterfaceList.addAll(deviceInterfaceList);
+        }
+
         this.loopBack = loopBack;
         this.vpnInstanceList = new ArrayList<VPNInstance>();
-        this.vpnInstanceList.addAll(vpnInstanceList);
-//        this.vpnInstanceList = vpnInstanceList;//?
-        this.tunnelList = new ArrayList<Tunnel>();
-        this.tunnelList.addAll(tunnelList);
-//        this.tunnelList = tunnelList;//?
-    }
+        if(null != vpnInstanceList) {
+            this.vpnInstanceList.addAll(vpnInstanceList);
+        }
 
+        this.tunnelList = new ArrayList<Tunnel>();
+        if(null != tunnelList) {
+            this.tunnelList.addAll(tunnelList);
+        }
+    }
+    public Device(String deviceName, NetConf netConf)
+    {
+        this.deviceName = deviceName;
+        this.netConf = netConf;
+    }
     public void setId(Integer id) {
         this.id = id;
     }
@@ -135,11 +144,11 @@ public class Device {
 
 
     public Integer getDateCenter() {
-        return dateCenter;
+        return dataCenter;
     }
 
     public void setDateCenter(Integer dateCenter) {
-        this.dateCenter = dateCenter;
+        this.dataCenter = dateCenter;
     }
 
 

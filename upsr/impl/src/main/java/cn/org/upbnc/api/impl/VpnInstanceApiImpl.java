@@ -9,7 +9,6 @@ package cn.org.upbnc.api.impl;
 
 
 import cn.org.upbnc.api.VpnInstanceApi;
-import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.VPNService;

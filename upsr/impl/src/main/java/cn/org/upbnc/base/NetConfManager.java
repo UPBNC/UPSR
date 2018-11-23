@@ -14,16 +14,10 @@ import java.util.List;
 
 public interface NetConfManager {
     NetConf createNetConfConnect();
-
     NetConf addDevice(NetConf netConf);
-
     List<NetConf> getDevices();
-
     List<NetconfClient> getNetconClients();
-
     NetconfClient getNetconClient(String ip);
-
     NetConf getDevice(String ip);
-
     void deleteDevice(NetConf netConf);
 }

@@ -55,6 +55,10 @@ module vpnInstance {
             leaf peerIP {
                 type string;
             }
+            leaf deviceIP {
+                type string;
+            }
+
         }
         output {
             leaf result {
@@ -100,4 +104,5 @@ module vpnInstance {
             }
         }
     }
+
 }
