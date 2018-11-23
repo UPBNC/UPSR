@@ -13,6 +13,7 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.NetConf;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.NetconfSessionService;
 import cn.org.upbnc.service.entity.NetconfSession;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                 netconf.setUser(userName);
                 netconf.setPassword(userPassword);
                 netconf.setPort(devicePort);
-                netconf.setIp(new Address(deviceIP, 4));
+                netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
                 this.netConfManager.addDevice(netconf);
             }
         }

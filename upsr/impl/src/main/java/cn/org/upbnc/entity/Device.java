@@ -112,6 +112,11 @@ public class Device {
         this.prefixList.addAll(prefixList);
         this.deviceTypeEnum = deviceTypeEnum;
     }
+    public Device(String deviceName, NetConf netConf)
+    {
+        this.deviceName = deviceName;
+        this.netConf = netConf;
+    }
 
     public void setId(Integer id) {
         this.id = id;
