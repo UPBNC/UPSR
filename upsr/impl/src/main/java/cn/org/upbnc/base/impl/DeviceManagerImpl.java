@@ -11,6 +11,7 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.entity.Device;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class DeviceManagerImpl implements DeviceManager {
@@ -45,5 +46,108 @@ public class DeviceManagerImpl implements DeviceManager {
             device = this.mapInstance.get(routerId);
         }
         return device;
+    }
+
+    @Override
+    public Device getDeviceByName(String deviceName) {
+        Device device = null;
+        Map.Entry entry = null;
+        if(null == deviceName){
+            return null;
+        }
+        Iterator iter = mapInstance.entrySet().iterator();
+        while(iter.hasNext())
+        {
+            entry = (Map.Entry) iter.next();
+            device = (Device)entry.getValue();
+            if(true == deviceName.equals(device.getDeviceName()))
+            {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Device getDeviceByIP(String deviceIP) {
+        Device device = null;
+        Map.Entry entry = null;
+        if(null == deviceIP){
+            return null;
+        }
+        Iterator iter = mapInstance.entrySet().iterator();
+        while(iter.hasNext())
+        {
+            entry = (Map.Entry) iter.next();
+            device = (Device)entry.getValue();
+            if(true == deviceIP.equals(device.getNetConf().getIp().getAddress()))
+            {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean delDevice(String routerId) {
+        Device device = null;
+        Map.Entry entry = null;
+        if(null == routerId){
+            return false;
+        }
+        Iterator iter = mapInstance.entrySet().iterator();
+        while(iter.hasNext())
+        {
+            entry = (Map.Entry) iter.next();
+            device = (Device)entry.getValue();
+            if(true == routerId.equals(device.getRouterId()))
+            {
+                iter.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean delDeviceByName(String deviceName) {
+        Device device = null;
+        Map.Entry entry = null;
+        if(null == deviceName){
+            return false;
+        }
+        Iterator iter = mapInstance.entrySet().iterator();
+        while(iter.hasNext())
+        {
+            entry = (Map.Entry) iter.next();
+            device = (Device)entry.getValue();
+            if(true == deviceName.equals(device.getDeviceName()))
+            {
+                iter.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean delDeviceByIP(String deviceIP) {
+        Device device = null;
+        Map.Entry entry = null;
+        if(null == deviceIP){
+            return false;
+        }
+        Iterator iter = mapInstance.entrySet().iterator();
+        while(iter.hasNext())
+        {
+            entry = (Map.Entry) iter.next();
+            device = (Device)entry.getValue();
+            if(true == deviceIP.equals(device.getNetConf().getIp().getAddress()))
+            {
+                iter.remove();
+                return true;
+            }
+        }
+        return true;
     }
 }

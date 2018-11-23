@@ -12,4 +12,10 @@ import cn.org.upbnc.entity.Device;
 public interface DeviceManager {
     Device addDevice(String name, String routerId);
     Device getDevice(String routerId);
+    Device getDeviceByName(String deviceName);
+    Device getDeviceByIP(String deviceIP);
+    boolean delDevice(String routerId);
+    boolean delDeviceByName(String deviceName);
+    boolean delDeviceByIP(String deviceIP);
+
 }

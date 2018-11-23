@@ -8,6 +8,7 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.service.impl.NetconfSessionServiceImpl;
 import cn.org.upbnc.service.impl.SRServiceImpl;
 import cn.org.upbnc.service.impl.TopoServiceImpl;
 import cn.org.upbnc.service.impl.VPNServiceImpl;
@@ -24,6 +25,7 @@ public class ServiceInterface {
     private VPNService vpnService;
     private SRService srService;
     private TopoService topoService;
+    private NetconfSessionService netconfSessionService;
 
     public ServiceInterface(){
         // Base Interface
@@ -33,6 +35,7 @@ public class ServiceInterface {
         this.vpnService = null;
         this.srService = null;
         this.topoService = null;
+        this.netconfSessionService = null;
     }
 
     public void init(){
@@ -41,6 +44,7 @@ public class ServiceInterface {
             this.vpnService = VPNServiceImpl.getInstance();
             this.srService = SRServiceImpl.getInstance();
             this.topoService = TopoServiceImpl.getInstance();
+            this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         }catch (Exception e){
             LOG.info("ServiceInterface init failure! "+e.getMessage());
@@ -57,6 +61,7 @@ public class ServiceInterface {
             ret = this.srService.setBaseInterface(this.baseInterface);
             ret = ret &&this.topoService.setBaseInterface(this.baseInterface);
             ret = ((true == ret )? this.vpnService.setBaseInterface(this.baseInterface):false);
+            ret = ((true == ret )? this.netconfSessionService.setBaseInterface(this.baseInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -98,5 +103,11 @@ public class ServiceInterface {
             this.topoService = TopoServiceImpl.getInstance();
         }
         return this.topoService;
+    }
+    public NetconfSessionService getNetconfSessionService(){
+        if(null == this.netconfSessionService){
+            this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
+        }
+        return this.netconfSessionService;
     }
 }

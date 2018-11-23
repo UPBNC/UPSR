@@ -32,6 +32,7 @@ public class VPNServiceImpl implements VPNService {
 
     private VPNServiceImpl() {
         this.baseInterface = null;
+        this.vpnInstanceManager = null;
     }
 
     public boolean setBaseInterface(BaseInterface baseInterface) {
