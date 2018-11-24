@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.api;
 
+import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.service.ServiceInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.linkinfo.Links;
 
@@ -14,4 +15,5 @@ import java.util.List;
 
 public interface TopoInfoApi {
     List<Links> getLinks();
+    TopoInfo getTopoInfo();
 }
