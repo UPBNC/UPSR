@@ -10,10 +10,8 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TopoInfoApi;
 import cn.org.upbnc.core.Session;
-import cn.org.upbnc.entity.Device;
-import cn.org.upbnc.entity.DeviceInterface;
-import cn.org.upbnc.entity.Link;
-import cn.org.upbnc.entity.TopoInfo;
+import cn.org.upbnc.entity.*;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.impl.UpsrProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.*;
@@ -40,12 +38,12 @@ public class TopoInfoODLApi implements UpsrTopoService {
     Session session;
     TopoInfoApi topoInfoApi;
 
-    public TopoInfoODLApi(Session session){
+    public TopoInfoODLApi(Session session) {
         this.session = session;
     }
 
-    private TopoInfoApi getTopoInfoApi(){
-        if(this.topoInfoApi == null) {
+    private TopoInfoApi getTopoInfoApi() {
+        if (this.topoInfoApi == null) {
             APIInterface apiInterface = session.getApiInterface();
             if (apiInterface != null) {
                 topoInfoApi = apiInterface.getTopoInfoApi();
@@ -53,6 +51,84 @@ public class TopoInfoODLApi implements UpsrTopoService {
         }
         return this.topoInfoApi;
     }
+
+    private String getRouterId(TopoInfo topoInfo, String deviceName) {
+        List<Device> deviceList = topoInfo.getDeviceList();
+        Iterator<Device> deviceIterator = deviceList.iterator();
+        while (deviceIterator.hasNext()) {
+            Device device = deviceIterator.next();
+            if (deviceName.equals(device.getName()) != true) {
+                continue;
+            }
+            return device.getRouterId();
+        }
+        return "";
+    }
+
+    private List<Links> getLinksByLinkId(TopoInfo topoInfo, GetLinksInput filter){
+        List<Links> linksList = new ArrayList<>();
+        List<Link> linkList2 = new ArrayList<>();
+        List<Link> linkList = topoInfo.getLinkList();
+        if (linkList == null){
+            LOG.info("linkList is null");
+            return linksList;
+        }
+        Iterator<Link> linkIterator = linkList.iterator();
+        while (linkIterator.hasNext()){
+            Link link = linkIterator.next();
+            Link link2 = new Link();
+
+            String[] linkArray = link.getName().split("&");
+            String[] routerIdArray = linkArray[linkArray.length-1].split("=");
+            String[] intfArrary = linkArray[linkArray.length-2].split("=");
+            String linkId = linkArray[linkArray.length-3];
+
+            int i = 0;
+            for (; i < linkList2.size(); i++) {
+                if(linkList2.get(i).getName().equals(linkId)){
+                    Device device2 = new Device();
+                    device2.setRouterId(routerIdArray[1]);
+                    DeviceInterface deviceInterface2 = new DeviceInterface();
+                    deviceInterface2.setIp(new Address(intfArrary[1], AddressTypeEnum.V4));
+                    deviceInterface2.setDevice(device2);
+                    linkList2.get(i).setDeviceInterface2(deviceInterface2);
+                }
+            }
+            if (i == linkList2.size()){
+                Device device1 = new Device();
+                device1.setRouterId(routerIdArray[1]);
+                DeviceInterface deviceInterface1 = new DeviceInterface();
+                deviceInterface1.setIp(new Address(intfArrary[1], AddressTypeEnum.V4));
+                deviceInterface1.setDevice(device1);
+                link2.setDeviceInterface1(deviceInterface1);
+                link2.setName(linkId);
+                link2.setId(link.getId());
+                linkList2.add(link2);
+            }
+        }
+        linkIterator = linkList2.iterator();
+        while (linkIterator.hasNext()){
+            Link link = linkIterator.next();
+            if(filter != null && filter.getLinkId().equals(link.getId().toString()) != true) {
+                continue;
+            }
+            LinksBuilder linksBuilder = new LinksBuilder();
+            linksBuilder.setLinkId(link.getId().toString());
+
+            SourceBuilder sourceBuilder = new SourceBuilder();
+            sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
+            sourceBuilder.setIfAddress(link.getDeviceInterface1().getIp().getAddress());
+            linksBuilder.setSource(sourceBuilder.build());
+
+            DestBuilder destBuilder = new DestBuilder();
+            destBuilder.setRouterId(link.getDeviceInterface2().getDevice().getRouterId());
+            destBuilder.setIfAddress(link.getDeviceInterface2().getIp().getAddress());
+            linksBuilder.setDest(destBuilder.build());
+            linksList.add(linksBuilder.build());
+        }
+        return linksList;
+    }
+
     private List<Links> getLinks(TopoInfo topoInfo, GetLinksInput filter){
         List<Links> linksList = new ArrayList<>();
         List<Link> linkList = topoInfo.getLinkList();
@@ -69,11 +145,13 @@ public class TopoInfoODLApi implements UpsrTopoService {
             LinksBuilder linksBuilder = new LinksBuilder();
             linksBuilder.setLinkId(link.getId().toString());
             SourceBuilder sourceBuilder = new SourceBuilder();
-            sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
+            //sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
+            sourceBuilder.setRouterId(this.getRouterId(topoInfo,link.getDeviceInterface1().getDeviceName()));
             sourceBuilder.setIfAddress(link.getDeviceInterface1().getIp().getAddress());
             linksBuilder.setSource(sourceBuilder.build());
             DestBuilder destBuilder = new DestBuilder();
-            destBuilder.setRouterId(link.getDeviceInterface2().getDevice().getRouterId());
+            //destBuilder.setRouterId(link.getDeviceInterface2().getDevice().getRouterId());
+            destBuilder.setRouterId(this.getRouterId(topoInfo,link.getDeviceInterface2().getDeviceName()));
             destBuilder.setIfAddress(link.getDeviceInterface2().getIp().getAddress());
             linksBuilder.setDest(destBuilder.build());
             linksList.add(linksBuilder.build());
@@ -169,8 +247,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
         }
         TopoInfo topoInfo = topoInfoApi.getTopoInfo();
         if (topoInfo != null) {
-            getLinksOutputBuilder.setLinks(this.getLinks(topoInfo, input));
+            getLinksOutputBuilder.setLinks(this.getLinksByLinkId(topoInfo, input));
         }
+
         LOG.info("getLinks end");
         return  RpcResultBuilder.success(getLinksOutputBuilder.build()).buildFuture();
     }

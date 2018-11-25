@@ -58,6 +58,7 @@ public class APIInterface {
             this.serviceInterface = serviceInterface;
             ret = true;
             ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
+            ret = this.topoInfoApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){

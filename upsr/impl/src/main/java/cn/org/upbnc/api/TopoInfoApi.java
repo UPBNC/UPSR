@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo
 import java.util.List;
 
 public interface TopoInfoApi {
+    boolean setServiceInterface(ServiceInterface serviceInterface);
     List<Links> getLinks();
     TopoInfo getTopoInfo();
 }

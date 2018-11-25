@@ -34,6 +34,22 @@ public class TopoInfoApiImpl implements TopoInfoApi {
         this.topoService = null;
     }
     @Override
+    public boolean setServiceInterface(ServiceInterface serviceInterface) {
+        boolean ret = false;
+        try{
+            if(serviceInterface != null) {
+                this.serviceInterface = serviceInterface;
+                this.topoService = serviceInterface.getTopoService();
+            }
+            ret = true;
+        }catch (Exception e){
+            ret = false;
+            LOG.info(e.getMessage());
+        }
+        return ret;
+    }
+
+    @Override
     public List<Links> getLinks() {
         return null;
     }
