@@ -1,7 +1,7 @@
 package cn.org.upbnc.callback;
 
-import cn.org.upbnc.entity.TopoInfo;
+import cn.org.upbnc.entity.BgpTopoInfo;
 
 public interface TopoCallback {
-    void setTopoInfoCb(TopoInfo topoInfo);
+    void updateTopoInfoCb(BgpTopoInfo bgpTopoInfo);
 }

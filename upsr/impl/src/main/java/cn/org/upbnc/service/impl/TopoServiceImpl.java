@@ -9,6 +9,7 @@ package cn.org.upbnc.service.impl;
 
 import cn.org.upbnc.base.BGPManager;
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.entity.BgpTopoInfo;
 import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
@@ -71,8 +72,16 @@ public class TopoServiceImpl implements TopoService {
     }
 
     @Override
-    public void setTopoInfoCb(TopoInfo topoInfo){
-        this.topoInfo = topoInfo;
+    public void updateTopoInfoCb(BgpTopoInfo bgpTopoInfo){
+        LOG.info("Update Topo By BGP Start ...");
+        if(null == this.topoInfo) {
+            this.topoInfo = new TopoInfo();
+
+        }else{
+
+        }
+
+        LOG.info("Update Topo By BGP End!");
         return;
     }
 

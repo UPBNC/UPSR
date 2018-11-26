@@ -9,10 +9,9 @@ package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.BGPManager;
 import cn.org.upbnc.callback.TopoCallback;
-import cn.org.upbnc.entity.Address;
-import cn.org.upbnc.entity.Device;
-import cn.org.upbnc.entity.DeviceInterface;
-import cn.org.upbnc.entity.TopoInfo;
+import cn.org.upbnc.entity.*;
+//import cn.org.upbnc.entity.Device;
+
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 import cn.org.upbnc.util.UtilInterface;
@@ -74,7 +73,7 @@ public class BGPManagerImpl implements BGPManager {
     private UtilInterface utilInterface;
     private DataBroker dataBroker;
     private Topology odlTopology;
-    private TopoInfo topoInfo;
+    private BgpTopoInfo bgpTopoInfo;
     private TopoCallback tcb;
 
     //private Optional<Topology> topologyOptional;
@@ -85,7 +84,7 @@ public class BGPManagerImpl implements BGPManager {
         this.utilInterface = null;
         this.dataBroker = null;
         this.odlTopology = null;
-        this.topoInfo = null;
+        this.bgpTopoInfo = null;
         this.tcb = null;
         //this.topologyOptional = null;
         //this.bgpConnectList = new ArrayList<BGPConnect>();
@@ -131,8 +130,8 @@ public class BGPManagerImpl implements BGPManager {
                         if (null != odlTopology) {
                             LOG.info(odlTopology.getKey().toString());
                             LOG.info("Read Topology from ODL Start...");
-                            topoInfo = getTopoInfoByODLTopo(odlTopology);
-                            tcb.setTopoInfoCb(topoInfo);
+                            bgpTopoInfo = updateBgpTopoInfoByODLTopo(odlTopology);
+                            tcb.updateTopoInfoCb(bgpTopoInfo);
                             LOG.info("Read Topology from ODL End!");
 
                         } else {
@@ -198,29 +197,29 @@ public class BGPManagerImpl implements BGPManager {
 
     /*
      * private function
-     * Transfer ODL Topology to UPSR Topology
+     * Transfer ODL Topology to UPSR Bgp Topology
      */
-    private TopoInfo getTopoInfoByODLTopo(Topology odlTopology){
+    private BgpTopoInfo updateBgpTopoInfoByODLTopo(Topology odlTopology){
         // Create TopoInfo
-        TopoInfo topoInfo = new TopoInfo();
+        BgpTopoInfo bgpTopoInfo = new BgpTopoInfo();
 
-        // Set Device
+        // Set BgpDevices
         List<Node> nodes = odlTopology.getNode();
-        topoInfo.setDeviceList(this.getDeveiceByODLNode(nodes));
+        bgpTopoInfo.setBgpDeviceList(this.getDeveiceByODLNode(nodes));
 
-        // Set Links
+        // Set BgpLinks
         List<Link> links = odlTopology.getLink();
-        topoInfo.setLinkList(this.getLinkByODLLink(links,topoInfo.getDeviceList()));
+        bgpTopoInfo.setBgpLinkList(this.getLinkByODLLink(links,bgpTopoInfo.getBgpDeviceList()));
 
-        return topoInfo;
+        return bgpTopoInfo;
     }
 
     /*
      * private function
      * Transfer ODL Links to UPSR Links
      */
-    private List<cn.org.upbnc.entity.Link> getLinkByODLLink(List<Link> links,List<Device> deviceList){
-        List<cn.org.upbnc.entity.Link> linkList = new ArrayList<cn.org.upbnc.entity.Link>();
+    private List<BgpLink> getLinkByODLLink(List<Link> links,List<BgpDevice> bgpDeviceList){
+        List<BgpLink> bgpLinkList = new ArrayList<BgpLink>();
         Iterator<Link> linkIterator = links.iterator();
         int linkId = 0;
         while (linkIterator.hasNext()){
@@ -228,31 +227,31 @@ public class BGPManagerImpl implements BGPManager {
             Link link = linkIterator.next();
 
             // Create a link of upsr
-            cn.org.upbnc.entity.Link upsrLink = new cn.org.upbnc.entity.Link();
-            upsrLink.setId(linkId);
-            upsrLink.setName(link.getLinkId().getValue());
+            BgpLink bgpLink = new BgpLink();
+            bgpLink.setId(linkId);
+            bgpLink.setName(link.getLinkId().getValue());
 
             // Add Source Interface
             Source source = link.getSource();
             String srcNode = source.getSourceNode().getValue();
             String srcTp = source.getSourceTp().getValue();
-            DeviceInterface sourceDeviceInterface = this.findDeviceInterfaceByNodeId(deviceList,srcNode,srcTp);
-            if(null == sourceDeviceInterface) {
-                sourceDeviceInterface = createNewDeviceInterface(srcNode,srcTp);
+            BgpDeviceInterface sourceBgpDeviceInterface = this.findBgpDeviceInterfaceByNodeId(bgpDeviceList,srcNode,srcTp);
+            if(null == sourceBgpDeviceInterface) {
+                sourceBgpDeviceInterface = this.createNewBgpDeviceInterface(srcNode,srcTp);
             }
 
             // Add Destination Interface
             Destination destination = link.getDestination();
             String destNode = destination.getDestNode().getValue();
             String destTp = destination.getDestTp().getValue();
-            DeviceInterface destinationDeviceInterface = this.findDeviceInterfaceByNodeId(deviceList,destNode,destTp);
-            if( null == destinationDeviceInterface ){
-                destinationDeviceInterface =  createNewDeviceInterface(destNode,destTp);
+            BgpDeviceInterface destBgpDeviceInterface = this.findBgpDeviceInterfaceByNodeId(bgpDeviceList,destNode,destTp);
+            if( null == destBgpDeviceInterface ){
+                destBgpDeviceInterface =  this.createNewBgpDeviceInterface(destNode,destTp);
             }
 
             // Add Interface
-            upsrLink.setDeviceInterface1(sourceDeviceInterface);
-            upsrLink.setDeviceInterface2(destinationDeviceInterface);
+            bgpLink.setBgpDeviceInterface1(sourceBgpDeviceInterface);
+            bgpLink.setBgpDeviceInterface2(destBgpDeviceInterface);
 
             // Find a igp Link
             Link1 link1 = link.getAugmentation(Link1.class);
@@ -260,7 +259,7 @@ public class BGPManagerImpl implements BGPManager {
             IgpLinkAttributes igpLinkAttributes =link1.getIgpLinkAttributes();
 
             // Set metric
-            upsrLink.setMetric(igpLinkAttributes.getMetric());
+            bgpLink.setMetric(igpLinkAttributes.getMetric());
             igpLinkAttributes.getName();
 
             // Find a ospf Link
@@ -269,19 +268,19 @@ public class BGPManagerImpl implements BGPManager {
             OspfLinkAttributes ospfLinkAttributes = igpLinkAttributes1.getOspfLinkAttributes();
             LOG.info(ospfLinkAttributes.getTed().toString());
 
-            linkList.add(upsrLink);
+            bgpLinkList.add(bgpLink);
             linkId++;
         }
-        return  linkList;
+        return  bgpLinkList;
     }
 
     /*
      * private function
      * Transfer ODL Nodes to UPSR Devices
      */
-    private List<Device> getDeveiceByODLNode(List<Node> nodes){
+    private List<BgpDevice> getDeveiceByODLNode(List<Node> nodes){
         Iterator<Node> nodeIterator = nodes.iterator();
-        List<Device> deviceList = new ArrayList<Device>();
+        List<BgpDevice> bgpDeviceList = new ArrayList<BgpDevice>();
         int deviceId = 0;
 
         while (nodeIterator.hasNext()){
@@ -289,29 +288,29 @@ public class BGPManagerImpl implements BGPManager {
             Node node = nodeIterator.next();
 
             // Create a code of upsr
-            Device device = new Device();
-            device.setId(deviceId);
-            device.setName(node.getNodeId().getValue());
+            BgpDevice bgpDevice = new BgpDevice();
+            bgpDevice.setId(deviceId);
+            bgpDevice.setName(node.getNodeId().getValue());
 
             // Find a igp node
             Node1 node1 = node.getAugmentation(Node1.class);
 //            Node1 node1 = node.augmentation(Node1.class);
             IgpNodeAttributes igpNodeAttributes = node1.getIgpNodeAttributes();
-            this.setDeviceRouterInfo(igpNodeAttributes,device);
+            this.setBgpDeviceRouterInfo(igpNodeAttributes,bgpDevice);
 
             // Add Prefix
-            this.setDevicePrefixList(igpNodeAttributes,device);
+            this.setBgpDevicePrefixList(igpNodeAttributes,bgpDevice);
 
             // Find a opsf Node & add address
-            this.setDeviceRouterIp(igpNodeAttributes,device);
+            this.setBgpDeviceRouterIp(igpNodeAttributes,bgpDevice);
 
             // Find termination & add interface into device
-            this.setDeviceTerminationPoint(node,device);
+            this.setBgpDeviceTerminationPoint(node,bgpDevice);
 
             deviceId++;
-            deviceList.add(device);
+            bgpDeviceList.add(bgpDevice);
         }
-        return deviceList;
+        return bgpDeviceList;
     }
 
     private Address getIpv4AddressTpName(String tpName){
@@ -325,19 +324,19 @@ public class BGPManagerImpl implements BGPManager {
         return address;
     }
 
-    private void setDeviceRouterInfo(IgpNodeAttributes igpNodeAttributes,Device device){
+    private void setBgpDeviceRouterInfo(IgpNodeAttributes igpNodeAttributes,BgpDevice bgpDevice){
         if(null != igpNodeAttributes ) {
             List<IpAddress> ipAddresses = igpNodeAttributes.getRouterId();
             if(null != ipAddresses && !ipAddresses.isEmpty()){
-                device.setDeviceTypeEnum(DeviceTypeEnum.ROUTER);
-                device.setRouterId(ipAddresses.get(0).getIpv4Address().getValue());
+                bgpDevice.setDeviceTypeEnum(DeviceTypeEnum.ROUTER);
+                bgpDevice.setRouterId(ipAddresses.get(0).getIpv4Address().getValue());
             }else{
-                device.setDeviceTypeEnum(DeviceTypeEnum.OTHER);
+                bgpDevice.setDeviceTypeEnum(DeviceTypeEnum.OTHER);
             }
         }
     }
 
-    private void setDevicePrefixList(IgpNodeAttributes igpNodeAttributes,Device device){
+    private void setBgpDevicePrefixList(IgpNodeAttributes igpNodeAttributes,BgpDevice bgpDevice){
         if(null != igpNodeAttributes) {
             List<cn.org.upbnc.entity.Prefix> upsrPrefixList = new ArrayList<cn.org.upbnc.entity.Prefix>();
             List<Prefix> prefixs = igpNodeAttributes.getPrefix();
@@ -350,12 +349,12 @@ public class BGPManagerImpl implements BGPManager {
                     upsrPrefix.setMetric(prefix.getMetric().intValue());
                     upsrPrefixList.add(upsrPrefix);
                 }
-                device.setPrefixList(upsrPrefixList);
+                bgpDevice.setPrefixList(upsrPrefixList);
             }
         }
     }
 
-    private void setDeviceRouterIp(IgpNodeAttributes igpNodeAttributes,Device device){
+    private void setBgpDeviceRouterIp(IgpNodeAttributes igpNodeAttributes,BgpDevice bgpDevice){
         IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.getAugmentation(IgpNodeAttributes1.class);
 //        IgpNodeAttributes1 igpNodeAttributes1 = igpNodeAttributes.augmentation(IgpNodeAttributes1.class);
         OspfNodeAttributes ospfNodeAttributes = igpNodeAttributes1.getOspfNodeAttributes();
@@ -365,14 +364,14 @@ public class BGPManagerImpl implements BGPManager {
                Ipv4Address ipv4Address = ted.getTeRouterIdIpv4();
                if(null!=ipv4Address){
                    Address address = new Address(ipv4Address.getValue(),AddressTypeEnum.V4);
-                   device.setAddress(address);
+                   bgpDevice.setAddress(address);
                }
            }
         }
         //Address address = new Address(ospfNodeAttributes.getTed().getTeRouterIdIpv4().getValue(), AddressTypeEnum.V4);
     }
 
-    private void setDeviceTerminationPoint(Node node,Device device){
+    private void setBgpDeviceTerminationPoint(Node node,BgpDevice bgpdevice){
         List<TerminationPoint> terminationPoints = node.getTerminationPoint();
         if(null != terminationPoints && !terminationPoints.isEmpty()) {
             Iterator<TerminationPoint> terminationPointIterator = terminationPoints.iterator();
@@ -382,11 +381,11 @@ public class BGPManagerImpl implements BGPManager {
                 TerminationPoint tp = terminationPointIterator.next();
 
                 // Create a new device interface
-                DeviceInterface deviceInterface = new DeviceInterface();
+                BgpDeviceInterface bgpDeviceInterface = new BgpDeviceInterface();
 
                 // Add interface name;
-                deviceInterface.setName(tp.getTpId().getValue());
-                deviceInterface.setDeviceName(device.getDeviceName());
+                bgpDeviceInterface.setName(tp.getTpId().getValue());
+                bgpDeviceInterface.setBgpDeviceName(bgpdevice.getName());
 
                 // Add interface ip;
                 TerminationPoint1 tp1 = tp.getAugmentation(TerminationPoint1.class);
@@ -398,31 +397,30 @@ public class BGPManagerImpl implements BGPManager {
                         List<IpAddress> ipAddresses = ip.getIpAddress();
                         if (null != ipAddresses && !ipAddresses.isEmpty()) {
                             Address ad = new Address(ipAddresses.get(0).getIpv4Address().getValue(), AddressTypeEnum.V4);
-                            deviceInterface.setIp(ad);
+                            bgpDeviceInterface.setIp(ad);
                             LOG.info("IP:"+ad.getAddress());
                         }
                     }
                 }
 
                 // Add interface into device
-                deviceInterface.setDevice(device);
-                device.addDeviceInterface(deviceInterface);
+                bgpdevice.addBgpDeviceInterface(bgpDeviceInterface);
             }
         }
     }
 
-    private DeviceInterface findDeviceInterfaceByNodeId(List<Device> deviceList, String node, String tp){
-        if(null != deviceList && deviceList.isEmpty()){
-            Iterator<Device> deviceIterator = deviceList.iterator();
-            while(deviceIterator.hasNext()){
-                Device device = deviceIterator.next();
-                if(node.equals(device.getName())){
-                    List<DeviceInterface> deviceInterfaces = device.getDeviceInterfaceList();
-                    Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaces.iterator();
-                    while (deviceInterfaceIterator.hasNext()){
-                        DeviceInterface deviceInterface = deviceInterfaceIterator.next();
-                        if(tp.equals(deviceInterface.getName())){
-                            return deviceInterface;
+    private BgpDeviceInterface findBgpDeviceInterfaceByNodeId(List<BgpDevice> bgpDeviceList, String node, String tp){
+        if(null != bgpDeviceList && !bgpDeviceList.isEmpty()){
+            Iterator<BgpDevice> bgpDeviceIterator = bgpDeviceList.iterator();
+            while(bgpDeviceIterator.hasNext()){
+                BgpDevice bgpDevice = bgpDeviceIterator.next();
+                if(node.equals(bgpDevice.getName())){
+                    List<BgpDeviceInterface> bgpDeviceInterfaces = bgpDevice.getBgpDeviceInterfaceList();
+                    Iterator<BgpDeviceInterface> bgpDeviceInterfaceIterator = bgpDeviceInterfaces.iterator();
+                    while (bgpDeviceInterfaceIterator.hasNext()){
+                        BgpDeviceInterface bgpDeviceInterface = bgpDeviceInterfaceIterator.next();
+                        if(tp.equals(bgpDeviceInterface.getName())){
+                            return bgpDeviceInterface;
                         }
                     }
                 }
@@ -431,17 +429,17 @@ public class BGPManagerImpl implements BGPManager {
         return null;
     }
 
-    private DeviceInterface createNewDeviceInterface(String node, String tp){
-        DeviceInterface deviceInterface = new DeviceInterface();
-        deviceInterface.setName(tp);
-        deviceInterface.setDeviceName(node);
+    private BgpDeviceInterface createNewBgpDeviceInterface(String node, String tp){
+        BgpDeviceInterface bgpDeviceInterface = new BgpDeviceInterface();
+        bgpDeviceInterface.setName(tp);
+        bgpDeviceInterface.setBgpDeviceName(node);
         try {
-            deviceInterface.setIp(this.getIpv4AddressTpName(deviceInterface.getName()));
+            bgpDeviceInterface.setIp(this.getIpv4AddressTpName(bgpDeviceInterface.getName()));
         }catch (Exception e){
             LOG.info("Create deviceInterface failure!");
             LOG.info(e.getMessage());
         }
-        return deviceInterface;
+        return bgpDeviceInterface;
     }
 
 }
