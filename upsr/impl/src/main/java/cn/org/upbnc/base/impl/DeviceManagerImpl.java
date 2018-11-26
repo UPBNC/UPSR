@@ -40,6 +40,14 @@ public class DeviceManagerImpl implements DeviceManager {
     }
 
     @Override
+    public Device addDevice(Device device) {
+        if(null == device) {
+            return null;
+        }
+        return addDevice(device.getDeviceName(), device.getRouterId());
+    }
+
+    @Override
     public Device getDevice(String routerId) {
         Device device = null;
         if(null != routerId) {

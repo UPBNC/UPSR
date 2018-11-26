@@ -16,13 +16,12 @@ import java.util.List;
 public interface NetconfSessionApi {
 
     boolean setServiceInterface(ServiceInterface serviceInterface);
-    boolean updateNetconfSession(String deviceName, String deviceDesc,
+    boolean updateNetconfSession(String routerId , String deviceName, String deviceDesc,
                                  String deviceIP, Integer devicePort,
                                  String userName, String userPassword);
-    boolean delNetconfSession(String deviceName);
-    boolean delNetconfSession(String deviceIP, Integer devicePort);
-    NetconfSession getNetconfSession(String deviceName);
-    NetconfSession getNetconfSession(String deviceIP, Integer devicePort);
-    List<NetconfSession> getNetconfSessionList(String deviceName);
+
+    boolean delNetconfSession(String routerId);
+    NetconfSession getNetconfSession(String routerId);
+    List<NetconfSession> getNetconfSessionList(String routerId);
 
 }

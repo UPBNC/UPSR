@@ -12,21 +12,6 @@ import cn.org.upbnc.api.NetconfSessionApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.NetconfSession;
-/*
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetNetconfInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetNetconfOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetNetconfOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetAllNetconfInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetAllNetconfOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.GetAllNetconfOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.DelNetconfInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.DelNetconfOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.DelNetconfOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpdateNetconfInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpdateNetconfOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpdateNetconfOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
-*/
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -92,7 +77,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
             return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
-            ret = this.getNetconfSessionApi().delNetconfSession(input.getDeviceName());
+            ret = this.getNetconfSessionApi().delNetconfSession(input.getRouterId());
             if(true == ret)
             {
                 netconfOutputBuilder.setResult("success");
@@ -120,7 +105,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
             return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
-            ret = this.getNetconfSessionApi().updateNetconfSession(input.getDeviceName(),
+            ret = this.getNetconfSessionApi().updateNetconfSession(input.getRouterId(),input.getDeviceName(),
                                             input.getDeviceDesc(), input.getDeviceIP(), input.getDevicePort(),
                                             input.getUserName(), input.getUserPassword());
             if(true == ret)
@@ -153,10 +138,11 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
             return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
-            netconfSession = this.getNetconfSessionApi().getNetconfSession(input.getDeviceName());
+            netconfSession = this.getNetconfSessionApi().getNetconfSession(input.getRouterId());
             if(null != netconfSession)
             {
                 netconfOutputBuilder.setResult("success");
+                netconfOutputBuilder.setRouterId(netconfSession.getRouterId());
                 netconfOutputBuilder.setDeviceName(netconfSession.getDeviceName());
                 netconfOutputBuilder.setDeviceDesc(netconfSession.getDeviceDesc());
                 netconfOutputBuilder.setSysName(netconfSession.getSysName());

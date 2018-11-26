@@ -14,16 +14,26 @@ public class NetconfSession {
     private String deviceIP;
     private Integer devicePort;
     private String userName;
+    private String routerId;
     private String status;
 
-
-    public NetconfSession(String deviceName, String deviceDesc, String sysName, String deviceIP, Integer devicePort, String userName) {
+    public NetconfSession( String routerId, String deviceName, String deviceDesc, String sysName, String deviceIP, Integer devicePort, String userName) {
         this.deviceName = deviceName;
         this.deviceDesc = deviceDesc;
         this.sysName = sysName;
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
+        this.routerId = routerId;
+    }
+
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
     }
 
     public String getDeviceName() {

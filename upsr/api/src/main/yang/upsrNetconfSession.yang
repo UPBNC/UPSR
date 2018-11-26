@@ -26,10 +26,11 @@ module upsrNetconfSession {
         leaf deviceName {
             type string;
         }
-        leaf sysName {
+
+        leaf deviceDesc {
             type string;
         }
-        leaf deviceDesc {
+        leaf routerId {
             type string;
         }
         uses netconfInfo;
@@ -47,7 +48,7 @@ module upsrNetconfSession {
     }
     rpc getNetconf {
         input {
-            leaf deviceName {
+            leaf routerId {
                 type string;
             }
         }
@@ -56,6 +57,9 @@ module upsrNetconfSession {
                 type string;
             }
             uses devNetconfInfo;
+            leaf sysName {
+                type string;
+            }
             leaf status {
                 type string;
             }
@@ -64,7 +68,7 @@ module upsrNetconfSession {
     rpc delNetconf
     {
         input {
-            leaf deviceName {
+            leaf routerId {
                 type string;
             }
         }

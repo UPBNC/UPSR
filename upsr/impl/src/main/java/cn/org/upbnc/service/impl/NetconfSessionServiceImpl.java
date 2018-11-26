@@ -59,12 +59,12 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
 
     @Override
-    public boolean updateNetconfSession(String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
-        if((null == deviceName)||(null == deviceIP)||(0 == devicePort)){
+    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
+        if((null == routerId)||(null == deviceName)||(null == deviceIP)||(0 == devicePort)){
             return false;
         }
         NetConf netconf = null;
-        Device device = this.deviceManager.getDeviceByName(deviceName);
+        Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
             netconf = device.getNetConf();
@@ -81,73 +81,55 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         else
         {
             netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
-            device = new Device(deviceName, netconf);
+            device = this.deviceManager.addDevice(deviceName,routerId);
+            //device = new Device(routerId, deviceName, netconf);
             if((null == netconf)||(null == device)) {
                 return false;
             }
-            this.deviceManager.addDevice(deviceName,null);
+            device.setNetConf(netconf);
             this.netConfManager.addDevice(netconf);
         }
         return true;
     }
 
     @Override
-    public boolean delNetconfSession(String deviceName) {
-        if(null == deviceName){
+    public boolean delNetconfSession(String routerId) {
+        if(null == routerId){
             return false;
         }
-        Device device = this.deviceManager.getDeviceByName(deviceName);
+        LOG.info("routerId = {}", new Object[]{routerId});
+        Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
             this.netConfManager.deleteDevice(device.getNetConf());
-            this.deviceManager.delDeviceByName(deviceName);
+            this.deviceManager.delDevice(routerId);
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean delNetconfSessionByIP(String deviceIP) {
-        if(null == deviceIP){
-            return false;
-        }
-        Device device = this.deviceManager.getDeviceByIP(deviceIP);
-        if(null != device)
-        {
-            this.netConfManager.deleteDevice(device.getNetConf());
-            this.deviceManager.delDeviceByIP(deviceIP);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public NetconfSession getNetconfSession(String deviceName) {
-        if(null == deviceName){
+    public NetconfSession getNetconfSession(String routerId) {
+        if(null == routerId){
             return null;
         }
+        LOG.info("routerId = {}", new Object[]{routerId});
         NetconfSession netconfSession = null;
-        Device device = this.deviceManager.getDeviceByName(deviceName);
+        Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
-            netconfSession = new NetconfSession(deviceName, null,device.getSysName(), device.getNetConf().getIp().getAddress(),
+            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), null,device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
         }
         return netconfSession;
     }
 
     @Override
-    public NetconfSession getNetconfSessionByIP(String deviceIP) {
-        if(null == deviceIP){
-            return null;
-        }
-        NetconfSession netconfSession = null;
-        Device device = this.deviceManager.getDeviceByIP(deviceIP);
-        if(null != device)
-        {
-            netconfSession = new NetconfSession(device.getDeviceName(), null, device.getSysName(), device.getNetConf().getIp().getAddress(),
-                    device.getNetConf().getPort(), device.getNetConf().getUser());
-        }
-        return netconfSession;
+    public String toString() {
+        return "NetconfSessionServiceImpl{" +
+                "baseInterface=" + baseInterface +
+                ", netConfManager=" + netConfManager +
+                ", deviceManager=" + deviceManager +
+                '}';
     }
 }

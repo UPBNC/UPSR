@@ -13,11 +13,10 @@ import cn.org.upbnc.service.entity.NetconfSession;
 public interface NetconfSessionService {
     //set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
-    boolean updateNetconfSession(String deviceName, String deviceDesc,
+    boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc,
                                  String deviceIP, Integer devicePort,
                                  String userName, String userPassword);
-    boolean delNetconfSession(String deviceName);
-    boolean delNetconfSessionByIP(String deviceIP);
-    NetconfSession getNetconfSession(String deviceName);
-    NetconfSession getNetconfSessionByIP(String deviceIP);
+    boolean delNetconfSession(String routerId);
+    NetconfSession getNetconfSession(String routerId);
+
 }

@@ -11,6 +11,7 @@ import cn.org.upbnc.entity.Device;
 
 public interface DeviceManager {
     Device addDevice(String name, String routerId);
+    Device addDevice(Device device);
     Device getDevice(String routerId);
     Device getDeviceByName(String deviceName);
     Device getDeviceByIP(String deviceIP);

@@ -35,47 +35,33 @@ public class NetconfSessionApiImpl implements NetconfSessionApi{
     }
 
     @Override
-    public boolean updateNetconfSession(String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
-        if((null == deviceName)||(null == deviceIP)||(0 == devicePort)) {
+    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
+        if((null == routerId)||(null == deviceName)||(null == deviceIP)||(0 == devicePort)) {
             return false;
         }
-        return this.netconfSessionService.updateNetconfSession(deviceName, deviceDesc, deviceIP, devicePort, userName, userPassword);
+        return this.netconfSessionService.updateNetconfSession(routerId, deviceName, deviceDesc, deviceIP, devicePort, userName, userPassword);
     }
 
     @Override
-    public boolean delNetconfSession(String deviceName) {
-        if(null == deviceName){
+    public boolean delNetconfSession(String routerId) {
+        if(null == routerId){
             return false;
         }
-        return this.netconfSessionService.delNetconfSession(deviceName);
+        return this.netconfSessionService.delNetconfSession(routerId);
     }
 
     @Override
-    public boolean delNetconfSession(String deviceIP, Integer devicePort) {
-        if((null == deviceIP)|| (0 == devicePort)){
-            return false;
-        }
-        return this.netconfSessionService.delNetconfSessionByIP(deviceIP);
-    }
-
-    @Override
-    public NetconfSession getNetconfSession(String deviceName) {
-        if(null == deviceName){
+    public NetconfSession getNetconfSession(String routerId) {
+        if(null == routerId){
             return null;
         }
-        return this.netconfSessionService.getNetconfSession(deviceName);
+        return this.netconfSessionService.getNetconfSession(routerId);
     }
 
-    @Override
-    public NetconfSession getNetconfSession(String deviceIP, Integer devicePort) {
-        if((null == deviceIP)|| (0 == devicePort)){
-            return null;
-        }
-        return this.netconfSessionService.getNetconfSessionByIP(deviceIP);
-    }
+
 
     @Override
-    public List<NetconfSession> getNetconfSessionList(String deviceName) {
+    public List<NetconfSession> getNetconfSessionList(String routerId) {
         return null;
     }
 }

@@ -112,8 +112,9 @@ public class Device {
         this.prefixList.addAll(prefixList);
         this.deviceTypeEnum = deviceTypeEnum;
     }
-    public Device(String deviceName, NetConf netConf)
+    public Device(String routerId, String deviceName, NetConf netConf)
     {
+        this.routerId = routerId;
         this.deviceName = deviceName;
         this.netConf = netConf;
     }
