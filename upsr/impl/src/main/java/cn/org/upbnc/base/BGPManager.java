@@ -18,10 +18,8 @@ public interface BGPManager {
     // Install Callback
     void setTopoCallback(TopoCallback tcb);
 
-    //
-    TopoInfo getTopoInfo();
-
-
+    // Start get Topo
+    void getTopoInfo();
 
     // For test
     void test();

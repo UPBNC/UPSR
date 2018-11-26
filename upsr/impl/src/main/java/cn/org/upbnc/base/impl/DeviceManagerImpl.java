@@ -8,18 +8,21 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.DeviceManager;
+import cn.org.upbnc.entity.BgpDevice;
+import cn.org.upbnc.entity.BgpDeviceInterface;
 import cn.org.upbnc.entity.Device;
+import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 
 import java.util.*;
 
 public class DeviceManagerImpl implements DeviceManager {
     private static DeviceManager instance = null;
-    private Map<String,Device> mapInstance;
+    //private Map<String,Device> mapInstance;
     private List<Device> deviceList;
 
     private DeviceManagerImpl() {
-        this.mapInstance = new HashMap<String,Device>();
+        //this.mapInstance = new HashMap<String,Device>();
         this.deviceList = new ArrayList<Device>();
         return;
     }
@@ -238,5 +241,105 @@ public class DeviceManagerImpl implements DeviceManager {
 //        return true;
     }
 
+    @Override
+    public List<Device> updateDeviceListByBgpDeviceList(List<BgpDevice> bgpDeviceList){
+        // 当 BGP 为空，不处理
+        if(null == bgpDeviceList || bgpDeviceList.isEmpty()){
+            return this.deviceList;
+        }
+
+        Iterator<BgpDevice> bgpDeviceIterator = bgpDeviceList.iterator();
+        while(bgpDeviceIterator.hasNext()){
+            BgpDevice bgpDevice = bgpDeviceIterator.next();
+            //查找device
+            Device device = this.getDevice(bgpDevice.getRouterId());
+            if(null == device){// 创建新的device
+                device = this.updateDevice(device,bgpDevice);
+                this.deviceList.add(device);
+            }else {// 更新 device
+                device = this.updateDevice(device,bgpDevice);
+            }
+        }
+
+        return this.deviceList;
+    }
+
+
+    // 更新Device
+    private Device updateDevice(Device device,BgpDevice bgpDevice){
+        Device ret = null;
+        if(device == null){
+            ret= new Device();
+        }else{
+            ret = device;
+        }
+        ret.setPrefixList(bgpDevice.getPrefixList());
+        ret.setAddress(bgpDevice.getAddress());
+        ret.setDeviceTypeEnum(bgpDevice.getDeviceTypeEnum());
+        ret.setName(bgpDevice.getName());
+
+        //添加端口
+        List<DeviceInterface> deviceInterfaces = ret.getDeviceInterfaceList();
+        this.updateDeviceInterface(ret,deviceInterfaces,bgpDevice.getBgpDeviceInterfaceList());
+
+        //添加Bgp Device
+        ret.setBgpDevice(bgpDevice);
+        return ret;
+    }
+
+    private List<DeviceInterface> updateDeviceInterface(Device device,List<DeviceInterface> deviceInterfaces, List<BgpDeviceInterface> bgpDeviceInterfaces){
+        // 如果Bgp没有接口上报，直接返回
+        if(null == bgpDeviceInterfaces|| bgpDeviceInterfaces.isEmpty()){
+            return deviceInterfaces;
+        }
+
+        // 遍历BgpDeviceInterface
+        Iterator<BgpDeviceInterface> bgpDeviceInterfaceIterator = bgpDeviceInterfaces.iterator();
+        while(bgpDeviceInterfaceIterator.hasNext()){
+            BgpDeviceInterface bgpDeviceInterface = bgpDeviceInterfaceIterator.next();
+            //查找是否存在了端口
+            DeviceInterface temp = this.findDeviceInterface(deviceInterfaces,bgpDeviceInterface);
+            // 创造端口
+            if(null == temp) {
+                temp = this.updateDeviceInterface(temp, bgpDeviceInterface);
+                // 添加Device对象
+                temp.setDevice(device);
+                // 添加进入列表
+                deviceInterfaces.add(temp);
+            }else{ // 更新端口信息（不添加进入列表）
+                temp = this.updateDeviceInterface(temp, bgpDeviceInterface);
+                // 添加Device对象
+                temp.setDevice(device);
+            }
+        }
+
+        return deviceInterfaces;
+    }
+
+    private DeviceInterface findDeviceInterface(List<DeviceInterface> deviceInterfaceList,BgpDeviceInterface bgpDeviceInterface){
+       Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaceList.iterator();
+       while(deviceInterfaceIterator.hasNext()){
+           DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+           if(deviceInterface.getIp().getAddress().equals(bgpDeviceInterface.getIp().getAddress())){
+               return deviceInterface;
+           }
+       }
+       return null;
+    }
+
+    private DeviceInterface updateDeviceInterface(DeviceInterface deviceInterface,BgpDeviceInterface bgpDeviceInterface){
+        DeviceInterface ret = null;
+        if( null == deviceInterface) {
+            ret = new DeviceInterface();
+        }else {
+            ret = deviceInterface;
+        }
+
+        ret.setIp(bgpDeviceInterface.getIp());
+        ret.setId(bgpDeviceInterface.getId());
+        ret.setName(bgpDeviceInterface.getName());
+        ret.setDeviceName(bgpDeviceInterface.getBgpDeviceName());
+        return ret;
+    }
 
 }

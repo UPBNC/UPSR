@@ -40,6 +40,7 @@ public class Device {
     private List<Prefix> prefixList;
 
     private DeviceTypeEnum deviceTypeEnum;
+    private BgpDevice bgpDevice;
 
     public Device() {
         this.id = 0;
@@ -61,6 +62,7 @@ public class Device {
         this.vpnInstanceList = new ArrayList<VPNInstance>();
         this.tunnelList = new ArrayList<Tunnel>();
         this.prefixList = new ArrayList<Prefix>();
+        this.bgpDevice = null;
         this.deviceTypeEnum = DeviceTypeEnum.UNDEFINED;
     }
 
@@ -83,6 +85,7 @@ public class Device {
                   List<VPNInstance> vpnInstanceList,
                   List<Tunnel> tunnelList,
                   List<Prefix> prefixList,
+                  BgpDevice bgpDevice,
                   DeviceTypeEnum deviceTypeEnum) {
         this.id = id;
         this.name = name;
@@ -110,6 +113,7 @@ public class Device {
 //        this.tunnelList = tunnelList;//?
         this.prefixList = new ArrayList<Prefix>();
         this.prefixList.addAll(prefixList);
+        this.bgpDevice = bgpDevice;
         this.deviceTypeEnum = deviceTypeEnum;
     }
     public Device(String routerId, String deviceName, NetConf netConf)
@@ -292,5 +296,13 @@ public class Device {
 
     public DeviceTypeEnum getDeviceTypeEnum() {
         return deviceTypeEnum;
+    }
+
+    public void setBgpDevice(BgpDevice bgpDevice) {
+        this.bgpDevice = bgpDevice;
+    }
+
+    public BgpDevice getBgpDevice() {
+        return bgpDevice;
     }
 }

@@ -7,10 +7,7 @@
  */
 package cn.org.upbnc.base;
 
-import cn.org.upbnc.base.impl.BGPManagerImpl;
-import cn.org.upbnc.base.impl.DeviceManagerImpl;
-import cn.org.upbnc.base.impl.NetConfManagerImpl;
-import cn.org.upbnc.base.impl.VpnInstanceManagerImpl;
+import cn.org.upbnc.base.impl.*;
 import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +20,7 @@ public class BaseInterface {
     private DeviceManager deviceManager;
     private NetConfManager netConfManager;
     private VpnInstanceManager vpnInstanceManager;
+    private LinkManager linkManager;
 
     public BaseInterface() {
     }
@@ -33,6 +31,7 @@ public class BaseInterface {
             // 每个基础系统初始化
             LOG.info("BaseInterface init Start...");
             this.deviceManager = DeviceManagerImpl.getInstance();
+            this.linkManager = LinkManagerImpl.getInstance();
             this.netConfManager = NetConfManagerImpl.getInstance();
             this.bgpManager = BGPManagerImpl.getInstance();
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
@@ -86,6 +85,13 @@ public class BaseInterface {
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
         }
         return this.vpnInstanceManager;
+    }
+
+    public LinkManager getLinkManager(){
+        if(null == this.linkManager){
+            this.linkManager = LinkManagerImpl.getInstance();
+        }
+        return this.linkManager;
     }
 
     ///....

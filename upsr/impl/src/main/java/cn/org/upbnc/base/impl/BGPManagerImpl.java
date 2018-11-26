@@ -14,6 +14,7 @@ import cn.org.upbnc.entity.*;
 
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
+import cn.org.upbnc.enumtype.TopoStatusEnum;
 import cn.org.upbnc.util.UtilInterface;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -74,18 +75,19 @@ public class BGPManagerImpl implements BGPManager {
     private DataBroker dataBroker;
     private Topology odlTopology;
     private BgpTopoInfo bgpTopoInfo;
+    private BgpTopoInfo bgpTopoInfoTotal;
     private TopoCallback tcb;
+    private TopoStatusEnum topoStatusEnum;
 
-    //private Optional<Topology> topologyOptional;
-
-//    private List<BGPConnect> bgpConnectList;
 
     private BGPManagerImpl(){
         this.utilInterface = null;
         this.dataBroker = null;
         this.odlTopology = null;
-        this.bgpTopoInfo = null;
+        //this.bgpTopoInfo = null;
+        this.bgpTopoInfoTotal = null;
         this.tcb = null;
+        this.topoStatusEnum = TopoStatusEnum.INIT;
         //this.topologyOptional = null;
         //this.bgpConnectList = new ArrayList<BGPConnect>();
         return;
@@ -116,8 +118,12 @@ public class BGPManagerImpl implements BGPManager {
     }
 
     @Override
-    public TopoInfo getTopoInfo(){
+    public void getTopoInfo(){
+        if(this.topoStatusEnum != TopoStatusEnum.INIT){
+            return ;
+        }
         try {
+            this.topoStatusEnum=TopoStatusEnum.UPDATING;
             this.getDataBroker();
             ReadTransaction trx = this.dataBroker.newReadOnlyTransaction();
             CheckedFuture<Optional<Topology>, ReadFailedException> future = trx.read(LogicalDatastoreType.OPERATIONAL, II_TO_TOPOLOGY_DEFAULT);
@@ -130,10 +136,11 @@ public class BGPManagerImpl implements BGPManager {
                         if (null != odlTopology) {
                             LOG.info(odlTopology.getKey().toString());
                             LOG.info("Read Topology from ODL Start...");
-                            bgpTopoInfo = updateBgpTopoInfoByODLTopo(odlTopology);
-                            tcb.updateTopoInfoCb(bgpTopoInfo);
+                            bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
+                            bgpTopoInfo = dealBgpTopoInfo(bgpTopoInfoTotal);
+                            tcb.updateBgpTopoInfoCb(bgpTopoInfo);
+                            topoStatusEnum = TopoStatusEnum.FINISH;
                             LOG.info("Read Topology from ODL End!");
-
                         } else {
                             LOG.info("Read Topology but NULL!");
                         }
@@ -148,35 +155,11 @@ public class BGPManagerImpl implements BGPManager {
         }catch (Exception e){
             LOG.info(e.getMessage());
         }
-        return null;
+        return;
     }
 
     @Override
     public void test(){
-//        try {
-//            this.getDataBroker();
-//            ReadTransaction trx = this.dataBroker.newReadOnlyTransaction();
-//            CheckedFuture<Optional<Topology>, ReadFailedException> future = trx.read(LogicalDatastoreType.OPERATIONAL, II_TO_TOPOLOGY_DEFAULT);
-//
-//            Futures.addCallback(future, new FutureCallback<Optional<Topology>>() {
-//                @Override
-//                public void onSuccess(@NullableDecl Optional<Topology> topologyOptional) {
-//                    odlTopology= topologyOptional.get();
-//                    if( null != odlTopology) {
-//                        LOG.info(odlTopology.getKey().toString());
-//                    }else {
-//                        LOG.info("Read but NULL!");
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Throwable throwable) {
-//                    LOG.info("Failed");
-//                }
-//            });
-//        }catch (Exception e){
-//            LOG.info(e.getMessage());
-//        }
 
         return;
     }
@@ -441,5 +424,104 @@ public class BGPManagerImpl implements BGPManager {
         }
         return bgpDeviceInterface;
     }
+
+    private BgpTopoInfo dealBgpTopoInfo(BgpTopoInfo bgpTopoInfoTotalToDeal){
+        BgpTopoInfo bgpTopoInfoDealed = null;
+        if(null == bgpTopoInfoTotalToDeal){
+            bgpTopoInfoDealed = new BgpTopoInfo();
+            // Deal bgp device
+            bgpTopoInfoDealed.setBgpDeviceList(this.dealBgpDevice(bgpTopoInfoTotalToDeal.getBgpDeviceList()));
+            // Deal bgp link
+            bgpTopoInfoDealed.setBgpLinkList(this.dealBgpLink(bgpTopoInfoTotalToDeal.getBgpLinkList(),bgpTopoInfoDealed.getBgpDeviceList()));
+
+        }
+        return bgpTopoInfoDealed;
+    }
+
+    private List<BgpDevice> dealBgpDevice(List<BgpDevice> bgpDeviceListToDeal){
+        List<BgpDevice> bgpDeviceListDealed = null;
+        if( null != bgpDeviceListToDeal && !bgpDeviceListToDeal.isEmpty()){
+            bgpDeviceListDealed = new ArrayList<BgpDevice>();
+            Iterator<BgpDevice> deviceIterator = bgpDeviceListToDeal.iterator();
+            while (deviceIterator.hasNext()){
+                BgpDevice bgpDevice= deviceIterator.next();
+                if(null != bgpDevice.getRouterId()){
+                    bgpDeviceListDealed.add(bgpDevice);
+                }
+            }
+        }
+        return bgpDeviceListDealed;
+    }
+
+
+
+    private List<BgpLink> dealBgpLink(List<BgpLink> bgpLinkListToDeal,List<BgpDevice> bgpDeviceList){
+        List<BgpLink> bgpLinkListDealed = null;
+        if( null != bgpLinkListToDeal && !bgpLinkListToDeal.isEmpty()){
+            bgpLinkListDealed = new ArrayList<BgpLink>();
+            Iterator<BgpLink> deviceIterator = bgpLinkListToDeal.iterator();
+            while (deviceIterator.hasNext()){
+                BgpLink bgpLink= deviceIterator.next();
+                if(this.isBgpLinkInDeviceList(bgpLink,bgpDeviceList)){
+                    bgpLinkListDealed.add(bgpLink);
+                }
+            }
+        }
+        return bgpLinkListDealed;
+    }
+
+    private boolean isBgpLinkInDeviceList(BgpLink bgpLink,List<BgpDevice> bgpDeviceList){
+        boolean ret1 = this.isBgpDeviceInterfaceInDeviceList(bgpLink.getBgpDeviceInterface1(),bgpDeviceList);
+        boolean ret2 = this.isBgpDeviceInterfaceInDeviceList(bgpLink.getBgpDeviceInterface2(),bgpDeviceList);
+        return (ret1&&ret2);
+    }
+
+    private boolean isBgpDeviceInterfaceInDeviceList(BgpDeviceInterface bgpDeviceInterface,List<BgpDevice> bgpDeviceList){
+        Iterator<BgpDevice> bgpDeviceIterator = bgpDeviceList.iterator();
+        while(bgpDeviceIterator.hasNext()){
+            BgpDevice bgpDevice = bgpDeviceIterator.next();
+            if(bgpDevice.getBgpDeviceInterfaceList().contains(bgpDeviceInterface)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //**********************************************************************
+    /*
+     * 暂时不用！！！
+     */
+    private BgpDevice copyBgpDevice(BgpDevice copy){
+        BgpDevice ret = new BgpDevice();
+        ret.setId(copy.getId());
+        ret.setName(copy.getName());
+        ret.setRouterId(copy.getRouterId());
+        ret.setDeviceTypeEnum(copy.getDeviceTypeEnum());
+        ret.setBgpDeviceInterfaceList(this.copyBgpDeviceInterface(copy.getBgpDeviceInterfaceList()));
+        ret.setPrefixList(copy.getPrefixList());
+        return ret;
+    }
+
+    private List<BgpDeviceInterface> copyBgpDeviceInterface(List<BgpDeviceInterface> copy){
+        List<BgpDeviceInterface> ret = null;
+        if(null != copy && !copy.isEmpty()){
+            ret = new ArrayList<BgpDeviceInterface>();
+            Iterator<BgpDeviceInterface> bgpDeviceInterfaceIterator = copy.iterator();
+            while(bgpDeviceInterfaceIterator.hasNext()){
+                BgpDeviceInterface copy1 = bgpDeviceInterfaceIterator.next();
+                BgpDeviceInterface ret1 = new BgpDeviceInterface();
+                ret1.setBgpDeviceName(copy1.getName());
+                ret1.setId(copy1.getId());
+                ret1.setName(copy1.getName());
+//                Address retAddress = new Address();
+//                retAddress.setType(copy1.getIp().getType());
+//                retAddress.setAddress(copy1.getIp().getAddress());
+                ret1.setIp(new Address(copy1.getIp().getAddress(),copy1.getIp().getType()));
+                ret.add(ret1);
+            }
+        }
+        return ret;
+    }
+
 
 }

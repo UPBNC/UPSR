@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.entity.BgpDevice;
 import cn.org.upbnc.entity.Device;
 
 import java.util.List;
@@ -26,5 +27,8 @@ public interface DeviceManager {
     boolean delDevice(String routerId);
     boolean delDeviceByDeviceName(String deviceName);
     boolean delDeviceByNetconfIP(String deviceIP);
+
+    // Update device functions
+    List<Device> updateDeviceListByBgpDeviceList(List<BgpDevice> bgpDeviceList);
 
 }
