@@ -9,14 +9,22 @@ package cn.org.upbnc.base;
 
 import cn.org.upbnc.entity.Device;
 
+import java.util.List;
+
 public interface DeviceManager {
+    // Add device fucntions
     Device addDevice(String name, String routerId);
     Device addDevice(Device device);
+
+    // Get device fucntions
     Device getDevice(String routerId);
-    Device getDeviceByName(String deviceName);
-    Device getDeviceByIP(String deviceIP);
+    Device getDeviceByDeviceName(String deviceName);
+    Device getDeviceByNetconfIP(String deviceIP);
+    List<Device> getDeviceList();
+
+    // Delete device fucntions
     boolean delDevice(String routerId);
-    boolean delDeviceByName(String deviceName);
-    boolean delDeviceByIP(String deviceIP);
+    boolean delDeviceByDeviceName(String deviceName);
+    boolean delDeviceByNetconfIP(String deviceIP);
 
 }

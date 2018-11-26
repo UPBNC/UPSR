@@ -10,6 +10,7 @@ package cn.org.upbnc.enumtype;
 public enum DeviceTypeEnum {
     UNDEFINED(0,"未定义"),
     ROUTER(1,"路由器"),
+    SELFDEFIND(2,"自定义"),
     OTHER(10,"其他");
 
     private int code;
