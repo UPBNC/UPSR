@@ -93,6 +93,9 @@ public class Session implements Runnable{
             this.apiInterface.init();
             this.utilInterface.init();
 
+            // Add databroker to util
+            this.utilInterface.setDataBroker(this.dataBroker);
+
             // Add manager to caller
             this.serviceInterface.setBaseInterface(this.baseInterface);
             this.apiInterface.setServiceInterface(this.serviceInterface);
@@ -102,8 +105,7 @@ public class Session implements Runnable{
             this.serviceInterface.setUtilInterface(this.utilInterface);
             this.baseInterface.setUtilInterface(this.utilInterface);
 
-            // Add databroker to util
-            this.utilInterface.setDataBroker(this.dataBroker);
+
             this.status = SystemStatusEnum.ON;
             LOG.info("UPSR is ON");
         }catch (Exception e){
