@@ -66,7 +66,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDevice(String routerId) {
         if(null != routerId) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(routerId.equals(device.getRouterId())){
                     return device;
