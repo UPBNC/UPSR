@@ -12,6 +12,18 @@ public class L3vpnIf {
     private String ipv4Addr;
     private String subnetMask;
 
+    public L3vpnIf() {
+        this.ifName = null;
+        this.ipv4Addr = null;
+        this.subnetMask = null;
+    }
+
+    public L3vpnIf(String ifName, String ipv4Addr, String subnetMask) {
+        this.ifName = ifName;
+        this.ipv4Addr = ipv4Addr;
+        this.subnetMask = subnetMask;
+    }
+
     public String getIfName() {
         return ifName;
     }

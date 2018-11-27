@@ -32,6 +32,12 @@ public class DeviceInterface {
         this.deviceName = null;
     }
 
+    public DeviceInterface(String name, Address ip, Address mask) {
+        this.name = name;
+        this.ip = ip;
+        this.mask = mask;
+    }
+
     public DeviceInterface(Integer id,
                            Device device,
                            String deviceName,

@@ -39,7 +39,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         return true;
     }
     public boolean updateVpnInstance(String vpnName,
-                                     Device device,
+                                     String routerId,
                                      String businessRegion,
                                      String rd,
                                      String importRT,
@@ -54,7 +54,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         boolean ret = false;
         if(null == this.vpnService)
             return false;
-        ret= this.vpnService.updateVpnInstance(vpnName,device,businessRegion,rd,importRT, exportRT,
+        ret= this.vpnService.updateVpnInstance(vpnName,routerId,businessRegion,rd,importRT, exportRT,
                 peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,deviceInterfaceList,networkSegList);
         return ret;
     }

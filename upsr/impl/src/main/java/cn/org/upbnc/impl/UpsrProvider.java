@@ -15,7 +15,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev181119.TopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpninstance.rev181119.VpnInstanceService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.UpsrVpnInstanceService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class UpsrProvider implements AutoCloseable{
     private BindingAwareBroker.RpcRegistration<TopoService> topoServiceReg;
     private BindingAwareBroker.RpcRegistration<UpsrTopoService> topoInfoServiceReg;
     private BindingAwareBroker.RpcRegistration<UpsrBgplsSessionService> upsrBgplsSessionServiceRpcRegistration;
-    private BindingAwareBroker.RpcRegistration<VpnInstanceService> vpnInstanceServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrVpnInstanceService> vpnInstanceServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrNetconfSessionService> upsrNetconfSessionServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
@@ -67,7 +67,7 @@ public class UpsrProvider implements AutoCloseable{
         this.topoServiceReg = this.rpcRegistry.addRpcImplementation(TopoService.class, new TopoTestODLApi(this.upsr));
         this.topoInfoServiceReg = this.rpcRegistry.addRpcImplementation(UpsrTopoService.class, new TopoInfoODLApi(this.upsr));
         this.upsrBgplsSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrBgplsSessionService.class,new BgplsSessionODLApi(this.upsr));
-        this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(VpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
+        this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrVpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
         this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, new NetconfSessionODLApi(this.upsr));
     }
 

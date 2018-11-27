@@ -16,7 +16,7 @@ public interface VPNService {
     // Set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
     boolean updateVpnInstance(String vpnName,
-                              Device device,
+                              String routerId,
                               String businessRegion,
                               String rd,
                               String importRT,

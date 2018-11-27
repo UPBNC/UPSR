@@ -1,0 +1,114 @@
+module upsrVpnInstance {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrVpnInstance";
+    prefix "upsrVpnInstance";
+
+    revision "2018-11-19" {
+        description "Initial revision of upsrVpnInstance model";
+    }
+    grouping vpnInstanceInfo {
+        leaf vpnName {
+            type string;
+        }
+        leaf bussinessRegion {
+            type string;
+        }
+        leaf routerId {
+            type string;
+        }
+        leaf RD {
+            type string;
+        }
+        leaf RT {
+            type string;
+        }
+        leaf peerAS {
+            type int32;
+        }
+        leaf peerIP {
+            type string;
+        }
+        leaf routeSelectDelay {
+            type int32;
+        }
+        leaf importDirectRouteEnable {
+            type int32;
+        }
+        list bindInterface {
+            leaf ifName {
+                type string;
+            }
+            leaf ifAddress {
+                type string;
+            }
+            leaf ifNetmask {
+                type string;
+            }
+        }
+        list netSegment {
+            leaf Address {
+                type string;
+            }
+            leaf Mask {
+                type string;
+            }
+        }
+    }
+    grouping vpnInstanceListInfo
+    {
+        list vpnInstances {
+            uses vpnInstanceInfo;
+        }
+    }
+    rpc getVpnInstances {
+        input {
+        }
+        output {
+            leaf result {
+                type string;
+            }
+            uses vpnInstanceListInfo;
+        }
+    }
+    rpc delVpnInstance
+    {
+        input {
+            leaf vpnName {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc updateVpnInstance
+    {
+        input {
+            uses vpnInstanceInfo;
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc getVpnInstance
+    {
+        input {
+            leaf vpnName {
+                type string;
+            }
+        }
+        output {
+            leaf result {
+                type string;
+            }
+            leaf id {
+                type int32;
+            }
+            uses vpnInstanceInfo;
+        }
+    }
+}

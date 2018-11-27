@@ -14,6 +14,7 @@ public class VPNInstance {
     private List<DeviceInterface> deviceInterfaceList;
     private String vpnName;
     private String businessRegion;
+    private String routerId;
     private String rd;
     private String importRT;
     private String exportRT;
@@ -29,6 +30,7 @@ public class VPNInstance {
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
         this.vpnName = null;
         this.businessRegion = null;
+        this.routerId = null;
         this.rd = null;
         this.importRT = null;
         this.exportRT = null;
