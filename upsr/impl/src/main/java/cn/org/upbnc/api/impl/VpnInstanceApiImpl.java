@@ -62,17 +62,17 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     {
         return (null == this.vpnService)?false:this.vpnService.delVpnInstance(id);
     }
-    public boolean delVpnInstance(String vpnName)
+    public boolean delVpnInstance(String routerId,String vpnName)
     {
-        return (null == this.vpnService)?false:this.vpnService.delVpnInstance(vpnName);
+        return (null == this.vpnService)?false:this.vpnService.delVpnInstance(routerId, vpnName);
     }
     public VPNInstance getVpnInstance(Integer id)
     {
         return (null == this.vpnService)?null:this.vpnService.getVpnInstance(id);
     }
-    public VPNInstance getVpnInstance(String vpnName)
+    public VPNInstance getVpnInstance(String routerId,String vpnName)
     {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstance(vpnName);
+        return (null == this.vpnService)?null:this.vpnService.getVpnInstance(routerId, vpnName);
     }
     public List<VPNInstance> getVpnInstanceList()
     {

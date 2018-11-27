@@ -71,8 +71,8 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return false;
     }
 
-    public boolean delVpnInstance(String vpnName) {
-        if (null == vpnName) {
+    public boolean delVpnInstance(String routerId, String vpnName) {
+        if ((null == routerId)||(null == vpnName)) {
             return false;
         }
         VPNInstance vpnInstance = null;
@@ -80,8 +80,11 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         while (iter.hasNext()) {
             vpnInstance = iter.next();
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
-                iter.remove();
-                return true;
+                if((null != vpnInstance.getDevice())&&
+                        (true == routerId.equals(vpnInstance.getDevice().getRouterId()))) {
+                    iter.remove();
+                    return true;
+                }
             }
         }
         return false;
@@ -99,9 +102,9 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return null;
     }
 
-    public VPNInstance getVpnIstance(String vpnName) {
-        LOG.info("enter getVpnIstance vpnName = {}", new Object[]{vpnName});
-        if (null == vpnName) {
+    public VPNInstance getVpnIstance(String routerId, String vpnName) {
+        LOG.info("enter getVpnIstance routerid={} vpnName = {}", new Object[]{routerId, vpnName});
+        if ((null == routerId)||(null == vpnName)) {
             return null;
         }
 
@@ -110,10 +113,12 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         while (iter.hasNext()) {
             vpnInstance = iter.next();
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
-                return vpnInstance;
+                if((null != vpnInstance.getDevice())&&
+                        (true == routerId.equals(vpnInstance.getDevice().getRouterId()))) {
+                    return vpnInstance;
+                }
             }
         }
-
         return null;
     }
 

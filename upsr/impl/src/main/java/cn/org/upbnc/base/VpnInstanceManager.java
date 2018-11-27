@@ -15,9 +15,9 @@ import java.util.List;
 public interface VpnInstanceManager {
     boolean addVpnInstance(VPNInstance vpnInstance);
     boolean delVpnInstance(Integer id);
-    boolean delVpnInstance(String vpnName);
+    boolean delVpnInstance(String routerId, String vpnName);
     VPNInstance getVpnIstance(Integer id);
-    VPNInstance getVpnIstance(String vpnName);
+    VPNInstance getVpnIstance(String routerId, String vpnName);
     VPNInstance updateVpnInstance(String vpnName,
                                      Device device,
                                      String businessRegion,

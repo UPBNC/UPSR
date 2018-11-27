@@ -87,7 +87,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
         }else{
             LOG.info("enter vpnInstanceGet-02");
             //调用系统Api层函数
-            vpnInstance = this.getVpnInstanceApi().getVpnInstance(input.getVpnName());
+            vpnInstance = this.getVpnInstanceApi().getVpnInstance(input.getRouterId(),input.getVpnName());
             if(null != vpnInstance) {
                 vpnInstanceGetOutputBuilder.setResult("success");
                 vpnInstanceGetOutputBuilder.setVpnName(vpnInstance.getVpnName());
@@ -102,10 +102,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
         }
 
         //以下是业务代码
-        //vpnInstanceGetOutputBuilder.setResult("Hello " + input.getVpnName());
+
         LOG.info("enter vpnInstanceGet-03");
-        // Call TopoTestAPI
-        //this.topoTestApi.getTest();
         vpnInstanceGetOutputBuilder.setResult("failed");
         return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
     }
@@ -124,7 +122,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
         }else{
             LOG.info("enter vpnInstanceDel-02");
             //调用系统Api层函数
-            ret = this.getVpnInstanceApi().delVpnInstance(input.getVpnName());
+            ret = this.getVpnInstanceApi().delVpnInstance(input.getRouterId(),input.getVpnName());
             if(true == ret)
             {
                 vpnInstanceDelOutputBuilder.setResult("success");
@@ -135,8 +133,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
         LOG.info("enter vpnInstanceDel-03");
         //以下是业务代码
         vpnInstanceDelOutputBuilder.setResult("failed");
-        // Call TopoTestAPI
-        //this.topoTestApi.getTest();
 
         return RpcResultBuilder.success(vpnInstanceDelOutputBuilder.build()).buildFuture();
     }
@@ -194,9 +190,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
         LOG.info("enter vpnInstanceUpdate-03");
         //以下是业务代码
         vpnInstanceUpdateOutputBuilder.setResult("failed");
-
-        // Call TopoTestAPI
-        //this.topoTestApi.getTest();
 
         return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
     }
