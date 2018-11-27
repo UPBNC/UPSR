@@ -500,7 +500,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     private List<BgpLink> findDstLinkByMideInterfaceWithoutSrcInterface(BgpDeviceInterface bdi,List<BgpLink> lbl,BgpDeviceInterface outbdi){
         List<BgpLink> ret = new ArrayList<BgpLink>();
         for(BgpLink bgpLink : lbl){
-            if(bgpLink.getBgpDeviceInterface1() == bdi && bgpLink.getBgpDeviceInterface2() != outbdi){
+            if(bgpLink.getBgpDeviceInterface1().getBgpDeviceName().equals(bdi.getBgpDeviceName()) && bgpLink.getBgpDeviceInterface2() != outbdi){
                 BgpLink temp = new BgpLink();
                 // 设置src Interface
                 temp.setBgpDeviceInterface1(outbdi);
