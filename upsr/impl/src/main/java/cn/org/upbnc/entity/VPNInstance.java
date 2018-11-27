@@ -21,7 +21,7 @@ public class VPNInstance {
     private Integer peerAS;
     private Address peerIP;
     private Integer routeSelectDelay;
-    private Integer importDirectRouteEnable;//?
+    private Integer importDirectRouteEnable;
     private List<NetworkSeg> networkSegList;
 
     public VPNInstance() {
@@ -45,6 +45,7 @@ public class VPNInstance {
                        Device device,
                        List<DeviceInterface> deviceInterfaceList,
                        String vpnName,
+                       String routerId,
                        String businessRegion,
                        String rd,
                        String importRT,
@@ -61,6 +62,7 @@ public class VPNInstance {
             this.deviceInterfaceList.addAll(deviceInterfaceList);
         }
         this.vpnName = vpnName;
+        this.routerId = routerId;
         this.businessRegion = businessRegion;
         this.rd = rd;
         this.importRT = importRT;
@@ -73,6 +75,13 @@ public class VPNInstance {
         if(null != networkSegList) {
             this.networkSegList.addAll(networkSegList);
         }
+    }
+
+    public VPNInstance(String routerId, String vpnName) {
+        this.vpnName = vpnName;
+        this.routerId = routerId;
+        this.deviceInterfaceList = new ArrayList<DeviceInterface>();
+        this.networkSegList = new ArrayList<NetworkSeg>();
     }
 
     public Integer getId() {
@@ -181,5 +190,13 @@ public class VPNInstance {
     public void setNetworkSegList(List<NetworkSeg> networkSegList) {
         this.networkSegList.clear();
         this.networkSegList.addAll(networkSegList);
+    }
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
     }
 }

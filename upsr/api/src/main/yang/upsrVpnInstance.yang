@@ -62,7 +62,7 @@ module upsrVpnInstance {
     }
     rpc getVpnInstances {
         input {
-            leaf routerId {
+            leaf vpnName {
                 type string;
             }
         }

@@ -137,6 +137,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
     public VPNInstance updateVpnInstance(String vpnName,
+                                         String routerId,
                                          Device device,
                                          String businessRegion,
                                          String rd,
@@ -155,6 +156,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         VPNInstance vpnInstance = getVpnInstance(vpnName);
         if (null != vpnInstance) {
             LOG.info("################enter updateVpnInstance-01###################");
+            vpnInstance.setRouterId(routerId);
             vpnInstance.setDevice(device);
             vpnInstance.setBusinessRegion(businessRegion);
             vpnInstance.setRd(rd);
@@ -169,7 +171,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
 
         } else {
             Integer id = 0;
-            vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, businessRegion, rd,
+            vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, routerId, businessRegion, rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
             if (null != vpnInstance) {
                 this.vpnInstanceList.add(vpnInstance);
@@ -180,8 +182,9 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
     public VPNInstance updateVpnInstance(VPNInstance vpnInstance) {
-        if (null == vpnInstance)
+        if (null == vpnInstance) {
             return null;
+        }
         VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getVpnName());
         if (null != findVpnInstance) {
             vpnInstance.setId(findVpnInstance.getId());
