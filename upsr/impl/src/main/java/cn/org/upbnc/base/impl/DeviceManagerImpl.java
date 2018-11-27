@@ -277,6 +277,7 @@ public class DeviceManagerImpl implements DeviceManager {
         ret.setAddress(bgpDevice.getAddress());
         ret.setDeviceTypeEnum(bgpDevice.getDeviceTypeEnum());
         ret.setName(bgpDevice.getName());
+        ret.setRouterId(bgpDevice.getRouterId());
 
         //添加端口
         List<DeviceInterface> deviceInterfaces = ret.getDeviceInterfaceList();
