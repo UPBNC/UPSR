@@ -492,7 +492,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         List<BgpLink> srcBgpLinkList = this.findSrcLinkBySrcInterface(bdi,lbl);
         for(BgpLink bgpLink : srcBgpLinkList){
             // 通过Link的Dest Interface 找到 LinkList，排除Interface是自己的Link
-            ret.addAll(this.findDstLinkByMideInterfaceWithoutSrcInterface(bgpLink.getBgpDeviceInterface1(),lbl,bdi));
+            ret.addAll(this.findDstLinkByMideInterfaceWithoutSrcInterface(bgpLink.getBgpDeviceInterface2(),lbl,bdi));
         }
         return ret;
     }
