@@ -80,7 +80,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDeviceByDeviceName(String deviceName) {
         if(null != deviceName) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(deviceName.equals(device.getDeviceName())){
                     return device;
@@ -110,7 +110,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public Device getDeviceByNetconfIP(String deviceIP) {
         if(null != deviceIP) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(null != device.getNetConf()) {
                     if (deviceIP.equals(device.getNetConf().getIp().getAddress())) {
@@ -147,7 +147,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDevice(String routerId) {
         if(null != routerId) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(routerId.equals(device.getRouterId())){
                     deviceIterator.remove();
@@ -179,7 +179,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDeviceByDeviceName(String deviceName) {
         if(null != deviceName) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(deviceName.equals(device.getDeviceName())){
                     deviceIterator.remove();
@@ -211,7 +211,7 @@ public class DeviceManagerImpl implements DeviceManager {
     public boolean delDeviceByNetconfIP(String deviceIP) {
         if(null != deviceIP) {
             Iterator<Device> deviceIterator = this.deviceList.iterator();
-            if(deviceIterator.hasNext()){
+            while(deviceIterator.hasNext()){
                 Device device = deviceIterator.next();
                 if(null != device.getNetConf()) {
                     if (deviceIP.equals(device.getNetConf().getIp().getAddress())) {
