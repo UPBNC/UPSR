@@ -16,7 +16,7 @@ public interface VpnInstanceApi {
     // Set ServiceInterface
     boolean setServiceInterface(ServiceInterface serviceInterface);
     boolean updateVpnInstance(String vpnName,
-                              Device device,
+                              String routerId,
                               String businessRegion,
                               String rd,
                               String importRT,

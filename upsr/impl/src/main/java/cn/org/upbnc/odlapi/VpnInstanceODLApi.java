@@ -11,16 +11,24 @@ import cn.org.upbnc.api.APIInterface;
 
 import cn.org.upbnc.api.VpnInstanceApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.entity.Address;
+import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.entity.NetworkSeg;
 import cn.org.upbnc.entity.VPNInstance;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpninstance.rev181119.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInstanceODLApi implements  VpnInstanceService{
+public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceODLApi.class);
     Session session;
     VpnInstanceApi vpnInstanceApi;
@@ -39,15 +47,15 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
         }
         return this.vpnInstanceApi;
     }
-    public Future<RpcResult<VpnInstanceOutput>> vpnInstance(VpnInstanceInput input)
+    public Future<RpcResult<GetVpnInstancesOutput>> getVpnInstances(GetVpnInstancesInput input)
     {
-        VpnInstanceOutputBuilder vpnInstanceOutputBuilder = new VpnInstanceOutputBuilder();
+        GetVpnInstancesOutputBuilder vpnInstanceOutputBuilder = new GetVpnInstancesOutputBuilder();
 
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
         if(SystemStatusEnum.ON != this.session.getStatus()){
-            vpnInstanceOutputBuilder.setGreeting("System is not ready or shutdown");
+            vpnInstanceOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(vpnInstanceOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
@@ -56,7 +64,7 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
         }
         //LOG.info("enter vpnInstance###");
         //以下是业务代码
-        vpnInstanceOutputBuilder.setGreeting("Hello " + input.getName());
+        vpnInstanceOutputBuilder.setResult("success");
 
         // Call TopoTestAPI
         //this.topoTestApi.getTest();
@@ -65,10 +73,10 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
     }
 
 
-    public Future<RpcResult<VpnInstanceGetOutput>> vpnInstanceGet(VpnInstanceGetInput input)
+    public Future<RpcResult<GetVpnInstanceOutput>> getVpnInstance(GetVpnInstanceInput input)
     {
         VPNInstance vpnInstance = null;
-        VpnInstanceGetOutputBuilder vpnInstanceGetOutputBuilder = new VpnInstanceGetOutputBuilder();
+        GetVpnInstanceOutputBuilder vpnInstanceGetOutputBuilder = new GetVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceGet-01");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
@@ -83,10 +91,12 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
             if(null != vpnInstance) {
                 vpnInstanceGetOutputBuilder.setResult("success");
                 vpnInstanceGetOutputBuilder.setVpnName(vpnInstance.getVpnName());
-                vpnInstanceGetOutputBuilder.setRouteId(vpnInstance.getRd());
-                vpnInstanceGetOutputBuilder.setImportRT(vpnInstance.getImportRT());
-                vpnInstanceGetOutputBuilder.setExportRT(vpnInstance.getExportRT());
-                //vpnInstanceGetOutputBuilder.setPeerAS(vpnInstance.getPeerAS());
+                if(null != vpnInstance.getDevice()) {
+                    vpnInstanceGetOutputBuilder.setRouterId(vpnInstance.getDevice().getRouterId());
+                }
+                vpnInstanceGetOutputBuilder.setRD(vpnInstance.getRd());
+                vpnInstanceGetOutputBuilder.setRT(vpnInstance.getImportRT());
+                vpnInstanceGetOutputBuilder.setPeerAS(vpnInstance.getPeerAS());
                 return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
             }
         }
@@ -100,10 +110,10 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
         return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
     }
 
-    public Future<RpcResult<VpnInstanceDelOutput>> vpnInstanceDel(VpnInstanceDelInput input)
+    public Future<RpcResult<DelVpnInstanceOutput>> delVpnInstance(DelVpnInstanceInput input)
     {
         boolean ret = false;
-        VpnInstanceDelOutputBuilder vpnInstanceDelOutputBuilder = new VpnInstanceDelOutputBuilder();
+        DelVpnInstanceOutputBuilder vpnInstanceDelOutputBuilder = new DelVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceDel-01");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
@@ -131,10 +141,12 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
         return RpcResultBuilder.success(vpnInstanceDelOutputBuilder.build()).buildFuture();
     }
 
-    public Future<RpcResult<VpnInstanceUpdateOutput>> vpnInstanceUpdate(VpnInstanceUpdateInput input)
+    public Future<RpcResult<UpdateVpnInstanceOutput>> updateVpnInstance(UpdateVpnInstanceInput input)
     {
         boolean ret = false;
-        VpnInstanceUpdateOutputBuilder vpnInstanceUpdateOutputBuilder = new VpnInstanceUpdateOutputBuilder();
+        List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
+        List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
+        UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceUpdate-01");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
@@ -143,21 +155,34 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
             vpnInstanceUpdateOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
         }else{
-            LOG.info("enter vpnInstanceUpdate-02");
-            LOG.info("enter vpnInstanceUpdate vpnName={} rd={}",new Object[]{input.getVpnName(), input.getRouteId()});
+            LOG.info("enter vpnInstanceUpdate vpnName={} rd={}",new Object[]{input.getVpnName(), input.getRouterId()});
+            List<BindInterface> deviceInterfaces = input.getBindInterface();
+            List<NetSegment> netSegments = input.getNetSegment();
+            if(null != deviceInterfaces)
+            {
+                for (BindInterface deviceInterface:deviceInterfaces) {
+                    deviceInterfaceList.add(new DeviceInterface(deviceInterface.getIfName(), new Address(deviceInterface.getIfAddress(), AddressTypeEnum.V4), new Address(deviceInterface.getIfNetmask(),AddressTypeEnum.V4)));
+                }
+            }
+            if(null != netSegments)
+            {
+                for (NetSegment netSegment:netSegments) {
+                    networkSegList.add(new NetworkSeg(new Address(netSegment.getAddress(), AddressTypeEnum.V4), new Address(netSegment.getMask(), AddressTypeEnum.V4)));
+                }
+            }
             //调用系统Api层函数
             ret = this.getVpnInstanceApi().updateVpnInstance(input.getVpnName(),
-                                            null,
-                                            null,
-                                            input.getRouteId(),
-                                            input.getImportRT(),
-                                            input.getExportRT(),
+                                            input.getRouterId(),
+                                            input.getBussinessRegion(),
+                                            input.getRD(),
+                                            input.getRT(),
+                                            input.getRT(),
                                             input.getPeerAS(),
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            null
+                                            new Address(input.getPeerIP(),AddressTypeEnum.V4),
+                                            input.getRouteSelectDelay(),
+                                            input.getImportDirectRouteEnable(),
+                                            deviceInterfaceList,
+                                            networkSegList
                                             );
             LOG.info("enter vpnInstanceUpdate ret={}",new Object[]{ ret });
             if(true == ret)
@@ -168,7 +193,7 @@ public class VpnInstanceODLApi implements  VpnInstanceService{
         }
         LOG.info("enter vpnInstanceUpdate-03");
         //以下是业务代码
-        vpnInstanceUpdateOutputBuilder.setResult("failed-01");
+        vpnInstanceUpdateOutputBuilder.setResult("failed");
 
         // Call TopoTestAPI
         //this.topoTestApi.getTest();

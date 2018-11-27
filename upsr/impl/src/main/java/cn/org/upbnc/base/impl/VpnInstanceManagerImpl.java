@@ -72,8 +72,9 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
     public boolean delVpnInstance(String vpnName) {
-        if (null == vpnName)
+        if (null == vpnName) {
             return false;
+        }
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while (iter.hasNext()) {
@@ -100,22 +101,15 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
 
     public VPNInstance getVpnIstance(String vpnName) {
         LOG.info("enter getVpnIstance vpnName = {}", new Object[]{vpnName});
-        if (null == vpnName)
+        if (null == vpnName) {
             return null;
+        }
 
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while (iter.hasNext()) {
             vpnInstance = iter.next();
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
-                LOG.info("$$$$$$$$$$$$$enter getVpnIstance-02$$$$$$$$$");
-                NetconfDevice netDevice = new NetconfDevice();
-                NetconfClient netconfClient = netDevice.createClient("192.168.1.113", 22, "192.168.1.3", "root", "Huawei@123");
-                String sendMsg = VpnXml.getVpnXml(vpnName);
-                LOG.info("get sendMsg={}", new Object[]{sendMsg});
-                String result = netDevice.sendMessage(netconfClient, sendMsg);
-                LOG.info("get result={}", new Object[]{result});
-
                 return vpnInstance;
             }
         }
@@ -153,7 +147,6 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         if (null == vpnName)
             return null;
 
-
         VPNInstance vpnInstance = getVpnInstance(vpnName);
         if (null != vpnInstance) {
             LOG.info("################enter updateVpnInstance-01###################");
@@ -177,26 +170,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
                 this.vpnInstanceList.add(vpnInstance);
             }
         }
-        if (null != vpnInstance) {
-            LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT});
-            if (netconfClientMap.containsKey("192.168.1.3")) {
-                if (netconfClientMap.get("192.168.1.3").isFlag()) {
-//                    NetconfDevice netDevice  = new NetconfDevice();
-//                    NetconfClient netconfClient = netDevice.createClient("192.168.1.113",22, "192.168.1.3", "root", "Huawei@123");
-                    //Netconf netconf = NetConfManagerImpl.getInstance().addDevice(new NetConf("192.168.1.3", 22, "root", "Huawei@123"));
-                    L3vpnInstance l3vpnInstance = new L3vpnInstance();
-                    l3vpnInstance.setVrfName(vpnName);
-                    l3vpnInstance.setVrfDescription("this is SR device");
-                    l3vpnInstance.setVrfRD(rd);
-                    l3vpnInstance.setVrfRTValue(exportRT);
-                    l3vpnInstance.setL3vpnIfs(null);
-                    String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
-                    LOG.info("sendMsg={}", new Object[]{sendMsg});
-                    String result = netconfController.sendMessage(netconfClientMap.get("192.168.1.3"), sendMsg);
-                    LOG.info("result={}", new Object[]{result});
-                }
-            }
-        }
+        LOG.info("vpnName={} rd={} exportRT={}", new Object[]{vpnName, rd, exportRT});
         return vpnInstance;
     }
 

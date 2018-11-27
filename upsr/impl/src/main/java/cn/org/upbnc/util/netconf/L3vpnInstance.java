@@ -16,6 +16,22 @@ public class L3vpnInstance {
     private String vrfRTValue;
     private List<L3vpnIf> l3vpnIfs;
 
+    public L3vpnInstance() {
+        this.vrfName = null;
+        this.vrfDescription = null;
+        this.vrfRD = null;
+        this.vrfRTValue = null;
+        this.l3vpnIfs = null;
+    }
+
+    public L3vpnInstance(String vrfName, String vrfDescription, String vrfRD, String vrfRTValue, List<L3vpnIf> l3vpnIfs) {
+        this.vrfName = vrfName;
+        this.vrfDescription = vrfDescription;
+        this.vrfRD = vrfRD;
+        this.vrfRTValue = vrfRTValue;
+        this.l3vpnIfs = l3vpnIfs;
+    }
+
     public String getVrfName() {
         return vrfName;
     }

@@ -94,7 +94,7 @@ public class Device {
         this.routerId = routerId;
         this.deviceType = deviceType;
         this.dataCenter = dataCenter;
-        this.address =address;
+        this.address = address;
         this.netConf = netConf;
         this.minNodeSID = minNodeSID;
         this.maxNodeSID = maxNodeSID;
