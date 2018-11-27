@@ -31,7 +31,7 @@ public interface VPNService {
     boolean delVpnInstance(String routerId,String vpnName);
     VPNInstance getVpnInstance(Integer id);
     VPNInstance getVpnInstance(String routerId, String vpnName);
-    List<VPNInstance> getVpnInstanceList();
+    List<VPNInstance> getVpnInstanceList(String vpnName);
 
     String getTest();
 }

@@ -18,6 +18,7 @@ import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -38,7 +39,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     }
 
     private VpnInstanceApi getVpnInstanceApi(){
-        //LOG.info("enter getVpnInstanceApi");
         if(this.vpnInstanceApi == null) {
             APIInterface apiInterface = session.getApiInterface();
             if (apiInterface != null) {
@@ -49,6 +49,11 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     }
     public Future<RpcResult<GetVpnInstancesOutput>> getVpnInstances(GetVpnInstancesInput input)
     {
+        List<VPNInstance> vpnInstanceList = null;
+        List<VpnInstances> retVpnInstanceList = new LinkedList<VpnInstances>() ;
+        List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
+        List<NetSegment> netSegments = new LinkedList<NetSegment>();
+        VpnInstancesBuilder retVpnInstance = null;
         GetVpnInstancesOutputBuilder vpnInstanceOutputBuilder = new GetVpnInstancesOutputBuilder();
 
         // 判断系统是否准备完毕：
@@ -59,15 +64,50 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
             return RpcResultBuilder.success(vpnInstanceOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
-            this.getVpnInstanceApi();
-
+            vpnInstanceList = this.getVpnInstanceApi().getVpnInstanceList(input.getVpnName());
+            if((null != vpnInstanceList)&&(0 != vpnInstanceList.size())) {
+                vpnInstanceOutputBuilder.setResult("success");
+                for (VPNInstance vpnInstance : vpnInstanceList) {
+                    retVpnInstance = new VpnInstancesBuilder();
+                    retVpnInstance.setVpnName(vpnInstance.getVpnName());
+                    retVpnInstance.setRouterId(vpnInstance.getRouterId());
+                    retVpnInstance.setBussinessRegion(vpnInstance.getBusinessRegion());
+                    retVpnInstance.setRD(vpnInstance.getRd());
+                    retVpnInstance.setRT(vpnInstance.getImportRT());
+                    retVpnInstance.setPeerAS(vpnInstance.getPeerAS());
+                    retVpnInstance.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
+                    retVpnInstance.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
+                    if((null != vpnInstance.getDeviceInterfaceList())&&(0 != vpnInstance.getDeviceInterfaceList().size()))
+                    {
+                        for (DeviceInterface deviceInterface:vpnInstance.getDeviceInterfaceList()) {
+                            BindInterfaceBuilder bindInterfaceBuilder = new BindInterfaceBuilder();
+                            bindInterfaceBuilder.setIfName(deviceInterface.getName());
+                            bindInterfaceBuilder.setIfAddress(deviceInterface.getIp().getAddress());
+                            bindInterfaceBuilder.setIfNetmask(deviceInterface.getMask().getAddress());
+                            deviceBindInterfaces.add(bindInterfaceBuilder.build());
+                        }
+                    }
+                    if((null != vpnInstance.getNetworkSegList())&&(0 != vpnInstance.getNetworkSegList().size()))
+                    {
+                        for (NetworkSeg networkSeg:vpnInstance.getNetworkSegList()) {
+                            NetSegmentBuilder netSegmentBuilder = new NetSegmentBuilder();
+                            netSegmentBuilder.setAddress(networkSeg.getAddress().getAddress());
+                            netSegmentBuilder.setMask(networkSeg.getMask().getAddress());
+                            netSegments.add(netSegmentBuilder.build());
+                        }
+                    }
+                    retVpnInstance.setBindInterface(deviceBindInterfaces);
+                    retVpnInstance.setNetSegment(netSegments);
+                    retVpnInstanceList.add(retVpnInstance.build());
+                }
+            }
+            vpnInstanceOutputBuilder.setVpnInstances(retVpnInstanceList);
         }
-        //LOG.info("enter vpnInstance###");
+        //LOG.info("enter vpnInstance#s##");
         //以下是业务代码
-        vpnInstanceOutputBuilder.setResult("success");
+        vpnInstanceOutputBuilder.setResult("failed");
 
-        // Call TopoTestAPI
-        //this.topoTestApi.getTest();
+
 
         return RpcResultBuilder.success(vpnInstanceOutputBuilder.build()).buildFuture();
     }
@@ -76,6 +116,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     public Future<RpcResult<GetVpnInstanceOutput>> getVpnInstance(GetVpnInstanceInput input)
     {
         VPNInstance vpnInstance = null;
+        List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
+        List<NetSegment> netSegments = new LinkedList<NetSegment>();
         GetVpnInstanceOutputBuilder vpnInstanceGetOutputBuilder = new GetVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceGet-01");
         // 判断系统是否准备完毕：
@@ -91,12 +133,34 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
             if(null != vpnInstance) {
                 vpnInstanceGetOutputBuilder.setResult("success");
                 vpnInstanceGetOutputBuilder.setVpnName(vpnInstance.getVpnName());
-                if(null != vpnInstance.getDevice()) {
-                    vpnInstanceGetOutputBuilder.setRouterId(vpnInstance.getDevice().getRouterId());
-                }
+                vpnInstanceGetOutputBuilder.setRouterId(vpnInstance.getRouterId());
+                vpnInstanceGetOutputBuilder.setBussinessRegion(vpnInstance.getBusinessRegion());
                 vpnInstanceGetOutputBuilder.setRD(vpnInstance.getRd());
                 vpnInstanceGetOutputBuilder.setRT(vpnInstance.getImportRT());
                 vpnInstanceGetOutputBuilder.setPeerAS(vpnInstance.getPeerAS());
+                vpnInstanceGetOutputBuilder.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
+                vpnInstanceGetOutputBuilder.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
+                if(null != vpnInstance.getDeviceInterfaceList())
+                {
+                    for (DeviceInterface deviceInterface:vpnInstance.getDeviceInterfaceList()) {
+                        BindInterfaceBuilder bindInterfaceBuilder = new BindInterfaceBuilder();
+                        bindInterfaceBuilder.setIfName(deviceInterface.getName());
+                        bindInterfaceBuilder.setIfAddress(deviceInterface.getIp().getAddress());
+                        bindInterfaceBuilder.setIfNetmask(deviceInterface.getMask().getAddress());
+                        deviceBindInterfaces.add(bindInterfaceBuilder.build());
+                    }
+                }
+                if(null != vpnInstance.getNetworkSegList())
+                {
+                    for (NetworkSeg networkSeg:vpnInstance.getNetworkSegList()) {
+                        NetSegmentBuilder netSegmentBuilder = new NetSegmentBuilder();
+                        netSegmentBuilder.setAddress(networkSeg.getAddress().getAddress());
+                        netSegmentBuilder.setMask(networkSeg.getMask().getAddress());
+                        netSegments.add(netSegmentBuilder.build());
+                    }
+                }
+                vpnInstanceGetOutputBuilder.setBindInterface(deviceBindInterfaces);
+                vpnInstanceGetOutputBuilder.setNetSegment(netSegments);
                 return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
             }
         }
