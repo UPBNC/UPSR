@@ -461,8 +461,71 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     }
 
 
-
     private List<BgpLink> dealBgpLink(List<BgpLink> bgpLinkListToDeal,List<BgpDevice> bgpDeviceList){
+        List<BgpLink> ret = null;
+        if(null == bgpDeviceList || bgpDeviceList.isEmpty()){
+            return ret;
+        }
+        if(null == bgpLinkListToDeal || bgpLinkListToDeal.isEmpty()){
+            return ret;
+        }
+
+        ret = new ArrayList<BgpLink>();
+        Iterator<BgpDevice> bgpDeviceIterator = bgpDeviceList.iterator();
+        while (bgpDeviceIterator.hasNext()){
+            BgpDevice bgpDevice = bgpDeviceIterator.next();
+            List<BgpDeviceInterface> bgpDeviceInterfaces = bgpDevice.getBgpDeviceInterfaceList();
+            if(null != bgpDeviceInterfaces && !bgpDeviceInterfaces.isEmpty()){
+                Iterator<BgpDeviceInterface> bgpDeviceInterfaceIterator = bgpDeviceInterfaces.iterator();
+                while(bgpDeviceInterfaceIterator.hasNext()){
+                    BgpDeviceInterface bgpDeviceInterface = bgpDeviceInterfaceIterator.next();
+                    ret.addAll(this.getLinkByInterface(bgpDeviceInterface,bgpLinkListToDeal));
+                }
+            }
+        }
+        return ret;
+    }
+
+    private List<BgpLink> getLinkByInterface(BgpDeviceInterface bdi,List<BgpLink> lbl){
+        List<BgpLink> ret = new ArrayList<BgpLink>();
+        //通过Interface找到以Interface为Src的Link
+        List<BgpLink> srcBgpLinkList = this.findSrcLinkBySrcInterface(bdi,lbl);
+        for(BgpLink bgpLink : srcBgpLinkList){
+            // 通过Link的Dest Interface 找到 LinkList，排除Interface是自己的Link
+            ret.addAll(this.findDstLinkByMideInterfaceWithoutSrcInterface(bgpLink.getBgpDeviceInterface1(),lbl,bdi));
+        }
+        return ret;
+    }
+
+    private List<BgpLink> findDstLinkByMideInterfaceWithoutSrcInterface(BgpDeviceInterface bdi,List<BgpLink> lbl,BgpDeviceInterface outbdi){
+        List<BgpLink> ret = new ArrayList<BgpLink>();
+        for(BgpLink bgpLink : lbl){
+            if(bgpLink.getBgpDeviceInterface1() == bdi && bgpLink.getBgpDeviceInterface2() != outbdi){
+                BgpLink temp = new BgpLink();
+                // 设置src Interface
+                temp.setBgpDeviceInterface1(outbdi);
+                // 设置 dst Interface
+                temp.setBgpDeviceInterface2(bgpLink.getBgpDeviceInterface2());
+                ret.add(temp);
+            }
+        }
+        return ret;
+    }
+
+
+    private List<BgpLink> findSrcLinkBySrcInterface(BgpDeviceInterface bdi,List<BgpLink> lbl){
+        List<BgpLink> ret = new ArrayList<BgpLink>();
+        Iterator<BgpLink> ibl = lbl.iterator();
+        while(ibl.hasNext()){
+            BgpLink bgpLink = ibl.next();
+            if(bgpLink.getBgpDeviceInterface1() == bdi){
+                ret.add(bgpLink);
+            }
+        }
+        return ret;
+    }
+
+    private List<BgpLink> dealBgpLink1(List<BgpLink> bgpLinkListToDeal,List<BgpDevice> bgpDeviceList){
         List<BgpLink> bgpLinkListDealed = null;
         if( null != bgpLinkListToDeal && !bgpLinkListToDeal.isEmpty()){
             bgpLinkListDealed = new ArrayList<BgpLink>();
