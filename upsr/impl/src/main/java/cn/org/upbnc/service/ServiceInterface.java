@@ -54,6 +54,7 @@ public class ServiceInterface {
 
     // 安装基础系统接口
     public boolean setBaseInterface(BaseInterface baseInterface){
+        LOG.info("Service Interface setBaseInterface Start...");
         boolean ret = false;
         try {
             this.baseInterface = baseInterface;
@@ -65,7 +66,9 @@ public class ServiceInterface {
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
+            LOG.info("Service Interface setBaseInterface Failed");
         }
+        LOG.info("Service Interface setBaseInterface End!");
         return ret;
     }
 

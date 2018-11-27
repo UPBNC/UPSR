@@ -22,7 +22,10 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -49,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.OspfLinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.OspfNodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.Ted;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +68,7 @@ import java.util.List;
 //import java.util.ArrayList;
 //import java.util.List;
 
-public class BGPManagerImpl implements BGPManager {
+public class BGPManagerImpl implements BGPManager, DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPManagerImpl.class);
     private static BGPManager instance = null;
 
@@ -104,6 +108,8 @@ public class BGPManagerImpl implements BGPManager {
         boolean ret =false;
         try {
             this.utilInterface = utilInterface;
+            this.dataBroker = this.getDataBroker();
+            this.dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,II_TO_TOPOLOGY_DEFAULT,this, AsyncDataBroker.DataChangeScope.SUBTREE);
             ret = true;
         }catch (Exception e){
             ret = false;
@@ -116,6 +122,7 @@ public class BGPManagerImpl implements BGPManager {
     public void setTopoCallback(TopoCallback tcb){
         this.tcb = tcb;
     }
+
 
     @Override
     public void getTopoInfo(){
@@ -138,6 +145,9 @@ public class BGPManagerImpl implements BGPManager {
                             LOG.info("Read Topology from ODL Start...");
                             bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
                             bgpTopoInfo = dealBgpTopoInfo(bgpTopoInfoTotal);
+                            if(bgpTopoInfo == null) {
+                                LOG.info("Bgp Topo is null!");
+                            }
                             tcb.updateBgpTopoInfoCb(bgpTopoInfo);
                             topoStatusEnum = TopoStatusEnum.FINISH;
                             LOG.info("Read Topology from ODL End!");
@@ -246,10 +256,10 @@ public class BGPManagerImpl implements BGPManager {
             igpLinkAttributes.getName();
 
             // Find a ospf Link
-            IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.getAugmentation(IgpLinkAttributes1.class);
-//            IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.augmentation(IgpLinkAttributes1.class);
-            OspfLinkAttributes ospfLinkAttributes = igpLinkAttributes1.getOspfLinkAttributes();
-            LOG.info(ospfLinkAttributes.getTed().toString());
+            //IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.getAugmentation(IgpLinkAttributes1.class);
+            //IgpLinkAttributes1 igpLinkAttributes1= igpLinkAttributes.augmentation(IgpLinkAttributes1.class);
+            //OspfLinkAttributes ospfLinkAttributes = igpLinkAttributes1.getOspfLinkAttributes();
+            //LOG.info(ospfLinkAttributes.getTed().toString());
 
             bgpLinkList.add(bgpLink);
             linkId++;
@@ -426,15 +436,12 @@ public class BGPManagerImpl implements BGPManager {
     }
 
     private BgpTopoInfo dealBgpTopoInfo(BgpTopoInfo bgpTopoInfoTotalToDeal){
-        BgpTopoInfo bgpTopoInfoDealed = null;
-        if(null == bgpTopoInfoTotalToDeal){
-            bgpTopoInfoDealed = new BgpTopoInfo();
-            // Deal bgp device
-            bgpTopoInfoDealed.setBgpDeviceList(this.dealBgpDevice(bgpTopoInfoTotalToDeal.getBgpDeviceList()));
-            // Deal bgp link
-            bgpTopoInfoDealed.setBgpLinkList(this.dealBgpLink(bgpTopoInfoTotalToDeal.getBgpLinkList(),bgpTopoInfoDealed.getBgpDeviceList()));
+        BgpTopoInfo bgpTopoInfoDealed = new BgpTopoInfo();
+        // Deal bgp device
+        bgpTopoInfoDealed.setBgpDeviceList(this.dealBgpDevice(bgpTopoInfoTotalToDeal.getBgpDeviceList()));
+        // Deal bgp link
+        bgpTopoInfoDealed.setBgpLinkList(this.dealBgpLink(bgpTopoInfoTotalToDeal.getBgpLinkList(),bgpTopoInfoDealed.getBgpDeviceList()));
 
-        }
         return bgpTopoInfoDealed;
     }
 
@@ -524,4 +531,21 @@ public class BGPManagerImpl implements BGPManager {
     }
 
 
+    @Override
+    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+        DataObject dataObject = change.getUpdatedSubtree();
+
+        if(dataObject instanceof Topology){
+            Topology odlTopology = (Topology) dataObject;
+            LOG.info("Update Topology from ODL Start...");
+            this.bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
+            this.bgpTopoInfo = dealBgpTopoInfo(this.bgpTopoInfoTotal);
+            this.tcb.updateBgpTopoInfoCb(this.bgpTopoInfo);
+            LOG.info("Update Topology from ODL End!");
+        }else{
+
+        }
+
+
+    }
 }

@@ -47,6 +47,7 @@ public class TopoServiceImpl implements TopoService {
 
     @Override
     public boolean setBaseInterface(BaseInterface baseInterface) {
+        LOG.info("Topo Service setBaseInterface Start...");
         boolean ret = false;
         try {
             if (null != baseInterface) {
@@ -58,14 +59,22 @@ public class TopoServiceImpl implements TopoService {
 
                 // get device manager
                 this.deviceManager = this.baseInterface.getDeviceManager();
+                if(deviceManager == null){
+                    LOG.info("Device Manager is Null");
+                }
 
                 // get link manager
                 this.linkManager = this.baseInterface.getLinkManager();
+                if(deviceManager == null){
+                    LOG.info("Link Manager is Null");
+                }
             }
             ret = true;
         } catch (Exception e) {
             LOG.info(e.getMessage());
+            LOG.info("Topo Service setBaseInterface Fail!");
         }
+        LOG.info("Topo ServicesetBaseInterface End!");
         return ret;
     }
 
