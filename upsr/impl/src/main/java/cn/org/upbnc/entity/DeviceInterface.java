@@ -33,6 +33,7 @@ public class DeviceInterface {
         this.vpn = null;
         this.deviceName = null;
         this.bgpStatus = 0;
+        this.adjLabel = null;
     }
 
     public DeviceInterface(String name, Address ip, Address mask) {
@@ -52,7 +53,8 @@ public class DeviceInterface {
                            Address mask,
                            Address mac,
                            VPNInstance vpn,
-                           Integer bgpStatus) {
+                           Integer bgpStatus,
+                           AdjLabel adjLabel) {
         this.id = id;
         this.device = device;
         this.deviceName = deviceName;
@@ -64,6 +66,7 @@ public class DeviceInterface {
         this.mac = mac;
         this.vpn = vpn;
         this.bgpStatus = bgpStatus;
+        this.adjLabel = adjLabel;
     }
 
     public Integer getId() {
