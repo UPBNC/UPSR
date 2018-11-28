@@ -7,10 +7,10 @@
  */
 package cn.org.upbnc.entity;
 
-public class NodeLable extends Label {
+public class NodeLabel extends Label {
 
 
-    public NodeLable() {
+    public NodeLabel() {
 
     }
 }

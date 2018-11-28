@@ -1,0 +1,102 @@
+module upsrSrLabel {
+    yang-version 1.1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrSrLabel";
+    prefix "upsrSrLabel";
+
+    revision "2018-11-26" {
+        description "Initial revision of upsrSrLabel model";
+    }
+
+    grouping srgbLabelInfo {
+        leaf routerId {
+            type string;
+        }
+        leaf srEnabled {
+            type string;
+        }
+        container srgbPrefixSid{
+            leaf srgbBegin {
+                type string;
+            }
+            leaf srgbEnd {
+                type string;
+            }
+            leaf prefixId {
+                type string;
+            }
+            leaf adjBegin {
+                type string;
+            }
+            leaf adjEnd {
+                type string;
+            }
+        }
+    }
+    grouping intfLabelInfo {
+        leaf routerId {
+            type string;
+        }
+        leaf intfLocalAddress {
+            type string;
+        }
+        leaf intfRemoteAddress {
+            type string;
+        }
+        leaf intfLabelVal {
+            type string;
+        }
+    }
+    rpc updateSrgbLabel {
+        input {
+            uses srgbLabelInfo;
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc getSrgbLabel {
+        input {
+            leaf routerId {
+                type string;
+            }
+        }
+        output {
+            uses srgbLabelInfo;
+        }
+    }
+    rpc updateIntfLabel {
+        input {
+            uses intfLabelInfo;
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc delIntfLabel {
+        input {
+            uses intfLabelInfo;
+        }
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+    rpc getIntfLabel {
+        input {
+            leaf routerId {
+                type string;
+            }
+            leaf intfLocalAddress {
+                type string;
+            }
+        }
+        output {
+            uses intfLabelInfo;
+        }
+    }
+}

@@ -14,6 +14,7 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topo.rev181119.TopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.UpsrSrLabelService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.UpsrVpnInstanceService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
@@ -33,6 +34,7 @@ public class UpsrProvider implements AutoCloseable{
     private BindingAwareBroker.RpcRegistration<UpsrBgplsSessionService> upsrBgplsSessionServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrVpnInstanceService> vpnInstanceServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrNetconfSessionService> upsrNetconfSessionServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrSrLabelService> upsrSrLabelServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -69,6 +71,7 @@ public class UpsrProvider implements AutoCloseable{
         this.upsrBgplsSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrBgplsSessionService.class,new BgplsSessionODLApi(this.upsr));
         this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrVpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
         this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, new NetconfSessionODLApi(this.upsr));
+        this.upsrSrLabelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSrLabelService.class, new SrLabelODLApi(this.upsr));
     }
 
     private void closeServices(){
@@ -77,6 +80,7 @@ public class UpsrProvider implements AutoCloseable{
         this.upsrBgplsSessionServiceRpcRegistration.close();
         this.vpnInstanceServiceRpcRegistration.close();
         this.upsrNetconfSessionServiceRpcRegistration.close();
+        this.upsrSrLabelServiceRpcRegistration.close();
     }
 
 }
