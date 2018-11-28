@@ -16,8 +16,8 @@ public interface VpnInstanceManager {
     boolean addVpnInstance(VPNInstance vpnInstance);
     boolean delVpnInstance(Integer id);
     boolean delVpnInstance(String routerId, String vpnName);
-    VPNInstance getVpnIstance(Integer id);
-    VPNInstance getVpnIstance(String routerId, String vpnName);
+    VPNInstance getVpnInstance(Integer id);
+    VPNInstance getVpnInstance(String routerId, String vpnName);
     VPNInstance updateVpnInstance(String vpnName,
                                      String routerId,
                                      Device device,

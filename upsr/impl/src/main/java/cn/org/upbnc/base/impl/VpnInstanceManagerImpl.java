@@ -72,7 +72,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
     public boolean delVpnInstance(String routerId, String vpnName) {
-        if ((null == routerId)||(null == vpnName)) {
+        if ((null == routerId)||routerId.isEmpty() ||(null == vpnName)||vpnName.isEmpty()) {
             return false;
         }
         VPNInstance vpnInstance = null;
@@ -90,7 +90,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return false;
     }
 
-    public VPNInstance getVpnIstance(Integer id) {
+    public VPNInstance getVpnInstance(Integer id) {
         VPNInstance vpnInstance = null;
         Iterator<VPNInstance> iter = vpnInstanceList.iterator();
         while (iter.hasNext()) {
@@ -102,9 +102,9 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return null;
     }
 
-    public VPNInstance getVpnIstance(String routerId, String vpnName) {
+    public VPNInstance getVpnInstance(String routerId, String vpnName) {
         LOG.info("enter getVpnIstance routerid={} vpnName = {}", new Object[]{routerId, vpnName});
-        if ((null == routerId)||(null == vpnName)) {
+        if ((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty()) {
             return null;
         }
 
@@ -122,19 +122,6 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return null;
     }
 
-    public VPNInstance getVpnInstance(String routerId) {
-        if (null == routerId)
-            return null;
-        VPNInstance vpnInstance = null;
-        Iterator<VPNInstance> iter = vpnInstanceList.iterator();
-        while (iter.hasNext()) {
-            vpnInstance = iter.next();
-            if (true == vpnInstance.getRd().equals(routerId)) {
-                return vpnInstance;
-            }
-        }
-        return null;
-    }
 
     public VPNInstance updateVpnInstance(String vpnName,
                                          String routerId,
@@ -150,10 +137,10 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
                                          List<DeviceInterface> deviceInterfaceList,
                                          List<NetworkSeg> networkSegList) {
         LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName});
-        if (null == vpnName)
+        if ((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty())
             return null;
 
-        VPNInstance vpnInstance = getVpnInstance(vpnName);
+        VPNInstance vpnInstance = getVpnInstance(routerId, vpnName);
         if (null != vpnInstance) {
             LOG.info("################enter updateVpnInstance-01###################");
             vpnInstance.setRouterId(routerId);
@@ -185,7 +172,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         if (null == vpnInstance) {
             return null;
         }
-        VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getVpnName());
+        VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getRouterId(),vpnInstance.getVpnName());
         if (null != findVpnInstance) {
             vpnInstance.setId(findVpnInstance.getId());
             findVpnInstance = vpnInstance;

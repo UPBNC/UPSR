@@ -223,10 +223,11 @@ public class VpnXml {
                     gigabitEthernet.setSubnetMask(child.elements("ipv4Oper").get(0).elements().get(0).elements().get(0).elementText("subnetMask"));
                     gigabitEthernets.add(gigabitEthernet);
                 }
+                return gigabitEthernets;
             } catch (Exception e) {
                 LOG.info(e.toString());
             }
         }
-        return gigabitEthernets;
+        return null;
     }
 }
