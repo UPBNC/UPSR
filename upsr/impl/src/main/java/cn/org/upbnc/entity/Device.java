@@ -253,7 +253,9 @@ public class Device {
 
     public void setDeviceInterfaceList(List<DeviceInterface> deviceInterfaceList) {
         this.deviceInterfaceList.clear();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
+        if(null != deviceInterfaceList && !deviceInterfaceList.isEmpty()) {
+            this.deviceInterfaceList.addAll(deviceInterfaceList);
+        }
     }
 
 
@@ -299,7 +301,9 @@ public class Device {
 
     public void setPrefixList(List<Prefix> prefixList) {
         this.prefixList.clear();
-        this.prefixList.addAll(prefixList);
+        if(null != prefixList && !prefixList.isEmpty()) {
+            this.prefixList.addAll(prefixList);
+        }
     }
 
     public Address getAddress() {
@@ -311,7 +315,9 @@ public class Device {
     }
 
     public void addDeviceInterface(DeviceInterface deviceInterface){
-        this.deviceInterfaceList.add(deviceInterface);
+        if(null != deviceInterface) {
+            this.deviceInterfaceList.add(deviceInterface);
+        }
     }
 
     public void setDeviceTypeEnum(DeviceTypeEnum deviceTypeEnum){

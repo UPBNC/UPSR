@@ -243,6 +243,12 @@ public class DeviceManagerImpl implements DeviceManager {
 
     @Override
     public List<Device> updateDeviceListByBgpDeviceList(List<BgpDevice> bgpDeviceList){
+        // 清空Device的Bgp状态
+        Iterator<Device> deviceIterator = this.deviceList.iterator();
+        while(deviceIterator.hasNext()){
+            deviceIterator.next().setBgpDevice(null);
+        }
+
         // 当 BGP 为空，不处理
         if(null == bgpDeviceList || bgpDeviceList.isEmpty()){
             return this.deviceList;
@@ -263,6 +269,7 @@ public class DeviceManagerImpl implements DeviceManager {
 
         return this.deviceList;
     }
+
 
 
     // 更新Device
@@ -289,6 +296,13 @@ public class DeviceManagerImpl implements DeviceManager {
     }
 
     private List<DeviceInterface> updateDeviceInterface(Device device,List<DeviceInterface> deviceInterfaces, List<BgpDeviceInterface> bgpDeviceInterfaces){
+        //清空当前的BgpStatus
+        Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaces.iterator();
+        while(deviceInterfaceIterator.hasNext()){
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            deviceInterface.setBgpStatus(0);
+        }
+
         // 如果Bgp没有接口上报，直接返回
         if(null == bgpDeviceInterfaces|| bgpDeviceInterfaces.isEmpty()){
             return deviceInterfaces;
@@ -340,7 +354,7 @@ public class DeviceManagerImpl implements DeviceManager {
         ret.setId(bgpDeviceInterface.getId());
         ret.setName(bgpDeviceInterface.getName());
         ret.setDeviceName(bgpDeviceInterface.getBgpDeviceName());
+        ret.setBgpStatus(1);
         return ret;
     }
-
 }
