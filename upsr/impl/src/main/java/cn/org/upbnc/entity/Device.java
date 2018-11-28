@@ -30,6 +30,8 @@ public class Device {
     //private SRInfo srInfo;
     private Integer minNodeSID;
     private Integer maxNodeSID;
+    private NodeLabel nodeLabel;
+    private List<AdjLabel> adjLabelList;
 
     private Integer srStatus;
     private Integer bgpAS;
@@ -320,6 +322,22 @@ public class Device {
 
     public DeviceTypeEnum getDeviceTypeEnum() {
         return deviceTypeEnum;
+    }
+
+    public Label getNodeLabel() {
+        return nodeLabel;
+    }
+
+    public void setNodeLabel(NodeLabel nodeLabel) {
+        this.nodeLabel = nodeLabel;
+    }
+
+    public List<AdjLabel> getAdjLabelList() {
+        return adjLabelList;
+    }
+
+    public void setAdjLabelList(List<AdjLabel> adjLabelList) {
+        this.adjLabelList = adjLabelList;
     }
 
     public void setBgpDevice(BgpDevice bgpDevice) {

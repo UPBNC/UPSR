@@ -18,6 +18,7 @@ public class DeviceInterface {
     private Address mask;
     private Address mac;
     private VPNInstance vpn;
+    private AdjLabel adjLabel;
 
     public DeviceInterface() {
         this.id = 0;
@@ -139,5 +140,13 @@ public class DeviceInterface {
 
     public VPNInstance getVpn() {
         return vpn;
+    }
+
+    public AdjLabel getAdjLabel() {
+        return adjLabel;
+    }
+
+    public void setAdjLabel(AdjLabel adjLabel) {
+        this.adjLabel = adjLabel;
     }
 }
