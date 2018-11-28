@@ -42,6 +42,11 @@ module upsrInterface {
         }
     }
     rpc getInterfaces {
+        input {
+            leaf routerId {
+                type string;
+            }
+        }
         output {
             leaf result {
                 type string;

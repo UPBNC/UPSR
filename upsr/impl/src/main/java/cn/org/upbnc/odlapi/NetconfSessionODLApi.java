@@ -31,7 +31,6 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
     }
 
     private NetconfSessionApi getNetconfSessionApi(){
-        //LOG.info("enter getVpnInstanceApi");
         if(this.netconfSessionApi == null) {
             APIInterface apiInterface = session.getApiInterface();
             if (apiInterface != null) {

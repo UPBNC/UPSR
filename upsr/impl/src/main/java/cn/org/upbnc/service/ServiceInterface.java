@@ -44,6 +44,7 @@ public class ServiceInterface {
             this.srService = SRServiceImpl.getInstance();
             this.topoService = TopoServiceImpl.getInstance();
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
+            this.interfaceService = InterfaceServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         }catch (Exception e){
             LOG.info("ServiceInterface init failure! "+e.getMessage());

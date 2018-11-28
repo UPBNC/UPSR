@@ -22,6 +22,7 @@ public class APIInterface {
     private BgplsSessionApi bgplsSessionApi;
     private VpnInstanceApi vpnInstanceApi;
     private NetconfSessionApi netconfSessionApi;
+    private InterfaceApi interfaceApi;
 
     public APIInterface(){
         // Service Interface
@@ -33,7 +34,7 @@ public class APIInterface {
         this.topoInfoApi = null;
         this.bgplsSessionApi = null;
 		this.vpnInstanceApi = null;
-
+        this.interfaceApi = null;
 		this.netconfSessionApi = null;
     }
 
@@ -44,6 +45,7 @@ public class APIInterface {
             this.topoInfoApi = TopoInfoApiImpl.getInstance();
             this.bgplsSessionApi = BgplsSessionApiImpl.getInstance();
 			this.vpnInstanceApi = VpnInstanceApiImpl.getInstance();
+			this.interfaceApi = InterfaceApiImpl.getInstance();
             this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
@@ -61,6 +63,7 @@ public class APIInterface {
             ret = this.topoInfoApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
+            ret = ((true == ret )? this.interfaceApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -99,4 +102,5 @@ public class APIInterface {
     public NetconfSessionApi getNetconfSessionApi(){
         return netconfSessionApi;
     }
+    public InterfaceApi getInterfaceApi() {return  interfaceApi; }
 }

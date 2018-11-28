@@ -130,7 +130,11 @@ public class InterfaceServiceImpl implements InterfaceService{
                 devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
                         gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),null,
                         null, null,null);
-
+                LOG.info("gigabitEthernet getIfName={} getIfIpAddr={} " +
+                        "getSubnetMask={} getIfOperMac={} getVrfName={} ",
+                        new Object[]{gigabitEthernet.getIfName(), gigabitEthernet.getIfIpAddr(),
+                                gigabitEthernet.getSubnetMask(), gigabitEthernet.getIfOperMac(),
+                                gigabitEthernet.getVrfName()});
                 devInterfaceInfos.add(devInterfaceInfo);
             }
             return devInterfaceInfos;
