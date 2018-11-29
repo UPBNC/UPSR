@@ -23,6 +23,7 @@ public class APIInterface {
     private VpnInstanceApi vpnInstanceApi;
     private NetconfSessionApi netconfSessionApi;
     private InterfaceApi interfaceApi;
+    private ConfSyncApi  confSyncApi;
 
     public APIInterface(){
         // Service Interface
@@ -36,6 +37,7 @@ public class APIInterface {
 		this.vpnInstanceApi = null;
         this.interfaceApi = null;
 		this.netconfSessionApi = null;
+		this.confSyncApi = null;
     }
 
     public void init(){
@@ -46,6 +48,7 @@ public class APIInterface {
             this.bgplsSessionApi = BgplsSessionApiImpl.getInstance();
 			this.vpnInstanceApi = VpnInstanceApiImpl.getInstance();
 			this.interfaceApi = InterfaceApiImpl.getInstance();
+			this.confSyncApi = ConfSyncApiImpl.getInstance();
             this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
@@ -64,6 +67,7 @@ public class APIInterface {
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.interfaceApi.setServiceInterface(this.serviceInterface):false);
+            ret = ((true == ret )? this.confSyncApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -103,4 +107,5 @@ public class APIInterface {
         return netconfSessionApi;
     }
     public InterfaceApi getInterfaceApi() {return  interfaceApi; }
+    public ConfSyncApi  getConfSyncApi() {return confSyncApi;}
 }

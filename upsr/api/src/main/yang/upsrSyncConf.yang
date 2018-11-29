@@ -1,0 +1,16 @@
+module upsrSyncConf {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrSyncConf";
+    prefix "upsrSyncConf";
+
+    revision "2018-11-29" {
+        description "Initial revision of upsrSyncConf model";
+    }
+    rpc syncConf {
+        output {
+            leaf result {
+                type string;
+            }
+        }
+    }
+}

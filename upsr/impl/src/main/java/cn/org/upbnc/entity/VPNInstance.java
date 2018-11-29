@@ -199,4 +199,10 @@ public class VPNInstance {
     public void setRouterId(String routerId) {
         this.routerId = routerId;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
 }

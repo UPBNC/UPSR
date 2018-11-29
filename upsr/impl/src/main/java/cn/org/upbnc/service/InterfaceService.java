@@ -17,4 +17,5 @@ public interface InterfaceService {
     boolean setBaseInterface(BaseInterface baseInterface);
     List<DevInterfaceInfo> getInterfaceList(String routerId);
     List<DevInterfaceInfo> getInterfaceListFromDevice(String routerId);
+    String syncInterfaceConf();
 }

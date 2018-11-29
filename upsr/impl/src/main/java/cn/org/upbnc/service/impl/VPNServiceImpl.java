@@ -7,7 +7,6 @@
  */
 package cn.org.upbnc.service.impl;
 
-import cn.org.upbnc.api.impl.TopoApiImpl;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
@@ -15,11 +14,6 @@ import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.VPNService;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
@@ -28,7 +22,9 @@ import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfClientMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class VPNServiceImpl implements VPNService {
@@ -301,5 +297,10 @@ public class VPNServiceImpl implements VPNService {
             vpnInstance.setDeviceInterfaceList(deviceInterfaces);
         }
         return vpnInstance;
+    }
+
+    @Override
+    public String syncVpnInstanceConf() {
+        return null;
     }
 }
