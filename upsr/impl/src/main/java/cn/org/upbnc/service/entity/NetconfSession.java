@@ -10,6 +10,7 @@ package cn.org.upbnc.service.entity;
 public class NetconfSession {
     private String deviceName;
     private String deviceDesc;
+    private String deviceType;
     private String sysName;
     private String deviceIP;
     private Integer devicePort;
@@ -17,16 +18,25 @@ public class NetconfSession {
     private String routerId;
     private String status;
 
-    public NetconfSession( String routerId, String deviceName, String deviceDesc, String sysName, String deviceIP, Integer devicePort, String userName) {
+
+    public NetconfSession( String routerId, String deviceName, String deviceDesc, String deviceType, String sysName, String deviceIP, Integer devicePort, String userName) {
+        this.routerId = routerId;
         this.deviceName = deviceName;
         this.deviceDesc = deviceDesc;
+        this.deviceType = deviceType;
         this.sysName = sysName;
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
-        this.routerId = routerId;
     }
 
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
 
     public String getRouterId() {
         return routerId;

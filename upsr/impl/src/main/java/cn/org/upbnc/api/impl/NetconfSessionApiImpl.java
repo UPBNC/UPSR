@@ -35,11 +35,11 @@ public class NetconfSessionApiImpl implements NetconfSessionApi{
     }
 
     @Override
-    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceIP, Integer devicePort, String userName, String userPassword) {
+    public boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
         if((null == routerId)||(null == deviceName)||(null == deviceIP)||(0 == devicePort)) {
             return false;
         }
-        return this.netconfSessionService.updateNetconfSession(routerId, deviceName, deviceDesc, deviceIP, devicePort, userName, userPassword);
+        return this.netconfSessionService.updateNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
     }
 
     @Override

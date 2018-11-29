@@ -96,6 +96,10 @@ public class InterfaceServiceImpl implements InterfaceService{
                 if(null != deviceInterface.getVpn()) {
                     devInterfaceInfo.setVpnName(deviceInterface.getVpn().getVpnName());
                 }
+                if(null != deviceInterface.getAdjLabel())
+                {
+                    devInterfaceInfo.setAdjLabel(deviceInterface.getAdjLabel());
+                }
                 devInterfaceInfos.add(devInterfaceInfo);
             }
            return devInterfaceInfos;
@@ -143,7 +147,38 @@ public class InterfaceServiceImpl implements InterfaceService{
     }
 
     @Override
-    public String syncInterfaceConf() {
-        return null;
+    public String toString() {
+        return "InterfaceServiceImpl{" +
+                "baseInterface=" + baseInterface +
+                ", netConfManager=" + netConfManager +
+                ", deviceManager=" + deviceManager +
+                '}';
+    }
+
+    @Override
+    public boolean syncInterfaceConf() {
+
+        if(null != this.deviceManager) {
+            for (Device device:this.deviceManager.getDeviceList()) {
+                List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
+                List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
+                //1 memory interface set invalid
+                //2 compare memory interface and device interface
+                //3 sync device interface to memory interface and refresh memory interface status
+                //4 delete invalid memory interface
+                for (DeviceInterface deviceInterface:deviceInterfaceList) {
+                    for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
+                        if(true == deviceInterfaceInfo.getIfnetName().equals(deviceInterface.getName())) {
+
+                        }
+
+                    }
+
+                }
+
+            }
+           // List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice();
+        }
+        return true;
     }
 }

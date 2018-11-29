@@ -20,6 +20,7 @@ public class DeviceInterface {
     private VPNInstance vpn;
     private Integer bgpStatus;
     private AdjLabel adjLabel;
+    private boolean refreshFlag;
 
     public DeviceInterface() {
         this.id = 0;
@@ -34,6 +35,7 @@ public class DeviceInterface {
         this.deviceName = null;
         this.bgpStatus = 0;
         this.adjLabel = null;
+        this.refreshFlag = false;
     }
 
     public DeviceInterface(String name, Address ip, Address mask) {
@@ -67,6 +69,7 @@ public class DeviceInterface {
         this.vpn = vpn;
         this.bgpStatus = bgpStatus;
         this.adjLabel = adjLabel;
+        this.refreshFlag = false;
     }
 
     public Integer getId() {
@@ -164,5 +167,13 @@ public class DeviceInterface {
 
     public Integer getBgpStatus() {
         return bgpStatus;
+    }
+
+    public boolean isRefreshFlag() {
+        return refreshFlag;
+    }
+
+    public void setRefreshFlag(boolean refreshFlag) {
+        this.refreshFlag = refreshFlag;
     }
 }

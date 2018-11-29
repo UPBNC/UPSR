@@ -14,9 +14,6 @@ import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.service.VPNService;
-
-import java.util.*;
-
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
@@ -314,7 +311,7 @@ public class VPNServiceImpl implements VPNService {
     }
 
     @Override
-    public String syncVpnInstanceConf() {
-        return null;
+    public boolean syncVpnInstanceConf() {
+        return true;
     }
 }

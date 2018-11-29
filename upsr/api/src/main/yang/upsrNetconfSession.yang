@@ -8,29 +8,33 @@ module upsrNetconfSession {
     }
     grouping netconfInfo
     {
-        leaf deviceIP {
+        leaf SshIp {
             type string;
         }
-        leaf devicePort {
+        leaf SshPort {
             type int32;
         }
-        leaf userName {
+        leaf UserName {
             type string;
         }
-        leaf userPassword {
+        leaf Password {
             type string;
         }
     }
     grouping devNetconfInfo
     {
-        leaf deviceName {
+        leaf DeviceName {
             type string;
         }
 
-        leaf deviceDesc {
+        leaf CenterName {
             type string;
         }
-        leaf routerId {
+
+        leaf DeviceType {
+            type string;
+        }
+        leaf RouterId {
             type string;
         }
         uses netconfInfo;
@@ -57,10 +61,10 @@ module upsrNetconfSession {
                 type string;
             }
             uses devNetconfInfo;
-            leaf sysName {
+            leaf SystemName {
                 type string;
             }
-            leaf status {
+            leaf ConnectStatus {
                 type string;
             }
         }

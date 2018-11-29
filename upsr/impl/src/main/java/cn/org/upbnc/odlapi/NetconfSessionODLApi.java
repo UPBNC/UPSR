@@ -105,8 +105,8 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
         }else{
             //调用系统Api层函数
             ret = this.getNetconfSessionApi().updateNetconfSession(input.getRouterId(),input.getDeviceName(),
-                                            input.getDeviceDesc(), input.getDeviceIP(), input.getDevicePort(),
-                                            input.getUserName(), input.getUserPassword());
+                                            input.getCenterName(), input.getDeviceType(),input.getSshIp(), input.getSshPort(),
+                                            input.getUserName(), input.getPassword());
             if(true == ret)
             {
                 netconfOutputBuilder.setResult("success");
@@ -143,12 +143,13 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                 netconfOutputBuilder.setResult("success");
                 netconfOutputBuilder.setRouterId(netconfSession.getRouterId());
                 netconfOutputBuilder.setDeviceName(netconfSession.getDeviceName());
-                netconfOutputBuilder.setDeviceDesc(netconfSession.getDeviceDesc());
-                netconfOutputBuilder.setSysName(netconfSession.getSysName());
-                netconfOutputBuilder.setDeviceIP(netconfSession.getDeviceIP());
-                netconfOutputBuilder.setDevicePort(netconfSession.getDevicePort());
+                netconfOutputBuilder.setCenterName(netconfSession.getDeviceDesc());
+                netconfOutputBuilder.setDeviceType(netconfSession.getDeviceType());
+                netconfOutputBuilder.setSystemName(netconfSession.getSysName());
+                netconfOutputBuilder.setSshIp(netconfSession.getDeviceIP());
+                netconfOutputBuilder.setSshPort(netconfSession.getDevicePort());
                 netconfOutputBuilder.setUserName(netconfSession.getDeviceName());
-                netconfOutputBuilder.setStatus(netconfSession.getStatus());
+                netconfOutputBuilder.setConnectStatus(netconfSession.getStatus());
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
             }
 

@@ -14,7 +14,7 @@ public interface NetconfSessionService {
     //set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
     boolean updateNetconfSession(String routerId, String deviceName, String deviceDesc,
-                                 String deviceIP, Integer devicePort,
+                                 String deviceType, String deviceIP, Integer devicePort,
                                  String userName, String userPassword);
     boolean delNetconfSession(String routerId);
     NetconfSession getNetconfSession(String routerId);

@@ -7,7 +7,6 @@
  */
 package cn.org.upbnc.api;
 
-import cn.org.upbnc.entity.NetConf;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.entity.NetconfSession;
 
@@ -17,7 +16,7 @@ public interface NetconfSessionApi {
 
     boolean setServiceInterface(ServiceInterface serviceInterface);
     boolean updateNetconfSession(String routerId , String deviceName, String deviceDesc,
-                                 String deviceIP, Integer devicePort,
+                                 String deviceType, String deviceIP, Integer devicePort,
                                  String userName, String userPassword);
 
     boolean delNetconfSession(String routerId);

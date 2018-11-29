@@ -7,12 +7,15 @@
  */
 package cn.org.upbnc.service.entity;
 
+import cn.org.upbnc.entity.AdjLabel;
+
 public class DevInterfaceInfo {
     private String  ifnetName;
     private String  ifnetIP;
     private String  ifnetMask;
     private String  ifnetMac;
     private String  vpnName;
+    private AdjLabel adjLabel;
     private Integer ifnetStatus;
     private Integer srStatus;
     private Integer linkStatus;
@@ -29,6 +32,7 @@ public class DevInterfaceInfo {
         this.linkStatus = linkStatus;
         this.runningStatus = runningStatus;
     }
+
 
     public String getIfnetName() {
         return ifnetName;
@@ -69,6 +73,19 @@ public class DevInterfaceInfo {
     public void setVpnName(String vpnName) {
         this.vpnName = vpnName;
     }
+
+    public AdjLabel getAdjLabel() {
+        return adjLabel;
+    }
+
+    public void setAdjLabel(AdjLabel adjLabel) {
+        this.adjLabel = adjLabel;
+    }
+
+    public String getAdjLabelLocalValue() {
+        return adjLabel.getAddressLocal().getAddress();
+    }
+
 
     public Integer getIfnetStatus() {
         return ifnetStatus;
