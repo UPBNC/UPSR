@@ -8,7 +8,6 @@
 package cn.org.upbnc.odlapi;
 
 import cn.org.upbnc.api.APIInterface;
-
 import cn.org.upbnc.api.VpnInstanceApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.Address;
@@ -17,17 +16,17 @@ import cn.org.upbnc.entity.NetworkSeg;
 import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceODLApi.class);

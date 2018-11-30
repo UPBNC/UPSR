@@ -21,6 +21,6 @@ public interface NetconfSessionApi {
 
     boolean delNetconfSession(String routerId);
     NetconfSession getNetconfSession(String routerId);
-    List<NetconfSession> getNetconfSessionList(String routerId);
+    List<NetconfSession> getNetconfSessionList();
 
 }

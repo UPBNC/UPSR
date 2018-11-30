@@ -15,6 +15,8 @@ import cn.org.upbnc.service.entity.NetconfSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.*;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+
+import java.util.List;
 import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
 
     public Future<RpcResult<GetAllNetconfOutput>> getAllNetconf(GetAllNetconfInput input)
     {
+        List<NetconfSession> netconfSessionList = null;
         GetAllNetconfOutputBuilder netconfOutputBuilder = new GetAllNetconfOutputBuilder();
 
         // 判断系统是否准备完毕：
@@ -52,7 +55,10 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
             return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
         }else{
             //调用系统Api层函数
-            this.getNetconfSessionApi();
+            netconfSessionList = this.getNetconfSessionApi().getNetconfSessionList();
+            if(null != netconfSessionList) {
+
+            }
 
         }
         LOG.info("enter all netconf###");

@@ -113,7 +113,7 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
-            ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+            ret = CheckXml.checkOk(result).equals("ok");
 
         }else{
             //modify vpn
@@ -168,7 +168,7 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get result={}", new Object[]{result});
-        boolean ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+        boolean ret =  CheckXml.checkOk(result).equals("ok");
         if(true == ret) {
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }

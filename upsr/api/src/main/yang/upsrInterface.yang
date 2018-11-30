@@ -27,16 +27,16 @@ module upsrInterface {
             type string;
         }
         leaf ifnetStatus {
-            type int32;
+            type string;
         }
         leaf srStatus {
-            type int32;
+            type string;
         }
         leaf linkStatus {
-            type int32;
+            type string;
         }
         leaf runningStatus {
-            type int32;
+            type string;
         }
     }
     grouping InterfaceListInfo {

@@ -19,6 +19,9 @@ import cn.org.upbnc.service.entity.NetconfSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class NetconfSessionServiceImpl implements NetconfSessionService{
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionServiceImpl.class);
     private static NetconfSessionService ourInstance = new NetconfSessionServiceImpl();
@@ -129,6 +132,25 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                     device.getNetConf().getPort(), device.getNetConf().getUser());
         }
         return netconfSession;
+    }
+
+    @Override
+    public List<NetconfSession> getNetconfSession() {
+        NetconfSession netconfSession = null;
+        List<NetconfSession> netconfSessionList = null;
+        List<Device>   deviceList = this.deviceManager.getDeviceList();
+        if((null == deviceList)||(0 == deviceList.size())) {
+            return  null;
+        }
+        netconfSessionList = new LinkedList<NetconfSession>();
+        for (Device device:deviceList) {
+            netconfSession = getNetconfSession(device.getRouterId());
+            if(null != netconfSession)
+            {
+                netconfSessionList.add(netconfSession);
+            }
+        }
+        return netconfSessionList;
     }
 
     @Override

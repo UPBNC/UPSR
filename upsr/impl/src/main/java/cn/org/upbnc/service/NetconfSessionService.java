@@ -10,6 +10,8 @@ package cn.org.upbnc.service;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.service.entity.NetconfSession;
 
+import java.util.List;
+
 public interface NetconfSessionService {
     //set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
@@ -18,5 +20,6 @@ public interface NetconfSessionService {
                                  String userName, String userPassword);
     boolean delNetconfSession(String routerId);
     NetconfSession getNetconfSession(String routerId);
+    List<NetconfSession> getNetconfSession();
 
 }

@@ -61,7 +61,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi{
 
 
     @Override
-    public List<NetconfSession> getNetconfSessionList(String routerId) {
-        return null;
+    public List<NetconfSession> getNetconfSessionList() {
+        return this.netconfSessionService.getNetconfSession();
     }
 }
