@@ -30,11 +30,15 @@ public class ConfSyncApiImpl implements ConfSyncApi {
 
     @Override
     public String syncDeviceConf() {
+        String ret = null;
         String result = null;
         result = "sync device configure start......";
-        result +=  this.serviceInterface.getInterfaceService().syncInterfaceConf();
+        ret = this.serviceInterface.getInterfaceService().syncInterfaceConf() ? " success":"failed";
+        result +=  ret;
         result += "\n";
-        result += this.serviceInterface.getVpnService().syncVpnInstanceConf();
+        result += "sync vpnInstance configure....";
+        ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success":"failed";
+        result += ret;
         result += "\n";
         result += this.serviceInterface.getSrLabelService().syncIntfLabel("1.1.1.1");
         result += "\n";

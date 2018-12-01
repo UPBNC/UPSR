@@ -7,18 +7,21 @@
  */
 package cn.org.upbnc.service.entity;
 
+import cn.org.upbnc.entity.AdjLabel;
+
 public class DevInterfaceInfo {
     private String  ifnetName;
     private String  ifnetIP;
     private String  ifnetMask;
     private String  ifnetMac;
     private String  vpnName;
-    private Integer ifnetStatus;
-    private Integer srStatus;
-    private Integer linkStatus;
-    private Integer runningStatus;
+    private AdjLabel adjLabel;
+    private String ifnetStatus;
+    private String srStatus;
+    private String linkStatus;
+    private String runningStatus;
 
-    public DevInterfaceInfo(String ifnetName, String ifnetIP, String ifnetMask, String ifnetMac, String vpnName, Integer ifnetStatus, Integer srStatus, Integer linkStatus, Integer runningStatus) {
+    public DevInterfaceInfo(String ifnetName, String ifnetIP, String ifnetMask, String ifnetMac, String vpnName, String ifnetStatus, String srStatus, String linkStatus, String runningStatus) {
         this.ifnetName = ifnetName;
         this.ifnetIP = ifnetIP;
         this.ifnetMask = ifnetMask;
@@ -29,6 +32,7 @@ public class DevInterfaceInfo {
         this.linkStatus = linkStatus;
         this.runningStatus = runningStatus;
     }
+
 
     public String getIfnetName() {
         return ifnetName;
@@ -70,35 +74,48 @@ public class DevInterfaceInfo {
         this.vpnName = vpnName;
     }
 
-    public Integer getIfnetStatus() {
+    public AdjLabel getAdjLabel() {
+        return adjLabel;
+    }
+
+    public void setAdjLabel(AdjLabel adjLabel) {
+        this.adjLabel = adjLabel;
+    }
+
+    public String getAdjLabelLocalValue() {
+        return adjLabel.getAddressLocal().getAddress();
+    }
+
+
+    public String getIfnetStatus() {
         return ifnetStatus;
     }
 
-    public void setIfnetStatus(Integer ifnetStatus) {
+    public void setIfnetStatus(String ifnetStatus) {
         this.ifnetStatus = ifnetStatus;
     }
 
-    public Integer getSrStatus() {
+    public String getSrStatus() {
         return srStatus;
     }
 
-    public void setSrStatus(Integer srStatus) {
+    public void setSrStatus(String srStatus) {
         this.srStatus = srStatus;
     }
 
-    public Integer getLinkStatus() {
+    public String getLinkStatus() {
         return linkStatus;
     }
 
-    public void setLinkStatus(Integer linkStatus) {
+    public void setLinkStatus(String linkStatus) {
         this.linkStatus = linkStatus;
     }
 
-    public Integer getRunningStatus() {
+    public String getRunningStatus() {
         return runningStatus;
     }
 
-    public void setRunningStatus(Integer runningStatus) {
+    public void setRunningStatus(String runningStatus) {
         this.runningStatus = runningStatus;
     }
 }

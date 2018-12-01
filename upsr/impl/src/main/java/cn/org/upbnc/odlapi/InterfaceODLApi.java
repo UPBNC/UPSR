@@ -62,6 +62,7 @@ public class InterfaceODLApi implements UpsrInterfaceService{
                     devInterfacesBuilder.setIfnetMask(devInterfaceInfo.getIfnetMask());
                     devInterfacesBuilder.setIfnetMac(devInterfaceInfo.getIfnetMac());
                     devInterfacesBuilder.setVpnName(devInterfaceInfo.getVpnName());
+                    devInterfacesBuilder.setAdjLabel(devInterfaceInfo.getAdjLabelLocalValue());
                     devInterfacesBuilder.setIfnetStatus(devInterfaceInfo.getIfnetStatus());
                     devInterfacesBuilder.setSrStatus(devInterfaceInfo.getSrStatus());
                     devInterfacesBuilder.setLinkStatus(devInterfaceInfo.getLinkStatus());

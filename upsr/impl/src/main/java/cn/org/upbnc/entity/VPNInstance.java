@@ -200,6 +200,18 @@ public class VPNInstance {
         this.routerId = routerId;
     }
 
+    public boolean isIfmBinded(String ifmName){
+        if(null==ifmName){
+            return false;
+        }
+        for(DeviceInterface deviceInterface:deviceInterfaceList){
+            if(deviceInterface.getName().equals(ifmName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
