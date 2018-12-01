@@ -24,6 +24,7 @@ public class ServiceInterface {
     private TopoService topoService;
     private NetconfSessionService netconfSessionService;
     private InterfaceService interfaceService ;
+    private SrLabelService srLabelService;
 
     public ServiceInterface(){
         // Base Interface
@@ -35,6 +36,7 @@ public class ServiceInterface {
         this.topoService = null;
         this.netconfSessionService = null;
         this.interfaceService = null;
+        this.srLabelService = null;
     }
 
     public void init(){
@@ -45,6 +47,7 @@ public class ServiceInterface {
             this.topoService = TopoServiceImpl.getInstance();
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
             this.interfaceService = InterfaceServiceImpl.getInstance();
+            this.srLabelService = SrLabelServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         }catch (Exception e){
             LOG.info("ServiceInterface init failure! "+e.getMessage());
@@ -119,5 +122,12 @@ public class ServiceInterface {
             this.interfaceService = InterfaceServiceImpl.getInstance();
         }
         return this.interfaceService;
+    }
+
+    public SrLabelService getSrLabelService() {
+        if(this.srLabelService == null){
+            this.srLabelService = SrLabelServiceImpl.getInstance();
+        }
+        return srLabelService;
     }
 }

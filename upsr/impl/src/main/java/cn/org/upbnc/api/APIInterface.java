@@ -24,6 +24,7 @@ public class APIInterface {
     private NetconfSessionApi netconfSessionApi;
     private InterfaceApi interfaceApi;
     private ConfSyncApi  confSyncApi;
+    private SrLabelApi srLabelApi;
 
     public APIInterface(){
         // Service Interface
@@ -38,6 +39,7 @@ public class APIInterface {
         this.interfaceApi = null;
 		this.netconfSessionApi = null;
 		this.confSyncApi = null;
+		this.srLabelApi = null;
     }
 
     public void init(){
@@ -50,6 +52,7 @@ public class APIInterface {
 			this.interfaceApi = InterfaceApiImpl.getInstance();
 			this.confSyncApi = ConfSyncApiImpl.getInstance();
             this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
+            this.srLabelApi = SrLabelApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
             LOG.info("APIInterface init Failure!" + e.getMessage());
@@ -64,6 +67,7 @@ public class APIInterface {
             ret = true;
             ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
             ret = this.topoInfoApi.setServiceInterface(this.serviceInterface);
+            ret = this.srLabelApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.interfaceApi.setServiceInterface(this.serviceInterface):false);
@@ -94,6 +98,9 @@ public class APIInterface {
     }
     public TopoInfoApi getTopoInfoApi() {
         return topoInfoApi;
+    }
+    public SrLabelApi getSrLabelApi(){
+        return srLabelApi;
     }
 
     public BgplsSessionApi getBgplsSessionApi() {
