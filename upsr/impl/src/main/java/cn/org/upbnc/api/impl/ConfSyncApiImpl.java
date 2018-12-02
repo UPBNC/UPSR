@@ -40,7 +40,7 @@ public class ConfSyncApiImpl implements ConfSyncApi {
         ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success":"failed";
         result += ret;
         result += "\n";
-        result += this.serviceInterface.getSrLabelService().syncIntfLabel("1.1.1.1");
+        result += this.serviceInterface.getSrLabelService().syncIntfLabel();
         result += "\n";
         result += "sync device configure end.";
         return result;

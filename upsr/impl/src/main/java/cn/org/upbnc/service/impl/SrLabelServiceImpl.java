@@ -49,11 +49,33 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     @Override
     public String updateNodeLabel(String routerId, String labelVal) {
+        Device device = null;
+        LOG.info("updateNodeLabel begin");
+        device = deviceManager.getDevice(routerId);
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml("","","","","");
+        LOG.info("command xml: " + commandSetSrNodeLabelXml);
+        String outPutXml = netconfController.sendMessage(netconfClient,commandSetSrNodeLabelXml);
+        if (CheckXml.checkOk(outPutXml).equals("ok")){
+
+        }
+        LOG.info("updateNodeLabel end");
         return null;
     }
 
     @Override
     public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd) {
+        Device device = null;
+        LOG.info("updateNodeLabelRange begin");
+        device = deviceManager.getDevice(routerId);
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        String commandSetSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml("",labelBegin,labelEnd);
+        LOG.info("command xml: " + commandSetSrNodeLabelRangeXml);
+        String outPutXml = netconfController.sendMessage(netconfClient,commandSetSrNodeLabelRangeXml);
+        if (CheckXml.checkOk(outPutXml).equals("ok")){
+
+        }
+        LOG.info("updateNodeLabelRange end");
         return null;
     }
 
@@ -95,18 +117,20 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     @Override
-    public String syncIntfLabel(String routerId) {
-        Device device = null;
+    public String syncIntfLabel() {
         LOG.info("syncIntfLael begin");
-        device = deviceManager.getDevice(routerId);
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-        String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
-        LOG.info("command xml: " + commandGetSrAdjLabelXml);
-        String outPutXml = netconfController.sendMessage(netconfClient,commandGetSrAdjLabelXml);
-        LOG.info("output xml: " + outPutXml);
-        if (CheckXml.checkOk(outPutXml).equals("ok")){
-            List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
-            device.setAdjLabelList(adjLabelList);
+        if(this.deviceManager !=null ) {
+            for (Device device:this.deviceManager.getDeviceList()) {
+                NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+                String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
+                LOG.info("command xml: " + commandGetSrAdjLabelXml);
+                String outPutXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);
+                LOG.info("output xml: " + outPutXml);
+                if (CheckXml.checkOk(outPutXml).equals("ok")) {
+                    List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
+                    device.setAdjLabelList(adjLabelList);
+                }
+            }
         }
         LOG.info("syncIntfLael end");
         return null;
@@ -115,5 +139,11 @@ public class SrLabelServiceImpl implements SrLabelService {
     @Override
     public String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal) {
         return null;
+    }
+
+    @Override
+    public Device getDevice(String routerId) {
+        Device device = deviceManager.getDevice(routerId);
+        return device;
     }
 }

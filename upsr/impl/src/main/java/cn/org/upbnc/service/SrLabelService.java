@@ -8,6 +8,7 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.entity.Device;
 
 public interface SrLabelService {
     // Set BaseInterface
@@ -16,6 +17,7 @@ public interface SrLabelService {
     String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd);
     String syncNodeLabel(String routerId);
     String updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
-    String syncIntfLabel(String routerId);
+    String syncIntfLabel();
     String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
+    Device getDevice(String routerId);
 }

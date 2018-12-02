@@ -1,6 +1,7 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.SrLabelApi;
+import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.SrLabelService;
 import org.slf4j.Logger;
@@ -49,5 +50,10 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal) {
         return null;
+    }
+
+    @Override
+    public Device getDevice(String routerId) {
+        return srLabelService.getDevice(routerId);
     }
 }

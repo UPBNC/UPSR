@@ -10,6 +10,7 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.SrLabelApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.impl.UpsrProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.*;
@@ -48,6 +49,11 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }else{
 
         }
+        Device device = srLabelApi.getDevice(input.getRouterId());
+
+        getSrgbLabelOutputBuilder.setRouterId(device.getRouterId());
+        getSrgbLabelOutputBuilder.setSrEnabled("1");
+        //getSrgbLabelOutputBuilder.setSrgbPrefixSid(device.getNodeLabel().getValue()+"");
 
         LOG.info("getSrgbLabel end");
         return RpcResultBuilder.success(getSrgbLabelOutputBuilder.build()).buildFuture();
