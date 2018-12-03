@@ -16,6 +16,7 @@ public interface SrLabelService {
     String updateNodeLabel(String routerId, String labelVal);
     String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd);
     String syncNodeLabel(String routerId);
+    String syncNodeLabel();
     String updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
     String syncIntfLabel();
     String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);

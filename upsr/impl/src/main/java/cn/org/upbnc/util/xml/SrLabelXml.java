@@ -46,7 +46,7 @@ public class SrLabelXml {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            List<Element> childElements = root.elements().get(0).elements().get(0).elements();
+            List<Element> childElements = root.element("data").elements().get(0).elements().get(0).elements();
             for (Element child : childElements) {
                 AdjLabel adjLabel = new AdjLabel();
                 adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));
@@ -91,23 +91,23 @@ public class SrLabelXml {
                 "</get>                                                                        \n" +
                 "</rpc>";
     }
-    public static void getAdjLabelRangeFromAdjLabelRangeXml(String xml){
+    public static NetconfSrLabelInfo getAdjLabelRangeFromAdjLabelRangeXml(String xml){
         NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
         if ("".equals(xml)){
-            return ;
+            return null;
         }
         try {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            List<Element> childElements = root.elements().get(0).elements().get(0).elements();
+            List<Element> childElements = root.element("data").elements().get(0).elements().get(0).elements();
             for (Element child : childElements) {
                 netconfSrLabelInfo.setAdjLowerSid(child.elementText("lowerSid"));
                 netconfSrLabelInfo.setAdjUpperSid(child.elementText("upperSid"));
             }
         } catch (Exception e) {
         }
-        return;
+        return netconfSrLabelInfo;
     }
     public static String getSrNodeLabelXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
@@ -143,11 +143,18 @@ public class SrLabelXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 Element root = document.getRootElement();
-                List<Element> childElements = root.element("ospfv2").element("ospfv2comm").element("ospfSites")
-                        .elements("ospfSite").get(0).element("areas").element("area").element("interfaces").elements("interface");
-                for (Element child : childElements) {
-                    netconfSrLabelInfo.setPrefixIfName(child.elementText("ifName"));
-                    netconfSrLabelInfo.setPrefixLabel(child.element("srInterface").elementText("prefixLabel"));
+                List<Element> ospfSiteElements = root.element("data").element("ospfv2").element("ospfv2comm").element("ospfSites").elements("ospfSite");
+
+                for (org.dom4j.Element ospfSiteElement : ospfSiteElements) {
+                    List<Element> interfaceElements = ospfSiteElement.element("areas").element("area").element("interfaces").elements("interface");
+                    for (Element interfaceElement : interfaceElements) {
+                        if ("0".equals(interfaceElement.element("srInterface").elementText("prefixLabel")) == false) {
+                            netconfSrLabelInfo.setOspfAreaId(ospfSiteElement.element("areas").element("area").elementText("areaId"));
+                            netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
+                            netconfSrLabelInfo.setPrefixIfName(interfaceElement.elementText("ifName"));
+                            netconfSrLabelInfo.setPrefixLabel(interfaceElement.element("srInterface").elementText("prefixLabel"));
+                        }
+                    }
                 }
             }catch (Exception e){
                 LOG.info(e.toString());
@@ -172,23 +179,33 @@ public class SrLabelXml {
                 "</get>                                                                                   \n" +
                 "</rpc>";
     }
-    public static void getSrNodeLabelRangeFromNodeLabelRangeXml(String xml) {
+    public static NetconfSrLabelInfo getSrNodeLabelRangeFromNodeLabelRangeXml(String xml) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
         if (!("".equals(xml))) {
             try {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
-                Element root = document.getRootElement();
-                List<Element> childElements = root.element("ospfv2").element("ospfv2comm").element("ospfSites")
-                        .elements("ospfSite").get(0).element("ospfSrgbs").elements("ospfSrgb");
-                for (Element child : childElements) {
-                    System.out.println(child.elementText("srgbBegin"));
-                    System.out.println(child.elementText("srgbEnd"));
+                org.dom4j.Element root = document.getRootElement();
+                List<Element> ospfSiteElements = root.element("data").element("ospfv2").element("ospfv2comm").element("ospfSites").elements("ospfSite");
+                for (org.dom4j.Element ospfSiteElement : ospfSiteElements) {
+                    org.dom4j.Element ospfSrgbsElement = ospfSiteElement.element("ospfSrgbs");
+                    if(ospfSrgbsElement != null) {
+                        List<Element> ospfSrgbElements = ospfSiteElement.element("ospfSrgbs").elements("ospfSrgb");
+                        for (org.dom4j.Element ospfSrgbElement : ospfSrgbElements) {
+                            if ((ospfSrgbElement.element("srgbBegin") != null) &&
+                                    (ospfSrgbElement.element("srgbEnd") != null)) {
+                                netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
+                                netconfSrLabelInfo.setSrgbBegin(ospfSrgbElement.elementText("srgbBegin"));
+                                netconfSrLabelInfo.setSrgbEnd(ospfSrgbElement.elementText("srgbEnd"));
+                            }
+                        }
+                    }
                 }
             }catch (Exception e){
                 LOG.info(e.toString());
             }
         }
-        return;
+        return netconfSrLabelInfo;
     }
     public static String setSrNodeLabelXml(String processId,String areaId,String ifName,String prefixSidType,String prefixLabel) {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
