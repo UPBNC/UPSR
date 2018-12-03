@@ -8,51 +8,48 @@ module upsrNetconfSession {
     }
     grouping netconfInfo
     {
-        leaf SshIp {
+        leaf sshIp {
             type string;
         }
-        leaf SshPort {
+        leaf sshPort {
             type int32;
         }
-        leaf UserName {
+        leaf userName {
             type string;
         }
-        leaf Password {
+        leaf password {
             type string;
         }
     }
     grouping devNetconfInfo
     {
-        leaf DeviceName {
+        leaf deviceName {
             type string;
         }
 
-        leaf CenterName {
+        leaf centerName {
             type string;
         }
 
-        leaf DeviceType {
+        leaf deviceType {
             type string;
         }
-        leaf RouterId {
+        leaf routerId {
             type string;
         }
         uses netconfInfo;
     }
     rpc getAllNetconf {
-        input {
-
-        }
         output {
             leaf result {
                 type string;
             }
-            list devInfo {
+            list devices {
                 uses devNetconfInfo;
-                leaf SystemName {
+                leaf systemName {
                     type string;
                 }
-                leaf ConnectStatus {
+                leaf connectStatus {
                     type string;
                 }
             }

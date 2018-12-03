@@ -7,10 +7,14 @@
  */
 package cn.org.upbnc.api;
 
-import cn.org.upbnc.entity.*;
+import cn.org.upbnc.entity.Address;
+import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.entity.NetworkSeg;
+import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.service.ServiceInterface;
 
 import java.util.List;
+import java.util.Map;
 
 public interface VpnInstanceApi {
     // Set ServiceInterface
@@ -32,5 +36,6 @@ public interface VpnInstanceApi {
     VPNInstance getVpnInstance(Integer id);
     VPNInstance getVpnInstance(String routerId,String vpnName);
     List<VPNInstance> getVpnInstanceList(String vpnName);
+    Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName);
     String getTest();
 }

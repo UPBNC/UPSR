@@ -73,8 +73,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         if(null != device)
         {
             device.setDeviceName(deviceName);
-            //device.setDataCenter();
-            //device.setDeviceType();
+            device.setDataCenter(deviceDesc);
+            device.setDeviceType(deviceType);
 
             netconf = device.getNetConf();
             if((deviceIP != netconf.getIp().getAddress())||(devicePort != netconf.getPort())
@@ -94,8 +94,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             if((null == netconf)||(null == device)) {
                 return false;
             }
-            //device.setDataCenter();
-            //device.setDeviceType();
+            device.setDataCenter(deviceDesc);
+            device.setDeviceType(deviceType);
             device.setNetConf(netconf);
             this.netConfManager.addDevice(netconf);
         }

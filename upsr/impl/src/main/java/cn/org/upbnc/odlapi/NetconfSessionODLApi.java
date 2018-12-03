@@ -13,8 +13,8 @@ import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.NetconfSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.getallnetconf.output.DevInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.getallnetconf.output.DevInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.getallnetconf.output.Devices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.getallnetconf.output.DevicesBuilder;
 
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -50,9 +50,9 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
 
     public Future<RpcResult<GetAllNetconfOutput>> getAllNetconf(GetAllNetconfInput input)
     {
-        DevInfoBuilder devNetconfInfobuilder = null;
+        DevicesBuilder devNetconfInfobuilder = null;
         List<NetconfSession> netconfSessionList = null;
-        List<DevInfo> devNetconfInfoList = new LinkedList<DevInfo>();
+        List<Devices> devNetconfInfoList = new LinkedList<Devices>();
         GetAllNetconfOutputBuilder netconfOutputBuilder = new GetAllNetconfOutputBuilder();
 
         // 判断系统是否准备完毕：
@@ -65,11 +65,11 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
             //调用系统Api层函数
             netconfSessionList = this.getNetconfSessionApi().getNetconfSessionList();
             if(null != netconfSessionList) {
-                netconfOutputBuilder.setResult("failed");
+                netconfOutputBuilder.setResult("success");
                 for (NetconfSession netconfSession:netconfSessionList) {
-                    devNetconfInfobuilder = new DevInfoBuilder();
+                    devNetconfInfobuilder = new DevicesBuilder();
                     devNetconfInfobuilder.setDeviceName(netconfSession.getDeviceName());
-                    devNetconfInfobuilder.setSystemName(netconfSession.getStatus());
+                    devNetconfInfobuilder.setSystemName(netconfSession.getSysName());
                     devNetconfInfobuilder.setCenterName(netconfSession.getDeviceDesc());
                     devNetconfInfobuilder.setDeviceType(netconfSession.getDeviceType());
                     devNetconfInfobuilder.setRouterId(netconfSession.getRouterId());
@@ -78,7 +78,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                     devNetconfInfobuilder.setUserName(netconfSession.getUserName());
                     devNetconfInfoList.add(devNetconfInfobuilder.build());
                 }
-                netconfOutputBuilder.setDevInfo(devNetconfInfoList);
+                netconfOutputBuilder.setDevices(devNetconfInfoList);
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
             }
 

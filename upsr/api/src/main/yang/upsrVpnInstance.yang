@@ -46,10 +46,10 @@ module upsrVpnInstance {
             }
         }
         list netSegment {
-            leaf Address {
+            leaf address {
                 type string;
             }
-            leaf Mask {
+            leaf mask {
                 type string;
             }
         }
@@ -58,6 +58,64 @@ module upsrVpnInstance {
     {
         list vpnInstances {
             uses vpnInstanceInfo;
+        }
+    }
+
+    grouping eBgpInfo {
+        container ebgp {
+            leaf network {
+                type string;
+            }
+            leaf mask{
+                type string;
+            }
+            leaf importDirect {
+                type int32;
+            }
+            leaf peerIP {
+                type string;
+            }
+            leaf peerAS {
+                type int32;
+            }
+        }
+    }
+    grouping bindDevices {
+        list Bind {
+             leaf deviceName {
+                type string;
+             }
+             leaf vpnRd {
+                type string;
+             }
+             leaf vpnExport {
+                type string;
+             }
+             leaf vpnImport {
+                type string;
+             }
+             leaf-list ifName {
+                type string;
+             }
+             uses eBgpInfo;
+        }
+    }
+    grouping vpnInstanceListRetInfo
+    {
+        list vpnInstancesRet {
+            leaf vpnName {
+                type string;
+            }
+            leaf businessArea {
+                type string;
+            }
+            leaf vpnRt {
+                type string;
+            }
+            uses bindDevices;
+            leaf notes {
+                type string;
+            }
         }
     }
     rpc getVpnInstances {
@@ -73,7 +131,7 @@ module upsrVpnInstance {
             uses vpnInstanceListInfo;
         }
     }
-    rpc getVpnInstanceList {
+    rpc getVpnInstanceMap {
         input {
             leaf vpnName {
                 type string;
@@ -83,6 +141,7 @@ module upsrVpnInstance {
             leaf result {
                 type string;
             }
+            uses vpnInstanceListRetInfo;
         }
     }
     rpc delVpnInstance

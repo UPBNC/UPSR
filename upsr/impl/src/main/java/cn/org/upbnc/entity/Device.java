@@ -21,8 +21,10 @@ public class Device {
     private String deviceName;
     private String sysName;
     private String routerId;
-    private Integer deviceType;
-    private Integer dataCenter;
+    //private Integer deviceType;
+    //private Integer dataCenter;
+    private String deviceType;
+    private String dataCenter;
     private Address address;
 
     private NetConf netConf;
@@ -55,8 +57,10 @@ public class Device {
         this.deviceName = null;
         this.sysName = null;
         this.routerId = null;
-        this.deviceType = 0;
-        this.dataCenter = 0;
+//        this.deviceType = 0;
+//        this.dataCenter = 0;
+        this.deviceType = null;
+        this.dataCenter = null;
         this.address = null;
         this.netConf = null;
         this.minNodeSID = 0;
@@ -78,8 +82,10 @@ public class Device {
                   String deviceName,
                   String sysName,
                   String routerId,
-                  Integer deviceType,
-                  Integer dataCenter,
+//                  Integer deviceType,
+//                  Integer dataCenter,
+                  String deviceType,
+                  String dataCenter,
                   Address address,
                   NetConf netConf,
                   Integer minNodeSID,
@@ -181,23 +187,39 @@ public class Device {
         this.routerId = routerId;
     }
 
-    public Integer getDeviceType() {
+//    public Integer getDeviceType() {
+//        return deviceType;
+//    }
+//
+//    public void setDeviceType(Integer deviceType) {
+//        this.deviceType = deviceType;
+//    }
+//
+//
+//    public Integer getDataCenter() {
+//        return dataCenter;
+//    }
+//
+//    public void setDataCenter(Integer dataCenter) {
+//        this.dataCenter = dataCenter;
+//    }
+
+
+    public String getDeviceType() {
         return deviceType;
     }
 
-    public void setDeviceType(Integer deviceType) {
+    public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
     }
 
-
-    public Integer getDataCenter() {
+    public String getDataCenter() {
         return dataCenter;
     }
 
-    public void setDataCenter(Integer dataCenter) {
+    public void setDataCenter(String dataCenter) {
         this.dataCenter = dataCenter;
     }
-
 
     public NetConf getNetConf() {
         return netConf;
