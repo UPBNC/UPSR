@@ -47,7 +47,15 @@ module upsrNetconfSession {
             leaf result {
                 type string;
             }
-
+            list devInfo {
+                uses devNetconfInfo;
+                leaf SystemName {
+                    type string;
+                }
+                leaf ConnectStatus {
+                    type string;
+                }
+            }
         }
     }
     rpc getNetconf {

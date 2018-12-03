@@ -17,6 +17,10 @@ import cn.org.upbnc.service.VPNService;
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.netconf.bgp.BgpPeer;
+import cn.org.upbnc.util.netconf.bgp.BgpVrf;
+import cn.org.upbnc.util.netconf.bgp.ImportRoute;
+import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
 import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
@@ -101,6 +105,8 @@ public class VPNServiceImpl implements VPNService {
         }
 
         L3vpnInstance l3vpnInstance =  new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIf);
+        BgpVrf bgpVrf= mapEbgpInfoToBgpVfr(vpnName,peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
+
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
 
         vpnInstance=this.vpnInstanceManager.getVpnInstance(routerId,vpnName);
@@ -110,6 +116,7 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("vpnInstance is null,add VPN {}",vpnName);
 
             String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
+            //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
@@ -118,26 +125,25 @@ public class VPNServiceImpl implements VPNService {
         }else{
             //modify vpn
             LOG.info("VPN {} is already exist ,update",vpnName);
-            boolean isRdChanged=false;
-            boolean isRtChanged=false;
-            boolean isIfmChanged=false;
-            if(rd!=vpnInstance.getRd()){
-                //delete rd,add rd rt ebgp
-                isRdChanged=true;
-                isRtChanged=true;
-                //String sendMsg = VpnXml.modifyVpnXml(isRdChanged,isRtChanged,isEbgpChanged,isIfmChanged,l3vpnInstance);
-            }else{
-                if(exportRT!=vpnInstance.getExportRT()){
-                    isRtChanged=true;
-                }
-            }
 
-            if(l3vpnIf.equals(vpnInstance.getDeviceInterfaceList())){
-                isIfmChanged=true;
-            }
-
+            List<Boolean> modifyList = vpnInstance.compareVpnInfo(vpnName,
+                    routerId,
+                    businessRegion,
+                    rd,
+                    importRT,
+                    exportRT,
+                    peerAS,
+                    peerIP,
+                    routeSelectDelay,
+                    importDirectRouteEnable,
+                    deviceInterfaceList,
+                    networkSegList);
+            String sendMsg = "";//VpnXml.modifyVpnXml(modifyList,l3vpnInstance,bgpVrf);
+            LOG.info("sendMsg={}", new Object[]{sendMsg});
+            String result = netconfController.sendMessage(netconfClient, sendMsg);
+            LOG.info("result={}", new Object[]{result});
+            ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
         }
-
         //vpn info update in vpnManager
         if(true == ret)
         {
@@ -308,6 +314,34 @@ public class VPNServiceImpl implements VPNService {
             vpnInstance.setDeviceInterfaceList(deviceInterfaces);
         }
         return vpnInstance;
+    }
+
+    private BgpVrf mapEbgpInfoToBgpVfr(String vfrName,Integer peerAS, Address peerIP, Integer routeSelectDelay, Integer importDirectRouteEnable,
+                                       List<NetworkSeg> networkSegList){
+        BgpVrf bgpVrf=new BgpVrf();
+
+        bgpVrf.setVrfName(vfrName);
+        List<BgpPeer> bgpPeerList=new ArrayList<BgpPeer>();
+        List<ImportRoute> importRouteList=new ArrayList<ImportRoute>();
+        List<NetworkRoute> networkRouteList=new ArrayList<NetworkRoute>();
+
+        BgpPeer bgpPeer=new BgpPeer(peerIP.getAddress(),peerAS.toString());
+        bgpPeerList.add(bgpPeer);
+        bgpVrf.setBgpPeers(bgpPeerList);
+
+        if(importDirectRouteEnable==1){
+            ImportRoute importRoute=new ImportRoute("direct","0");
+            importRouteList.add(importRoute);
+        }
+        bgpVrf.setImportRoutes(importRouteList);
+        if(networkSegList!=null){
+            for(NetworkSeg networkSeg:networkSegList){
+                NetworkRoute networkRoute=new NetworkRoute(networkSeg.getAddress().getAddress(),networkSeg.getMask().getAddress());
+                networkRouteList.add(networkRoute);
+            }
+            bgpVrf.setNetworkRoutes(networkRouteList);
+        }
+        return bgpVrf;
     }
 
     @Override
