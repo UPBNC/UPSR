@@ -32,6 +32,8 @@ public class Device {
     //private SRInfo srInfo;
     private Integer minNodeSID;
     private Integer maxNodeSID;
+    private Integer minAdjSID;
+    private Integer maxAdjSID;
     private NodeLabel nodeLabel;
     private List<AdjLabel> adjLabelList;
 
@@ -135,6 +137,9 @@ public class Device {
         }
         this.bgpDevice = bgpDevice;
         this.deviceTypeEnum = deviceTypeEnum;
+        this.ospfProcess = new OspfProcess();
+        this.minAdjSID = 321536;
+        this.maxAdjSID = 331775;
     }
     public Device(String routerId, String deviceName, NetConf netConf)
     {
@@ -376,5 +381,29 @@ public class Device {
 
     public BgpDevice getBgpDevice() {
         return bgpDevice;
+    }
+
+    public OspfProcess getOspfProcess() {
+        return ospfProcess;
+    }
+
+    public void setOspfProcess(OspfProcess ospfProcess) {
+        this.ospfProcess = ospfProcess;
+    }
+
+    public Integer getMinAdjSID() {
+        return minAdjSID;
+    }
+
+    public void setMinAdjSID(Integer minAdjSID) {
+        this.minAdjSID = minAdjSID;
+    }
+
+    public Integer getMaxAdjSID() {
+        return maxAdjSID;
+    }
+
+    public void setMaxAdjSID(Integer maxAdjSID) {
+        this.maxAdjSID = maxAdjSID;
     }
 }

@@ -48,7 +48,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
         return this.netconfSessionApi;
     }
 
-    public Future<RpcResult<GetAllNetconfOutput>> getAllNetconf(GetAllNetconfInput input)
+    public Future<RpcResult<GetAllNetconfOutput>> getAllNetconf()
     {
         DevicesBuilder devNetconfInfobuilder = null;
         List<NetconfSession> netconfSessionList = null;

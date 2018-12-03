@@ -38,7 +38,7 @@ public class UpsrProvider implements AutoCloseable{
     private BindingAwareBroker.RpcRegistration<UpsrNetconfSessionService> upsrNetconfSessionServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrSrLabelService> upsrSrLabelServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrInterfaceService> upsrInterfaceServiceRpcRegistration;
-    private BindingAwareBroker.RpcRegistration<UpsrSyncConfService> upsrconfSyncServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrSyncConfService> upsrSyncConfServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -77,7 +77,7 @@ public class UpsrProvider implements AutoCloseable{
         this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, new NetconfSessionODLApi(this.upsr));
         this.upsrSrLabelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSrLabelService.class, new SrLabelODLApi(this.upsr));
         this.upsrInterfaceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrInterfaceService.class, new InterfaceODLApi(this.upsr));
-        this.upsrconfSyncServiceRpcRegistration = this.rpcRegistry.addRpcImplementation( UpsrSyncConfService.class, new ConfSyncODLApi(this.upsr));
+        this.upsrSyncConfServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSyncConfService.class,new ConfSyncODLApi(this.upsr));
     }
 
     private void closeServices(){
@@ -88,7 +88,7 @@ public class UpsrProvider implements AutoCloseable{
         this.upsrNetconfSessionServiceRpcRegistration.close();
         this.upsrSrLabelServiceRpcRegistration.close();
         this.upsrInterfaceServiceRpcRegistration.close();
-        this.upsrconfSyncServiceRpcRegistration.close();
+        this.upsrSyncConfServiceRpcRegistration.close();
     }
 
 }

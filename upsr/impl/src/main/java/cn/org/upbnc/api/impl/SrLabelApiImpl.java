@@ -21,7 +21,7 @@ public class SrLabelApiImpl implements SrLabelApi {
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
         boolean ret = true;
         try {
-            if(this.serviceInterface == null) {
+            if(this.serviceInterface == null){
                 this.serviceInterface = serviceInterface;
                 this.srLabelService = serviceInterface.getSrLabelService();
             }
