@@ -257,4 +257,10 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService{
 
         return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
     }
+
+    public     Future<RpcResult<GetVpnInstanceListOutput>> getVpnInstanceList(GetVpnInstanceListInput input) {
+        GetVpnInstanceListOutputBuilder getVpnInstanceListOutputBuilder = new GetVpnInstanceListOutputBuilder();
+        getVpnInstanceListOutputBuilder.setResult("failed");
+        return RpcResultBuilder.success(getVpnInstanceListOutputBuilder.build()).buildFuture();
+    }
 }
