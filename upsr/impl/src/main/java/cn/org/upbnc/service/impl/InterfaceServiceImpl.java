@@ -214,6 +214,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                                 new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
                                 null, null, null);
+                        devInterface.setRefreshFlag(true);
                         deviceInterfaceList.add(devInterface);
                     }
                 }
