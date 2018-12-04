@@ -370,11 +370,11 @@ public class VPNServiceImpl implements VPNService {
                 vpnInstances = new LinkedList<VPNInstance>();
                 vpnInstances.add(vpnInstance);
                 if(vpnInstanceMap.containsKey(vpnInstance.getVpnName())) {
-                    vpnInstanceMap.values().add(vpnInstances);
+                    vpnInstanceMap.get(vpnInstance.getVpnName()).add(vpnInstance);
                 }
                 else
                 {
-                    vpnInstanceMap.put(vpnName, vpnInstances);
+                    vpnInstanceMap.put(vpnInstance.getVpnName(), vpnInstances);
                 }
             }
         }
