@@ -241,7 +241,7 @@ public class SrLabelXml {
                 "</edit-config>                                                                                                      \n" +
                 "</rpc>";
     }
-    public static String setSrNodeLabelRangeXml(String processId,String srgbBegin, String srgbEnd) {
+    public static String setSrNodeLabelRangeXml(String processId,String srgbBegin, String srgbEnd, String operation) {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                          \n" +
                 "  <target>                                                                                               \n" +
@@ -254,7 +254,7 @@ public class SrLabelXml {
                 "          <ospfSite>                                                                                     \n" +
                 "            <processId>" + processId + "</processId>                                                       \n" +
                 "            <ospfSrgbs>                                                                                  \n" +
-                "              <ospfSrgb xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"create\">    \n" +
+                "              <ospfSrgb xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\""+ operation +"\">  \n" +
                 "                <srgbBegin>" + srgbBegin + "</srgbBegin>                                                   \n" +
                 "                <srgbEnd>" + srgbEnd + "</srgbEnd>                                                         \n" +
                 "              </ospfSrgb>                                                                                \n" +

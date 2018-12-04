@@ -9,10 +9,7 @@ package cn.org.upbnc.entity;
 
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Device {
     // Base property
@@ -359,7 +356,7 @@ public class Device {
         return deviceTypeEnum;
     }
 
-    public Label getNodeLabel() {
+    public NodeLabel getNodeLabel() {
         return nodeLabel;
     }
 
@@ -405,5 +402,20 @@ public class Device {
 
     public void setMaxAdjSID(Integer maxAdjSID) {
         this.maxAdjSID = maxAdjSID;
+    }
+
+    public DeviceInterface getDeviceInterfaceByAddress(String address){
+        if (this.deviceInterfaceList == null){
+            return null;
+        }
+        Iterator<DeviceInterface> deviceInterfaceIterator = this.deviceInterfaceList.iterator();
+        while (deviceInterfaceIterator.hasNext()){
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            if ((deviceInterface.getIp() != null) && (deviceInterface.getIp().getAddress() != null) &&
+                    deviceInterface.getIp().getAddress().equals(address)){
+                return deviceInterface;
+            }
+        }
+        return null;
     }
 }

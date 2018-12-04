@@ -7,44 +7,32 @@ module upsrSrLabel {
         description "Initial revision of upsrSrLabel model";
     }
 
-    grouping srgbLabelInfo {
-        leaf routerId {
-            type string;
-        }
-        leaf srEnabled {
-            type string;
-        }
+    grouping srGlobal {
         container srgbPrefixSid{
-            leaf srgbBegin {
-                type string;
-            }
-            leaf srgbEnd {
-                type string;
-            }
-            leaf prefixId {
-                type string;
-            }
-            leaf adjBegin {
-                type string;
-            }
-            leaf adjEnd {
-                type string;
-            }
+            leaf srgbBegin { type string; }
+            leaf srgbEnd { type string; }
+            leaf prefixId { type string; }
+            leaf adjBegin { type string; }
+            leaf adjEnd { type string; }
         }
     }
+    grouping srInterface {
+        leaf ifAddress { type string; }
+        leaf ifName { type string; }
+        leaf srEnabled { type string; }
+        leaf adjlabel { type string; }
+    }
+    grouping srgbLabelInfo {
+        leaf routerId { type string; }
+        leaf srEnabled { type string; }
+        uses srGlobal;
+    }
     grouping intfLabelInfo {
-        leaf routerId {
-            type string;
-        }
-        leaf intfLocalAddress {
-            type string;
-        }
-        leaf intfRemoteAddress {
-            type string;
-        }
-        leaf intfLabelVal {
-            type string;
-        }
+        leaf routerId { type string; }
+        leaf intfLocalAddress { type string; }
+        leaf intfRemoteAddress { type string; }
+        leaf intfLabelVal { type string; }
+        uses srInterface;
     }
     rpc updateSrgbLabel {
         input {
@@ -67,16 +55,6 @@ module upsrSrLabel {
         }
     }
     rpc updateIntfLabel {
-        input {
-            uses intfLabelInfo;
-        }
-        output {
-            leaf result {
-                type string;
-            }
-        }
-    }
-    rpc delIntfLabel {
         input {
             uses intfLabelInfo;
         }

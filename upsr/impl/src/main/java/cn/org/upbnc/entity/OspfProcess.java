@@ -3,6 +3,7 @@ package cn.org.upbnc.entity;
 public class OspfProcess {
     Integer processId;
     String areaId;
+    String intfName;
 
     public Integer getProcessId() {
         return processId;
@@ -18,6 +19,14 @@ public class OspfProcess {
 
     public void setAreaId(String areaId) {
         this.areaId = areaId;
+    }
+
+    public String getIntfName() {
+        return intfName;
+    }
+
+    public void setIntfName(String intfName) {
+        this.intfName = intfName;
     }
 }
 

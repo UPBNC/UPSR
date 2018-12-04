@@ -33,18 +33,20 @@ public class SrLabelApiImpl implements SrLabelApi {
     }
 
     @Override
-    public String updateNodeLabel(String routerId, String labelVal) {
+    public String updateNodeLabel(String routerId, String labelVal, String action) {
+        srLabelService.updateNodeLabel(routerId,labelVal,action);
         return null;
     }
 
     @Override
-    public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd) {
+    public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
+        srLabelService.updateNodeLabelRange(routerId,labelBegin,labelEnd,action);
         return null;
     }
 
     @Override
-    public String updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal) {
-        srLabelService.updateIntfLabel(routerId,localAddress,remoteAddress,labelVal);
+    public String updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal, String action) {
+        srLabelService.updateIntfLabel(routerId,localAddress,remoteAddress,labelVal,action);
         return null;
     }
 
