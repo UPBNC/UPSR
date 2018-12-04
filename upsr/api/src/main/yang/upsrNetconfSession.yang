@@ -46,7 +46,7 @@ module upsrNetconfSession {
             }
             list devices {
                 uses devNetconfInfo;
-                leaf systemName {
+                leaf sysName {
                     type string;
                 }
                 leaf connectStatus {
@@ -66,10 +66,10 @@ module upsrNetconfSession {
                 type string;
             }
             uses devNetconfInfo;
-            leaf SystemName {
+            leaf sysName {
                 type string;
             }
-            leaf ConnectStatus {
+            leaf connectStatus {
                 type string;
             }
         }
