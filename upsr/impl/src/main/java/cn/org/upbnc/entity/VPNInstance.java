@@ -27,6 +27,9 @@ public class VPNInstance {
     private Integer routeSelectDelay;
     private Integer importDirectRouteEnable;
     private List<NetworkSeg> networkSegList;
+    private boolean RefreshFlag;
+
+
 
     public VPNInstance() {
         this.id = 0;
@@ -43,6 +46,7 @@ public class VPNInstance {
         this.routeSelectDelay = 0;
         this.importDirectRouteEnable = 0;
         this.networkSegList = new ArrayList<NetworkSeg>();
+        RefreshFlag=false;
     }
 
     public VPNInstance(Integer id,
@@ -202,6 +206,14 @@ public class VPNInstance {
 
     public void setRouterId(String routerId) {
         this.routerId = routerId;
+    }
+
+    public boolean isRefreshFlag() {
+        return RefreshFlag;
+    }
+
+    public void setRefreshFlag(boolean refreshFlag) {
+        RefreshFlag = refreshFlag;
     }
 
     public boolean isIfmBinded(String ifmName){

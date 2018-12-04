@@ -46,7 +46,6 @@ public class NetConfManagerImpl implements NetConfManager {
 
     @Override
     public NetConf addDevice(NetConf netConf) {
-        netConfMap.put(netConf.getIp().getAddress(), netConf);
         boolean connect = true;
         if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
             if (netconfClientMap.get(netConf.getIp().getAddress()).isFlag()) {
@@ -61,6 +60,7 @@ public class NetConfManagerImpl implements NetConfManager {
             }
             netconfClientMap.put(netConf.getIp().getAddress(), netconfClient);
         }
+        netConfMap.put(netConf.getIp().getAddress(), netConf);
         return netConf;
     }
 

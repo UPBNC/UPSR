@@ -25,10 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.BindInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.NetSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.NetSegmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.VpnInstances;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.VpnInstancesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstancesRet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstancesRetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.VpnInstancesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.VpnInstancesInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstancesBuilder;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -63,8 +63,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
 
     public Future<RpcResult<GetVpnInstancesOutput>> getVpnInstances(GetVpnInstancesInput input) {
         List<VPNInstance> vpnInstanceList = null;
-        List<VpnInstances> retVpnInstanceList = new LinkedList<VpnInstances>();
-        VpnInstancesBuilder retVpnInstance = null;
+        List<VpnInstancesInfo> retVpnInstanceList = new LinkedList<VpnInstancesInfo>();
+        VpnInstancesInfoBuilder retVpnInstance = null;
         GetVpnInstancesOutputBuilder vpnInstanceOutputBuilder = new GetVpnInstancesOutputBuilder();
 
         // 判断系统是否准备完毕：
@@ -79,7 +79,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             if ((null != vpnInstanceList) && (0 != vpnInstanceList.size())) {
                 vpnInstanceOutputBuilder.setResult("success");
                 for (VPNInstance vpnInstance : vpnInstanceList) {
-                    retVpnInstance = new VpnInstancesBuilder();
+                    retVpnInstance = new VpnInstancesInfoBuilder();
                     retVpnInstance.setVpnName(vpnInstance.getVpnName());
                     retVpnInstance.setRouterId(vpnInstance.getRouterId());
                     retVpnInstance.setBussinessRegion(vpnInstance.getBusinessRegion());
@@ -111,7 +111,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     retVpnInstance.setNetSegment(netSegments);
                     retVpnInstanceList.add(retVpnInstance.build());
                 }
-                vpnInstanceOutputBuilder.setVpnInstances(retVpnInstanceList);
+                vpnInstanceOutputBuilder.setVpnInstancesInfo(retVpnInstanceList);
                 return RpcResultBuilder.success(vpnInstanceOutputBuilder.build()).buildFuture();
             }
         }
@@ -263,8 +263,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
     public Future<RpcResult<GetVpnInstanceMapOutput>> getVpnInstanceMap(GetVpnInstanceMapInput input) {
         Map<String, List<VPNInstance>> vpnInstanceMap = null;
         List<VPNInstance> vpnInstanceList = null;
-        List<VpnInstancesRet> retVpnInstanceList = new LinkedList<VpnInstancesRet>();
-        VpnInstancesRetBuilder vpnInstancesRetBuilder = null;
+        List<VpnInstances> retVpnInstanceList = new LinkedList<VpnInstances>();
+        VpnInstancesBuilder vpnInstancesRetBuilder = null;
         GetVpnInstanceMapOutputBuilder getVpnInstanceListOutputBuilder = new GetVpnInstanceMapOutputBuilder();
         if (SystemStatusEnum.ON != this.session.getStatus()) {
             getVpnInstanceListOutputBuilder.setResult("System is not ready or shutdown");
@@ -280,7 +280,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                 for(String vpnName_str:vpnInstanceMap.keySet()) {
                     //遍历每个vpnName map下的vpnInstanceList,输出list信息
                     vpnInstanceList = vpnInstanceMap.get(vpnName_str);
-                    vpnInstancesRetBuilder = new VpnInstancesRetBuilder();
+                    vpnInstancesRetBuilder = new VpnInstancesBuilder();
                     //vpnInstancesRetBuilder.setVpnName(vpnInstancemap.getKey().toString());
                     vpnInstancesRetBuilder.setVpnName(vpnName_str);
                     BindBuilder bindDevice = null;
@@ -329,8 +329,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                         }
                         vpnInstancesRetBuilder.setBind(bindDevices);
                     }
-
+                    retVpnInstanceList.add(vpnInstancesRetBuilder.build());
                 }
+                getVpnInstanceListOutputBuilder.setVpnInstances(retVpnInstanceList);
                 return RpcResultBuilder.success(getVpnInstanceListOutputBuilder.build()).buildFuture();
             }
         }
