@@ -27,9 +27,7 @@ import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
