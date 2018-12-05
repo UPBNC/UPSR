@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface DeviceManager {
     // Add device fucntions
-    Device addDevice(String name, String routerId);
+    Device addDevice(String deviceName, String routerId);
     Device addDevice(Device device);
 
     // Get device fucntions

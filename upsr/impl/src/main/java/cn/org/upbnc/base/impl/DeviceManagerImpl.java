@@ -34,15 +34,15 @@ public class DeviceManagerImpl implements DeviceManager {
     }
 
     @Override
-    public Device addDevice(String name, String routerId) {
+    public Device addDevice(String deviceName, String routerId) {
         Device device = null;
-        if(null != name && null != routerId) {
+        if(null != deviceName && null != routerId) {
             device = this.getDevice(routerId);
             if(null == device){
                device = new Device();
                // Device is create by man
                device.setDeviceTypeEnum(DeviceTypeEnum.SELFDEFIND);
-               device.setDeviceName(name);
+               device.setDeviceName(deviceName);
                device.setRouterId(routerId);
                this.deviceList.add(device);
             }
