@@ -11,6 +11,8 @@ public class DeviceInterface {
     private Integer id;
     private Device device;
     private String deviceName;
+    private String bgpName;
+    private String bgpDeviceName;
     private Integer srStatus;
     private String name;
     private Integer status;
@@ -27,6 +29,8 @@ public class DeviceInterface {
         this.device = null;
         this.srStatus = 0;
         this.name = null;
+        this.bgpName = null;
+        this.bgpDeviceName = null;
         this.status = 0;
         this.ip = null;
         this.mask = null;
@@ -48,6 +52,8 @@ public class DeviceInterface {
     public DeviceInterface(Integer id,
                            Device device,
                            String deviceName,
+                           String bgpName,
+                           String bgpDeviceName,
                            Integer srStatus,
                            String name,
                            Integer status,
@@ -60,6 +66,8 @@ public class DeviceInterface {
         this.id = id;
         this.device = device;
         this.deviceName = deviceName;
+        this.bgpName = bgpName;
+        this.bgpDeviceName = bgpDeviceName;
         this.srStatus = srStatus;
         this.name = name;
         this.status = status;
@@ -175,5 +183,21 @@ public class DeviceInterface {
 
     public void setRefreshFlag(boolean refreshFlag) {
         this.refreshFlag = refreshFlag;
+    }
+
+    public String getBgpName() {
+        return bgpName;
+    }
+
+    public void setBgpName(String bgpName) {
+        this.bgpName = bgpName;
+    }
+
+    public String getBgpDeviceName() {
+        return bgpDeviceName;
+    }
+
+    public void setBgpDeviceName(String bgpDeviceName) {
+        this.bgpDeviceName = bgpDeviceName;
     }
 }

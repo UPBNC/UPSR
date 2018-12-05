@@ -82,15 +82,20 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             device.setDeviceType(deviceType);
 
             netconf = device.getNetConf();
-            if((deviceIP != netconf.getIp().getAddress())||(devicePort != netconf.getPort())
-                    ||(userName != netconf.getUser())||(userPassword != netconf.getPassword()))
+            if((null != netconf)&&((deviceIP != netconf.getIp().getAddress())||(devicePort != netconf.getPort())
+                    ||(userName != netconf.getUser())||(userPassword != netconf.getPassword())))
             {
                 netconf.setUser(userName);
                 netconf.setPassword(userPassword);
                 netconf.setPort(devicePort);
                 netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
-                this.netConfManager.addDevice(netconf);
             }
+            if(null == netconf)
+            {
+                netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
+                device.setNetConf(netconf);
+            }
+            this.netConfManager.addDevice(netconf);
         }
         else
         {

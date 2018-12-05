@@ -352,8 +352,8 @@ public class DeviceManagerImpl implements DeviceManager {
 
         ret.setIp(bgpDeviceInterface.getIp());
         ret.setId(bgpDeviceInterface.getId());
-        ret.setName(bgpDeviceInterface.getName());
-        ret.setDeviceName(bgpDeviceInterface.getBgpDeviceName());
+        ret.setBgpName(bgpDeviceInterface.getName());
+        ret.setBgpDeviceName(bgpDeviceInterface.getBgpDeviceName());
         ret.setBgpStatus(1);
         return ret;
     }

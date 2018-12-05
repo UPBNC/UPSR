@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Future;
 
 public class SrLabelODLApi implements UpsrSrLabelService{
-    private static final Logger LOG = LoggerFactory.getLogger(UpsrProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SrLabelODLApi.class);
     Session session;
     SrLabelApi srLabelApi;
 
@@ -129,7 +129,9 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }
         Device device = srLabelApi.getDevice(input.getRouterId());
         DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(input.getIntfLocalAddress());
-        getIntfLabelOutputBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
+        if (deviceInterface.getAdjLabel() != null) {
+            getIntfLabelOutputBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
+        }
         LOG.info("getIntfLabel end");
         return RpcResultBuilder.success(getIntfLabelOutputBuilder.build()).buildFuture();
     }

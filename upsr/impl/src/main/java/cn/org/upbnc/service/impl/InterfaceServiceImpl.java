@@ -168,6 +168,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         if((null == deviceInterface)||(null == devInterfaceInfo)) {
             return false;
         }
+        deviceInterface.setName(devInterfaceInfo.getIfnetName());
         deviceInterface.setIp(new Address(devInterfaceInfo.getIfnetIP(), AddressTypeEnum.V4));
         deviceInterface.setMask(new Address(devInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4));
         deviceInterface.setMac(new Address(devInterfaceInfo.getIfnetMac(), AddressTypeEnum.MAC));
@@ -184,6 +185,9 @@ public class InterfaceServiceImpl implements InterfaceService{
             for (Device device:this.deviceManager.getDeviceList()) {
                 List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
                 List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
+                if(null == deviceInterfaceInfoList) {
+                    continue;
+                }
                 //1 memory interface set invalid
                 for (DeviceInterface deviceInterface:deviceInterfaceList)
                 {
@@ -191,25 +195,32 @@ public class InterfaceServiceImpl implements InterfaceService{
                 }
                 //2 compare memory interface and device interface
                 //3 sync device interface to memory interface and refresh memory interface status
-                for (DeviceInterface deviceInterface:deviceInterfaceList) {
-                    for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
-                        if(true == deviceInterfaceInfo.getIfnetName().equals(deviceInterface.getName())) {
-                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
-
-                        }
-                    }
-                }
+//                for (DeviceInterface deviceInterface:deviceInterfaceList) {
+//                    for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
+//                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())) {
+//                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
+//
+//                        }
+//                    }
+//                }
                 //4 add new device interface from device to memory
                 for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
                     boolean compareFlag = false;
                     for (DeviceInterface deviceInterface:deviceInterfaceList) {
-                        if(true == deviceInterface.getName().equals(deviceInterfaceInfo.getIfnetName())) {
+                        if(null == deviceInterfaceInfo.getIfnetIP()) {
                             compareFlag = true;
+                            break;
+                        }
+
+                        if((false == compareFlag)&&(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress()))){
+                            compareFlag = true;
+                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
+                            break;
                         }
                     }
                     if(false == compareFlag) {
 
-                        DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),
+                        DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),null,null,
                                 null, deviceInterfaceInfo.getIfnetName(),null, new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
