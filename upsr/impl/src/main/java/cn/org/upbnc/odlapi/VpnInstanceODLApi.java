@@ -76,15 +76,15 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         } else {
             //调用系统Api层函数
             vpnInstanceList = this.getVpnInstanceApi().getVpnInstanceList(input.getVpnName());
-            if ((null != vpnInstanceList) && (0 != vpnInstanceList.size())) {
+            if ((null != vpnInstanceList)) {
                 vpnInstanceOutputBuilder.setResult("success");
                 for (VPNInstance vpnInstance : vpnInstanceList) {
                     retVpnInstance = new VpnInstancesInfoBuilder();
                     retVpnInstance.setVpnName(vpnInstance.getVpnName());
                     retVpnInstance.setRouterId(vpnInstance.getRouterId());
-                    retVpnInstance.setBussinessRegion(vpnInstance.getBusinessRegion());
-                    retVpnInstance.setRD(vpnInstance.getRd());
-                    retVpnInstance.setRT(vpnInstance.getImportRT());
+                    retVpnInstance.setBussinessArea(vpnInstance.getBusinessRegion());
+                    retVpnInstance.setVpnRd(vpnInstance.getRd());
+                    retVpnInstance.setVpnRt(vpnInstance.getImportRT());
                     retVpnInstance.setPeerAS(vpnInstance.getPeerAS());
                     retVpnInstance.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
                     retVpnInstance.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
@@ -144,9 +144,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                 vpnInstanceGetOutputBuilder.setResult("success");
                 vpnInstanceGetOutputBuilder.setVpnName(vpnInstance.getVpnName());
                 vpnInstanceGetOutputBuilder.setRouterId(vpnInstance.getRouterId());
-                vpnInstanceGetOutputBuilder.setBussinessRegion(vpnInstance.getBusinessRegion());
-                vpnInstanceGetOutputBuilder.setRD(vpnInstance.getRd());
-                vpnInstanceGetOutputBuilder.setRT(vpnInstance.getImportRT());
+                vpnInstanceGetOutputBuilder.setBussinessArea(vpnInstance.getBusinessRegion());
+                vpnInstanceGetOutputBuilder.setVpnRd(vpnInstance.getRd());
+                vpnInstanceGetOutputBuilder.setVpnRt(vpnInstance.getImportRT());
                 vpnInstanceGetOutputBuilder.setPeerAS(vpnInstance.getPeerAS());
                 vpnInstanceGetOutputBuilder.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
                 vpnInstanceGetOutputBuilder.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
@@ -212,7 +212,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
         List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
         UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
-        LOG.info("enter vpnInstanceUpdate-01");
+        LOG.info("enter vpnInstanceUpdate");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
@@ -236,10 +236,10 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             //调用系统Api层函数
             ret = this.getVpnInstanceApi().updateVpnInstance(input.getVpnName(),
                     input.getRouterId(),
-                    input.getBussinessRegion(),
-                    input.getRD(),
-                    input.getRT(),
-                    input.getRT(),
+                    input.getBussinessArea(),
+                    input.getVpnRd(),
+                    input.getVpnRt(),
+                    input.getVpnRt(),
                     input.getPeerAS(),
                     new Address(input.getPeerIP(), AddressTypeEnum.V4),
                     input.getRouteSelectDelay(),

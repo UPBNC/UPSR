@@ -12,6 +12,7 @@ import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.entity.DevInterfaceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class InterfaceApiImpl implements InterfaceApi{
@@ -34,6 +35,6 @@ public class InterfaceApiImpl implements InterfaceApi{
 
     @Override
     public List<DevInterfaceInfo> getDeviceInterfaceList(String routerId) {
-        return this.serviceInterface.getInterfaceService().getInterfaceListFromDevice(routerId);
+        return this.serviceInterface.getInterfaceService().getInterfaceList(routerId);
     }
 }

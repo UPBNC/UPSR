@@ -10,7 +10,7 @@ package cn.org.upbnc.enumtype;
 public enum AddressTypeEnum {
     V4(4,"V4 Address"),
     V6(6,"V6 Address"),
-    MAC(8,"Mac Address");
+    MAC(8,"MAC Address");
 
 
     private int code;

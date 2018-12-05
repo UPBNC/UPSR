@@ -10,16 +10,16 @@ module upsrVpnInstance {
         leaf vpnName {
             type string;
         }
-        leaf bussinessRegion {
+        leaf bussinessArea {
             type string;
         }
         leaf routerId {
             type string;
         }
-        leaf RD {
+        leaf vpnRd {
             type string;
         }
-        leaf RT {
+        leaf vpnRt {
             type string;
         }
         leaf peerAS {
@@ -81,7 +81,7 @@ module upsrVpnInstance {
         }
     }
     grouping bindDevices {
-        list Bind {
+        list bind {
              leaf deviceName {
                 type string;
              }

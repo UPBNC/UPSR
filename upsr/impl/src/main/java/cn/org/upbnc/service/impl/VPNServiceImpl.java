@@ -23,7 +23,9 @@ import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 import cn.org.upbnc.util.netconf.bgp.ImportRoute;
 import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
 import cn.org.upbnc.util.xml.CheckXml;
+import cn.org.upbnc.util.xml.EbgpXml;
 import cn.org.upbnc.util.xml.VpnXml;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.Ebgp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +117,7 @@ public class VPNServiceImpl implements VPNService {
             //create vpn
             LOG.info("vpnInstance is null,add VPN {}",vpnName);
 
-            String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
+            String sendMsg = VpnXml.createVpnXml(l3vpnInstance)+EbgpXml.createEbgpXml(bgpVrf);
             //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -200,10 +202,18 @@ public class VPNServiceImpl implements VPNService {
 
         LOG.info("enter getVpnIstance");
         String sendMsg = VpnXml.getVpnXml(vpnName);
-        LOG.info("get sendMsg={}", new Object[]{sendMsg});
+        LOG.info("get vpnInfo sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
-        LOG.info("get result={}", new Object[]{result});
+        LOG.info("get vpnInfo result={}", new Object[]{result});
+
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
+
+        sendMsg= EbgpXml.getEbgpXml(vpnName);
+        LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
+        result=netconfController.sendMessage(netconfClient, sendMsg);
+        LOG.info("get vpnInfo result={}", new Object[]{result});
+
+        List<BgpVrf> bgpVrfList= EbgpXml.getEbgpFromXml(result);
 
         if(null == l3vpnInstances) {
             return null;
@@ -211,29 +221,24 @@ public class VPNServiceImpl implements VPNService {
         VPNInstance vpnInsntance = null;
         for (L3vpnInstance l3vpnInstance:l3vpnInstances) {
             vpnInsntance = mapL3vpnInstanceToVPNInstance(l3vpnInstance,routerId);
+            if(null!=bgpVrfList&&null!=vpnInsntance){
+                for(BgpVrf bgpVrf:bgpVrfList){
+                    if(vpnInsntance.getVpnName().equals(bgpVrf.getVrfName())){
+                        mapBgpVrfToVPNInstance(vpnInsntance,bgpVrf);
+                    }
+                }
+            }
         }
         return vpnInsntance;
     }
     public List<VPNInstance> getVpnInstanceListFromDevice(String vpnName)
     {
-        List<VPNInstance> vpnInstancelist=new LinkedList<VPNInstance>();
+        List<VPNInstance> vpnInstancelist=new ArrayList<VPNInstance>();
         List<Device>  deviceList = this.deviceManager.getDeviceList();
         for (Device device:deviceList) {
-            NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-            LOG.info("enter getVpnInstanceListFromDevice");
-            String sendMsg = VpnXml.getVpnXml(vpnName);
-            LOG.info("get sendMsg={}", new Object[]{sendMsg});
-            String result = netconfController.sendMessage(netconfClient, sendMsg);
-            List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
-            if(null != l3vpnInstances) {
-                for(L3vpnInstance l3vpnInstance:l3vpnInstances){
-                    VPNInstance tmpVPNInstance=mapL3vpnInstanceToVPNInstance(l3vpnInstance,device.getRouterId());
-                    if(null!=tmpVPNInstance){
-                        vpnInstancelist.add(tmpVPNInstance);
-                    }
-                }
-            }else{
-                return null;
+            List<VPNInstance> tmp =getVpnInstanceListFromDevice(device.getRouterId(),vpnName);
+            if(tmp!=null||tmp.size()!=0){
+                vpnInstancelist.addAll(tmp);
             }
         }
         return vpnInstancelist;
@@ -253,11 +258,32 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
+//        boolean ret =  CheckXml.checkOk(result).equals("ok");
+//        if(!ret) {
+//            LOG.info("Get vpn info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
+//        }
+        sendMsg= EbgpXml.getEbgpXml(vpnName);
+        LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
+        result=netconfController.sendMessage(netconfClient, sendMsg);
+        LOG.info("get vpnInfo result={}", new Object[]{result});
+//        ret =  CheckXml.checkOk(result).equals("ok");
+//        if(!ret) {
+//            LOG.info("Get ebgp info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
+//        }
+        List<BgpVrf> bgpVrfList= EbgpXml.getEbgpFromXml(result);
+        VPNInstance vpnInsntance = null;
         if(null != l3vpnInstances) {
             for(L3vpnInstance l3vpnInstance:l3vpnInstances){
-                VPNInstance tmpVPNInstance=mapL3vpnInstanceToVPNInstance(l3vpnInstance,device.getRouterId());
-                if(null!=tmpVPNInstance){
-                    vpnInstancelist.add(tmpVPNInstance);
+                vpnInsntance=mapL3vpnInstanceToVPNInstance(l3vpnInstance,device.getRouterId());
+                if(null!=vpnInsntance){
+                    if(null!=bgpVrfList){
+                        for(BgpVrf bgpVrf:bgpVrfList){
+                            if(vpnInsntance.getVpnName().equals(bgpVrf.getVrfName())){
+                                mapBgpVrfToVPNInstance(vpnInsntance,bgpVrf);
+                            }
+                        }
+                    }
+                    vpnInstancelist.add(vpnInsntance);
                 }
             }
         }else{
@@ -343,6 +369,31 @@ public class VPNServiceImpl implements VPNService {
             vpnInstance.setDeviceInterfaceList(deviceInterfaces);
         }
         return vpnInstance;
+    }
+    private void mapBgpVrfToVPNInstance(VPNInstance vpnInstance,BgpVrf bgpVrf){
+        if(bgpVrf.getBgpPeers()!=null&&bgpVrf.getBgpPeers().size()!=0){
+            vpnInstance.setPeerAS(Integer.parseInt(bgpVrf.getBgpPeers().get(0).getRemoteAs()));
+            vpnInstance.setPeerIP(new Address(bgpVrf.getBgpPeers().get(0).getPeerAddr(),AddressTypeEnum.V4));
+        }
+
+        if(bgpVrf.getNetworkRoutes()!=null&&bgpVrf.getNetworkRoutes().size()!=0){
+            List<NetworkSeg> networkSegList=new ArrayList<NetworkSeg>();
+            for(NetworkRoute networkRoute:bgpVrf.getNetworkRoutes()){
+                networkSegList.add(new NetworkSeg(new Address(networkRoute.getNetworkAddress(),AddressTypeEnum.V4),
+                        convertMaskLengthToIp(Integer.parseInt(networkRoute.getMaskLen()))));
+            }
+            vpnInstance.setNetworkSegList(networkSegList);
+        }
+        if(bgpVrf.getImportRoutes()!=null&&bgpVrf.getImportRoutes().size()!=0){
+            if(bgpVrf.getImportRoutes().get(0).equals("direct")){
+                vpnInstance.setImportDirectRouteEnable(1);
+            }else{
+                vpnInstance.setImportDirectRouteEnable(0);
+            }
+        }else{
+            vpnInstance.setImportDirectRouteEnable(0);
+        }
+
     }
    
     private BgpVrf mapEbgpInfoToBgpVfr(String vfrName,Integer peerAS, Address peerIP, Integer routeSelectDelay, Integer importDirectRouteEnable,
@@ -453,4 +504,32 @@ public class VPNServiceImpl implements VPNService {
         }
         return vpnInstanceMap;
     }
+
+    private Address convertMaskLengthToIp(Integer maskLength){
+        if(maskLength<0||maskLength>32){
+            LOG.info("Mask length is illegal" + maskLength);
+            return null;
+        }
+        int inetMask = Integer.valueOf(maskLength);
+        int part = inetMask / 8;
+        int remainder = inetMask % 8;
+        int sum = 0;
+        String ipMask="";
+        for (int i = 8; i > 8 - remainder; i--) {
+            sum = sum + (int) Math.pow(2, i - 1);
+        }
+        if (part == 0) {
+            ipMask = sum + ".0.0.0";
+        } else if (part == 1) {
+            ipMask = "255." + sum + ".0.0";
+        } else if (part == 2) {
+            ipMask = "255.255." + sum + ".0";
+        } else if (part == 3) {
+            ipMask = "255.255.255." + sum;
+        } else if (part == 4) {
+            ipMask = "255.255.255.255";
+        }
+        return  new Address(ipMask,AddressTypeEnum.V4);
+    }
+
 }
