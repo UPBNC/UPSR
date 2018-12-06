@@ -7,7 +7,7 @@
  */
 package cn.org.upbnc.enumtype;
 
-public enum TopoStatusEnum {
+public enum BgpTopoStatusEnum {
     INIT(0,"Init"),
     FINISH(1,"Finish"),
     UPDATING(2,"Updating"),
@@ -16,7 +16,7 @@ public enum TopoStatusEnum {
     private int code;
     private String name;
 
-    TopoStatusEnum(int code ,String name){
+    BgpTopoStatusEnum(int code , String name){
         this.code = code;
         this.name = name;
     }

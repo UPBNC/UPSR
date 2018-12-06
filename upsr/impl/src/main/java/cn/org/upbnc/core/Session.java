@@ -105,6 +105,8 @@ public class Session implements Runnable{
             this.serviceInterface.setUtilInterface(this.utilInterface);
             this.baseInterface.setUtilInterface(this.utilInterface);
 
+            // Start Service business
+            this.serviceInterface.startBusiness();
 
             this.status = SystemStatusEnum.ON;
             LOG.info("UPSR is ON");

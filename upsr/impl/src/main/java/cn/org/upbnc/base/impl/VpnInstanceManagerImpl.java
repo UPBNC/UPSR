@@ -200,4 +200,26 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstanceList;
     }
 
+    public boolean isContainVpnName(String vpnName){
+        boolean isContain=false;
+        for(VPNInstance vpnInstance:this.vpnInstanceList){
+            if(vpnInstance.getVpnName().equals(vpnName)){
+                isContain=true;
+                return  isContain;
+            }
+        }
+        return  isContain;
+    }
+
+    public boolean isContainRd(String routerId,String rd){
+        boolean isContain=false;
+        for(VPNInstance vpnInstance:getVpnInstanceListByRouterId(routerId)){
+            if(vpnInstance.getRd().equals(rd)){
+                isContain=true;
+                return  isContain;
+            }
+        }
+        return  isContain;
+    }
+
 }

@@ -14,6 +14,7 @@ import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.service.InterfaceService;
 import cn.org.upbnc.service.entity.DevInterfaceInfo;
 import cn.org.upbnc.util.netconf.GigabitEthernet;
@@ -86,7 +87,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         {
             for(DeviceInterface deviceInterface:deviceInterfaceList) {
                 ifnetStatus = (1 == deviceInterface.getStatus()) ? "up" :"down";
-                srStatus = (1 == deviceInterface.getSrStatus()) ? "up" :"down";
+                srStatus = (SrStatus.ENABLED.getName() == deviceInterface.getSrStatus()) ? "up" :"down";
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
                         ifnetStatus, srStatus,
@@ -208,18 +209,16 @@ public class InterfaceServiceImpl implements InterfaceService{
                     boolean compareFlag = false;
                     for (DeviceInterface deviceInterface:deviceInterfaceList) {
                         if(null == deviceInterfaceInfo.getIfnetIP()) {
-                            compareFlag = true;
                             break;
                         }
 
-                        if((false == compareFlag)&&(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress()))){
+                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())){
                             compareFlag = true;
                             updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
                             break;
                         }
                     }
                     if(false == compareFlag) {
-
                         DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),null,null,
                                 null, deviceInterfaceInfo.getIfnetName(),null, new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
                                 new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),

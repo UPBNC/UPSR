@@ -13,7 +13,7 @@ public class DeviceInterface {
     private String deviceName;
     private String bgpName;
     private String bgpDeviceName;
-    private Integer srStatus;
+    private String srStatus;
     private String name;
     private Integer status;
     private Address ip;
@@ -27,7 +27,7 @@ public class DeviceInterface {
     public DeviceInterface() {
         this.id = 0;
         this.device = null;
-        this.srStatus = 0;
+        this.srStatus = null;
         this.name = null;
         this.bgpName = null;
         this.bgpDeviceName = null;
@@ -54,7 +54,7 @@ public class DeviceInterface {
                            String deviceName,
                            String bgpName,
                            String bgpDeviceName,
-                           Integer srStatus,
+                           String srStatus,
                            String name,
                            Integer status,
                            Address ip,
@@ -104,11 +104,11 @@ public class DeviceInterface {
         this.deviceName = deviceName;
     }
 
-    public Integer getSrStatus() {
+    public String getSrStatus() {
         return srStatus;
     }
 
-    public void setSrStatus(Integer srStatus) {
+    public void setSrStatus(String srStatus) {
         this.srStatus = srStatus;
     }
 

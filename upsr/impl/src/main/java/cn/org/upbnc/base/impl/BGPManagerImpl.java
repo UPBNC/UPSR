@@ -12,7 +12,7 @@ import cn.org.upbnc.callback.TopoCallback;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.DeviceTypeEnum;
-import cn.org.upbnc.enumtype.TopoStatusEnum;
+import cn.org.upbnc.enumtype.BgpTopoStatusEnum;
 import cn.org.upbnc.util.UtilInterface;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -79,19 +79,16 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     private BgpTopoInfo bgpTopoInfo;
     private BgpTopoInfo bgpTopoInfoTotal;
     private TopoCallback tcb;
-    private TopoStatusEnum topoStatusEnum;
+    private BgpTopoStatusEnum bgpTopoStatusEnum;
 
 
     private BGPManagerImpl(){
         this.utilInterface = null;
         this.dataBroker = null;
         this.odlTopology = null;
-        //this.bgpTopoInfo = null;
         this.bgpTopoInfoTotal = null;
         this.tcb = null;
-        this.topoStatusEnum = TopoStatusEnum.INIT;
-        //this.topologyOptional = null;
-        //this.bgpConnectList = new ArrayList<BGPConnect>();
+        this.bgpTopoStatusEnum = BgpTopoStatusEnum.INIT;
         return;
     }
     public static BGPManager getInstance(){
@@ -123,12 +120,12 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
 
 
     @Override
-    public void getTopoInfo(){
-        if(this.topoStatusEnum != TopoStatusEnum.INIT){
-            return ;
+    public BgpTopoInfo getBgpTopoInfo(){
+        if(this.bgpTopoStatusEnum != BgpTopoStatusEnum.INIT){
+            return this.bgpTopoInfo;
         }
         try {
-            this.topoStatusEnum=TopoStatusEnum.UPDATING;
+            this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATING;
             this.getDataBroker();
             ReadTransaction trx = this.dataBroker.newReadOnlyTransaction();
             CheckedFuture<Optional<Topology>, ReadFailedException> future = trx.read(LogicalDatastoreType.OPERATIONAL, II_TO_TOPOLOGY_DEFAULT);
@@ -147,7 +144,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
                                 LOG.info("Bgp Topo is null!");
                             }
                             tcb.updateBgpTopoInfoCb(bgpTopoInfo);
-                            topoStatusEnum = TopoStatusEnum.FINISH;
+                            bgpTopoStatusEnum = BgpTopoStatusEnum.FINISH;
                             LOG.info("Read Topology from ODL End!");
                         } else {
                             LOG.info("Read Topology but NULL!");
@@ -163,15 +160,8 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         }catch (Exception e){
             LOG.info(e.getMessage());
         }
-        return;
+        return this.bgpTopoInfo;
     }
-
-    @Override
-    public void test(){
-
-        return;
-    }
-
 
     /*
      *  private function

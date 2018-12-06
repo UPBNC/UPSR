@@ -10,18 +10,17 @@ package cn.org.upbnc.service;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.callback.TopoCallback;
 import cn.org.upbnc.entity.TopoInfo;
-import cn.org.upbnc.enumtype.TopoStatusEnum;
 
 public interface TopoService extends TopoCallback {
+
+    // Service Start
+    void startService();
+
     // Set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
 
-    // Get Topology Status;
-    //TopoStatusEnum getTopoStatus();
 
     // Get Topology Info
     TopoInfo getTopoInfo();
 
-    // test function
-    void test();
 }

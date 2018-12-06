@@ -36,4 +36,6 @@ public interface VpnInstanceManager {
     VPNInstance  updateVpnInstance(VPNInstance vpnInstance);
     List<VPNInstance> getVpnInstanceList();
     List<VPNInstance> getVpnInstanceListByRouterId(String routerId);
+    boolean isContainVpnName(String vpnName);
+    boolean isContainRd(String routerId,String rd);
 }

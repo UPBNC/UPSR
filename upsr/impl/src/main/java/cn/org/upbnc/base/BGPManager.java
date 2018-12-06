@@ -8,6 +8,7 @@
 package cn.org.upbnc.base;
 
 import cn.org.upbnc.callback.TopoCallback;
+import cn.org.upbnc.entity.BgpTopoInfo;
 import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.util.UtilInterface;
 
@@ -19,9 +20,5 @@ public interface BGPManager {
     void setTopoCallback(TopoCallback tcb);
 
     // Start get Topo
-    void getTopoInfo();
-
-    // For test
-    void test();
-
+    BgpTopoInfo getBgpTopoInfo();
 }

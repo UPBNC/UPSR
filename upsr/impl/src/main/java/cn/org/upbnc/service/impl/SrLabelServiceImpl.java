@@ -12,6 +12,7 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.LinkManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.*;
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.service.SrLabelService;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
@@ -130,8 +131,11 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     public String syncNodeLabel() {
         LOG.info("syncNodeLabel begin");
-        if(this.deviceManager !=null ) {
+        if(this.deviceManager != null ) {
             for (Device device : this.deviceManager.getDeviceList()){
+                if ((device.getNetConf() == null) || (device.getNetConf().getStatus() != NetConfStatusEnum.Connected)){
+                    continue;
+                }
                 this.syncNodeLabel(device.getRouterId());
             }
         }
@@ -173,6 +177,9 @@ public class SrLabelServiceImpl implements SrLabelService {
         LOG.info("syncIntfLael begin");
         if(this.deviceManager !=null ) {
             for (Device device:this.deviceManager.getDeviceList()) {
+                if ((device.getNetConf() == null) || (device.getNetConf().getStatus() != NetConfStatusEnum.Connected)){
+                    continue;
+                }
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
                 String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
                 LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);
