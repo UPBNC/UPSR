@@ -129,7 +129,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }
         Device device = srLabelApi.getDevice(input.getRouterId());
         DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(input.getIntfLocalAddress());
-        if (deviceInterface.getAdjLabel() != null) {
+        if ((deviceInterface != null) && (deviceInterface.getAdjLabel() != null)) {
             getIntfLabelOutputBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
         }
         LOG.info("getIntfLabel end");
