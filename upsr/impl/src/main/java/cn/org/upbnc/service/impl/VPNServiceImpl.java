@@ -128,7 +128,7 @@ public class VPNServiceImpl implements VPNService {
             //modify vpn
             LOG.info("VPN {} is already exist ,update",vpnName);
 
-            List<Boolean> modifyList = vpnInstance.compareVpnInfo(vpnName,
+            Map<String, Boolean> modifyMap = vpnInstance.compareVpnInfo(vpnName,
                     routerId,
                     businessRegion,
                     rd,
@@ -140,7 +140,7 @@ public class VPNServiceImpl implements VPNService {
                     importDirectRouteEnable,
                     deviceInterfaceList,
                     networkSegList);
-            String sendMsg = "";//VpnXml.modifyVpnXml(modifyList,l3vpnInstance,bgpVrf);
+            String sendMsg = "";//VpnXml.modifyVpnXml(modifyMap,l3vpnInstance,bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
@@ -349,7 +349,7 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("get device={} ", new Object[]{device.toString()});
             return null;
         }
-        VPNInstance vpnInstance= new VPNInstance(l3vpnInstance.getVrfName(),routerId);
+        VPNInstance vpnInstance= new VPNInstance(routerId,l3vpnInstance.getVrfName());
 
         vpnInstance.setDevice(device);
         vpnInstance.setRd(l3vpnInstance.getVrfRD());
@@ -439,7 +439,7 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         for(Device device:deviceManager.getDeviceList()){
-            if(device.getNetConf().getStatus()== NetConfStatusEnum.Connected) {
+            if((null!=device.getNetConf())&&(device.getNetConf().getStatus()== NetConfStatusEnum.Connected)) {
                 List<VPNInstance> vpnInstanceListFromDevice = getVpnInstanceListFromDevice(device.getRouterId(), "");
                 if (null != vpnInstanceListFromDevice) {
                     for (VPNInstance vpnInstanceFromDevice : vpnInstanceListFromDevice) {

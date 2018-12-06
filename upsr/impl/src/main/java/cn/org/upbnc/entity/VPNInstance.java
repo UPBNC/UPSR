@@ -10,8 +10,8 @@ import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 public class VPNInstance {
     private Integer id;
     private Device device;
@@ -233,7 +233,7 @@ public class VPNInstance {
         return super.equals(obj);
     }
 
-    public List<Boolean> compareVpnInfo(String vpnName,
+    public Map<String, Boolean> compareVpnInfo(String vpnName,
                                 String routerId,
                                 String businessRegion,
                                 String rd,
@@ -246,7 +246,7 @@ public class VPNInstance {
                                 List<DeviceInterface> deviceInterfaceList,
                                 List<NetworkSeg> networkSegList) {
 
-        List<Boolean> compList = new ArrayList<Boolean>();
+        Map<String, Boolean> compMap=new HashMap<String,Boolean>();
         boolean isRdChanged=false;
         boolean isRtChanged=false;
         boolean isIfmChanged=false;
@@ -267,11 +267,11 @@ public class VPNInstance {
             isIfmChanged=true;
         }
 
-        compList.add(isRdChanged);
-        compList.add(isRtChanged);
-        compList.add(isIfmChanged);
-        compList.add(isEbgpChanged);
-        return compList;
+        compMap.put("isRdChanged",isRdChanged);
+        compMap.put("isRtChanged",isRtChanged);
+        compMap.put("isIfmChanged",isIfmChanged);
+        compMap.put("isEbgpChanged",isEbgpChanged);
+        return compMap;
     }
 
     public boolean compareEbgpInfoIsEqual(Integer peerAS,
