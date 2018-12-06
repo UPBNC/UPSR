@@ -12,12 +12,12 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.LinkManager;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.TopoStatusEnum;
+import cn.org.upbnc.enumtype.ServiceStatusEnum;
+import cn.org.upbnc.enumtype.BgpTopoStatusEnum;
 import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TopoServiceImpl implements TopoService {
@@ -36,6 +36,12 @@ public class TopoServiceImpl implements TopoService {
     // Topo数据管理
     private TopoInfo topoInfo;
 
+    // Service status
+    private ServiceStatusEnum serviceStatusEnum;
+
+    // Service BgpLabel
+    private BgpTopoStatusEnum bgpTopoStatusEnum;
+
 
     private TopoServiceImpl() {
         this.baseInterface = null;
@@ -43,6 +49,25 @@ public class TopoServiceImpl implements TopoService {
         this.deviceManager = null;
         this.linkManager = null;
         this.topoInfo = new TopoInfo();
+        this.serviceStatusEnum = ServiceStatusEnum.INIT;
+        this.bgpTopoStatusEnum = BgpTopoStatusEnum.INIT;
+    }
+
+    @Override
+    public void startService(){
+        this.serviceStatusEnum = ServiceStatusEnum.STARTING;
+
+        // Start bgp update
+        if(this.bgpTopoStatusEnum == BgpTopoStatusEnum.UPDATED){
+            BgpTopoInfo bgpTopoInfo = this.bgpManager.getBgpTopoInfo();
+            if( null != bgpTopoInfo) {
+                this.updateBgpTopoInfoCb(bgpTopoInfo);
+            }
+        }
+
+        // Other Service
+
+        this.serviceStatusEnum = ServiceStatusEnum.READY;
     }
 
     @Override
@@ -78,20 +103,19 @@ public class TopoServiceImpl implements TopoService {
         return ret;
     }
 
-//    @Override
-//    public TopoStatusEnum getTopoStatus(){
-//        return this.topoStatusEnum;
-//    }
 
     @Override
     public TopoInfo getTopoInfo(){
+        if(this.serviceStatusEnum == ServiceStatusEnum.INIT){
+            return null;
+        }
         List<Device> devices = this.deviceManager.getDeviceList();
         List<Link> links = this.linkManager.getLinkList();
         this.topoInfo.setDeviceList(devices);
         this.topoInfo.setLinkList(links);
         try {
             // 调用Bgp Topology查询
-            this.bgpManager.getTopoInfo();
+            this.bgpManager.getBgpTopoInfo();
         } catch (Exception e) {
             LOG.info(e.getMessage());
         }
@@ -99,13 +123,14 @@ public class TopoServiceImpl implements TopoService {
         return this.topoInfo;
     }
 
-    @Override
-    public void test(){
-        this.bgpManager.test();
-    }
 
     @Override
     public void updateBgpTopoInfoCb(BgpTopoInfo bgpTopoInfo){
+        this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATED;
+
+        if(this.serviceStatusEnum == ServiceStatusEnum.INIT){
+            return;
+        }
         LOG.info("Update Topo By BGP Start ...");
         LOG.info("Update BGP Device Start...");
         List<Device> deviceList = this.deviceManager.updateDeviceListByBgpDeviceList(bgpTopoInfo.getBgpDeviceList());

@@ -23,7 +23,7 @@ public class DeviceManagerImpl implements DeviceManager {
 
     private DeviceManagerImpl() {
         //this.mapInstance = new HashMap<String,Device>();
-        this.deviceList = new ArrayList<Device>();
+        this.deviceList = Collections.synchronizedList(new ArrayList<Device>());
         return;
     }
     public static DeviceManager getInstance() {

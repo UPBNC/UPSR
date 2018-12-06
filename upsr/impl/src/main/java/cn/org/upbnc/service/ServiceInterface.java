@@ -92,6 +92,15 @@ public class ServiceInterface {
         return ret;
     }
 
+    // Start Bussiness
+    public void startBusiness(){
+
+
+        // Start topology service at last
+        this.topoService.startService();
+
+    }
+
     public VPNService getVpnService() {
         if(null == this.vpnService){
             this.vpnService = VPNServiceImpl.getInstance();
