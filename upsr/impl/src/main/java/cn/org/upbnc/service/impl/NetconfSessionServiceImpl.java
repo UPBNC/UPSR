@@ -115,7 +115,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         if((null != netconf) &&(null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
             String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "connected" :"connecting" ;
-            device.setSrStatus(connStatus );
+            netconf.setStatus(netconfStat.getStatus());
             if(NetConfStatusEnum.Connected == netconfStat.getStatus()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
                 String sendMsg = HostNameXml.getHostNameXml();
@@ -158,7 +158,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         {
             netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
-            netconfSession.setStatus(device.getSrStatus());
+            String connStatus = "connecting";
+            if(null != device.getNetConf()) {
+                connStatus = (NetConfStatusEnum.Connected == device.getNetConf().getStatus()) ? "connected" : "connecting";
+            }
+            netconfSession.setStatus(connStatus);
         }
         return netconfSession;
     }

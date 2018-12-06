@@ -230,7 +230,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                     }
                 }
                 //4 delete invalid memory interface
-                DeviceInterface deviceInterfaceGet = null;
+                DeviceInterface deviceInterfaceGet = null;  
                 Iterator<DeviceInterface> iter = deviceInterfaceList.iterator();
                 while(iter.hasNext())
                 {
