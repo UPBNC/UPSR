@@ -24,6 +24,11 @@ public class IniSectionManagerImpl implements IniSectionManager{
         file = new File("./sr_conf.ini");
         ini = new Ini();
         ini.setFile(file);
+        try {
+            ini.load();
+        }catch(Exception e ) {
+            
+        }
     }
     public static IniSectionManager getInstance() {
         if(null == ourInstance) {
@@ -60,7 +65,15 @@ public class IniSectionManagerImpl implements IniSectionManager{
                 ini.add(section, key, value);
                 return true;
             }
-            sectionCfg.replace(key, value);
+            String tmp = sectionCfg.get(key);
+            if(null == tmp) {
+                sectionCfg.add(key, value);
+            }
+            else
+            {
+                sectionCfg.replace(key, value);
+            }
+
             return true;
         }
         return false;
