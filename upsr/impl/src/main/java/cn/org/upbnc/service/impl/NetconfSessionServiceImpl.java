@@ -9,6 +9,7 @@ package cn.org.upbnc.service.impl;
 
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
+import cn.org.upbnc.base.IniSectionManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
@@ -33,6 +34,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
     private BaseInterface  baseInterface;
     private NetConfManager netConfManager;
     private DeviceManager deviceManager;
+    private IniSectionManager iniSectionManager;
+
+    private int netconfSession_seq_min = 1;
+    private int netconfSession_seq_max = 100;
+
     public static NetconfSessionService getInstance() {
         if(null == ourInstance)
         {
@@ -45,7 +51,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         this.baseInterface = null;
         this.netConfManager = null;
         this.deviceManager = null;
-
+        this.iniSectionManager = null;
     }
 
     @Override
@@ -57,6 +63,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             this.baseInterface = baseInterface;
             this.netConfManager = baseInterface.getNetConfManager();
             this.deviceManager = baseInterface.getDeviceManager();
+            this.iniSectionManager = baseInterface.getIniSectionManager();
         }
         catch (Exception e)
         {
@@ -97,7 +104,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                 netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
                 device.setNetConf(netconf);
             }
-            this.netConfManager.addDevice(netconf);
 
         }
         else
@@ -110,8 +116,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             device.setDataCenter(deviceDesc);
             device.setDeviceType(deviceType);
             device.setNetConf(netconf);
-            this.netConfManager.addDevice(netconf);
+
         }
+        this.netConfManager.addDevice(netconf);
+        saveNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
+
         if((null != netconf) &&(null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
             String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "connected" :"connecting" ;
@@ -159,8 +168,14 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
             String connStatus = "connecting";
+            //get status from device for avoiding connect break in use
             if(null != device.getNetConf()) {
-                connStatus = (NetConfStatusEnum.Connected == device.getNetConf().getStatus()) ? "connected" : "connecting";
+                NetConf netconf = device.getNetConf();
+                if ((null != netconf.getIp())&&(null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
+                    NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
+                    connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "connected" : "connecting";
+                    netconf.setStatus(netConfStatus);
+                }
             }
             netconfSession.setStatus(connStatus);
         }
@@ -193,5 +208,55 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                 ", netConfManager=" + netConfManager +
                 ", deviceManager=" + deviceManager +
                 '}';
+    }
+
+    private boolean saveNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
+        int seq = 0;
+        for(seq=netconfSession_seq_min; seq< netconfSession_seq_max; seq++) {
+            String sectionName = "netconfSession_" + seq;
+            String value = this.iniSectionManager.getValue(sectionName, "routerId", null);
+            if((null != value)&&(false == value.equals(routerId)))
+            {
+                continue;
+            }
+
+            this.iniSectionManager.setValue(sectionName, "routerId", routerId);
+            this.iniSectionManager.setValue(sectionName,"deviceName", deviceName);
+            this.iniSectionManager.setValue(sectionName,"centerName", deviceDesc);
+            this.iniSectionManager.setValue(sectionName, "deviceType", deviceType);
+            this.iniSectionManager.setValue(sectionName, "sshIP", deviceIP);
+            this.iniSectionManager.setValue(sectionName, "sshPort", devicePort.toString());
+            this.iniSectionManager.setValue(sectionName,"userName", userName);
+            this.iniSectionManager.setValue(sectionName,"passWord", userPassword);
+            break;
+
+
+        }
+        return true;
+    }
+
+    public boolean recoverNetconfSession() {
+        int seq = 0;
+        String sectionName = null;
+        String routerId = null, deviceName = null, deviceDesc = null, deviceType = null;
+        String deviceIP = null, devicePort = null;
+        String userName = null, passWord = null;
+
+        for (seq = netconfSession_seq_min; seq < netconfSession_seq_max; seq++) {
+            sectionName = "netconfSession_" + seq;
+            routerId = this.iniSectionManager.getValue(sectionName, "routerId", null);
+            if (null == routerId) {
+                break;
+            }
+            deviceName = this.iniSectionManager.getValue(sectionName, "deviceName", null);
+            deviceDesc = this.iniSectionManager.getValue(sectionName, "centerName", null);
+            deviceType = this.iniSectionManager.getValue(sectionName, "deviceType", "PE");
+            deviceIP = this.iniSectionManager.getValue(sectionName, "sshIP", null);
+            devicePort = this.iniSectionManager.getValue(sectionName, "sshPort", null);
+            userName = this.iniSectionManager.getValue(sectionName, "userName", null);
+            passWord = this.iniSectionManager.getValue(sectionName, "passWord", null);
+            updateNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
+        }
+        return true;
     }
 }

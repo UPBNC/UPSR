@@ -189,6 +189,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <!--<artifactId>yang-binding</artifactId>-->
       <!--<version>1.0.1</version>-->
     <!--</dependency>-->
+    <dependency>
+      <groupId>org.ini4j</groupId>
+      <artifactId>ini4j</artifactId>
+      <version>0.5.4</version>
+    </dependency>
+
   </dependencies>
 
   <build>
