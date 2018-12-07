@@ -15,13 +15,20 @@ import org.ini4j.Profile;
 import java.io.File;
 
 public class IniSectionManagerImpl implements IniSectionManager{
-    private File file = new File("./sr_conf.ini");
+    private File file = null;
     public static IniSectionManager ourInstance = new IniSectionManagerImpl();
 
-    private Ini ini = new Ini();
+    private Ini ini = null;
 
     private IniSectionManagerImpl() {
+        file = new File("./sr_conf.ini");
+        ini = new Ini();
         ini.setFile(file);
+        try {
+            ini.load();
+        }catch(Exception e ) {
+            
+        }
     }
     public static IniSectionManager getInstance() {
         if(null == ourInstance) {
@@ -58,7 +65,15 @@ public class IniSectionManagerImpl implements IniSectionManager{
                 ini.add(section, key, value);
                 return true;
             }
-            sectionCfg.replace(key, value);
+            String tmp = sectionCfg.get(key);
+            if(null == tmp) {
+                sectionCfg.add(key, value);
+            }
+            else
+            {
+                sectionCfg.replace(key, value);
+            }
+
             return true;
         }
         return false;
@@ -101,4 +116,19 @@ public class IniSectionManagerImpl implements IniSectionManager{
         }
         return false;
     }
+
+    @Override
+    public boolean storeFile() {
+        if(null != ini) {
+            try {
+                ini.store();
+            }catch (Exception e)
+            {
+
+            }
+            return true;
+        }
+        return false;
+    }
+
 }
