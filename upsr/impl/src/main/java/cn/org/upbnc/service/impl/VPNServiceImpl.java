@@ -24,6 +24,7 @@ import cn.org.upbnc.util.netconf.bgp.ImportRoute;
 import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
 import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.EbgpXml;
+import cn.org.upbnc.util.xml.VpnUpdateXml;
 import cn.org.upbnc.util.xml.VpnXml;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.Ebgp;
 import org.slf4j.Logger;
@@ -140,9 +141,13 @@ public class VPNServiceImpl implements VPNService {
                     importDirectRouteEnable,
                     deviceInterfaceList,
                     networkSegList);
-            String sendMsg = "";//VpnXml.modifyVpnXml(modifyMap,l3vpnInstance,bgpVrf);
+            String sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap,l3vpnInstance,bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
+            LOG.info("result={}", new Object[]{result});
+            sendMsg = VpnUpdateXml.getUpdateVpnAddXml(modifyMap,l3vpnInstance,bgpVrf);
+            LOG.info("sendMsg={}", new Object[]{sendMsg});
+            result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
             ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
         }
@@ -530,6 +535,13 @@ public class VPNServiceImpl implements VPNService {
             ipMask = "255.255.255.255";
         }
         return  new Address(ipMask,AddressTypeEnum.V4);
+    }
+
+    public boolean isContainVpnName(String vpnName){
+        return (null == this.vpnInstanceManager)?null:this.vpnInstanceManager.isContainVpnName(vpnName);
+    }
+    public boolean isContainRd(String routerId,String rd){
+        return (null == this.vpnInstanceManager)?null:this.vpnInstanceManager.isContainRd(routerId,rd);
     }
 
 }

@@ -160,8 +160,7 @@ module upsrVpnInstance {
             }
         }
     }
-    rpc updateVpnInstance
-    {
+    rpc updateVpnInstance{
         input {
             uses vpnInstanceInfo;
         }
@@ -171,8 +170,7 @@ module upsrVpnInstance {
             }
         }
     }
-    rpc getVpnInstance
-    {
+    rpc getVpnInstance{
         input {
             leaf routerId {
                 type string;
@@ -189,6 +187,42 @@ module upsrVpnInstance {
                 type int32;
             }
             uses vpnInstanceInfo;
+        }
+    }
+    rpc isContainVpnName
+    {
+        input{
+           leaf vpnName {
+               type string;
+           }
+        }
+        output{
+            leaf result{
+                type string;
+            }
+            leaf isContainVpnName{
+                type boolean;
+            }
+        }
+    }
+
+    rpc isContainRd
+    {
+        input{
+           leaf routerId {
+               type string;
+           }
+           leaf vpnRd {
+               type string;
+           }
+        }
+        output{
+            leaf result{
+                type string;
+            }
+            leaf isContainRd{
+                type boolean;
+            }
         }
     }
 }

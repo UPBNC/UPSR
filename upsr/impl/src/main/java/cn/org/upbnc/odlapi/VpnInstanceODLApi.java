@@ -338,4 +338,40 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         getVpnInstanceListOutputBuilder.setResult("failed");
         return RpcResultBuilder.success(getVpnInstanceListOutputBuilder.build()).buildFuture();
     }
+
+    public Future<RpcResult<IsContainVpnNameOutput>> isContainVpnName(IsContainVpnNameInput input) {
+        IsContainVpnNameOutputBuilder isContainVpnNameOutputBuilder = new IsContainVpnNameOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            isContainVpnNameOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(isContainVpnNameOutputBuilder.build()).buildFuture();
+        } else {
+            //logic
+            //调用系统Api层函数
+            if(null!=this.vpnInstanceApi){
+                isContainVpnNameOutputBuilder.setResult("success");
+                isContainVpnNameOutputBuilder.setIsContainVpnName(this.vpnInstanceApi.isContainVpnName(input.getVpnName()));
+            }else{
+                isContainVpnNameOutputBuilder.setResult("failed");
+            }
+            return RpcResultBuilder.success(isContainVpnNameOutputBuilder.build()).buildFuture();
+        }
+    }
+
+    public Future<RpcResult<IsContainRdOutput>> isContainRd(IsContainRdInput input) {
+        IsContainRdOutputBuilder isContainRdOutputBuilder = new IsContainRdOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            isContainRdOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(isContainRdOutputBuilder.build()).buildFuture();
+        } else {
+            //logic
+            //调用系统Api层函数
+            if(null!=this.vpnInstanceApi){
+                isContainRdOutputBuilder.setResult("success");
+                isContainRdOutputBuilder.setIsContainRd(this.vpnInstanceApi.isContainRd(input.getRouterId(),input.getVpnRd()));
+            }else{
+                isContainRdOutputBuilder.setResult("failed");
+            }
+            return RpcResultBuilder.success(isContainRdOutputBuilder.build()).buildFuture();
+        }
+    }
 }

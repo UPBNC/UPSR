@@ -83,4 +83,17 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     public String getTest() {
         return null;
     }
+
+    public boolean isContainVpnName(String vpnName){
+        if(vpnName.equals("")){
+            return false;
+        }
+        return (null == this.vpnService)?null:this.vpnService.isContainVpnName(vpnName);
+    }
+    public boolean isContainRd(String routerId,String rd){
+        if(routerId.equals("")||rd.equals("")){
+            return false;
+        }
+        return (null == this.vpnService)?null:this.vpnService.isContainRd(routerId,rd);
+    }
 }
