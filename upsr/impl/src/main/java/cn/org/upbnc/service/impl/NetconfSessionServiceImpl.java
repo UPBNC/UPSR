@@ -159,8 +159,14 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
             String connStatus = "connecting";
+            //get status from device for avoiding connect break in use
             if(null != device.getNetConf()) {
-                connStatus = (NetConfStatusEnum.Connected == device.getNetConf().getStatus()) ? "connected" : "connecting";
+                NetConf netconf = device.getNetConf();
+                if ((null != netconf.getIp())&&(null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
+                    NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
+                    connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "connected" : "connecting";
+                    netconf.setStatus(netConfStatus);
+                }
             }
             netconfSession.setStatus(connStatus);
         }
