@@ -589,9 +589,11 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         if(dataObject instanceof Topology){
             Topology odlTopology = (Topology) dataObject;
             LOG.info("Update Topology from ODL Start...");
+            this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATING;
             this.bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
             this.bgpTopoInfo = dealBgpTopoInfo(this.bgpTopoInfoTotal);
             this.tcb.updateBgpTopoInfoCb(this.bgpTopoInfo);
+            this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATED;
             LOG.info("Update Topology from ODL End!");
         }else{
 

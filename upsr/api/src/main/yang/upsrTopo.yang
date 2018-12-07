@@ -63,10 +63,11 @@ module upsrTopo {
         }
     }
 
-	rpc getTopo {
-		output {
-			uses nodeInfo;
-			uses linkInfo;
-		}
-	}
+    rpc getTopo {
+        output {
+            leaf result { type string; }
+            uses nodeInfo;
+            uses linkInfo;
+        }
+    }
 }

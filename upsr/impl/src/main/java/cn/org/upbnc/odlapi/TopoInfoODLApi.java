@@ -140,6 +140,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
                 DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
                 deviceInterfacesBuilder.setIfName(deviceInterface.getName());
                 deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
+                deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
                 deviceInterfacesBuilder.setSrEnabled(deviceInterface.getSrStatus());
                 if (deviceInterface.getAdjLabel() != null) {
                     deviceInterfacesBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
@@ -193,6 +194,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
             getTopoOutputBuilder.setLinks(this.getLinks(topoInfo, null));
             getTopoOutputBuilder.setNodes(this.getNodes(topoInfo, null));
         }
+        getTopoOutputBuilder.setResult("success");
         LOG.info("getTopo end");
         return RpcResultBuilder.success(getTopoOutputBuilder.build()).buildFuture();
     }
