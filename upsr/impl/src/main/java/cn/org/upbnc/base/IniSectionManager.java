@@ -14,5 +14,6 @@ public interface IniSectionManager {
     Boolean setValue(String section, String key, String value);
     String  getValue(File file, String section, String key, final String defaultvalue);
     Boolean setValue(File file, String section, String key, String value);
+    boolean storeFile();
 
 }

@@ -23,6 +23,7 @@ import cn.org.upbnc.util.xml.HostNameXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -229,9 +230,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             this.iniSectionManager.setValue(sectionName,"userName", userName);
             this.iniSectionManager.setValue(sectionName,"passWord", userPassword);
             break;
-
-
         }
+        this.iniSectionManager.storeFile();
         return true;
     }
 
