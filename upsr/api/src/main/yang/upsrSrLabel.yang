@@ -18,6 +18,7 @@ module upsrSrLabel {
     }
     grouping srInterface {
         leaf ifAddress { type string; }
+        leaf mask { type string; }
         leaf ifName { type string; }
         leaf srEnabled { type string; }
         leaf adjlabel { type string; }
@@ -39,16 +40,12 @@ module upsrSrLabel {
             uses srgbLabelInfo;
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
         }
     }
     rpc getSrgbLabel {
         input {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
         }
         output {
             uses srgbLabelInfo;
@@ -59,9 +56,7 @@ module upsrSrLabel {
             uses intfLabelInfo;
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
         }
     }
     rpc getIntfLabel {
@@ -69,12 +64,21 @@ module upsrSrLabel {
             leaf routerId {
                 type string;
             }
-            leaf intfLocalAddress {
-                type string;
-            }
+            leaf intfLocalAddress { type string; }
         }
         output {
             uses intfLabelInfo;
+        }
+    }
+    rpc updateSrLabel {
+        input {
+            uses srgbLabelInfo;
+            list intfLabel {
+                uses intfLabelInfo;
+            }
+        }
+        output {
+            leaf result { type string; }
         }
     }
 }

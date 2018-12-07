@@ -44,11 +44,9 @@ public class SrLabelXml {
     }
     public static List<AdjLabel> getSrAdjLabelFromSrAdjLabelXml(String xml){
         List<AdjLabel> adjLabelList = new ArrayList<>();
-
         if ("".equals(xml)){
             return null;
         }
-
         try {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
