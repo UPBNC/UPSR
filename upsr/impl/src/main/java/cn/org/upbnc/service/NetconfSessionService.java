@@ -21,5 +21,6 @@ public interface NetconfSessionService {
     boolean delNetconfSession(String routerId);
     NetconfSession getNetconfSession(String routerId);
     List<NetconfSession> getNetconfSession();
+    boolean recoverNetconfSession();
 
 }
