@@ -119,7 +119,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
             if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatus.ENABLED.getName()) &&
                     device.getNodeLabel() != null) {
                 SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
-                srgbPrefixSidBuilder.setPrefixId(String.valueOf(device.getNodeLabel().getValue() + device.getMinNodeSID()));
+                srgbPrefixSidBuilder.setPrefixId(String.valueOf(new (device.getNodeLabel().getValue() + device.getMinNodeSID())));
                 srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
                 srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
                 if (device.getMinAdjSID() != null) {
@@ -140,7 +140,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
                 DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
                 deviceInterfacesBuilder.setIfName(deviceInterface.getName());
                 deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
-                deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
+                if (deviceInterface.getMask() != null) {
+                    deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
+                }
                 deviceInterfacesBuilder.setSrEnabled(deviceInterface.getSrStatus());
                 if (deviceInterface.getAdjLabel() != null) {
                     deviceInterfacesBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());

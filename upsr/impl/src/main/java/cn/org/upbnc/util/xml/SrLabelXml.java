@@ -212,7 +212,7 @@ public class SrLabelXml {
         }
         return netconfSrLabelInfo;
     }
-    public static String setSrNodeLabelXml(String processId,String areaId,String ifName,String prefixSidType,String prefixLabel) {
+    public static String setSrNodeLabelXml(String processId,String areaId,String ifName,String prefixSidType,String prefixLabel,String operation) {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                                     \n" +
                 "  <target>                                                                                                          \n" +
@@ -230,7 +230,7 @@ public class SrLabelXml {
                 "                <interfaces>                                                                                        \n" +
                 "                  <interface>                                                                                       \n" +
                 "                    <ifName>" + ifName + "</ifName>                                                                  \n" +
-                "                    <srInterface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"merge\">       \n" +
+                "                <srInterface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\""+ operation +"\">  \n" +
                 "                      <prefixSidType>" + prefixSidType + "</prefixSidType>                                            \n" +
                 "                      <prefixLabel>" + prefixLabel + "</prefixLabel>                                                  \n" +
                 "                    </srInterface>                                                                                  \n" +

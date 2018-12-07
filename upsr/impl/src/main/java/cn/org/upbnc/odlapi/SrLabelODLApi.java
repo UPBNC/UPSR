@@ -62,7 +62,7 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         getSrgbLabelOutputBuilder.setRouterId(device.getRouterId());
         getSrgbLabelOutputBuilder.setSrEnabled("1");
         SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
-        Integer prefixLabel = device.getNodeLabel().getValue() + device.getMinNodeSID();
+        Integer prefixLabel = new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID());
         srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
         srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
         srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
@@ -82,8 +82,8 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         }else{
             this.getSrLabelApi();
         }
-        Integer prefixLabel = Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
-                                            Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin());
+        Integer prefixLabel = new Integer( Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                                            Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
         if(input.getSrEnabled().equals(SrStatus.DISENABLED.getName())){
             srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationDelete);
             srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
@@ -160,9 +160,9 @@ public class SrLabelODLApi implements UpsrSrLabelService{
         SrgbPrefixSid srgbPrefixSid = input.getSrgbPrefixSid();
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         if (srStatus != null && srStatus.equals(SrStatus.DISENABLED.getName())){
-            Integer prefixLabel = Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
-                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin());
-            srLabelApi.updateNodeLabel(input.getRouterId(),srgbPrefixSid.getPrefixId(),SrLabelXml.ncOperationDelete);
+            Integer prefixLabel = new Integer( Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
+            srLabelApi.updateNodeLabel(input.getRouterId(),String.valueOf(prefixLabel),SrLabelXml.ncOperationDelete);
             srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
                     input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationDelete);
             Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
@@ -172,8 +172,8 @@ public class SrLabelODLApi implements UpsrSrLabelService{
                         intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
             }
         } else if (srStatus != null && srStatus.equals(SrStatus.ENABLED.getName())){
-            Integer prefixLabel = Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
-                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin());
+            Integer prefixLabel = new Integer(Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
+                    Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
             srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
             srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
                     input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
