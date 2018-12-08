@@ -67,7 +67,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         device = deviceManager.getDevice(routerId);
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
-                device.getOspfProcess().getAreaId(),device.getOspfProcess().getIntfName(),"index",labelVal);
+                device.getOspfProcess().getAreaId(),device.getOspfProcess().getIntfName(),"index",labelVal,action);
         LOG.info("command xml: " + commandSetSrNodeLabelXml);
         String outPutXml = netconfController.sendMessage(netconfClient,commandSetSrNodeLabelXml);
         if (CheckXml.checkOk(outPutXml).equals("ok")){
