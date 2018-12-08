@@ -23,7 +23,6 @@ import cn.org.upbnc.util.xml.HostNameXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -166,18 +165,21 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
+            if(null == device.getNetConf()) {
+                return null;
+            }
             netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
                     device.getNetConf().getPort(), device.getNetConf().getUser());
             String connStatus = "connecting";
             //get status from device for avoiding connect break in use
-            if(null != device.getNetConf()) {
-                NetConf netconf = device.getNetConf();
-                if ((null != netconf.getIp())&&(null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
-                    NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
-                    connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "connected" : "connecting";
-                    netconf.setStatus(netConfStatus);
-                }
+
+            NetConf netconf = device.getNetConf();
+            if ((null != netconf.getIp())&&(null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
+                NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
+                connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "connected" : "connecting";
+                netconf.setStatus(netConfStatus);
             }
+
             netconfSession.setStatus(connStatus);
         }
         return netconfSession;
