@@ -295,6 +295,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                             bindDevice = new BindBuilder();
                             if(null != vpnInstance.getDevice()) {
                                 bindDevice.setDeviceName(vpnInstance.getDevice().getDeviceName());
+                                bindDevice.setRouterId(vpnInstance.getDevice().getRouterId());
                             }
                             bindDevice.setVpnExport(vpnInstance.getExportRT());
                             bindDevice.setVpnImport(vpnInstance.getImportRT());

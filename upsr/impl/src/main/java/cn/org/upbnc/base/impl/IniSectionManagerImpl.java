@@ -79,43 +79,6 @@ public class IniSectionManagerImpl implements IniSectionManager{
         return false;
     }
 
-    @Override
-    public String getValue(File file, String section, String key, final String defaultvalue) {
-        if(null == file) {
-            return null;
-        }
-        Ini tmpini = new Ini();
-        tmpini.setFile(file);
-        if(null != tmpini) {
-            Profile.Section sectionCfg = tmpini.get(section);
-            if( null == sectionCfg) {return null;}
-            final  String value = sectionCfg.get(key);
-            if (StringUtils.isBlank(value)) {    // if bank ,return default value
-                return defaultvalue;
-            }
-            return value;
-        }
-        return null;
-    }
-
-    @Override
-    public Boolean setValue(File file, String section, String key, String value) {
-        if(null == file) {
-            return false;
-        }
-        Ini tmpini = new Ini();
-        tmpini.setFile(file);
-        if(null != ini) {
-            Profile.Section sectionCfg = ini.get(section);
-            if(null == sectionCfg) {
-                ini.add(section, key, value);
-                return true;
-            }
-            sectionCfg.replace(key, value);
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public boolean storeFile() {
