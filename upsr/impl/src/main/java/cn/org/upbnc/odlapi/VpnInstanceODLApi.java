@@ -86,6 +86,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     retVpnInstance.setVpnRd(vpnInstance.getRd());
                     retVpnInstance.setVpnRt(vpnInstance.getImportRT());
                     retVpnInstance.setPeerAS(vpnInstance.getPeerAS());
+                    retVpnInstance.setPeerIP(vpnInstance.getPeerIP().getAddress());
                     retVpnInstance.setRouteSelectDelay(vpnInstance.getRouteSelectDelay());
                     retVpnInstance.setImportDirectRouteEnable(vpnInstance.getRouteSelectDelay());
                     List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
