@@ -130,7 +130,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
         List<BindInterface> deviceBindInterfaces = new LinkedList<BindInterface>();
         List<NetSegment> netSegments = new LinkedList<NetSegment>();
         GetVpnInstanceOutputBuilder vpnInstanceGetOutputBuilder = new GetVpnInstanceOutputBuilder();
-        LOG.info("enter vpnInstanceGet-01");
+
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
@@ -138,7 +138,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             vpnInstanceGetOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
         } else {
-            LOG.info("enter vpnInstanceGet-02");
+            LOG.info("enter vpnInstanceGet");
             //调用系统Api层函数
             vpnInstance = this.getVpnInstanceApi().getVpnInstance(input.getRouterId(), input.getVpnName());
             if (null != vpnInstance) {
@@ -176,7 +176,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
 
         //以下是业务代码
 
-        LOG.info("enter vpnInstanceGet-03");
+
         vpnInstanceGetOutputBuilder.setResult("failed");
         return RpcResultBuilder.success(vpnInstanceGetOutputBuilder.build()).buildFuture();
     }
@@ -184,7 +184,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
     public Future<RpcResult<DelVpnInstanceOutput>> delVpnInstance(DelVpnInstanceInput input) {
         boolean ret = false;
         DelVpnInstanceOutputBuilder vpnInstanceDelOutputBuilder = new DelVpnInstanceOutputBuilder();
-        LOG.info("enter vpnInstanceDel-01");
+
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
@@ -201,7 +201,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             }
 
         }
-        LOG.info("enter vpnInstanceDel-03");
         //以下是业务代码
         vpnInstanceDelOutputBuilder.setResult("failed");
 
@@ -254,7 +253,6 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                 return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
             }
         }
-        LOG.info("enter vpnInstanceUpdate-03");
         //以下是业务代码
         vpnInstanceUpdateOutputBuilder.setResult("failed");
 
@@ -274,7 +272,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             //logic
             //调用系统Api层函数
             vpnInstanceMap = this.getVpnInstanceApi().getVpnInstanceMap(input.getVpnName());
-            if ((null != vpnInstanceMap) && (0 != vpnInstanceMap.size())) {
+            if (null != vpnInstanceMap) {
                 getVpnInstanceListOutputBuilder.setResult("success");
                 // 遍历map，根据vpnname 输出每个vpn信息
                 //Iterator<String, List<VPNInstance>> iter = vpnInstanceMap.entrySet().iterator();
