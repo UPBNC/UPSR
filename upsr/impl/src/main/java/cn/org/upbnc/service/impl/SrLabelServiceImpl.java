@@ -62,19 +62,33 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     @Override
     public String updateNodeLabel(String routerId, String labelVal, String action) {
+        boolean isChanged = true;
         Device device = null;
         LOG.info("updateNodeLabel begin");
         device = deviceManager.getDevice(routerId);
+        if ((device != null) && (device.getNodeLabel() != null) && device.getNodeLabel().getValue() == Integer.parseInt(labelVal)){
+            LOG.info("node label is not changed: " + labelVal);
+            isChanged = false;
+        }
+        if ((isChanged == false) && (action == SrLabelXml.ncOperationMerge)){
+            LOG.info("do not need update");
+            return null;
+        }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
                 device.getOspfProcess().getAreaId(),device.getOspfProcess().getIntfName(),"index",labelVal,action);
         LOG.info("command xml: " + commandSetSrNodeLabelXml);
         String outPutXml = netconfController.sendMessage(netconfClient,commandSetSrNodeLabelXml);
         if (CheckXml.checkOk(outPutXml).equals("ok")){
-            NodeLabel nodeLabel =  device.getNodeLabel();
-            nodeLabel.setValue(Integer.parseInt(labelVal));
-            device.setNodeLabel(nodeLabel);
-            device.setSrStatus(SrStatus.ENABLED.getName());
+            if (action == SrLabelXml.ncOperationDelete){
+                device.setNodeLabel(null);
+                device.setSrStatus(SrStatus.DISENABLED.getName());
+            } else {
+                NodeLabel nodeLabel = device.getNodeLabel() == null? new NodeLabel():device.getNodeLabel();
+                nodeLabel.setValue(Integer.parseInt(labelVal));
+                device.setNodeLabel(nodeLabel);
+                device.setSrStatus(SrStatus.ENABLED.getName());
+            }
         }
         LOG.info("updateNodeLabel end");
         return null;
@@ -82,21 +96,40 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     @Override
     public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
+        boolean isChanged = true;
         Device device = null;
         LOG.info("updateNodeLabelRange begin :" + action);
         device = deviceManager.getDevice(routerId);
+        if ((device != null) && (device.getMinNodeSID() != null) && (device.getMinNodeSID() == Integer.parseInt(labelBegin)) &&
+                (device.getMaxNodeSID() != null) && (device.getMaxNodeSID() == Integer.parseInt(labelEnd))){
+            LOG.info("node label range is not changed: " + labelBegin + " , " + labelEnd);
+            isChanged = false;
+        }
+        if ((isChanged == false) && (action == SrLabelXml.ncOperationMerge)){
+            LOG.info("do not need update range");
+            return null;
+        }
+
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-        String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
-                device.getMinNodeSID().toString(),device.getMaxNodeSID().toString(),SrLabelXml.ncOperationDelete);
-        LOG.info("command xml: " + commandDeleteSrNodeLabelRangeXml);
-        String outPutdeleteXml = netconfController.sendMessage(netconfClient,commandDeleteSrNodeLabelRangeXml);
+        if (device.getMinNodeSID() != null) {
+            String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
+                    device.getMinNodeSID().toString(), device.getMaxNodeSID().toString(), SrLabelXml.ncOperationDelete);
+            LOG.info("command xml: " + commandDeleteSrNodeLabelRangeXml);
+            String outPutdeleteXml = netconfController.sendMessage(netconfClient, commandDeleteSrNodeLabelRangeXml);
+            LOG.info("outPutdeleteXml xml: " + outPutdeleteXml);
+        }
         String commandCreateSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
                 labelBegin,labelEnd,SrLabelXml.ncOperationCreate);
         LOG.info("command xml: " + commandCreateSrNodeLabelRangeXml);
         String outPutcreateXml = netconfController.sendMessage(netconfClient,commandCreateSrNodeLabelRangeXml);
         if (CheckXml.checkOk(outPutcreateXml).equals("ok")){
-            device.setMinNodeSID(Integer.parseInt(labelBegin));
-            device.setMaxAdjSID(Integer.parseInt(labelEnd));
+            if (action == SrLabelXml.ncOperationDelete){
+                device.setMinNodeSID(null);
+                device.setMaxNodeSID(null);
+            } else {
+                device.setMinNodeSID(Integer.parseInt(labelBegin));
+                device.setMaxNodeSID(Integer.parseInt(labelEnd));
+            }
         }
         LOG.info("updateNodeLabelRange end");
         return null;
@@ -165,16 +198,28 @@ public class SrLabelServiceImpl implements SrLabelService {
         }else{
             peerAddress = remoteAddress;
         }
+        if ((localDeviceInterface != null) && (localDeviceInterface.getAdjLabel() != null) &&
+                (localDeviceInterface.getAdjLabel().getValue() == Integer.parseInt(labelVal)) &&
+                (action == SrLabelXml.ncOperationMerge)) {
+            LOG.info("adjlabel is not changed" + localAddress + " -> " + remoteAddress + " : " + labelVal);
+            return null;
+        }
         String commandUpdateXml = SrLabelXml.setSrAdjLabelXml(action,localAddress,peerAddress,labelVal);
         LOG.info("command xml: " + commandUpdateXml);
         String outPutXml = netconfController.sendMessage(netconfClient,commandUpdateXml);
         LOG.info("output xml: " + outPutXml);
         if (CheckXml.checkOk(outPutXml).equals("ok")){
-            AdjLabel adjLabel = new AdjLabel();
-            adjLabel.setAddressLocal(new Address(localAddress, AddressTypeEnum.V4));
-            adjLabel.setAddressRemote(new Address(remoteAddress,AddressTypeEnum.V4));
-            adjLabel.setValue(Integer.parseInt(labelVal));
-            localDeviceInterface.setAdjLabel(adjLabel);
+            if (action == SrLabelXml.ncOperationDelete){
+                localDeviceInterface.setSrStatus(SrStatus.DISENABLED.getName());
+                localDeviceInterface.setAdjLabel(null);
+            } else {
+                AdjLabel adjLabel = new AdjLabel();
+                adjLabel.setAddressLocal(new Address(localAddress, AddressTypeEnum.V4));
+                adjLabel.setAddressRemote(new Address(remoteAddress, AddressTypeEnum.V4));
+                adjLabel.setValue(Integer.parseInt(labelVal));
+                localDeviceInterface.setSrStatus(SrStatus.ENABLED.getName());
+                localDeviceInterface.setAdjLabel(adjLabel);
+            }
         }
         LOG.info("updateIntfLabel end");
         return null;
@@ -188,6 +233,7 @@ public class SrLabelServiceImpl implements SrLabelService {
                 if ((device.getNetConf() == null) || (device.getNetConf().getStatus() != NetConfStatusEnum.Connected)){
                     continue;
                 }
+                LOG.info("syncIntfLael routerId : " + device.getRouterId());
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
                 String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
                 LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);

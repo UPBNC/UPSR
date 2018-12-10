@@ -112,6 +112,7 @@ public class Session implements Runnable{
             LOG.info("UPSR is ON");
         }catch (Exception e){
             LOG.info("UPSR Session init failure! "+e.getMessage());
+            throw e;
         }
     }
 

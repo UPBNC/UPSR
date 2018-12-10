@@ -160,8 +160,10 @@ public class LinkManagerImpl implements LinkManager {
         Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaceList.iterator();
         while(deviceInterfaceIterator.hasNext()){
             DeviceInterface deviceInterface = deviceInterfaceIterator.next();
-            if(deviceInterface.getIp().getAddress().equals(bgpDeviceInterface.getIp().getAddress())){
-                return deviceInterface;
+            if (deviceInterface.getIp() != null) {
+                if (bgpDeviceInterface.getIp().getAddress().equals(deviceInterface.getIp().getAddress())) {
+                    return deviceInterface;
+                }
             }
         }
         return null;
