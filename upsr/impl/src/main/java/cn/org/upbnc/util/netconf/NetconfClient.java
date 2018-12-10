@@ -31,7 +31,7 @@ import java.util.concurrent.*;
 
 public class NetconfClient implements Closeable {
 
-    public static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+    public static final int DEFAULT_CONNECT_TIMEOUT = 15000;
     private final String label;
     public final NetconfClientSession clientSession;
     final NetconfClientSessionListener sessionListener;
