@@ -80,12 +80,11 @@ public class VPNServiceImpl implements VPNService {
         boolean ret = false;
         Device device = null;
         VPNInstance vpnInstance = null;
-        LOG.info("service updateVpnInstance-01");
         if((null == routerId)||(routerId.isEmpty())||(null == this.vpnInstanceManager))
         {
             return false;
         }
-        LOG.info("service updateVpnInstance-02");
+        LOG.info("service updateVpnInstance");
 
         if(null != this.baseInterface) {
             device = this.deviceManager.getDevice(routerId);
@@ -94,19 +93,28 @@ public class VPNServiceImpl implements VPNService {
             return false;
         }
 
-        List<L3vpnIf> l3vpnIf = new LinkedList<L3vpnIf>();
+        List<L3vpnIf> l3vpnIfList = new LinkedList<L3vpnIf>();
         if(null != deviceInterfaceList)
         {
             for (DeviceInterface deviceInterface:deviceInterfaceList) {
-                l3vpnIf.add(new L3vpnIf(deviceInterface.getName(), deviceInterface.getIp().getAddress(), deviceInterface.getMask().getAddress()));
+                L3vpnIf l3vpnIf = new L3vpnIf(deviceInterface.getName(), null, null);
+                if(null != deviceInterface.getIp()) {
+                    l3vpnIf.setIpv4Addr(deviceInterface.getIp().getAddress());
+                }
+                if(null != deviceInterface.getMask().getAddress()) {
+                    l3vpnIf.setSubnetMask(deviceInterface.getMask().getAddress());
+                }
+                l3vpnIfList.add(l3vpnIf);
+
             }
         }
-        if(null == device.getNetConf().getIp())
+        if(null == device.getNetConf().getIp()) //device.getNetConf() can't be null before
         {
             LOG.info("service updateVpnInstance null == device.getNetConf().getIp()");
+            return false;
         }
 
-        L3vpnInstance l3vpnInstance =  new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIf);
+        L3vpnInstance l3vpnInstance =  new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIfList);
         BgpVrf bgpVrf= mapEbgpInfoToBgpVfr(vpnName,peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
 
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
@@ -115,12 +123,12 @@ public class VPNServiceImpl implements VPNService {
 
         if(null==vpnInstance){
             //create vpn
-            LOG.info("vpnInstance is null,add VPN {}",vpnName);
+            LOG.info("vpnInstance is null,add VPN " + vpnName);
 
             String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
             //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
-            String result;
+            String result = null;
             result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
@@ -156,7 +164,7 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             result = netconfController.sendMessage(netconfClient, sendMsg);
             LOG.info("result={}", new Object[]{result});
-            ret = (true == CheckXml.checkOk(result).equals("ok"))?true: false;
+            ret = CheckXml.checkOk(result).equals("ok");
         }
         //vpn info update in vpnManager
         if(true == ret)
@@ -178,6 +186,10 @@ public class VPNServiceImpl implements VPNService {
         }
         List<Device> deviceList = this.deviceManager.getDeviceList();
         for (Device device:deviceList) {
+            if(null == device.getNetConf())  //may be some device generate by bgpls
+            {
+                continue;
+            }
             NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
             //LOG.info("enter getVpnIstance");
             String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
@@ -204,11 +216,11 @@ public class VPNServiceImpl implements VPNService {
         }
 
         Device device = this.deviceManager.getDevice(routerId);
-        if(null == device) {
+        if((null == device)||(null == device.getNetConf())) {
             return false;
         }
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-        LOG.info("enter getVpnIstance");
+        LOG.info("enter delVpnIstance");
         String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -222,17 +234,11 @@ public class VPNServiceImpl implements VPNService {
 
     public VPNInstance getVpnInstanceFromDevice(String routerId, String vpnName)
     {
-        /*
-        VPNInstance vpnInsntance = this.vpnInstanceManager.getVpnIstance(routerId, vpnName);
-        if((null == vpnInsntance)||(null != vpnInsntance.getDevice())||(null != vpnInsntance.getDevice().getNetConf())){
-            return null;
-        }
-        */
         if((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty()) {
             return null;
         }
         Device device = this.deviceManager.getDevice(routerId);
-        if(null == device) {
+        if((null == device)||(null == device.getNetConf())) {
             return null;
         }
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
@@ -285,7 +291,7 @@ public class VPNServiceImpl implements VPNService {
     {
         List<VPNInstance> vpnInstancelist=new LinkedList<VPNInstance>();
         Device device=this.deviceManager.getDevice(routerId);
-        if(device==null){
+        if((null == device)||(null == device.getNetConf())){
             return vpnInstancelist;
         }
 
@@ -295,18 +301,12 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
-//        boolean ret =  CheckXml.checkOk(result).equals("ok");
-//        if(!ret) {
-//            LOG.info("Get vpn info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
-//        }
+
         sendMsg= EbgpXml.getEbgpXml(vpnName);
         LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
         result=netconfController.sendMessage(netconfClient, sendMsg);
-        LOG.info("get vpnInfo result={}", new Object[]{result});
-//        ret =  CheckXml.checkOk(result).equals("ok");
-//        if(!ret) {
-//            LOG.info("Get ebgp info error.Can not get device's VPN info which device routerId=" + device.getRouterId());
-//        }
+        LOG.info("get ebgpInfo result={}", new Object[]{result});
+
         List<BgpVrf> bgpVrfList= EbgpXml.getEbgpFromXml(result);
         VPNInstance vpnInsntance = null;
         if(null != l3vpnInstances) {
@@ -515,13 +515,13 @@ public class VPNServiceImpl implements VPNService {
 
         if(true == vpnName.equals("")) {
             for (VPNInstance vpnInstance:vpnInstanceList) {
-                vpnInstances = new LinkedList<VPNInstance>();
-                vpnInstances.add(vpnInstance);
                 if(vpnInstanceMap.containsKey(vpnInstance.getVpnName())) {
                     vpnInstanceMap.get(vpnInstance.getVpnName()).add(vpnInstance);
                 }
                 else
                 {
+                    vpnInstances = new LinkedList<VPNInstance>();
+                    vpnInstances.add(vpnInstance);
                     vpnInstanceMap.put(vpnInstance.getVpnName(), vpnInstances);
                 }
             }
@@ -570,10 +570,10 @@ public class VPNServiceImpl implements VPNService {
     }
 
     public boolean isContainVpnName(String vpnName){
-        return (null == this.vpnInstanceManager)?null:this.vpnInstanceManager.isContainVpnName(vpnName);
+        return (null == this.vpnInstanceManager)?false:this.vpnInstanceManager.isContainVpnName(vpnName);
     }
     public boolean isContainRd(String routerId,String rd){
-        return (null == this.vpnInstanceManager)?null:this.vpnInstanceManager.isContainRd(routerId,rd);
+        return (null == this.vpnInstanceManager)?false:this.vpnInstanceManager.isContainRd(routerId,rd);
     }
 
 }
