@@ -165,22 +165,27 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
         Device device = this.deviceManager.getDevice(routerId);
         if(null != device)
         {
-            if(null == device.getNetConf()) {
-                return null;
-            }
-            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), device.getNetConf().getIp().getAddress(),
-                    device.getNetConf().getPort(), device.getNetConf().getUser());
-            String connStatus = "connecting";
-            //get status from device for avoiding connect break in use
 
-            NetConf netconf = device.getNetConf();
-            if ((null != netconf.getIp())&&(null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
-                NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
-                connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "connected" : "connecting";
-                netconf.setStatus(netConfStatus);
-            }
+            netconfSession = new NetconfSession(device.getRouterId(), device.getDeviceName(), device.getDataCenter(),device.getDeviceType(),device.getSysName(), null,
+                    null, null);
 
-            netconfSession.setStatus(connStatus);
+            if(null != device.getNetConf()) {
+
+                netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
+                netconfSession.setDevicePort(device.getNetConf().getPort());
+                netconfSession.setUserName(device.getNetConf().getUser());
+                String connStatus = "未连接";
+                //get status from device for avoiding connect break in use
+
+                NetConf netconf = device.getNetConf();
+                if ((null != netconf.getIp()) && (null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
+                    NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
+                    connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "已连接" : "未连接";
+                    netconf.setStatus(netConfStatus);
+                }
+
+                netconfSession.setStatus(connStatus);
+            }
         }
         return netconfSession;
     }
