@@ -170,9 +170,15 @@ public class InterfaceServiceImpl implements InterfaceService{
             return false;
         }
         deviceInterface.setName(devInterfaceInfo.getIfnetName());
-        deviceInterface.setIp(new Address(devInterfaceInfo.getIfnetIP(), AddressTypeEnum.V4));
-        deviceInterface.setMask(new Address(devInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4));
-        deviceInterface.setMac(new Address(devInterfaceInfo.getIfnetMac(), AddressTypeEnum.MAC));
+        if(null != devInterfaceInfo.getIfnetIP()) {
+            deviceInterface.setIp(new Address(devInterfaceInfo.getIfnetIP(), AddressTypeEnum.V4));
+        }
+        if(null != devInterfaceInfo.getIfnetMask()) {
+            deviceInterface.setMask(new Address(devInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4));
+        }
+        if(null != devInterfaceInfo.getIfnetMac()) {
+            deviceInterface.setMac(new Address(devInterfaceInfo.getIfnetMac(), AddressTypeEnum.MAC));
+        }
         if((null != deviceInterface.getVpn())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
             //deviceInterface.setVpn();
         }
