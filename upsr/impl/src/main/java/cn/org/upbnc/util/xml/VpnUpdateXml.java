@@ -109,12 +109,25 @@ public class VpnUpdateXml {
                 "            </vpnInstAFs>\n";
         String l3vpnIfsStart = "    <l3vpnIfs>\n";
         String l3vpnIfsMiddle = "";
+        String ipv4Addr;
+        String subnetMask;
+        String l3vpnIfEnd;
         for (L3vpnIf l3vpnIf : l3vpnIfList) {
-            l3vpnIfsMiddle = l3vpnIfsMiddle + "              <l3vpnIf>\n" +
-                    "                <ifName>" + l3vpnIf.getIfName() + "</ifName>\n" +
-                    "                <ipv4Addr>" + l3vpnIf.getIpv4Addr() + "</ipv4Addr>\n" +
-                    "                <subnetMask>" + l3vpnIf.getSubnetMask() + "</subnetMask>\n" +
-                    "              </l3vpnIf>\n";
+            l3vpnIfsMiddle = l3vpnIfsMiddle + "                <l3vpnIf>\n" +
+                    "                  <ifName>" + l3vpnIf.getIfName() + "</ifName>\n";
+            if (!(null == l3vpnIf.getIpv4Addr() || "".equals(l3vpnIf.getIpv4Addr()))) {
+                ipv4Addr =
+                        "                  <ipv4Addr>" + l3vpnIf.getIpv4Addr() + "</ipv4Addr>\n";
+                l3vpnIfsMiddle = l3vpnIfsMiddle + ipv4Addr;
+            }
+            if (!(null == l3vpnIf.getSubnetMask() || "".equals(l3vpnIf.getSubnetMask()))) {
+                subnetMask =
+                        "                  <subnetMask>" + l3vpnIf.getSubnetMask() + "</subnetMask>\n";
+                l3vpnIfsMiddle = l3vpnIfsMiddle + subnetMask;
+            }
+            l3vpnIfEnd =
+                    "                </l3vpnIf>\n";
+            l3vpnIfsMiddle = l3vpnIfsMiddle + l3vpnIfEnd;
         }
         String l3vpnIfsEnd = "            </l3vpnIfs>\n";
         String VpnEnd = "          </l3vpnInstance>\n" +

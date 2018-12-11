@@ -139,6 +139,11 @@ public class TopoInfoODLApi implements UpsrTopoService {
                 }
                 DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
                 deviceInterfacesBuilder.setIfName(deviceInterface.getName());
+                if ((deviceInterface.getBgpStatus() != null) && (deviceInterface.getBgpStatus() == 1)){
+                    deviceInterfacesBuilder.setIsSrDomain(SrStatus.ENABLED.getName());
+                } else {
+                    deviceInterfacesBuilder.setIsSrDomain(SrStatus.DISENABLED.getName());
+                }
                 deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
                 if (deviceInterface.getMask() != null) {
                     deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
