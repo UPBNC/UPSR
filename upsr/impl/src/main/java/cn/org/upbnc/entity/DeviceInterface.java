@@ -15,7 +15,9 @@ public class DeviceInterface {
     private String bgpDeviceName;
     private String srStatus;
     private String name;
-    private Integer status;
+    private String ifOperStatus;
+    private String ifPhyStatus;
+    private String ifLinkStatus;
     private Address ip;
     private Address mask;
     private Address mac;
@@ -31,7 +33,9 @@ public class DeviceInterface {
         this.name = null;
         this.bgpName = null;
         this.bgpDeviceName = null;
-        this.status = 0;
+        this.ifOperStatus = null;
+        this.ifPhyStatus = null;
+        this.ifLinkStatus = null;
         this.ip = null;
         this.mask = null;
         this.mac = null;
@@ -56,7 +60,9 @@ public class DeviceInterface {
                            String bgpDeviceName,
                            String srStatus,
                            String name,
-                           Integer status,
+                           String ifOperStatus,
+                           String ifPhyStatus,
+                           String ifLinkStatus,
                            Address ip,
                            Address mask,
                            Address mac,
@@ -70,7 +76,9 @@ public class DeviceInterface {
         this.bgpDeviceName = bgpDeviceName;
         this.srStatus = srStatus;
         this.name = name;
-        this.status = status;
+        this.ifOperStatus = ifOperStatus;
+        this.ifPhyStatus = ifPhyStatus;
+        this.ifLinkStatus = ifLinkStatus;
         this.ip = ip;
         this.mask = mask;
         this.mac = mac;
@@ -121,13 +129,7 @@ public class DeviceInterface {
         this.name = name;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 
     public Address getIp() {
         return ip;
@@ -200,4 +202,28 @@ public class DeviceInterface {
     public void setBgpDeviceName(String bgpDeviceName) {
         this.bgpDeviceName = bgpDeviceName;
     }
+    public String getIfOperStatus() {
+        return ifOperStatus;
+    }
+
+    public void setIfOperStatus(String ifOperStatus) {
+        this.ifOperStatus = ifOperStatus;
+    }
+
+    public String getIfPhyStatus() {
+        return ifPhyStatus;
+    }
+
+    public void setIfPhyStatus(String ifPhyStatus) {
+        this.ifPhyStatus = ifPhyStatus;
+    }
+
+    public String getIfLinkStatus() {
+        return ifLinkStatus;
+    }
+
+    public void setIfLinkStatus(String ifLinkStatus) {
+        this.ifLinkStatus = ifLinkStatus;
+    }
+
 }
