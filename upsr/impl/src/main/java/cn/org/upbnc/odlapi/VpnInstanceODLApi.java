@@ -280,9 +280,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     String  network = null;
                     String mask = null;
                     Address peerIP_Address = null;
-                    if(null != peerIP) {
-                       peerIP_Address = new Address(peerIP, AddressTypeEnum.V4);
-                    }
+
                     if(null != ebgp) {
                         peerIP = ebgp.getPeerIP();
                         peerAs = ebgp.getPeerAS();
@@ -293,6 +291,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                             NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(mask, AddressTypeEnum.V4));
                             networkSegList.add(networkSeg);
                         }
+                    }
+                    if(null != peerIP) {
+                        peerIP_Address = new Address(peerIP, AddressTypeEnum.V4);
                     }
                     List<BindIfNet> updateBindInterfaceList = bindDevice.getBindIfNet();
                     for (BindIfNet  bindInterface:updateBindInterfaceList) {
