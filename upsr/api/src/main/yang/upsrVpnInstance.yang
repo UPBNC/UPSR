@@ -106,19 +106,10 @@ module upsrVpnInstance {
     }
     grouping updateBindDevices {
         list deviceBind {
-             leaf deviceName {
-                type string;
-             }
              leaf routerId {
                 type string;
              }
              leaf vpnRd {
-                type string;
-             }
-             leaf vpnExport {
-                type string;
-             }
-             leaf vpnImport {
                 type string;
              }
              list bindIfNet {
@@ -128,7 +119,7 @@ module upsrVpnInstance {
                  leaf ifAddress {
                      type string;
                  }
-                 leaf ifNetmask {
+                 leaf ifNetmaskLen {
                      type string;
                  }
              }

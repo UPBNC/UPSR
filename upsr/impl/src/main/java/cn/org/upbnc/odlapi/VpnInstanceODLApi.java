@@ -209,8 +209,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
 
     public Future<RpcResult<UpdateVpnInstanceOutput>> updateVpnInstance(UpdateVpnInstanceInput input) {
         boolean ret = false;
-        List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
-        List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
+
         UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceUpdate");
         // 判断系统是否准备完毕：
@@ -268,11 +267,11 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             List<DeviceBind> bindDeviceList = vpnInstance_input.getDeviceBind();
             if(null != bindDeviceList) {
                 for (DeviceBind bindDevice:bindDeviceList) {
-                    String deviceName = bindDevice.getDeviceName();
+                    List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
+                    List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
+
                     String routerId = bindDevice.getRouterId();
                     String vpnRd = bindDevice.getVpnRd();
-                    String vpnImport = bindDevice.getVpnImport();
-                    String vpnExport = bindDevice.getVpnExport();
                     Ebgp ebgp = bindDevice.getEbgp();
                     String peerIP = null;
                     Integer peerAs = null;
@@ -299,11 +298,22 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     for (BindIfNet  bindInterface:updateBindInterfaceList) {
                         String ifName = bindInterface.getIfName();
                         String ifnetIp = bindInterface.getIfAddress();
-                        String ifnetmask = bindInterface.getIfNetmask();
+                        String ifNetmaskLen = bindInterface.getIfNetmaskLen();
+                        DeviceInterface deviceInterface = new DeviceInterface();
+                        deviceInterface.setName(ifName);
+                        if(null != ifnetIp) {
+                            deviceInterface.setIp(new Address(ifnetIp,AddressTypeEnum.V4));
+                        }
+                        if(null != ifNetmaskLen) {
+                            deviceInterface.setIp(new Address(ifNetmaskLen, AddressTypeEnum.V4));
+                        }
+                        deviceInterfaceList.add(deviceInterface);
+                        /*
                         if((null != ifnetIp)&&(null != ifnetmask)) {
                             DeviceInterface deviceInterface = new DeviceInterface(ifName, new Address(ifnetIp,AddressTypeEnum.V4), new Address(ifnetmask, AddressTypeEnum.V4));
                             deviceInterfaceList.add(deviceInterface);
                         }
+                        */
                     }
                     //调用系统Api层函数
                     ret = this.getVpnInstanceApi().updateVpnInstance(vpnName,
@@ -321,10 +331,10 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     );
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
                     if (true == ret) {
-                        message += "Device "+deviceName+" routerId "+ routerId + "is success!\\n";
+                        message += "routerId "+ routerId + "is success!\\n";
                     }
                     else {
-                        message += "Device "+deviceName+" routerId "+ routerId + "is failed!\\n";
+                        message += " routerId "+ routerId + "is failed!\\n";
                     }
                 }
                 vpnInstanceUpdateOutputBuilder.setResult("success");
