@@ -548,9 +548,10 @@ public class VPNServiceImpl implements VPNService {
     }
     private Integer convertMaskIPtoLength(String mask){
         int[] radix = {255,254,252,248,240,224,192,128,0};
-        int[] bitcount = {0};
-        int[] netmask_value = {0};
-        String[] netmask = mask.split(".");
+        int[] bitcount = {0,0,0,0};
+        int[] netmask_value = {0,0,0,0};
+        String[] netmask = {"0","0","0","0"};
+        netmask      = mask.split("\\.");
         netmask_value[0] = Integer.parseInt(netmask[0]);
         netmask_value[1] = Integer.parseInt(netmask[1]);
         netmask_value[2] = Integer.parseInt(netmask[2]);
