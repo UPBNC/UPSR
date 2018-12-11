@@ -277,7 +277,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     Integer peerAs = null;
                     Integer importDirect = null;
                     String  network = null;
-                    String mask = null;
+                    String masklen = null;
                     Address peerIP_Address = null;
 
                     if(null != ebgp) {
@@ -285,9 +285,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                         peerAs = ebgp.getPeerAS();
                         importDirect = ebgp.getImportDirect();
                         network = ebgp.getNetwork();
-                        mask = ebgp.getMask();
-                        if((null != network)&&(null != mask)) {
-                            NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(mask, AddressTypeEnum.V4));
+                        masklen = ebgp.getMasklen();
+                        if((null != network)&&(null != masklen)) {
+                            NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(masklen, AddressTypeEnum.V4));
                             networkSegList.add(networkSeg);
                         }
                     }
@@ -298,14 +298,14 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     for (BindIfNet  bindInterface:updateBindInterfaceList) {
                         String ifName = bindInterface.getIfName();
                         String ifnetIp = bindInterface.getIfAddress();
-                        String ifNetmaskLen = bindInterface.getIfNetmaskLen();
+                        String ifNetmask = bindInterface.getIfNetmask();
                         DeviceInterface deviceInterface = new DeviceInterface();
                         deviceInterface.setName(ifName);
                         if(null != ifnetIp) {
                             deviceInterface.setIp(new Address(ifnetIp,AddressTypeEnum.V4));
                         }
-                        if(null != ifNetmaskLen) {
-                            deviceInterface.setIp(new Address(ifNetmaskLen, AddressTypeEnum.V4));
+                        if(null != ifNetmask) {
+                            deviceInterface.setIp(new Address(ifNetmask, AddressTypeEnum.V4));
                         }
                         deviceInterfaceList.add(deviceInterface);
                         /*
@@ -406,7 +406,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                                 eBgp.setImportDirect(vpnInstance.getImportDirectRouteEnable());
                                 if(null != eBgp_network_seg_front) {
                                     eBgp.setNetwork(eBgp_network_seg_front.getAddress().getAddress());
-                                    eBgp.setMask(eBgp_network_seg_front.getMask().getAddress());
+                                    eBgp.setMasklen(eBgp_network_seg_front.getMask().getAddress());
                                 }
                                 eBgp.setPeerAS(vpnInstance.getPeerAS());
                                 if(null != vpnInstance.getPeerIP()) {

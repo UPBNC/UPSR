@@ -67,7 +67,7 @@ module upsrVpnInstance {
             leaf network {
                 type string;
             }
-            leaf mask{
+            leaf masklen{
                 type string;
             }
             leaf importDirect {
@@ -119,7 +119,7 @@ module upsrVpnInstance {
                  leaf ifAddress {
                      type string;
                  }
-                 leaf ifNetmaskLen {
+                 leaf ifNetmask {
                      type string;
                  }
              }
