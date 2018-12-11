@@ -456,7 +456,9 @@ public class VPNServiceImpl implements VPNService {
         bgpVrf.setImportRoutes(importRouteList);
         if(networkSegList!=null){
             for(NetworkSeg networkSeg:networkSegList){
-                NetworkRoute networkRoute=new NetworkRoute(networkSeg.getAddress().getAddress(),networkSeg.getMask().getAddress());
+                Integer masklen = convertMaskIPtoLength(networkSeg.getMask().getAddress());
+                LOG.info("mask "+ networkSeg.getMask().getAddress() + "masklength " + masklen);
+                NetworkRoute networkRoute=new NetworkRoute(networkSeg.getAddress().getAddress(),masklen.toString());
                 networkRouteList.add(networkRoute);
             }
             bgpVrf.setNetworkRoutes(networkRouteList);
@@ -545,14 +547,29 @@ public class VPNServiceImpl implements VPNService {
         return vpnInstanceMap;
     }
     private Integer convertMaskIPtoLength(String mask){
-
+        int[] radix = {255,254,252,248,240,224,192,128,0};
+        int[] bitcount = {0};
+        int[] netmask_value = {0};
         String[] netmask = mask.split(".");
-        Integer.parseInt(netmask[0]);
-        Integer.parseInt(netmask[1]);
-        Integer.parseInt(netmask[2]);
-        Integer.parseInt(netmask[3]);
+        netmask_value[0] = Integer.parseInt(netmask[0]);
+        netmask_value[1] = Integer.parseInt(netmask[1]);
+        netmask_value[2] = Integer.parseInt(netmask[2]);
+        netmask_value[3] = Integer.parseInt(netmask[3]);
 
-        return 0;
+        for(int i =0 ; i<netmask_value.length; i++)
+        {
+            for(int j = 0;j <radix.length; j++)
+            {
+                if(radix[j] == (netmask_value[i]&radix[j])) {
+                    bitcount[i] = 8 - j;
+                    break;
+                }
+            }
+            if(8 != bitcount[i]) {
+                break;
+            }
+        }
+        return bitcount[0] + bitcount[1] + bitcount[2] + bitcount[3];
     }
 
     private Address convertMaskLengthToIp(Integer maskLength){

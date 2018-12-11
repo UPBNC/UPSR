@@ -19,6 +19,8 @@ import cn.org.upbnc.enumtype.SystemStatusEnum;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.Bind;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.BindBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.bind.BindIf;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.bind.BindIfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.Ebgp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.EbgpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatebinddevices.DeviceBind;
@@ -32,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistinfo.VpnInstancesInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstancelistretinfo.VpnInstancesBuilder;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -390,13 +394,21 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                             bindDevice.setVpnRd(vpnInstance.getRd());
                             if(null != vpnInstance.getDeviceInterfaceList())
                             {
-                                List<String>  ifnetNames = new LinkedList<String>();
+                                List<BindIf>  bindIfs = new LinkedList<BindIf>();
                                 for (DeviceInterface deviceInterface:vpnInstance.getDeviceInterfaceList()) {
-                                    ifnetNames.add(deviceInterface.getName());
+                                    BindIfBuilder bindIf = new BindIfBuilder();
+                                    bindIf.setIfName(deviceInterface.getName());
+                                    if(null != deviceInterface.getIp()) {
+                                        bindIf.setIfAddress(deviceInterface.getIp().getAddress());
+                                    }
+                                    if(null != deviceInterface.getMask()) {
+                                        bindIf.setIfNetMask(deviceInterface.getMask().getAddress());
+                                    }
+                                    bindIfs.add(bindIf.build());
                                 }
-                                if(0 != ifnetNames.size())
+                                if(0 != bindIfs.size())
                                 {
-                                    bindDevice.setIfName(ifnetNames);
+                                    bindDevice.setBindIf(bindIfs);
                                 }
                             }
                             if((null != vpnInstance.getNetworkSegList())&&(0 != vpnInstance.getNetworkSegList().size()))
