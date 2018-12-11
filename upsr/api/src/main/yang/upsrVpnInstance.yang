@@ -67,7 +67,7 @@ module upsrVpnInstance {
             leaf network {
                 type string;
             }
-            leaf masklen{
+            leaf mask{
                 type string;
             }
             leaf importDirect {

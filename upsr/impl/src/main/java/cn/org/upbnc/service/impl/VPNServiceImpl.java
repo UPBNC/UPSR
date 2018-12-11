@@ -101,7 +101,7 @@ public class VPNServiceImpl implements VPNService {
                 if(null != deviceInterface.getIp()) {
                     l3vpnIf.setIpv4Addr(deviceInterface.getIp().getAddress());
                 }
-                if(null != deviceInterface.getMask().getAddress()) {
+                if(null != deviceInterface.getMask()) {
                     l3vpnIf.setSubnetMask(deviceInterface.getMask().getAddress());
                 }
                 l3vpnIfList.add(l3vpnIf);
@@ -543,6 +543,16 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         return vpnInstanceMap;
+    }
+    private Integer convertMaskIPtoLength(String mask){
+
+        String[] netmask = mask.split(".");
+        Integer.parseInt(netmask[0]);
+        Integer.parseInt(netmask[1]);
+        Integer.parseInt(netmask[2]);
+        Integer.parseInt(netmask[3]);
+
+        return 0;
     }
 
     private Address convertMaskLengthToIp(Integer maskLength){

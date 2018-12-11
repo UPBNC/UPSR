@@ -277,7 +277,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     Integer peerAs = null;
                     Integer importDirect = null;
                     String  network = null;
-                    String masklen = null;
+                    String mask = null;
                     Address peerIP_Address = null;
 
                     if(null != ebgp) {
@@ -285,9 +285,9 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                         peerAs = ebgp.getPeerAS();
                         importDirect = ebgp.getImportDirect();
                         network = ebgp.getNetwork();
-                        masklen = ebgp.getMasklen();
-                        if((null != network)&&(null != masklen)) {
-                            NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(masklen, AddressTypeEnum.V4));
+                        mask = ebgp.getMask();
+                        if((null != network)&&(null != mask)) {
+                            NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(mask, AddressTypeEnum.V4));
                             networkSegList.add(networkSeg);
                         }
                     }
@@ -305,7 +305,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                             deviceInterface.setIp(new Address(ifnetIp,AddressTypeEnum.V4));
                         }
                         if(null != ifNetmask) {
-                            deviceInterface.setIp(new Address(ifNetmask, AddressTypeEnum.V4));
+                            deviceInterface.setMask(new Address(ifNetmask, AddressTypeEnum.V4));
                         }
                         deviceInterfaceList.add(deviceInterface);
                         /*
@@ -406,7 +406,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                                 eBgp.setImportDirect(vpnInstance.getImportDirectRouteEnable());
                                 if(null != eBgp_network_seg_front) {
                                     eBgp.setNetwork(eBgp_network_seg_front.getAddress().getAddress());
-                                    eBgp.setMasklen(eBgp_network_seg_front.getMask().getAddress());
+                                    eBgp.setMask(eBgp_network_seg_front.getMask().getAddress());
                                 }
                                 eBgp.setPeerAS(vpnInstance.getPeerAS());
                                 if(null != vpnInstance.getPeerIP()) {
