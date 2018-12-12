@@ -137,22 +137,22 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("command xml: " + commandDeleteSrNodeLabelRangeXml);
             String outPutdeleteXml = netconfController.sendMessage(netconfClient, commandDeleteSrNodeLabelRangeXml);
             LOG.info("outPutdeleteXml xml: " + outPutdeleteXml);
+            device.setMinNodeSID(null);
+            device.setMaxNodeSID(null);
         }
-        String commandCreateSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
-                labelBegin,labelEnd,SrLabelXml.ncOperationCreate);
-        LOG.info("command xml: " + commandCreateSrNodeLabelRangeXml);
-        String outPutcreateXml = netconfController.sendMessage(netconfClient,commandCreateSrNodeLabelRangeXml);
-        if (CheckXml.checkOk(outPutcreateXml).equals("ok")){
-            if (true == action.equals(SrLabelXml.ncOperationDelete)){
-                device.setMinNodeSID(null);
-                device.setMaxNodeSID(null);
-            } else {
+        if(true != action.equals(SrLabelXml.ncOperationDelete)) {
+            String commandCreateSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
+                    labelBegin, labelEnd, SrLabelXml.ncOperationCreate);
+            LOG.info("command xml: " + commandCreateSrNodeLabelRangeXml);
+            String outPutcreateXml = netconfController.sendMessage(netconfClient, commandCreateSrNodeLabelRangeXml);
+            if (CheckXml.checkOk(outPutcreateXml).equals("ok")){
                 device.setMinNodeSID(Integer.parseInt(labelBegin));
                 device.setMaxNodeSID(Integer.parseInt(labelEnd));
+                LOG.info("updateNodeLabelRange end----success");
+                return true;
             }
-            LOG.info("updateNodeLabelRange end----success");
-            return true;
         }
+
         LOG.info("updateNodeLabelRange end----failed");
         return false;
     }
@@ -167,11 +167,22 @@ public class SrLabelServiceImpl implements SrLabelService {
             return false;
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-        String commandGetSrNodeLabelXml = SrLabelXml.getSrNodeLabelXml();
+
+        String commandGetOspfProcessXml = SrLabelXml.getOspfProcessXml();
+        LOG.info("commandGetOspfProcessXml: " + commandGetOspfProcessXml);
+        String outPutOspfProcessXml = netconfController.sendMessage(netconfClient,commandGetOspfProcessXml);
+        LOG.info("outPutOspfProcessXml: " + outPutOspfProcessXml);
+        NetconfSrLabelInfo ospfProcessInfo = SrLabelXml.getOspfProcessFromOspfProcessXml(outPutOspfProcessXml,routerId);
+        String commandGetSrNodeLabelXml = SrLabelXml.getSrNodeLabelXml(ospfProcessInfo.getOspfProcessId());
         LOG.info("command xml: " + commandGetSrNodeLabelXml);
         String outPutXml = netconfController.sendMessage(netconfClient,commandGetSrNodeLabelXml);
         LOG.info("output xml: " + outPutXml);
-        NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getSrNodeLabelFromgSrNodeLabelXml(outPutXml);
+        String commandGetLoopBackXml = SrLabelXml.getLoopBackXml();
+        LOG.info("commandGetLoopBackXml: " + commandGetLoopBackXml);
+        String outPutLoopBackXml = netconfController.sendMessage(netconfClient,commandGetLoopBackXml);
+        LOG.info("outPutLoopBackXml: " + outPutLoopBackXml);
+        String loobackName = SrLabelXml.getLoopBackFromLoopBackXml(outPutLoopBackXml,routerId);
+        NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getSrNodeLabelFromgSrNodeLabelXml(outPutXml,ospfProcessInfo.getOspfProcessId(),loobackName);
         if(null == netconfSrLabelInfo) {
             LOG.info("syncNodeLabel failed because can't get netconfSrLabelInfo");
             return false;
@@ -179,16 +190,19 @@ public class SrLabelServiceImpl implements SrLabelService {
         NodeLabel nodeLabel = new NodeLabel();
         OspfProcess ospfProcess = new OspfProcess();
         ospfProcess.setAreaId(netconfSrLabelInfo.getOspfAreaId());
-        if(null != netconfSrLabelInfo.getOspfProcessId()) {
-            ospfProcess.setProcessId(Integer.parseInt(netconfSrLabelInfo.getOspfProcessId()));
+        if(null != ospfProcessInfo.getOspfProcessId()) {
+            ospfProcess.setProcessId(Integer.parseInt(ospfProcessInfo.getOspfProcessId()));
         }
-        ospfProcess.setIntfName(netconfSrLabelInfo.getPrefixIfName());
-        if(null != netconfSrLabelInfo.getPrefixLabel()) {
+
+        ospfProcess.setIntfName(loobackName);
+        if ((null != netconfSrLabelInfo.getPrefixLabel()) && (Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) !=  0)) {
             nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()));
+            device.setSrStatus(SrStatus.ENABLED.getName());
+        }else{
+            device.setSrStatus(SrStatus.DISENABLED.getName());
         }
         device.setNodeLabel(nodeLabel);
         device.setOspfProcess(ospfProcess);
-        device.setSrStatus(SrStatus.ENABLED.getName());
 
         String commandGetSrNodeLabelRangeXml = SrLabelXml.getSrNodeLabelRangeXml();
         LOG.info("command sid range xml: " + commandGetSrNodeLabelRangeXml);
@@ -199,11 +213,11 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("syncNodeLabel failed because can't get netconfSrLabelInfo");
             return false;
         }
-        if(null !=netconfSrLabelInfo.getSrgbBegin()) {
-            device.setMinNodeSID(Integer.parseInt(netconfSrLabelInfo.getSrgbBegin()));
+        if(null != netconfSrLabelInfo.getSrgbBegin()) {
+            device.setMinNodeSID(new Integer(Integer.parseInt(netconfSrLabelInfo.getSrgbBegin())));
         }
         if(null != netconfSrLabelInfo.getSrgbEnd()) {
-            device.setMaxNodeSID(Integer.parseInt(netconfSrLabelInfo.getSrgbEnd()));
+            device.setMaxNodeSID(new Integer(Integer.parseInt(netconfSrLabelInfo.getSrgbEnd())));
         }
         LOG.info("syncNodeLabel end " + routerId);
         LOG.info("syncNodeLabel success");
