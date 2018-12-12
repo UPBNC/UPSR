@@ -207,11 +207,11 @@ public class VPNServiceImpl implements VPNService {
     }
     public boolean delVpnInstance(String routerId,String vpnName)
     {
-        if((null == routerId)||(null == vpnName)||(vpnName.isEmpty()))
+        if((null == vpnName)||(vpnName.isEmpty()))
         {
             return false;
         }
-        if(true == routerId.equals("")) {
+        if((null == routerId)||(true == routerId.equals(""))) {
             return delVpnInstanceByName(vpnName);
         }
 

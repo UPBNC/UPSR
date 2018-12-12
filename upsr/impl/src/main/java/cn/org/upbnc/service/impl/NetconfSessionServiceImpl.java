@@ -237,7 +237,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             this.iniSectionManager.setValue(sectionName, "sshIP", deviceIP);
             this.iniSectionManager.setValue(sectionName, "sshPort", devicePort.toString());
             this.iniSectionManager.setValue(sectionName,"userName", userName);
-            this.iniSectionManager.setValue(sectionName,"passWord", userPassword);
+            if(true != userPassword.equals("")) {
+                this.iniSectionManager.setValue(sectionName, "passWord", userPassword);
+            }
             break;
         }
         this.iniSectionManager.storeFile();
