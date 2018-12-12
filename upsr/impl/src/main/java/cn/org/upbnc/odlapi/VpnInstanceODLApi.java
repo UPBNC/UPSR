@@ -19,8 +19,13 @@ import cn.org.upbnc.enumtype.SystemStatusEnum;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.Bind;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.BindBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.bind.BindIf;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.bind.BindIfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.Ebgp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.EbgpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatebinddevices.DeviceBind;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatebinddevices.devicebind.BindIfNet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatevpninstance.input.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.BindInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.BindInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.NetSegment;
@@ -36,7 +41,6 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -209,8 +213,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
 
     public Future<RpcResult<UpdateVpnInstanceOutput>> updateVpnInstance(UpdateVpnInstanceInput input) {
         boolean ret = false;
-        List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
-        List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
+
         UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
         LOG.info("enter vpnInstanceUpdate");
         // 判断系统是否准备完毕：
@@ -220,6 +223,8 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             vpnInstanceUpdateOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
         } else {
+
+            /*
             LOG.info("enter vpnInstanceUpdate vpnName={} rd={}", new Object[]{input.getVpnName(), input.getRouterId()});
             List<BindInterface> deviceInterfaces = input.getBindInterface();
             List<NetSegment> netSegments = input.getNetSegment();
@@ -250,6 +255,94 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
             LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
             if (true == ret) {
                 vpnInstanceUpdateOutputBuilder.setResult("success");
+                return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
+            }
+            */
+            VpnInstance vpnInstance_input = input.getVpnInstance();
+            if(null == vpnInstance_input) {
+                vpnInstanceUpdateOutputBuilder.setResult("failed");
+                return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
+            }
+            String message = "";
+            String vpnName = vpnInstance_input.getVpnName();
+            String vpnRT = vpnInstance_input.getVpnRt();
+            String businessArea = vpnInstance_input.getBusinessArea();
+            String notes = vpnInstance_input.getNotes();
+            List<DeviceBind> bindDeviceList = vpnInstance_input.getDeviceBind();
+            if(null != bindDeviceList) {
+                for (DeviceBind bindDevice:bindDeviceList) {
+                    List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
+                    List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
+
+                    String routerId = bindDevice.getRouterId();
+                    String vpnRd = bindDevice.getVpnRd();
+                    Ebgp ebgp = bindDevice.getEbgp();
+                    String peerIP = null;
+                    Integer peerAs = null;
+                    Integer importDirect = null;
+                    String  network = null;
+                    String mask = null;
+                    Address peerIP_Address = null;
+
+                    if(null != ebgp) {
+                        peerIP = ebgp.getPeerIP();
+                        peerAs = ebgp.getPeerAS();
+                        importDirect = ebgp.getImportDirect();
+                        network = ebgp.getNetwork();
+                        mask = ebgp.getMask();
+                        if((null != network)&&(null != mask)) {
+                            NetworkSeg networkSeg = new NetworkSeg(new Address(network, AddressTypeEnum.V4), new Address(mask, AddressTypeEnum.V4));
+                            networkSegList.add(networkSeg);
+                        }
+                    }
+                    if(null != peerIP) {
+                        peerIP_Address = new Address(peerIP, AddressTypeEnum.V4);
+                    }
+                    List<BindIfNet> updateBindInterfaceList = bindDevice.getBindIfNet();
+                    for (BindIfNet  bindInterface:updateBindInterfaceList) {
+                        String ifName = bindInterface.getIfName();
+                        String ifnetIp = bindInterface.getIfAddress();
+                        String ifNetmask = bindInterface.getIfNetMask();
+                        DeviceInterface deviceInterface = new DeviceInterface();
+                        deviceInterface.setName(ifName);
+                        if(null != ifnetIp) {
+                            deviceInterface.setIp(new Address(ifnetIp,AddressTypeEnum.V4));
+                        }
+                        if(null != ifNetmask) {
+                            deviceInterface.setMask(new Address(ifNetmask, AddressTypeEnum.V4));
+                        }
+                        deviceInterfaceList.add(deviceInterface);
+                        /*
+                        if((null != ifnetIp)&&(null != ifnetmask)) {
+                            DeviceInterface deviceInterface = new DeviceInterface(ifName, new Address(ifnetIp,AddressTypeEnum.V4), new Address(ifnetmask, AddressTypeEnum.V4));
+                            deviceInterfaceList.add(deviceInterface);
+                        }
+                        */
+                    }
+                    //调用系统Api层函数
+                    ret = this.getVpnInstanceApi().updateVpnInstance(vpnName,
+                            routerId,
+                            businessArea,
+                            vpnRd,
+                            vpnRT,
+                            vpnRT,
+                            peerAs,
+                            peerIP_Address,
+                            null,
+                            importDirect,
+                            deviceInterfaceList,
+                            networkSegList
+                    );
+                    LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
+                    if (true == ret) {
+                        message += "routerId "+ routerId + "is success!\\n";
+                    }
+                    else {
+                        message += " routerId "+ routerId + "is failed!\\n";
+                    }
+                }
+                vpnInstanceUpdateOutputBuilder.setResult("success");
+                vpnInstanceUpdateOutputBuilder.setMessage(message);
                 return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
             }
         }
@@ -301,13 +394,21 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                             bindDevice.setVpnRd(vpnInstance.getRd());
                             if(null != vpnInstance.getDeviceInterfaceList())
                             {
-                                List<String>  ifnetNames = new LinkedList<String>();
+                                List<BindIf>  bindIfs = new LinkedList<BindIf>();
                                 for (DeviceInterface deviceInterface:vpnInstance.getDeviceInterfaceList()) {
-                                    ifnetNames.add(deviceInterface.getName());
+                                    BindIfBuilder bindIf = new BindIfBuilder();
+                                    bindIf.setIfName(deviceInterface.getName());
+                                    if(null != deviceInterface.getIp()) {
+                                        bindIf.setIfAddress(deviceInterface.getIp().getAddress());
+                                    }
+                                    if(null != deviceInterface.getMask()) {
+                                        bindIf.setIfNetMask(deviceInterface.getMask().getAddress());
+                                    }
+                                    bindIfs.add(bindIf.build());
                                 }
-                                if(0 != ifnetNames.size())
+                                if(0 != bindIfs.size())
                                 {
-                                    bindDevice.setIfName(ifnetNames);
+                                    bindDevice.setBindIf(bindIfs);
                                 }
                             }
                             if((null != vpnInstance.getNetworkSegList())&&(0 != vpnInstance.getNetworkSegList().size()))

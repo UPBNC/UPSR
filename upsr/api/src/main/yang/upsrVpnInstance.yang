@@ -6,6 +6,7 @@ module upsrVpnInstance {
     revision "2018-11-19" {
         description "Initial revision of upsrVpnInstance model";
     }
+
     grouping vpnInstanceInfo {
         leaf vpnName {
             type string;
@@ -97,8 +98,38 @@ module upsrVpnInstance {
              leaf vpnImport {
                 type string;
              }
-             leaf-list ifName {
+             list bindIf {
+                leaf ifName {
+                    type string;
+                }
+                leaf ifAddress {
+                    type string;
+                }
+                leaf ifNetMask {
+                    type string;
+                }
+             }
+             uses eBgpInfo;
+        }
+    }
+    grouping updateBindDevices {
+        list deviceBind {
+             leaf routerId {
                 type string;
+             }
+             leaf vpnRd {
+                type string;
+             }
+             list bindIfNet {
+                 leaf ifName {
+                     type string;
+                 }
+                 leaf ifAddress {
+                     type string;
+                 }
+                 leaf ifNetMask {
+                     type string;
+                 }
              }
              uses eBgpInfo;
         }
@@ -165,10 +196,27 @@ module upsrVpnInstance {
     }
     rpc updateVpnInstance{
         input {
-            uses vpnInstanceInfo;
+            container vpnInstance {
+                leaf vpnName {
+                    type string;
+                }
+                leaf vpnRt {
+                    type string;
+                }
+                leaf businessArea {
+                    type string;
+                }
+                leaf notes {
+                    type string;
+                }
+                uses updateBindDevices;
+            }
         }
         output {
             leaf result {
+                type string;
+            }
+            leaf message {
                 type string;
             }
         }

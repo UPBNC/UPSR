@@ -18,4 +18,5 @@ public interface InterfaceService {
     List<DevInterfaceInfo> getInterfaceList(String routerId);
     List<DevInterfaceInfo> getInterfaceListFromDevice(String routerId);
     boolean syncInterfaceConf();
+    boolean syncInterfaceConf(String routerId);
 }

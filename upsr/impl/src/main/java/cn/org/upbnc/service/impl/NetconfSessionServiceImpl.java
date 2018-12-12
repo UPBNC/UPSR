@@ -123,7 +123,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
         if((null != netconf) &&(null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
-            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "已连接" :"未连接" ;
+            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "" +
+                    "" +
+                    "" :"未连接" ;
             netconf.setStatus(netconfStat.getStatus());
             if(NetConfStatusEnum.Connected == netconfStat.getStatus()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
@@ -237,7 +239,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
             this.iniSectionManager.setValue(sectionName, "sshIP", deviceIP);
             this.iniSectionManager.setValue(sectionName, "sshPort", devicePort.toString());
             this.iniSectionManager.setValue(sectionName,"userName", userName);
-            this.iniSectionManager.setValue(sectionName,"passWord", userPassword);
+            if(true != userPassword.equals("")) {
+                this.iniSectionManager.setValue(sectionName, "passWord", userPassword);
+            }
             break;
         }
         this.iniSectionManager.storeFile();

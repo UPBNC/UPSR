@@ -39,7 +39,32 @@ public class NetconfSessionApiImpl implements NetconfSessionApi{
         if((null == routerId)||(null == deviceName)||(null == deviceIP)||(0 == devicePort)) {
             return false;
         }
-        return this.netconfSessionService.updateNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
+        boolean ret=this.netconfSessionService.updateNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
+
+        if(netconfSessionService.getNetconfSession(routerId).getStatus().equals("已连接")){
+            String tmpRet=null;
+            String result = null;
+            result = "sync device configure start......";
+            tmpRet=this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success":"failed";
+            result +=  tmpRet;
+            result += "\n";
+            result += "sync vpnInstance configure....";
+            tmpRet = this.serviceInterface.getVpnService().syncVpnInstanceConf(routerId) ? " success":"failed";
+            result += tmpRet;
+            result += "\n";
+            result += "sync IntfLabel configure....";
+            tmpRet = this.serviceInterface.getSrLabelService().syncIntfLabel(routerId) ? " success":"failed";
+            result += tmpRet;
+            result += "\n";
+            result += "sync NodeLabel configure....";
+            tmpRet = this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success":"failed";
+            result += tmpRet;
+            result += "\n";
+            result += "sync device configure end.";
+        }
+
+        return ret;
+
     }
 
     @Override

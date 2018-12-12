@@ -224,9 +224,8 @@ public class SrLabelServiceImpl implements SrLabelService {
         return true;
     }
 
-    public String syncNodeLabel() {
+    public boolean syncNodeLabel() {
         boolean ret = false;
-        String result = null;
         LOG.info("syncNodeLabel begin");
         if(this.deviceManager != null ) {
             for (Device device : this.deviceManager.getDeviceList()){
@@ -236,14 +235,12 @@ public class SrLabelServiceImpl implements SrLabelService {
                 ret = this.syncNodeLabel(device.getRouterId());
                 if(false == ret) {
                     LOG.info("syncNodeLabel failed! routerId="+device.getRouterId());
-                    result = "syncNodeLabel failed";
-                    return result;
+                    return ret;
                 }
             }
         }
-        LOG.info("syncNodeLabel end");
-        result = "syncNodeLabel success";
-        return result;
+        LOG.info("syncNodeLabel end,syncNodeLabel success");
+        return ret;
     }
 
     @Override
@@ -299,54 +296,70 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     @Override
-    public String syncIntfLabel() {
+    public boolean syncIntfLabel() {
         LOG.info("syncIntfLael begin");
-        if(this.deviceManager !=null ) {
-            for (Device device:this.deviceManager.getDeviceList()) {
-                if ((device.getNetConf() == null) || (device.getNetConf().getStatus() != NetConfStatusEnum.Connected)){
-                    continue;
-                }
-                LOG.info("syncIntfLael routerId : " + device.getRouterId());
-                NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-                String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
-                LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);
-                String outPutAdjLabelRangeXml = netconfController.sendMessage(netconfClient,commandGetSrAdjLabelRangeXml);
-                LOG.info("output xml: " + outPutAdjLabelRangeXml);
-                NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getAdjLabelRangeFromAdjLabelRangeXml(outPutAdjLabelRangeXml);
-                if(null != netconfSrLabelInfo.getAdjLowerSid()) {
-                    device.setMinAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjLowerSid()));
-                }
-                if(null != netconfSrLabelInfo.getAdjUpperSid()) {
-                    device.setMaxAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjUpperSid()));
-                }
-                String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
-                LOG.info("command xml: " + commandGetSrAdjLabelXml);
-                String outPutXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);
-                LOG.info("output xml: " + outPutXml);
-                List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
-                device.setAdjLabelList(adjLabelList);
-                Iterator<AdjLabel> adjLabelIterator = adjLabelList.iterator();
-                while(adjLabelIterator.hasNext()) {
-                    AdjLabel adjLabel = adjLabelIterator.next();
-                    if(null == adjLabel.getAddressLocal()) {
-                        continue;
-                    }
-                    DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(adjLabel.getAddressLocal().getAddress());
-                    if ((deviceInterface != null) && (linkManager != null)){
-                        DeviceInterface deviceInterface1Peer = linkManager.getPeerDeviceInterface(deviceInterface);
-                        if (deviceInterface1Peer != null) {
-                            deviceInterface.setAdjLabel(adjLabel);
-                            deviceInterface.setSrStatus(SrStatus.ENABLED.getName());
-                        }else{
-                            deviceInterface.setAdjLabel(null);
-                            deviceInterface.setSrStatus(null);
-                        }
-                    }
+        if(this.deviceManager ==null ) {
+            LOG.info("syncIntfLael failed,deviceManager is null");
+            return false;
+        }
+
+        for (Device device:this.deviceManager.getDeviceList()) {
+            syncIntfLabel(device.getRouterId());
+        }
+        LOG.info("syncIntfLael end");
+        return true;
+    }
+
+    public boolean syncIntfLabel(String routerId){
+        if(null==routerId||routerId.equals("")){
+            LOG.info("syncIntfLabel failed,routerId is null or empty ");
+            return false;
+        }
+        Device device=deviceManager.getDevice(routerId);
+
+        if((null==device.getNetConf())||(device.getNetConf().getStatus()!= NetConfStatusEnum.Connected)) {
+            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            return false;
+        }
+
+        LOG.info("syncIntfLael routerId : " + device.getRouterId());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
+        LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);
+        String outPutAdjLabelRangeXml = netconfController.sendMessage(netconfClient,commandGetSrAdjLabelRangeXml);
+        LOG.info("output xml: " + outPutAdjLabelRangeXml);
+        NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getAdjLabelRangeFromAdjLabelRangeXml(outPutAdjLabelRangeXml);
+        if(null != netconfSrLabelInfo.getAdjLowerSid()) {
+            device.setMinAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjLowerSid()));
+        }
+        if(null != netconfSrLabelInfo.getAdjUpperSid()) {
+            device.setMaxAdjSID(Integer.parseInt(netconfSrLabelInfo.getAdjUpperSid()));
+        }
+        String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
+        LOG.info("command xml: " + commandGetSrAdjLabelXml);
+        String outPutXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);
+        LOG.info("output xml: " + outPutXml);
+        List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(outPutXml);
+        device.setAdjLabelList(adjLabelList);
+        Iterator<AdjLabel> adjLabelIterator = adjLabelList.iterator();
+        while(adjLabelIterator.hasNext()) {
+            AdjLabel adjLabel = adjLabelIterator.next();
+            if(null == adjLabel.getAddressLocal()) {
+                continue;
+            }
+            DeviceInterface deviceInterface = device.getDeviceInterfaceByAddress(adjLabel.getAddressLocal().getAddress());
+            if ((deviceInterface != null) && (linkManager != null)){
+                DeviceInterface deviceInterface1Peer = linkManager.getPeerDeviceInterface(deviceInterface);
+                if (deviceInterface1Peer != null) {
+                    deviceInterface.setAdjLabel(adjLabel);
+                    deviceInterface.setSrStatus(SrStatus.ENABLED.getName());
+                }else{
+                    deviceInterface.setAdjLabel(null);
+                    deviceInterface.setSrStatus(null);
                 }
             }
         }
-        LOG.info("syncIntfLael end");
-        return null;
+        return true;
     }
 
     @Override

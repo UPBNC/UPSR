@@ -14,6 +14,7 @@ import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.service.InterfaceService;
 import cn.org.upbnc.service.entity.DevInterfaceInfo;
@@ -86,7 +87,6 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != deviceInterfaceList)
         {
             for(DeviceInterface deviceInterface:deviceInterfaceList) {
-                ifnetStatus = (1 == deviceInterface.getStatus()) ? "up" :"down";
                 srStatus = (SrStatus.ENABLED.getName() == deviceInterface.getSrStatus()) ? "up" :"down";
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
@@ -108,6 +108,15 @@ public class InterfaceServiceImpl implements InterfaceService{
                 if(null != deviceInterface.getAdjLabel())
                 {
                     devInterfaceInfo.setAdjLabel(deviceInterface.getAdjLabel());
+                }
+                if(null!=deviceInterface.getIfPhyStatus()){
+                    devInterfaceInfo.setIfnetStatus(deviceInterface.getIfPhyStatus());
+                }
+                if(null!=deviceInterface.getIfOperStatus()){
+                    devInterfaceInfo.setRunningStatus(deviceInterface.getIfOperStatus());
+                }
+                if(null!=deviceInterface.getIfLinkStatus()){
+                    devInterfaceInfo.setLinkStatus(deviceInterface.getIfLinkStatus());
                 }
                 devInterfaceInfos.add(devInterfaceInfo);
             }
@@ -140,14 +149,15 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != gigabitEthernets)
         {
             for (GigabitEthernet gigabitEthernet:gigabitEthernets) {
+
                 devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
-                        gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),null,
-                        null, null,null);
+                        gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(),
+                        null, gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus());
                 LOG.info("gigabitEthernet getIfName={} getIfIpAddr={} " +
-                        "getSubnetMask={} getIfOperMac={} getVrfName={} ",
+                        "getSubnetMask={} getIfOperMac={} getVrfName={} getIfPhyStatus={} getIfLinkStatus={} getIfOperStatus+{}",
                         new Object[]{gigabitEthernet.getIfName(), gigabitEthernet.getIfIpAddr(),
                                 gigabitEthernet.getSubnetMask(), gigabitEthernet.getIfOperMac(),
-                                gigabitEthernet.getVrfName()});
+                                gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(), gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus()});
                 devInterfaceInfos.add(devInterfaceInfo);
             }
             return devInterfaceInfos;
@@ -182,6 +192,16 @@ public class InterfaceServiceImpl implements InterfaceService{
         if((null != deviceInterface.getVpn())&&(null != devInterfaceInfo.getVpnName())&&(true != deviceInterface.getVpn().getVpnName().equals(devInterfaceInfo.getVpnName()))) {
             //deviceInterface.setVpn();
         }
+        if(null!=devInterfaceInfo.getIfnetStatus()){
+            deviceInterface.setIfPhyStatus(devInterfaceInfo.getIfnetStatus());
+        }
+        if(null!=devInterfaceInfo.getLinkStatus()){
+            deviceInterface.setIfLinkStatus(devInterfaceInfo.getLinkStatus());
+        }
+        if(null!=devInterfaceInfo.getRunningStatus()){
+            deviceInterface.setIfOperStatus(devInterfaceInfo.getRunningStatus());
+        }
+
         deviceInterface.setRefreshFlag(true);
         return true;
 
@@ -190,53 +210,67 @@ public class InterfaceServiceImpl implements InterfaceService{
     public boolean syncInterfaceConf() {
         if(null != this.deviceManager) {
             for (Device device:this.deviceManager.getDeviceList()) {
-                List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
-                List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
-                if(null == deviceInterfaceInfoList) {
-                    continue;
-                }
-                //1 memory interface set invalid
-                for (DeviceInterface deviceInterface:deviceInterfaceList)
-                {
-                    deviceInterface.setRefreshFlag(false);
-                }
-                //2 compare memory interface and device interface
-                //3 add new device interface from device to memory
-                for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
-                    boolean compareFlag = false;
+                syncInterfaceConf(device.getRouterId());
+            }
+        }
+        return true;
+    }
+    public boolean syncInterfaceConf(String routerId){
+        if(null==routerId||routerId.equals("")){
+            LOG.info("syncInterfaceConf failed,routerId is null or empty ");
+            return false;
+        }
+        Device device=deviceManager.getDevice(routerId);
+        if((null==device.getNetConf())||(device.getNetConf().getStatus()!= NetConfStatusEnum.Connected)) {
+            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            return false;
+        }
+        List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
+        List<DevInterfaceInfo> deviceInterfaceInfoList = getInterfaceListFromDevice(device.getRouterId());
+        if(null == deviceInterfaceInfoList) {
+            LOG.info("syncInterfaceConf failed,can't get interface list from device , deviceInterfaceInfoList is null");
+            return false;
+        }
+        //1 memory interface set invalid
+        for (DeviceInterface deviceInterface:deviceInterfaceList)
+        {
+            deviceInterface.setRefreshFlag(false);
+        }
+        //2 compare memory interface and device interface
+        //3 add new device interface from device to memory
+        for (DevInterfaceInfo deviceInterfaceInfo:deviceInterfaceInfoList ) {
+            boolean compareFlag = false;
 
-                    for (DeviceInterface deviceInterface:deviceInterfaceList) {
-                        if(null == deviceInterfaceInfo.getIfnetIP()) { // some interface on device ip is null
-                            break;  //for create deviceInterface
-                        }
-                        if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())){ //// deviceInterface.getIp() can't be null
-                            compareFlag = true;
-                            updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
-                            break;
-                        }
-                    }
-                    if(false == compareFlag) {
-                        DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),null,null,
-                                null, deviceInterfaceInfo.getIfnetName(),null, new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
-                                new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
-                                new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
-                                null, null, null);
-                        devInterface.setRefreshFlag(true);
-                        deviceInterfaceList.add(devInterface);
-                    }
+            for (DeviceInterface deviceInterface:deviceInterfaceList) {
+                if(null == deviceInterfaceInfo.getIfnetIP()) { // some interface on device ip is null
+                    break;  //for create deviceInterface
                 }
-                //4 delete invalid memory interface
-                DeviceInterface deviceInterfaceGet = null;  
-                Iterator<DeviceInterface> iter = deviceInterfaceList.iterator();
-                while(iter.hasNext())
-                {
-                    deviceInterfaceGet = iter.next();
-                    if(false == deviceInterfaceGet.isRefreshFlag()) {
-                        iter.remove();
-                    }
+                if(true == deviceInterfaceInfo.getIfnetIP().equals(deviceInterface.getIp().getAddress())){ //// deviceInterface.getIp() can't be null
+                    compareFlag = true;
+                    updateDeviceInterface(deviceInterface, deviceInterfaceInfo);
+                    break;
                 }
             }
-           
+            if(false == compareFlag) {
+                DeviceInterface devInterface = new DeviceInterface(0, device, device.getDeviceName(),null,null,
+                        null, deviceInterfaceInfo.getIfnetName(),deviceInterfaceInfo.getRunningStatus(),deviceInterfaceInfo.getIfnetStatus(),
+                        deviceInterfaceInfo.getLinkStatus(), new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
+                        new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
+                        new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
+                        null, null, null);
+                devInterface.setRefreshFlag(true);
+                deviceInterfaceList.add(devInterface);
+            }
+        }
+        //4 delete invalid memory interface
+        DeviceInterface deviceInterfaceGet = null;
+        Iterator<DeviceInterface> iter = deviceInterfaceList.iterator();
+        while(iter.hasNext())
+        {
+            deviceInterfaceGet = iter.next();
+            if(false == deviceInterfaceGet.isRefreshFlag()) {
+                iter.remove();
+            }
         }
         return true;
     }
