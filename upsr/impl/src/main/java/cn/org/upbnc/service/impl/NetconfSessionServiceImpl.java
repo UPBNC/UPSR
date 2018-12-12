@@ -123,7 +123,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
 
         if((null != netconf) &&(null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
-            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "已连接" :"未连接" ;
+            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "" +
+                    "" +
+                    "" :"未连接" ;
             netconf.setStatus(netconfStat.getStatus());
             if(NetConfStatusEnum.Connected == netconfStat.getStatus()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());

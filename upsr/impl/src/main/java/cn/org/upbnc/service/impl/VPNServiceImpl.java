@@ -481,29 +481,40 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         for(Device device:deviceManager.getDeviceList()){
-            if((null!=device.getNetConf())&&(device.getNetConf().getStatus()== NetConfStatusEnum.Connected)) {
-                List<VPNInstance> vpnInstanceListFromDevice = getVpnInstanceListFromDevice(device.getRouterId(), "");
-                if (null != vpnInstanceListFromDevice) {
-                    for (VPNInstance vpnInstanceFromDevice : vpnInstanceListFromDevice) {
-                        vpnInstanceFromDevice.setRefreshFlag(true);
-                        vpnInstanceManager.updateVpnInstance(vpnInstanceFromDevice);
-                    }
-                    for (VPNInstance vpnInstanceFromMem : vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId())) {
-                        if (!vpnInstanceFromMem.isRefreshFlag()) {
-                            vpnInstanceManager.delVpnInstance(vpnInstanceFromMem.getRouterId(), vpnInstanceFromMem.getVpnName());
-                        }
-                    }
-                } else {
-                    LOG.info("Can not get device's VPN info which device routerId=" + device.getRouterId());
-                }
-            }else{
-                LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
-            }
+            syncVpnInstanceConf(device.getRouterId());
         }
 
         return true;
     }
 
+    public boolean syncVpnInstanceConf(String routerId) {
+        if(null==routerId||routerId.equals("")){
+            LOG.info("syncVpnInstanceConf failed,routerId is null or empty ");
+            return false;
+        }
+        Device device=deviceManager.getDevice(routerId);
+        if((null!=device.getNetConf())&&(device.getNetConf().getStatus()== NetConfStatusEnum.Connected)) {
+            List<VPNInstance> vpnInstanceListFromDevice = getVpnInstanceListFromDevice(device.getRouterId(), "");
+            if (null != vpnInstanceListFromDevice) {
+                for (VPNInstance vpnInstanceFromDevice : vpnInstanceListFromDevice) {
+                    vpnInstanceFromDevice.setRefreshFlag(true);
+                    vpnInstanceManager.updateVpnInstance(vpnInstanceFromDevice);
+                }
+                for (VPNInstance vpnInstanceFromMem : vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId())) {
+                    if (!vpnInstanceFromMem.isRefreshFlag()) {
+                        vpnInstanceManager.delVpnInstance(vpnInstanceFromMem.getRouterId(), vpnInstanceFromMem.getVpnName());
+                    }
+                }
+            } else {
+                LOG.info("Can not get device's VPN info which device routerId=" + device.getRouterId());
+                return false;
+            }
+        }else{
+            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            return false;
+        }
+        return true;
+    }
     /*
     // list to map for rest api
      */
