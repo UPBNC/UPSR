@@ -89,8 +89,13 @@ public class VpnUpdateXml {
                 "      <l3vpncomm>\n" +
                 "        <l3vpnInstances>\n" +
                 "          <l3vpnInstance>\n" +
-                "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>\n" +
-                "            <vrfDescription>" + l3vpnInstance.getVrfDescription() + "</vrfDescription>\n";
+                "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>\n";
+        if (!(null == l3vpnInstance.getVrfDescription() || ("").equals(l3vpnInstance.getVrfDescription()))) {
+            String vpnStart1 =
+                    "            <vrfDescription>" + l3vpnInstance.getVrfDescription() + "</vrfDescription>\n";
+            vpnStart = vpnStart + vpnStart1;
+        }
+
         String vpnInstAFs = "            <vpnInstAFs>\n" +
                 "              <vpnInstAF>\n" +
                 "                <afType>ipv4uni</afType>\n" +
