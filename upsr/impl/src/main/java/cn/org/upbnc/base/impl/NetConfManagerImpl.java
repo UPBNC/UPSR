@@ -13,12 +13,16 @@ import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.netconf.SessionListener;
+import cn.org.upbnc.util.xml.VpnXml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class NetConfManagerImpl implements NetConfManager {
+    private static final Logger LOG = LoggerFactory.getLogger(NetConfManagerImpl.class);
     private static NetConfManager instance = null;
     public static Map<String, NetconfClient> netconfClientMap = new HashMap<>();
     public static NetconfDevice netconfController = new NetconfDevice();
@@ -54,11 +58,15 @@ public class NetConfManagerImpl implements NetConfManager {
         }
         if (connect) {
             netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
-            if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
-                netconfClient.setFlag(true);
-                netConf.setStatus(NetConfStatusEnum.Connected);
+            if (netconfClient == null) {
+                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + "netConf.getPort()" + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
+            } else {
+                if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
+                    netconfClient.setFlag(true);
+                    netConf.setStatus(NetConfStatusEnum.Connected);
+                }
+                netconfClientMap.put(netConf.getIp().getAddress(), netconfClient);
             }
-            netconfClientMap.put(netConf.getIp().getAddress(), netconfClient);
         }
         netConfMap.put(netConf.getIp().getAddress(), netConf);
         return netConf;
@@ -101,12 +109,16 @@ public class NetConfManagerImpl implements NetConfManager {
         if (netConfMap.containsKey(ip)) {
             netConf = netConfMap.get(ip);
             netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
-            if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
-                netconfClient.setFlag(true);
-                netConf.setStatus(NetConfStatusEnum.Connected);
-                netConfMap.put(ip, netConf);
+            if (netconfClient == null) {
+                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + "netConf.getPort()" + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
+            } else {
+                if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
+                    netconfClient.setFlag(true);
+                    netConf.setStatus(NetConfStatusEnum.Connected);
+                    netConfMap.put(ip, netConf);
+                }
+                netconfClientMap.put(ip, netconfClient);
             }
-            netconfClientMap.put(ip, netconfClient);
         }
     }
 
