@@ -302,7 +302,7 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                     for (BindIfNet  bindInterface:updateBindInterfaceList) {
                         String ifName = bindInterface.getIfName();
                         String ifnetIp = bindInterface.getIfAddress();
-                        String ifNetmask = bindInterface.getIfNetmask();
+                        String ifNetmask = bindInterface.getIfNetMask();
                         DeviceInterface deviceInterface = new DeviceInterface();
                         deviceInterface.setName(ifName);
                         if(null != ifnetIp) {

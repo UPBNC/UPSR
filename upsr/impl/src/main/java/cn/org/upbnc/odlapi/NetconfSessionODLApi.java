@@ -76,6 +76,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                     devNetconfInfobuilder.setSshIp(netconfSession.getDeviceIP());
                     devNetconfInfobuilder.setSshPort(netconfSession.getDevicePort());
                     devNetconfInfobuilder.setUserName(netconfSession.getUserName());
+                    devNetconfInfobuilder.setPassword("");
                     devNetconfInfobuilder.setConnectStatus(netconfSession.getStatus());
                     devNetconfInfoList.add(devNetconfInfobuilder.build());
                 }
@@ -178,6 +179,7 @@ public class NetconfSessionODLApi  implements UpsrNetconfSessionService {
                 netconfOutputBuilder.setSshIp(netconfSession.getDeviceIP());
                 netconfOutputBuilder.setSshPort(netconfSession.getDevicePort());
                 netconfOutputBuilder.setUserName(netconfSession.getDeviceName());
+                netconfOutputBuilder.setPassword("");
                 netconfOutputBuilder.setConnectStatus(netconfSession.getStatus());
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
             }
