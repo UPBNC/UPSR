@@ -488,7 +488,7 @@ public class VPNServiceImpl implements VPNService {
         bgpVrf.setBgpPeers(bgpPeerList);
 
 
-        if ((null != importDirectRouteEnable) && (importDirectRouteEnable == 1)) {
+        if ((null != importDirectRouteEnable) && importDirectRouteEnable.equals(1)) {
             ImportRoute importRoute = new ImportRoute("direct", "0");
             importRouteList.add(importRoute);
         }

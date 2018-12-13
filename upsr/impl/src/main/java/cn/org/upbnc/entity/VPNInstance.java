@@ -420,8 +420,8 @@ public class VPNInstance {
     }
 
     public boolean ebgpIsNull(){
-        if((null==peerAS||0==peerAS)&&(null==peerIP||peerIP.getAddress().equals(""))&&
-                (null==importDirectRouteEnable||2==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
+        if((null==peerAS||peerAS.equals(0))&&(null==peerIP||peerIP.getAddress().equals(""))&&
+                (null==importDirectRouteEnable||importDirectRouteEnable.equals(2))&&(null==networkSegList||networkSegList.size()==0)){
             return true;
         }
         return false;
