@@ -44,7 +44,7 @@ public class VPNInstance {
         this.peerAS = null;
         this.peerIP = null;
         this.routeSelectDelay = 0;
-        this.importDirectRouteEnable = 0;
+        this.importDirectRouteEnable = 2;
         this.networkSegList = new ArrayList<NetworkSeg>();
         RefreshFlag=false;
     }
@@ -91,6 +91,8 @@ public class VPNInstance {
         this.routerId = routerId;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
         this.networkSegList = new ArrayList<NetworkSeg>();
+        this.importDirectRouteEnable = 2;
+        RefreshFlag=false;
     }
 
     public Integer getId() {
@@ -280,20 +282,33 @@ public class VPNInstance {
                                  Integer routeSelectDelay,
                                  Integer importDirectRouteEnable,
                                  List<NetworkSeg> networkSegList){
-        if(peerAS!=this.peerAS){
+        if((peerAS!=null&&this.peerAS==null)||(peerAS==null&&this.peerAS!=null)){
             return false;
+        }
+        if((peerAS!=null&&this.peerAS!=null)){
+            if(!peerAS.equals(this.peerAS)){
+                return false;
+            }
         }
         if((peerIP!=null&&this.peerIP==null)||(peerIP==null&&this.peerIP!=null)){
             return false;
         }
-        if(peerIP==null&&this.peerIP==null){
-            if(peerIP.getAddress().equals(this.peerIP.getAddress())){
+        if(peerIP!=null&&this.peerIP!=null){
+            if(!peerIP.getAddress().equals(this.peerIP.getAddress())){
                 return false;
             }
         }
-        if(importDirectRouteEnable!=this.importDirectRouteEnable){
+
+        if((importDirectRouteEnable!=null&&this.importDirectRouteEnable==null)||(importDirectRouteEnable==null&&this.importDirectRouteEnable!=null)){
             return false;
         }
+
+        if((importDirectRouteEnable!=null&&this.importDirectRouteEnable!=null)){
+            if(!importDirectRouteEnable.equals(this.importDirectRouteEnable)){
+                return false;
+            }
+        }
+
         if(!compareNetworkSegListInfoIsEqual(networkSegList)){
             return false;
         }
@@ -303,6 +318,9 @@ public class VPNInstance {
     public boolean compareNetworkSegListInfoIsEqual(List<NetworkSeg> networkSegList){
         if(networkSegList==null&&this.networkSegList==null){
             return  true;
+        }
+        if(networkSegList==null||this.networkSegList==null){
+            return false;
         }
         if(networkSegList.size()!=this.networkSegList.size()){
             return false;
@@ -331,7 +349,7 @@ public class VPNInstance {
             return false;
         }
         if(seg1.getAddress()!=null&&seg2.getAddress()!=null){
-            if(seg1.getAddress().getAddress()!=seg2.getAddress().getAddress()){
+            if(!seg1.getAddress().getAddress().equals(seg2.getAddress().getAddress())){
                 return false;
             }
         }
@@ -339,7 +357,7 @@ public class VPNInstance {
             return false;
         }
         if(seg1.getMask()!=null&&seg2.getMask()!=null){
-            if(seg1.getMask().getAddress()!=seg2.getMask().getAddress()){
+            if(!seg1.getMask().getAddress().equals(seg2.getMask().getAddress())){
                 return false;
             }
         }
@@ -351,6 +369,9 @@ public class VPNInstance {
     public boolean compareDeviceInterfaceListInfoIsEqual(List<DeviceInterface> deviceInterfaceList){
         if(deviceInterfaceList==null&&this.deviceInterfaceList==null){
             return  true;
+        }
+        if(deviceInterfaceList==null||this.deviceInterfaceList==null){
+            return false;
         }
         if(deviceInterfaceList.size()!=this.deviceInterfaceList.size()){
             return false;
@@ -382,15 +403,16 @@ public class VPNInstance {
             return false;
         }
         if(d1.getIp()!=null&&d2.getIp()!=null){
-            if(d1.getIp().getAddress()!=d2.getIp().getAddress()){
+            if(!d1.getIp().getAddress().equals(d2.getIp().getAddress())){
                 return false;
             }
         }
         if((d1.getMask()!=null&&d2.getMask()==null)||(d1.getMask()==null&&d2.getMask()!=null)){
             return false;
         }
+
         if(d1.getMask()!=null&&d2.getMask()!=null){
-            if(d1.getMask().getAddress()!=d2.getMask().getAddress()){
+            if(!d1.getMask().getAddress().equals(d2.getMask().getAddress())){
                 return false;
             }
         }
@@ -399,7 +421,7 @@ public class VPNInstance {
 
     public boolean ebgpIsNull(){
         if((null==peerAS||0==peerAS)&&(null==peerIP||peerIP.getAddress().equals(""))&&
-                (null==importDirectRouteEnable||0==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
+                (null==importDirectRouteEnable||2==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
             return true;
         }
         return false;

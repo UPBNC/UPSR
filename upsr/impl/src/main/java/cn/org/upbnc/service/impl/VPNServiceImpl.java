@@ -457,10 +457,10 @@ public class VPNServiceImpl implements VPNService {
             if (bgpVrf.getImportRoutes().get(0).equals("direct")) {
                 vpnInstance.setImportDirectRouteEnable(1);
             } else {
-                vpnInstance.setImportDirectRouteEnable(0);
+                vpnInstance.setImportDirectRouteEnable(2);
             }
         } else {
-            vpnInstance.setImportDirectRouteEnable(0);
+            vpnInstance.setImportDirectRouteEnable(2);
         }
 
     }
