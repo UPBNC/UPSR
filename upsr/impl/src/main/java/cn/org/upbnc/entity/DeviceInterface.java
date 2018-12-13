@@ -226,4 +226,5 @@ public class DeviceInterface {
         this.ifLinkStatus = ifLinkStatus;
     }
 
+
 }

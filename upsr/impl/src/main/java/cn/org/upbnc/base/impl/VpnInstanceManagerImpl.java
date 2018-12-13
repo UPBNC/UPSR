@@ -172,8 +172,10 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getRouterId(),vpnInstance.getVpnName());
         if (null != findVpnInstance) {
             vpnInstance.setId(findVpnInstance.getId());
-            findVpnInstance = vpnInstance;
-            return findVpnInstance;
+            //findVpnInstance = vpnInstance;
+            //return findVpnInstance;
+            vpnInstanceList.remove(findVpnInstance);
+            vpnInstanceList.add(vpnInstance);
         } else {
             vpnInstanceList.add(vpnInstance);
         }

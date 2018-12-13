@@ -77,7 +77,7 @@ module upsrVpnInstance {
                 type string;
             }
             leaf peerAS {
-                type int32;
+                type string;
             }
         }
     }
