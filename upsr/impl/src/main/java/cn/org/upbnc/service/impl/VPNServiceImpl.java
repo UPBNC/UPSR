@@ -601,7 +601,8 @@ public class VPNServiceImpl implements VPNService {
         int[] netmask_value = {0,0,0,0};
         String[] netmask = {"0","0","0","0"};
         if(true == mask.equals("") ) {
-            mask = "255.255.255.0";
+            //mask = "255.255.255.0";
+            return 24;
         }
         netmask      = mask.split("\\.");
         netmask_value[0] = Integer.parseInt(netmask[0]);

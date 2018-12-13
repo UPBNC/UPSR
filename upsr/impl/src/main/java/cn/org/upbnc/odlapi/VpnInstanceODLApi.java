@@ -421,13 +421,23 @@ public class VpnInstanceODLApi implements  UpsrVpnInstanceService {
                                 NetworkSeg eBgp_network_seg_front = vpnInstance.getNetworkSegList().get(0);
                                 eBgp.setImportDirect(vpnInstance.getImportDirectRouteEnable());
                                 if(null != eBgp_network_seg_front) {
-                                    eBgp.setNetwork(eBgp_network_seg_front.getAddress().getAddress());
-                                    eBgp.setMask(eBgp_network_seg_front.getMask().getAddress());
+                                    if(null != eBgp_network_seg_front.getAddress()) {
+                                        eBgp.setNetwork(eBgp_network_seg_front.getAddress().getAddress());
+                                    }
+
+                                    if(null != eBgp_network_seg_front.getMask()) {
+                                        eBgp.setMask(eBgp_network_seg_front.getMask().getAddress());
+                                    }
+
                                 }
-                                eBgp.setPeerAS(vpnInstance.getPeerAS().toString());
+                                if(null != vpnInstance.getPeerAS()) {
+                                    eBgp.setPeerAS(vpnInstance.getPeerAS().toString());
+                                }
+
                                 if(null != vpnInstance.getPeerIP()) {
                                     eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
                                 }
+
                                 bindDevice.setEbgp(eBgp.build());
                             }
                             bindDevices.add(bindDevice.build());
