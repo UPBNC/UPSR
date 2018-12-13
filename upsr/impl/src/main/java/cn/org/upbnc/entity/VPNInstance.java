@@ -280,7 +280,8 @@ public class VPNInstance {
                                  Integer routeSelectDelay,
                                  Integer importDirectRouteEnable,
                                  List<NetworkSeg> networkSegList){
-        if(peerAS==this.peerAS&&peerIP.getAddress().equals(this.peerIP.getAddress())&&importDirectRouteEnable==this.importDirectRouteEnable){
+        if(peerAS==this.peerAS&&peerIP.getAddress().equals(this.peerIP.getAddress())
+                &&importDirectRouteEnable==this.importDirectRouteEnable){
             if(compareNetworkSegListInfoIsEqual(networkSegList)){
                 return true;
             }
@@ -295,9 +296,18 @@ public class VPNInstance {
         if(networkSegList.size()!=this.networkSegList.size()){
             return false;
         }
-        for (Object object : networkSegList) {
-            if (!this.networkSegList.contains(object))
-                return false;
+        for (NetworkSeg seg1 : networkSegList) {
+            for(NetworkSeg seg2:this.networkSegList){
+                if((seg1.getAddress().getAddress().equals(seg2.getAddress().getAddress())||(seg1.getAddress()==null&&seg2.getAddress()==null))){
+                    if((seg1.getMask().getAddress().equals(seg2.getMask().getAddress())||(seg1.getMask()==null&&seg2.getMask()==null))){
+                        continue;
+                    }else{
+                        return false;
+                    }
+                }else {
+                    return  false;
+                }
+            }
         }
         return true;
     }
@@ -309,11 +319,32 @@ public class VPNInstance {
         if(deviceInterfaceList.size()!=this.deviceInterfaceList.size()){
             return false;
         }
-        for (Object object : deviceInterfaceList) {
-            if (!this.deviceInterfaceList.contains(object))
-                return false;
+        for (DeviceInterface d1 : deviceInterfaceList) {
+           for(DeviceInterface d2:this.deviceInterfaceList){
+               if(d1.getName().equals(d2.getName())){
+                   if((d1.getIp().getAddress().equals(d2.getIp().getAddress()))||(d1.getIp()==null&&null==d2.getIp())){
+                       if((d1.getMask().getAddress().equals(d2.getMask().getAddress()))||(d1.getMask()==null&&null==d2.getMask())){
+                           continue;
+                       }else{
+                           return false;
+                       }
+                   }else {
+                       return false;
+                   }
+               }else{
+                   return false;
+               }
+           }
         }
         return true;
+    }
+
+    public boolean ebgpIsNull(){
+        if((null==peerAS||0==peerAS)&&(null==peerIP||peerIP.getAddress().equals(""))&&
+                (null==importDirectRouteEnable||0==importDirectRouteEnable)&&(null==networkSegList||networkSegList.size()==0)){
+            return true;
+        }
+        return false;
     }
 
 }
