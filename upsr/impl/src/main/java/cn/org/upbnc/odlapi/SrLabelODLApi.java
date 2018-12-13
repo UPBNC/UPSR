@@ -172,18 +172,24 @@ public class SrLabelODLApi implements UpsrSrLabelService{
                         intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
             }
         } else if (srStatus != null && srStatus.equals(SrStatus.ENABLED.getName())){
+            if ((Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) <= Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin())) ||
+                    (Integer.parseInt(input.getSrgbPrefixSid().getSrgbEnd()) -  Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()) > 64434)) {
+                updateSrLabelOutputBuilder.setResult("failed");
+                LOG.info("invalied range");
+                return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
+            }
             Integer prefixLabel = new Integer(Integer.parseInt(input.getSrgbPrefixSid().getPrefixId()) -
                     Integer.parseInt(input.getSrgbPrefixSid().getSrgbBegin()));
-            srLabelApi.updateNodeLabelRange(input.getRouterId(),input.getSrgbPrefixSid().getSrgbBegin(),
-                    input.getSrgbPrefixSid().getSrgbEnd(),SrLabelXml.ncOperationMerge);
-            srLabelApi.updateNodeLabel(input.getRouterId(),prefixLabel.toString(),SrLabelXml.ncOperationMerge);
+            srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
+                    input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationMerge);
+            srLabelApi.updateNodeLabel(input.getRouterId(), prefixLabel.toString(), SrLabelXml.ncOperationMerge);
             Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
-            while (intfLabelIterator.hasNext()){
+            while (intfLabelIterator.hasNext()) {
                 IntfLabel intfLabel = intfLabelIterator.next();
-                if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())){
+                if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
                     srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
                             intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
-                }else {
+                } else {
                     srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
                             intfLabel.getIntfRemoteAddress(), intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationMerge);
                 }
