@@ -83,6 +83,7 @@ public class VPNInstance {
         if(null != networkSegList) {
             this.networkSegList.addAll(networkSegList);
         }
+        RefreshFlag=false;
     }
 
     public VPNInstance(String routerId, String vpnName) {

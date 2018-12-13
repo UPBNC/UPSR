@@ -519,6 +519,9 @@ public class VPNServiceImpl implements VPNService {
         if((null!=device.getNetConf())&&(device.getNetConf().getStatus()== NetConfStatusEnum.Connected)) {
             List<VPNInstance> vpnInstanceListFromDevice = getVpnInstanceListFromDevice(device.getRouterId(), "");
             if (null != vpnInstanceListFromDevice) {
+                for (VPNInstance vpnInstanceFromMem : vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId())) {
+                    vpnInstanceFromMem.setRefreshFlag(false);
+                }
                 for (VPNInstance vpnInstanceFromDevice : vpnInstanceListFromDevice) {
                     vpnInstanceFromDevice.setRefreshFlag(true);
                     vpnInstanceManager.updateVpnInstance(vpnInstanceFromDevice);
@@ -585,6 +588,9 @@ public class VPNServiceImpl implements VPNService {
         int[] bitcount = {0,0,0,0};
         int[] netmask_value = {0,0,0,0};
         String[] netmask = {"0","0","0","0"};
+        if(true == mask.equals("") ) {
+            mask = "255.255.255.0";
+        }
         netmask      = mask.split("\\.");
         netmask_value[0] = Integer.parseInt(netmask[0]);
         netmask_value[1] = Integer.parseInt(netmask[1]);
