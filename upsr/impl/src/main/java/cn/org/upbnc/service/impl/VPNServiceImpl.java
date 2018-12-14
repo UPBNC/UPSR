@@ -160,10 +160,14 @@ public class VPNServiceImpl implements VPNService {
                     deviceInterfaceList,
                     networkSegList);
             String sendMsg = "";
-            L3vpnInstance l3vpnInstance1=new L3vpnInstance();
-            l3vpnInstance1=l3vpnInstance;
-            if(null==vpnInstance.getDeviceInterfaceList()||vpnInstance.getDeviceInterfaceList().size()==0){
-                List<L3vpnIf> l3vpnIfs=new ArrayList<>();
+            L3vpnInstance l3vpnInstance1 = new L3vpnInstance();
+            l3vpnInstance1.setVrfName(l3vpnInstance.getVrfName());
+            l3vpnInstance1.setL3vpnIfs(l3vpnInstance.getL3vpnIfs());
+            l3vpnInstance1.setVrfRTValue(l3vpnInstance.getVrfRTValue());
+            l3vpnInstance1.setVrfDescription(l3vpnInstance.getVrfDescription());
+            l3vpnInstance1.setVrfRD(l3vpnInstance.getVrfRD());
+            if (null == vpnInstance.getDeviceInterfaceList() || vpnInstance.getDeviceInterfaceList().size() == 0) {
+                List<L3vpnIf> l3vpnIfs = new ArrayList<>();
                 l3vpnInstance1.setL3vpnIfs(l3vpnIfs);
             }
             if (vpnInstance.ebgpIsNull()) {
@@ -516,7 +520,7 @@ public class VPNServiceImpl implements VPNService {
        // sync vpnInstance configure
         */
     @Override
-    public boolean syncVpnInstanceConf(){
+    public boolean syncVpnInstanceConf() {
         if (null == vpnInstanceManager) {
             LOG.info("syncVpnInstanceConf is failed, vpnInstanceManager is null");
             return false;
