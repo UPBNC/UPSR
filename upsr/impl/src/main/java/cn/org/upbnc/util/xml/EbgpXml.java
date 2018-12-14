@@ -115,10 +115,6 @@ public class EbgpXml {
                             networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
                             NetworkRoutes.add(networkRoute);
                         }
-                        for (org.dom4j.Element child2 : child.elements("bgpPeers").get(0).elements()) {
-                            bgpPeer = new BgpPeer(child2.elementText("peerAddr"), child2.elementText("remoteAs"));
-                            BgpPeers.add(bgpPeer);
-                        }
                         try {
                             for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
                                 importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
@@ -127,10 +123,19 @@ public class EbgpXml {
                         } catch (Exception e) {
                             continue;
                         } finally {
-                            bgpVrf.setBgpPeers(BgpPeers);
                             bgpVrf.setImportRoutes(ImportRoutes);
                             bgpVrf.setNetworkRoutes(NetworkRoutes);
-                            bgpVrfs.add(bgpVrf);
+                            try {
+                                for (org.dom4j.Element child2 : child.elements("bgpPeers").get(0).elements()) {
+                                    bgpPeer = new BgpPeer(child2.elementText("peerAddr"), child2.elementText("remoteAs"));
+                                    BgpPeers.add(bgpPeer);
+                                }
+                            } catch (Exception e1) {
+                                continue;
+                            } finally {
+                                bgpVrf.setBgpPeers(BgpPeers);
+                                bgpVrfs.add(bgpVrf);
+                            }
                         }
                     }
                 }
