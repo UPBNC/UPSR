@@ -50,13 +50,13 @@ public class NetConfManagerImpl implements NetConfManager {
 
     @Override
     public NetConf addDevice(NetConf netConf) {
-        boolean connect = true;
+        boolean need_connect = true;
         if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
             if (netconfClientMap.get(netConf.getIp().getAddress()).isFlag()) {
-                connect = false;
+                need_connect = false;
             }
         }
-        if (connect) {
+        if (need_connect) {
             netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
             if (netconfClient == null) {
                 LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + "netConf.getPort()" + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());

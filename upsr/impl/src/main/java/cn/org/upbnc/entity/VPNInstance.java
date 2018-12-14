@@ -396,7 +396,7 @@ public class VPNInstance {
     }
 
     private boolean compareDeviceInterfaceInfoIsEqual(DeviceInterface d1,DeviceInterface d2){
-        if(d1.getName()!=d2.getName()){
+        if(!d1.getName().equals(d2.getName())){
             return false;
         }
         if((d1.getIp()!=null&&d2.getIp()==null)||(d1.getIp()==null&&d2.getIp()!=null)){

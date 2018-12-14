@@ -182,8 +182,14 @@ public class NetconfSessionServiceImpl implements NetconfSessionService{
                 //get status from device for avoiding connect break in use
 
                 NetConf netconf = device.getNetConf(); // can't be null
-                if ((null != netconf.getIp()) && (null != this.netConfManager.getDevice(netconf.getIp().getAddress()))) {
-                    NetConfStatusEnum netConfStatus = this.netConfManager.getDevice(netconf.getIp().getAddress()).getStatus();
+
+                long start = System.currentTimeMillis( );
+                NetConf device_netconf = this.netConfManager.getDevice(netconf.getIp().getAddress());
+                long end = System.currentTimeMillis( );
+                long timelong = end - start;
+                LOG.info("getDevice time long is " + timelong);
+                if ((null != netconf.getIp()) && (null != device_netconf)) {
+                    NetConfStatusEnum netConfStatus = device_netconf.getStatus();
                     connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? "已连接" : "未连接";
                     netconf.setStatus(netConfStatus);
                 }
