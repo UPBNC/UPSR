@@ -8,21 +8,18 @@
 package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.entity.Device;
+
+import java.util.Map;
 
 public interface SrLabelService {
     // Set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
 
-    boolean updateNodeLabel(String routerId, String labelVal, String action);
+    Map<String, Object> updateNodeLabel(String routerId, String labelVal, String action);
 
-    boolean updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
+    Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
 
-    boolean updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
-
-    String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
-
-    Device getDevice(String routerId);
+    Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
 
     boolean syncAllNodeLabel();
 

@@ -17,5 +17,5 @@ import java.util.Map;
 public interface TopoInfoApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
 
-    public Map<String, Object> getTopoInfo();
+    Map<String, Object> getTopoInfo();
 }

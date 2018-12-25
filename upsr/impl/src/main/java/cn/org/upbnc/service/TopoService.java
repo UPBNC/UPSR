@@ -23,6 +23,6 @@ public interface TopoService extends TopoCallback {
 
 
     // Get Topology Info
-    public Map<String, Object> getTopoInfo();
+    Map<String, Object> getTopoInfo();
 
 }

@@ -8,11 +8,16 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.SrLabelApi;
-import cn.org.upbnc.entity.Device;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
+import cn.org.upbnc.enumtype.SrLabelErrorCodeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.SrLabelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SrLabelApiImpl implements SrLabelApi {
     public static final int MaxNodeLabelRange = 65534;
@@ -41,46 +46,38 @@ public class SrLabelApiImpl implements SrLabelApi {
     }
 
     @Override
-    public String updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
+    public Map<String, Object> updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
+        Map<String, Object> resultMap = new HashMap<>();
         if ((labelBegin == null) || (labelValAbs == null)) {
-            return null;
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
         }
         if (Integer.parseInt(labelValAbs) <= Integer.parseInt(labelBegin)) {
-            return null;
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.LABEL_INVALID.getMessage());
+            return resultMap;
         }
         int labelVal = Integer.parseInt(labelValAbs) - Integer.parseInt(labelBegin);
-        srLabelService.updateNodeLabel(routerId, labelVal + "", action);
-        return null;
+        return srLabelService.updateNodeLabel(routerId, labelVal + "", action);
     }
 
     @Override
-    public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
+    public Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
         if ((labelBegin == null) || (labelEnd == null)) {
             return null;
         }
         if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MaxNodeLabelRange) {
             return null;
         }
-        srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);
-        return null;
+        return srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);
     }
 
     @Override
-    public String updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
+    public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
         if ((ifAddress == null) || (labelVal == null)) {
             return null;
         }
-        srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);
-        return null;
-    }
-
-    @Override
-    public String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal) {
-        return null;
-    }
-
-    @Override
-    public Device getDevice(String routerId) {
-        return srLabelService.getDevice(routerId);
+        return srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);
     }
 }

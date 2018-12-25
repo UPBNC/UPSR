@@ -118,7 +118,6 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
         }
         LOG.info(input.toString());
-        String srStatus = input.getSrEnabled();
         if (input.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
             this.disableSrLabel(input);
         } else if (input.getSrEnabled().equals(SrStatus.ENABLED.getName())) {

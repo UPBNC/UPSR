@@ -8,10 +8,11 @@
 package cn.org.upbnc.util.xml;
 
 public class CheckXml {
+    public static final String RESULT_OK = "ok";
     public static String checkOk(String result) {
         String str;
-        if (result.contains("ok")) {
-            str = "ok";
+        if (result.contains(RESULT_OK)) {
+            str = RESULT_OK;
         } else {
             str = result;
         }

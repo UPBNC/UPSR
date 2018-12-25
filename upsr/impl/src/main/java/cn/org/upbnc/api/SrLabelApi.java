@@ -10,16 +10,14 @@ package cn.org.upbnc.api;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.service.ServiceInterface;
 
+import java.util.Map;
+
 public interface SrLabelApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
 
-    String updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action);
+    Map<String, Object> updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action);
 
-    String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
+    Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
 
-    String updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
-
-    String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
-
-    Device getDevice(String routerId);
+    Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
 }
