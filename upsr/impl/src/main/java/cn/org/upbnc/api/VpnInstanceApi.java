@@ -12,6 +12,7 @@ import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.entity.NetworkSeg;
 import cn.org.upbnc.entity.VPNInstance;
 import cn.org.upbnc.service.ServiceInterface;
+import cn.org.upbnc.service.entity.UpdateVpnInstance;
 
 import java.util.List;
 import java.util.Map;
@@ -19,24 +20,22 @@ import java.util.Map;
 public interface VpnInstanceApi {
     // Set ServiceInterface
     boolean setServiceInterface(ServiceInterface serviceInterface);
-    boolean updateVpnInstance(String vpnName,
-                              String routerId,
-                              String businessRegion,
-                              String rd,
-                              String importRT,
-                              String exportRT,
-                              Integer peerAS,
-                              Address peerIP,
-                              Integer routeSelectDelay,
-                              Integer importDirectRouteEnable,
-                              List<DeviceInterface> deviceInterfaceList,
-                              List<NetworkSeg> networkSegList);
+
+    Map<String, Object> updateVpnInstance(UpdateVpnInstance updateVpnInstance);
+
     boolean delVpnInstance(Integer id);
-    boolean delVpnInstance(String routerId, String vpnName);
-    VPNInstance getVpnInstance(String routerId,String vpnName);
-    List<VPNInstance> getVpnInstanceList(String vpnName);
-    Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName);
+
+    Map<String, Object> delVpnInstance(String routerId, String vpnName);
+
+    Map<String, Object> getVpnInstance(String routerId, String vpnName);
+
+    Map<String, Object> getVpnInstanceList(String vpnName);
+
+    Map<String, Object> getVpnInstanceMap(String vpnName);
+
     String getTest();
-    boolean isContainVpnName(String vpnName);
-    boolean isContainRd(String routerId,String rd);
+
+    Map<String, Object> isContainVpnName(String vpnName);
+
+    Map<String, Object> isContainRd(String routerId, String rd);
 }

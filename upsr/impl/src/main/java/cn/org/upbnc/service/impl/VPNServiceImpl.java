@@ -13,8 +13,11 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.VpnInstanceManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.VPNService;
+import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import cn.org.upbnc.util.netconf.L3vpnIf;
 import cn.org.upbnc.util.netconf.L3vpnInstance;
 import cn.org.upbnc.util.netconf.NetconfClient;
@@ -66,23 +69,29 @@ public class VPNServiceImpl implements VPNService {
         return true;
     }
 
-    public boolean updateVpnInstance(String vpnName,
-                                     String routerId,
-                                     String businessRegion,
-                                     String rd,
-                                     String importRT,
-                                     String exportRT,
-                                     Integer peerAS,
-                                     Address peerIP,
-                                     Integer routeSelectDelay,
-                                     Integer importDirectRouteEnable,
-                                     List<DeviceInterface> deviceInterfaceList,
-                                     List<NetworkSeg> networkSegList) {
+    public Map<String, Object> updateVpnInstance(UpdateVpnInstance updateVpnInstance) {
+        String vpnName = updateVpnInstance.getVpnName();
+        String routerId = updateVpnInstance.getRouterId();
+        String businessRegion = updateVpnInstance.getBusinessRegion();
+        String rd = updateVpnInstance.getRd();
+        String importRT = updateVpnInstance.getImportRT();
+        String exportRT = updateVpnInstance.getExportRT();
+        Integer peerAS = updateVpnInstance.getPeerAS();
+        Address peerIP = updateVpnInstance.getPeerIP();
+        Integer routeSelectDelay = updateVpnInstance.getRouteSelectDelay();
+        Integer importDirectRouteEnable = updateVpnInstance.getImportDirectRouteEnable();
+        List<DeviceInterface> deviceInterfaceList = updateVpnInstance.getDeviceInterfaceList();
+        List<NetworkSeg> networkSegList = updateVpnInstance.getNetworkSegList();
+
         boolean ret = false;
         Device device = null;
         VPNInstance vpnInstance = null;
-        if ((null == routerId) || (routerId.isEmpty()) || (null == this.vpnInstanceManager)) {
-            return false;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.BODY.getName(), false);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        if (null == this.vpnInstanceManager) {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnInstanceManager is null.");
+            return resultMap;
         }
         LOG.info("service updateVpnInstance");
 
@@ -90,7 +99,8 @@ public class VPNServiceImpl implements VPNService {
             device = this.deviceManager.getDevice(routerId);
         }
         if ((null == device) || (null == device.getNetConf())) {
-            return false;
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "device is null or device netconf is not set.");
+            return resultMap;
         }
 
         List<L3vpnIf> l3vpnIfList = new LinkedList<L3vpnIf>();
@@ -110,7 +120,8 @@ public class VPNServiceImpl implements VPNService {
         if (null == device.getNetConf().getIp()) //device.getNetConf() can't be null before
         {
             LOG.info("service updateVpnInstance null == device.getNetConf().getIp()");
-            return false;
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "device.getNetConf().getIp() is null.");
+            return resultMap;
         }
 
         L3vpnInstance l3vpnInstance = new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIfList);
@@ -132,7 +143,8 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
             if (!ret) {
-                return false;
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "create vpn error.");
+                return resultMap;
             }
             sendMsg = EbgpXml.createEbgpXml(bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
@@ -140,7 +152,8 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
             if (!ret) {
-                return false;
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "create ebgp error.");
+                return resultMap;
             }
 
         } else {
@@ -180,7 +193,8 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("result={}", new Object[]{result});
             ret = CheckXml.checkOk(result).equals("ok");
             if (!ret) {
-                return false;
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "vpn update(delete) error.");
+                return resultMap;
             }
 
             sendMsg = VpnUpdateXml.getUpdateVpnAddXml(modifyMap, l3vpnInstance, bgpVrf);
@@ -199,30 +213,27 @@ public class VPNServiceImpl implements VPNService {
                 LOG.info("result={}", new Object[]{result});
                 ret = CheckXml.checkOk(result).equals("ok");
                 if (!ret) {
-                    return false;
+                    resultMap.put(ResponseEnum.MESSAGE.getName(), "vpn update(add) error.");
+                    return resultMap;
                 }
             }
-
-
         }
         //vpn info update in vpnManager
         if (true == ret) {
             this.vpnInstanceManager.updateVpnInstance(vpnName, routerId, device, businessRegion, rd, importRT, exportRT,
                     peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, deviceInterfaceList, networkSegList);
         }
-
-        return true;
+        resultMap.put(ResponseEnum.BODY.getName(), true);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return resultMap;
     }
 
     public boolean delVpnInstance(Integer id) {
         return (null == this.vpnInstanceManager) ? false : this.vpnInstanceManager.delVpnInstance(id);
     }
 
-    private boolean delVpnInstanceByName(String vpnName) {
-        if ((null == vpnName) || (vpnName.isEmpty())) {
-            return false;
-        }
-
+    private Map<String, Object> delVpnInstanceByName(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
         List<Device> deviceList = this.deviceManager.getDeviceList();
         for (Device device : deviceList) {
             if (null == device.getNetConf())  //may be some device generate by bgpls
@@ -243,7 +254,8 @@ public class VPNServiceImpl implements VPNService {
                     LOG.info("get result={}", new Object[]{result});
                     boolean ret = CheckXml.checkOk(result).equals("ok");
                     if (true != ret) {
-                        return false;
+                        resultMap.put(ResponseEnum.BODY.getName(), false);
+                        return resultMap;
                     }
                     this.vpnInstanceManager.delVpnInstance(device.getRouterId(), vpnName);
                 }
@@ -251,20 +263,21 @@ public class VPNServiceImpl implements VPNService {
             }
 
         }
-        return true;
+        resultMap.put(ResponseEnum.BODY.getName(), true);
+        return resultMap;
     }
 
-    public boolean delVpnInstance(String routerId, String vpnName) {
-        if ((null == vpnName) || (vpnName.isEmpty())) {
-            return false;
-        }
+    public Map<String, Object> delVpnInstance(String routerId, String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), false);
         if ((null == routerId) || (true == routerId.equals(""))) {
             return delVpnInstanceByName(vpnName);
         }
-
         Device device = this.deviceManager.getDevice(routerId);
         if ((null == device) || (null == device.getNetConf())) {
-            return false;
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "device is null or device netconf is not set.");
+            return resultMap;
         }
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         LOG.info("enter delVpnIstance");
@@ -274,9 +287,12 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get result={}", new Object[]{result});
         boolean ret = CheckXml.checkOk(result).equals("ok");
         if (true == ret) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }
-        return ret;
+
+        resultMap.put(ResponseEnum.BODY.getName(), ret);
+        return resultMap;
     }
 
     public VPNInstance getVpnInstanceFromDevice(String routerId, String vpnName) {
@@ -374,14 +390,14 @@ public class VPNServiceImpl implements VPNService {
         return vpnInstancelist;
     }
 
-    public List<VPNInstance> getVpnInstanceList(String vpnName) {
-        if (null == vpnName) {
-            return null;
-        }
+    public Map<String, Object> getVpnInstanceList(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
         List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
         List<VPNInstance> vpnInstances = new LinkedList<VPNInstance>();
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         if (true == vpnName.equals("")) {
-            return vpnInstanceList;
+            resultMap.put(ResponseEnum.BODY.getName(), vpnInstanceList);
+            return resultMap;
         } else {
             for (VPNInstance vpnInstance : vpnInstanceList) {
                 if (true == vpnName.equals(vpnInstance.getVpnName())) {
@@ -389,22 +405,25 @@ public class VPNServiceImpl implements VPNService {
                 }
             }
         }
-        return vpnInstances;
+        resultMap.put(ResponseEnum.BODY.getName(), vpnInstances);
+        return resultMap;
     }
 
-    public VPNInstance getVpnInstance(String routerId, String vpnName) {
-        if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty()) {
-            return null;
-        }
+    public Map<String, Object> getVpnInstance(String routerId, String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), null);
         List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
         List<VPNInstance> vpnInstances = new LinkedList<VPNInstance>();
         for (VPNInstance vpnInstance : vpnInstanceList) {
             if (vpnName.equals(vpnInstance.getVpnName()) && routerId.equals(vpnInstance.getRouterId())) {
-                return vpnInstance;
+                resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+                resultMap.put(ResponseEnum.BODY.getName(), vpnInstance);
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "success");
+                return resultMap;
             }
         }
-
-        return null;
+        return resultMap;
     }
 
     public String getTest() {
@@ -575,15 +594,12 @@ public class VPNServiceImpl implements VPNService {
     // list to map for rest api
      */
     @Override
-    public Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName) {
+    public Map<String, Object> getVpnInstanceMap(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
         Boolean findFlag = false;
-        if (null == vpnName) {
-            return null;
-        }
         List<VPNInstance> vpnInstances = null;
         Map<String, List<VPNInstance>> vpnInstanceMap = new HashMap<String, List<VPNInstance>>();
         List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
-
         if (true == vpnName.equals("")) {
             for (VPNInstance vpnInstance : vpnInstanceList) {
                 if (vpnInstanceMap.containsKey(vpnInstance.getVpnName())) {
@@ -606,7 +622,9 @@ public class VPNServiceImpl implements VPNService {
                 vpnInstanceMap.put(vpnName, vpnInstances);
             }
         }
-        return vpnInstanceMap;
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), vpnInstanceMap);
+        return resultMap;
     }
 
     private Integer convertMaskIPtoLength(String mask) {
@@ -665,12 +683,31 @@ public class VPNServiceImpl implements VPNService {
         return new Address(ipMask, AddressTypeEnum.V4);
     }
 
-    public boolean isContainVpnName(String vpnName) {
-        return (null == this.vpnInstanceManager) ? false : this.vpnInstanceManager.isContainVpnName(vpnName);
+    public Map<String, Object> isContainVpnName(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == this.vpnInstanceManager) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), false);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnInstanceManager is null.");
+            return resultMap;
+        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), this.vpnInstanceManager.isContainVpnName(vpnName));
+        resultMap.put(ResponseEnum.MESSAGE.getName(), "success.");
+        return resultMap;
     }
 
-    public boolean isContainRd(String routerId, String rd) {
-        return (null == this.vpnInstanceManager) ? false : this.vpnInstanceManager.isContainRd(routerId, rd);
+    public Map<String, Object> isContainRd(String routerId, String rd) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == this.vpnInstanceManager) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), false);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnInstanceManager is null.");
+        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), this.vpnInstanceManager.isContainRd(routerId, rd));
+        resultMap.put(ResponseEnum.MESSAGE.getName(), "success.");
+        return resultMap;
     }
 
 }

@@ -17,9 +17,25 @@ public class NetconfSession {
     private String userName;
     private String routerId;
     private String status;
+    private String userPassword;
 
+    public NetconfSession() {
+    }
 
-    public NetconfSession( String routerId, String deviceName, String deviceDesc, String deviceType, String sysName, String deviceIP, Integer devicePort, String userName) {
+    public NetconfSession(String routerId, String deviceName, String deviceDesc,
+                          String deviceType, String deviceIP, Integer devicePort,
+                          String userName, String userPassword) {
+        this.routerId = routerId;
+        this.deviceName = deviceName;
+        this.deviceDesc = deviceDesc;
+        this.deviceType = deviceType;
+        this.userPassword = userPassword;
+        this.deviceIP = deviceIP;
+        this.devicePort = devicePort;
+        this.userName = userName;
+    }
+
+    public NetconfSession(String routerId, String deviceName, String deviceDesc, String deviceType, String sysName, String deviceIP, Integer devicePort, String userName) {
         this.routerId = routerId;
         this.deviceName = deviceName;
         this.deviceDesc = deviceDesc;
@@ -28,6 +44,14 @@ public class NetconfSession {
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
+    }
+
+    public String getUserPassword() {
+        return userPassword;
+    }
+
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 
     public String getDeviceType() {

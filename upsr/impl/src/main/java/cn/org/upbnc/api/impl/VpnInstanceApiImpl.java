@@ -10,11 +10,15 @@ package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.VpnInstanceApi;
 import cn.org.upbnc.entity.*;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.VPNService;
+import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,77 +27,144 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     private static VpnInstanceApi ourInstance = new VpnInstanceApiImpl();
     private ServiceInterface serviceInterface;
     private VPNService vpnService;
+
     public static VpnInstanceApi getInstance() {
         return ourInstance;
     }
 
-    private VpnInstanceApiImpl()
-    {
+    private VpnInstanceApiImpl() {
         this.serviceInterface = null;
     }
 
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
         this.serviceInterface = serviceInterface;
-        if(null != serviceInterface) {
+        if (null != serviceInterface) {
             vpnService = this.serviceInterface.getVpnService();
         }
         return true;
     }
-    public boolean updateVpnInstance(String vpnName,
-                                     String routerId,
-                                     String businessRegion,
-                                     String rd,
-                                     String importRT,
-                                     String exportRT,
-                                     Integer peerAS,
-                                     Address peerIP,
-                                     Integer routeSelectDelay,
-                                     Integer importDirectRouteEnable,
-                                     List<DeviceInterface> deviceInterfaceList,
-                                     List<NetworkSeg> networkSegList)
-    {
+
+    public Map<String, Object> updateVpnInstance(UpdateVpnInstance updateVpnInstance) {
+
+        String vpnName=updateVpnInstance.getVpnName();
+        String routerId=updateVpnInstance.getRouterId();
+//        String businessRegion,
+        String rd=updateVpnInstance.getRd();
+//        String importRT,
+//        String exportRT,
+//        Integer peerAS,
+//        Address peerIP,
+//        Integer routeSelectDelay,
+//        Integer importDirectRouteEnable,
+        List<DeviceInterface> deviceInterfaceList=updateVpnInstance.getDeviceInterfaceList();
+//        List<NetworkSeg> networkSegList
+
         boolean ret = false;
-        if(null == this.vpnService) {
-            return false;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.BODY.getName(), false);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+
+        if (null == this.vpnService) {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnService is null.");
+            return resultMap;
         }
-        ret= this.vpnService.updateVpnInstance(vpnName,routerId,businessRegion,rd,importRT, exportRT,
-                peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,deviceInterfaceList,networkSegList);
-        return ret;
-    }
-    public boolean delVpnInstance(Integer id)
-    {
-        return (null == this.vpnService)?false:this.vpnService.delVpnInstance(id);
-    }
-    public boolean delVpnInstance(String routerId,String vpnName)
-    {
-        return (null == this.vpnService)?false:this.vpnService.delVpnInstance(routerId, vpnName);
+        if ((null == routerId) || (routerId.isEmpty()) || (null == vpnName) || (vpnName.isEmpty())
+                || (null == rd) || (rd.isEmpty())
+                ) {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , vpnName or rd is null.");
+            return resultMap;
+        }
+        for (DeviceInterface deviceInterface : deviceInterfaceList) {
+            if ((null == deviceInterface.getIp().getAddress()) || (deviceInterface.getIp().getAddress().isEmpty())) {
+                if ((null != deviceInterface.getMask().getAddress()) || !(deviceInterface.getMask().getAddress().isEmpty())) {
+                    resultMap.put(ResponseEnum.MESSAGE.getName(), "ip is null,but mask is not.");
+                    return resultMap;
+                }
+            }
+            if ((null == deviceInterface.getMask().getAddress()) || (deviceInterface.getMask().getAddress().isEmpty())) {
+                if ((null != deviceInterface.getIp().getAddress()) || !(deviceInterface.getIp().getAddress().isEmpty())) {
+                    resultMap.put(ResponseEnum.MESSAGE.getName(), "mask is null,but ip is not.");
+                    return resultMap;
+                }
+            }
+        }
+        return this.vpnService.updateVpnInstance(updateVpnInstance);
     }
 
-    public VPNInstance getVpnInstance(String routerId,String vpnName)
-    {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstance(routerId, vpnName);
+    public boolean delVpnInstance(Integer id) {
+        return (null == this.vpnService) ? false : this.vpnService.delVpnInstance(id);
     }
-    public List<VPNInstance> getVpnInstanceList(String vpnName)
-    {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceList(vpnName);
+
+    public Map<String, Object> delVpnInstance(String routerId, String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.BODY.getName(), false);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        if ((null == vpnName) || (vpnName.isEmpty())) {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnName is null.");
+            return resultMap;
+        }
+        if (null == this.vpnService) {
+            return resultMap;
+        }
+        return this.vpnService.delVpnInstance(routerId, vpnName);
     }
-    public Map<String, List<VPNInstance>> getVpnInstanceMap(String vpnName) {
-        return (null == this.vpnService)?null:this.vpnService.getVpnInstanceMap(vpnName);
+
+    public Map<String, Object> getVpnInstance(String routerId, String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty()) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId or vpnName is null.");
+            return resultMap;
+        }
+        return (null == this.vpnService) ? null : this.vpnService.getVpnInstance(routerId, vpnName);
     }
+
+    public Map<String, Object> getVpnInstanceList(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == vpnName) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnName is null.");
+            return resultMap;
+        }
+        return (null == this.vpnService) ? null : this.vpnService.getVpnInstanceList(vpnName);
+    }
+
+    public Map<String, Object> getVpnInstanceMap(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == vpnName) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnName is null.");
+            return resultMap;
+        }
+        return (null == this.vpnService) ? null : this.vpnService.getVpnInstanceMap(vpnName);
+    }
+
     public String getTest() {
         return null;
     }
 
-    public boolean isContainVpnName(String vpnName){
-        if(vpnName.equals("")){
-            return false;
+    public Map<String, Object> isContainVpnName(String vpnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (vpnName.equals("")) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), false);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnName is \"\".");
+            return resultMap;
         }
-        return (null == this.vpnService)?null:this.vpnService.isContainVpnName(vpnName);
+        return (null == this.vpnService) ? null : this.vpnService.isContainVpnName(vpnName);
     }
-    public boolean isContainRd(String routerId,String rd){
-        if(routerId.equals("")||rd.equals("")){
-            return false;
+
+    public Map<String, Object> isContainRd(String routerId, String rd) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (routerId.equals("") || rd.equals("")) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), false);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId or rd is \"\".");
+            return resultMap;
         }
-        return (null == this.vpnService)?null:this.vpnService.isContainRd(routerId,rd);
+        return (null == this.vpnService) ? null : this.vpnService.isContainRd(routerId, rd);
     }
 }

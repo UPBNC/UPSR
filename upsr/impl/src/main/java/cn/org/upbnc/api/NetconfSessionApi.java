@@ -10,17 +10,18 @@ package cn.org.upbnc.api;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.entity.NetconfSession;
 
-import java.util.List;
+import java.util.Map;
 
 public interface NetconfSessionApi {
 
     boolean setServiceInterface(ServiceInterface serviceInterface);
-    boolean updateNetconfSession(String routerId , String deviceName, String deviceDesc,
-                                 String deviceType, String deviceIP, Integer devicePort,
-                                 String userName, String userPassword);
 
-    boolean delNetconfSession(String routerId);
-    NetconfSession getNetconfSession(String routerId);
-    List<NetconfSession> getNetconfSessionList();
+    Map<String, Object> updateNetconfSession(NetconfSession netconfSession);
+
+    Map<String, Object> delNetconfSession(String routerId);
+
+    Map<String, Object> getNetconfSession(String routerId);
+
+    Map<String, Object> getNetconfSessionList();
 
 }
