@@ -17,11 +17,13 @@ public class ConfSyncApiImpl implements ConfSyncApi {
     private static ConfSyncApi ourInstance = new ConfSyncApiImpl();
     private ServiceInterface serviceInterface;
 
-    public static ConfSyncApi getInstance() {return ourInstance;}
+    public static ConfSyncApi getInstance() {
+        return ourInstance;
+    }
 
     @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
-        if(null == serviceInterface) {
+        if (null == serviceInterface) {
             return false;
         }
         this.serviceInterface = serviceInterface;
@@ -33,15 +35,15 @@ public class ConfSyncApiImpl implements ConfSyncApi {
         String ret = null;
         String result = null;
         result = "sync device configure start......";
-        ret = this.serviceInterface.getInterfaceService().syncInterfaceConf() ? " success":"failed";
-        result +=  ret;
-        result += "\n";
-        result += "sync vpnInstance configure....";
-        ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success":"failed";
+        ret = this.serviceInterface.getInterfaceService().syncInterfaceConf() ? " success" : "failed";
         result += ret;
         result += "\n";
-        result += this.serviceInterface.getSrLabelService().syncIntfLabel();
-        result += this.serviceInterface.getSrLabelService().syncNodeLabel();
+        result += "sync vpnInstance configure....";
+        ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success" : "failed";
+        result += ret;
+        result += "\n";
+        result += this.serviceInterface.getSrLabelService().syncAllIntfLabel();
+        result += this.serviceInterface.getSrLabelService().syncAllNodeLabel();
         result += "\n";
         result += "sync device configure end.";
         return result;

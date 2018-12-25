@@ -98,8 +98,8 @@ public class ServiceInterface {
         this.netconfSessionService.recoverNetconfSession();
         this.interfaceService.syncInterfaceConf();
         this.vpnService.syncVpnInstanceConf();
-        this.srLabelService.syncIntfLabel();
-        this.srLabelService.syncNodeLabel();
+        this.srLabelService.syncAllIntfLabel();
+        this.srLabelService.syncAllNodeLabel();
 
         // Start topology service at last
         this.topoService.startService();

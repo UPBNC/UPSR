@@ -15,12 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SrLabelApiImpl implements SrLabelApi {
+    public static final int MaxNodeLabelRange = 65534;
     private static final Logger LOG = LoggerFactory.getLogger(SrLabelApiImpl.class);
     private static SrLabelApi ourInstance = new SrLabelApiImpl();
     private ServiceInterface serviceInterface;
     private SrLabelService srLabelService;
 
-    public static SrLabelApi getInstance(){
+    public static SrLabelApi getInstance() {
         return ourInstance;
     }
 
@@ -28,11 +29,11 @@ public class SrLabelApiImpl implements SrLabelApi {
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
         boolean ret = true;
         try {
-            if(this.serviceInterface == null){
+            if (this.serviceInterface == null) {
                 this.serviceInterface = serviceInterface;
                 this.srLabelService = serviceInterface.getSrLabelService();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             ret = false;
             LOG.info(e.toString());
         }
@@ -40,20 +41,36 @@ public class SrLabelApiImpl implements SrLabelApi {
     }
 
     @Override
-    public String updateNodeLabel(String routerId, String labelVal, String action) {
-        srLabelService.updateNodeLabel(routerId,labelVal,action);
+    public String updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
+        if ((labelBegin == null) || (labelValAbs == null)) {
+            return null;
+        }
+        if (Integer.parseInt(labelValAbs) <= Integer.parseInt(labelBegin)) {
+            return null;
+        }
+        int labelVal = Integer.parseInt(labelValAbs) - Integer.parseInt(labelBegin);
+        srLabelService.updateNodeLabel(routerId, labelVal + "", action);
         return null;
     }
 
     @Override
     public String updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
-        srLabelService.updateNodeLabelRange(routerId,labelBegin,labelEnd,action);
+        if ((labelBegin == null) || (labelEnd == null)) {
+            return null;
+        }
+        if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MaxNodeLabelRange) {
+            return null;
+        }
+        srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);
         return null;
     }
 
     @Override
-    public String updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal, String action) {
-        srLabelService.updateIntfLabel(routerId,localAddress,remoteAddress,labelVal,action);
+    public String updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
+        if ((ifAddress == null) || (labelVal == null)) {
+            return null;
+        }
+        srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);
         return null;
     }
 
