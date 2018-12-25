@@ -104,7 +104,7 @@ public class TopoInfoApiImpl implements TopoInfoApi {
             return topoInfo;
         }
         if (inited == false) {
-            srLabelService.syncIntfLabel();
+            srLabelService.syncAllIntfLabel();
             inited = true;
         }
         return this.topoService.getTopoInfo();

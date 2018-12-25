@@ -13,15 +13,22 @@ import cn.org.upbnc.entity.Device;
 public interface SrLabelService {
     // Set BaseInterface
     boolean setBaseInterface(BaseInterface baseInterface);
+
     boolean updateNodeLabel(String routerId, String labelVal, String action);
+
     boolean updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
 
-    boolean updateIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal,String action);
+    boolean updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
 
     String delIntfLabel(String routerId, String localAddress, String remoteAddress, String labelVal);
+
     Device getDevice(String routerId);
-    boolean syncNodeLabel();
+
+    boolean syncAllNodeLabel();
+
     boolean syncNodeLabel(String routerId);
-    boolean syncIntfLabel();
+
+    boolean syncAllIntfLabel();
+
     boolean syncIntfLabel(String routerId);
 }
