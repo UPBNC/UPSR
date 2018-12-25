@@ -11,6 +11,8 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.callback.TopoCallback;
 import cn.org.upbnc.entity.TopoInfo;
 
+import java.util.Map;
+
 public interface TopoService extends TopoCallback {
 
     // Service Start
@@ -21,6 +23,6 @@ public interface TopoService extends TopoCallback {
 
 
     // Get Topology Info
-    TopoInfo getTopoInfo();
+    public Map<String, Object> getTopoInfo();
 
 }

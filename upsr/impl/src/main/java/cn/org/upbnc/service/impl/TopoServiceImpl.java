@@ -12,17 +12,22 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.LinkManager;
 import cn.org.upbnc.entity.*;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.ServiceStatusEnum;
 import cn.org.upbnc.enumtype.BgpTopoStatusEnum;
 import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TopoServiceImpl implements TopoService {
     private static final Logger LOG = LoggerFactory.getLogger(TopoServiceImpl.class);
     private static TopoService ourInstance = new TopoServiceImpl();
+
     public static TopoService getInstance() {
         return ourInstance;
     }
@@ -54,13 +59,13 @@ public class TopoServiceImpl implements TopoService {
     }
 
     @Override
-    public void startService(){
+    public void startService() {
         this.serviceStatusEnum = ServiceStatusEnum.STARTING;
 
         // Start bgp update
-        if(this.bgpTopoStatusEnum == BgpTopoStatusEnum.UPDATED){
+        if (this.bgpTopoStatusEnum == BgpTopoStatusEnum.UPDATED) {
             BgpTopoInfo bgpTopoInfo = this.bgpManager.getBgpTopoInfo();
-            if( null != bgpTopoInfo) {
+            if (null != bgpTopoInfo) {
                 this.updateBgpTopoInfoCb(bgpTopoInfo);
             }
         }
@@ -84,13 +89,13 @@ public class TopoServiceImpl implements TopoService {
 
                 // get device manager
                 this.deviceManager = this.baseInterface.getDeviceManager();
-                if(deviceManager == null){
+                if (deviceManager == null) {
                     LOG.info("Device Manager is Null");
                 }
 
                 // get link manager
                 this.linkManager = this.baseInterface.getLinkManager();
-                if(deviceManager == null){
+                if (deviceManager == null) {
                     LOG.info("Link Manager is Null");
                 }
             }
@@ -105,8 +110,8 @@ public class TopoServiceImpl implements TopoService {
 
 
     @Override
-    public TopoInfo getTopoInfo(){
-        if(this.serviceStatusEnum == ServiceStatusEnum.INIT){
+    public Map<String, Object> getTopoInfo() {
+        if (this.serviceStatusEnum == ServiceStatusEnum.INIT) {
             return null;
         }
         List<Device> devices = this.deviceManager.getDeviceList();
@@ -119,16 +124,18 @@ public class TopoServiceImpl implements TopoService {
         } catch (Exception e) {
             LOG.info(e.getMessage());
         }
-
-        return this.topoInfo;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), this.topoInfo);
+        return resultMap;
     }
 
 
     @Override
-    public void updateBgpTopoInfoCb(BgpTopoInfo bgpTopoInfo){
+    public void updateBgpTopoInfoCb(BgpTopoInfo bgpTopoInfo) {
         this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATED;
 
-        if(this.serviceStatusEnum == ServiceStatusEnum.INIT){
+        if (this.serviceStatusEnum == ServiceStatusEnum.INIT) {
             return;
         }
         LOG.info("Update Topo By BGP Start ...");
@@ -136,7 +143,7 @@ public class TopoServiceImpl implements TopoService {
         List<Device> deviceList = this.deviceManager.updateDeviceListByBgpDeviceList(bgpTopoInfo.getBgpDeviceList());
         this.topoInfo.setDeviceList(deviceList);
         LOG.info("Update BGP Device End!");
-        List<Link> linkList = this.linkManager.updateLinkListByBgpLinkList(deviceList,bgpTopoInfo.getBgpLinkList());
+        List<Link> linkList = this.linkManager.updateLinkListByBgpLinkList(deviceList, bgpTopoInfo.getBgpLinkList());
         this.topoInfo.setLinkList(linkList);
         LOG.info("Update Topo By BGP End!");
         return;

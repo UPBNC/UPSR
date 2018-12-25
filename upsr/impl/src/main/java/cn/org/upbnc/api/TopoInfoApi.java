@@ -12,9 +12,10 @@ import cn.org.upbnc.service.ServiceInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.linkinfo.Links;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TopoInfoApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
-    List<Links> getLinks();
-    TopoInfo getTopoInfo();
+
+    public Map<String, Object> getTopoInfo();
 }

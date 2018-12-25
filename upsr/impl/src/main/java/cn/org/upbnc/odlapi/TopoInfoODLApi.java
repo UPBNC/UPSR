@@ -12,6 +12,7 @@ import cn.org.upbnc.api.TopoInfoApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.impl.UpsrProvider;
@@ -54,28 +55,32 @@ public class TopoInfoODLApi implements UpsrTopoService {
         return this.topoInfoApi;
     }
 
-    private List<Links> getLinks(TopoInfo topoInfo, GetLinksInput filter){
+    private boolean existLinks(List<Links> linksList, Link link) {
+        for (Links links : linksList) {
+            if ((links.getDest().getIfAddress().equals(link.getDeviceInterface1().getIp().getAddress())) &&
+                    links.getSource().getIfAddress().equals(link.getDeviceInterface2().getIp().getAddress())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //组装链路信息
+    private List<Links> getLinks(TopoInfo topoInfo, GetLinksInput filter) {
         List<Links> linksList = new ArrayList<>();
         List<Link> linkList = topoInfo.getLinkList();
-        if (linkList == null){
+        if (linkList == null) {
             LOG.info("linkList is null");
             return linksList;
         }
         Iterator<Link> linkIterator = linkList.iterator();
-        while (linkIterator.hasNext()){
+        while (linkIterator.hasNext()) {
             Link link = linkIterator.next();
-            if(filter != null && filter.getLinkId().equals(link.getId().toString()) != true) {
+            if ((filter != null) && (filter.getLinkId().equals(link.getId().toString()) != true)) {
                 continue;
             }
-            boolean linkExist = false;
-            for (Links links:linksList){
-                if((links.getDest().getIfAddress().equals(link.getDeviceInterface1().getIp().getAddress())) &&
-                    links.getSource().getIfAddress().equals(link.getDeviceInterface2().getIp().getAddress())){
-                    linkExist = true;
-                    break;
-                }
-            }
-            if(linkExist == true){
+
+            if (existLinks(linksList, link) == true) {
                 continue;
             }
             LinksBuilder linksBuilder = new LinksBuilder();
@@ -83,7 +88,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
             SourceBuilder sourceBuilder = new SourceBuilder();
             sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
             sourceBuilder.setIfAddress(link.getDeviceInterface1().getIp().getAddress());
-            if (link.getDeviceInterface1().getAdjLabel() !=  null) {
+            if (link.getDeviceInterface1().getAdjLabel() != null) {
                 sourceBuilder.setAdjlabel(link.getDeviceInterface1().getAdjLabel().getValue().toString());
             }
             linksBuilder.setSource(sourceBuilder.build());
@@ -98,70 +103,81 @@ public class TopoInfoODLApi implements UpsrTopoService {
         }
         return linksList;
     }
-    private List<Nodes> getNodes(TopoInfo topoInfo, GetNodesInput filter){
+
+    //组装接口信息
+    private List<DeviceInterfaces> deviceInterfacesCreate(Device device, GetNodesInput filter) {
+        List<DeviceInterfaces> deviceInterfaces = new ArrayList<>();
+        List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
+        Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaceList.iterator();
+        while (deviceInterfaceIterator.hasNext()) {
+            DeviceInterface deviceInterface = deviceInterfaceIterator.next();
+            if (filter != null && filter.getIfAddress() != null &&
+                    filter.getIfAddress().equals(deviceInterface.getIp().getAddress()) != true) {
+                continue;
+            }
+            DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
+            deviceInterfacesBuilder.setIfName(deviceInterface.getName());
+            if ((deviceInterface.getBgpStatus() != null) && (deviceInterface.getBgpStatus() == 1)) {
+                deviceInterfacesBuilder.setIsSrDomain(SrStatus.ENABLED.getName());
+            } else {
+                deviceInterfacesBuilder.setIsSrDomain(SrStatus.DISENABLED.getName());
+            }
+            deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
+            if (deviceInterface.getMask() != null) {
+                deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
+            }
+            deviceInterfacesBuilder.setSrEnabled(deviceInterface.getSrStatus());
+            if (deviceInterface.getAdjLabel() != null) {
+                deviceInterfacesBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
+            }
+            if (deviceInterface.getIfPhyStatus() != null) {
+                deviceInterfacesBuilder.setPhyStatus(deviceInterface.getIfPhyStatus());
+            }
+            deviceInterfaces.add(deviceInterfacesBuilder.build());
+        }
+        return deviceInterfaces;
+    }
+
+    private SrgbPrefixSidBuilder srgbPrefixSidBuilderCreate(Device device) {
+        SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
+        if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatus.ENABLED.getName()) &&
+                device.getNodeLabel() != null) {
+            srgbPrefixSidBuilder.setPrefixId(String.valueOf(new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID())));
+            srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
+            srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
+            if (device.getMinAdjSID() != null) {
+                srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
+                srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
+            }
+        }
+        return srgbPrefixSidBuilder;
+    }
+
+    //组装节点信息
+    private List<Nodes> getNodes(TopoInfo topoInfo, GetNodesInput filter) {
         List<Nodes> nodesList = new ArrayList<>();
         List<Device> deviceList = topoInfo.getDeviceList();
-        if (deviceList == null){
+        if (deviceList == null) {
             LOG.info("getNodes deviceList is null");
             return nodesList;
         }
         Iterator<Device> deviceIterator = deviceList.iterator();
-        while (deviceIterator.hasNext()){
+        while (deviceIterator.hasNext()) {
             Device device = deviceIterator.next();
-            if(filter != null && filter.getRouterId().equals(device.getRouterId()) != true){
+            if (filter != null && filter.getRouterId().equals(device.getRouterId()) != true) {
                 continue;
             }
             NodesBuilder nodesBuilder = new NodesBuilder();
             nodesBuilder.setRouterId(device.getRouterId());
             nodesBuilder.setSrEnabled(device.getSrStatus());
             nodesBuilder.setDeviceName(device.getDeviceName());
-
-            if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatus.ENABLED.getName()) &&
-                    device.getNodeLabel() != null) {
-                SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
-                srgbPrefixSidBuilder.setPrefixId(String.valueOf(new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID())));
-                srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
-                srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
-                if (device.getMinAdjSID() != null) {
-                    srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
-                    srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
-                }
-                nodesBuilder.setSrgbPrefixSid(srgbPrefixSidBuilder.build());
-            }
-            List<DeviceInterfaces> deviceInterfaces = new ArrayList<>();
-            List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();
-            Iterator<DeviceInterface> deviceInterfaceIterator = deviceInterfaceList.iterator();
-            while (deviceInterfaceIterator.hasNext()){
-                DeviceInterface deviceInterface = deviceInterfaceIterator.next();
-                if (filter != null && filter.getIfAddress() != null &&
-                        filter.getIfAddress().equals(deviceInterface.getIp().getAddress()) != true){
-                    continue;
-                }
-                DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
-                deviceInterfacesBuilder.setIfName(deviceInterface.getName());
-                if ((deviceInterface.getBgpStatus() != null) && (deviceInterface.getBgpStatus() == 1)){
-                    deviceInterfacesBuilder.setIsSrDomain(SrStatus.ENABLED.getName());
-                } else {
-                    deviceInterfacesBuilder.setIsSrDomain(SrStatus.DISENABLED.getName());
-                }
-                deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
-                if (deviceInterface.getMask() != null) {
-                    deviceInterfacesBuilder.setMask(deviceInterface.getMask().getAddress());
-                }
-                deviceInterfacesBuilder.setSrEnabled(deviceInterface.getSrStatus());
-                if (deviceInterface.getAdjLabel() != null) {
-                    deviceInterfacesBuilder.setAdjlabel(deviceInterface.getAdjLabel().getValue().toString());
-                }
-                if (deviceInterface.getIfPhyStatus() != null) {
-                    deviceInterfacesBuilder.setPhyStatus(deviceInterface.getIfPhyStatus());
-                }
-                deviceInterfaces.add(deviceInterfacesBuilder.build());
-            }
-            nodesBuilder.setDeviceInterfaces(deviceInterfaces);
+            nodesBuilder.setSrgbPrefixSid(srgbPrefixSidBuilderCreate(device).build());
+            nodesBuilder.setDeviceInterfaces(deviceInterfacesCreate(device, filter));
             nodesList.add(nodesBuilder.build());
         }
         return nodesList;
     }
+
     @Override
     public Future<RpcResult<GetNodesOutput>> getNodes(GetNodesInput input) {
         /*
@@ -170,18 +186,18 @@ public class TopoInfoODLApi implements UpsrTopoService {
          */
         GetNodesOutputBuilder getNodesOutputBuilder = new GetNodesOutputBuilder();
         LOG.info("getNodes begin");
-        if(SystemStatusEnum.ON != this.session.getStatus()){
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(getNodesOutputBuilder.build()).buildFuture();
-        }else{
+        } else {
             this.getTopoInfoApi();
         }
-        if ((input != null) && (input.getIfAddress() != null) && (input.getRouterId() == null)){
+        if ((input != null) && (input.getIfAddress() != null) && (input.getRouterId() == null)) {
             LOG.info("getNodes err");
             return RpcResultBuilder.success(getNodesOutputBuilder.build()).buildFuture();
         }
-        TopoInfo topoInfo = topoInfoApi.getTopoInfo();
-        if (topoInfo != null){
-            getNodesOutputBuilder.setNodes(this.getNodes(topoInfo,input));
+        TopoInfo topoInfo = (TopoInfo) topoInfoApi.getTopoInfo().get(ResponseEnum.BODY.getName());
+        if (topoInfo != null) {
+            getNodesOutputBuilder.setNodes(this.getNodes(topoInfo, input));
         }
         LOG.info("getNodes end");
         return RpcResultBuilder.success(getNodesOutputBuilder.build()).buildFuture();
@@ -194,12 +210,12 @@ public class TopoInfoODLApi implements UpsrTopoService {
          */
         GetTopoOutputBuilder getTopoOutputBuilder = new GetTopoOutputBuilder();
         LOG.info("getTopo begin");
-        if(SystemStatusEnum.ON != this.session.getStatus()){
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(getTopoOutputBuilder.build()).buildFuture();
-        }else{
+        } else {
             this.getTopoInfoApi();
         }
-        TopoInfo topoInfo = topoInfoApi.getTopoInfo();
+        TopoInfo topoInfo = (TopoInfo) topoInfoApi.getTopoInfo().get(ResponseEnum.BODY.getName());
         if (topoInfo != null) {
             getTopoOutputBuilder.setLinks(this.getLinks(topoInfo, null));
             getTopoOutputBuilder.setNodes(this.getNodes(topoInfo, null));
@@ -216,17 +232,17 @@ public class TopoInfoODLApi implements UpsrTopoService {
          */
         GetLinksOutputBuilder getLinksOutputBuilder = new GetLinksOutputBuilder();
         LOG.info("getLinks begin");
-        if(SystemStatusEnum.ON != this.session.getStatus()){
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(getLinksOutputBuilder.build()).buildFuture();
-        }else{
+        } else {
             this.getTopoInfoApi();
         }
-        TopoInfo topoInfo = topoInfoApi.getTopoInfo();
+        TopoInfo topoInfo = (TopoInfo) topoInfoApi.getTopoInfo().get(ResponseEnum.BODY.getName());
         if (topoInfo != null) {
             getLinksOutputBuilder.setLinks(this.getLinks(topoInfo, null));
         }
 
         LOG.info("getLinks end");
-        return  RpcResultBuilder.success(getLinksOutputBuilder.build()).buildFuture();
+        return RpcResultBuilder.success(getLinksOutputBuilder.build()).buildFuture();
     }
 }
