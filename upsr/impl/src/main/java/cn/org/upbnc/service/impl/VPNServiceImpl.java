@@ -135,7 +135,6 @@ public class VPNServiceImpl implements VPNService {
             LOG.info("vpnInstance is null,add VPN " + vpnName);
 
             String sendMsg = VpnXml.createVpnXml(l3vpnInstance);
-            //sendMsg=EbgpXml.createEbgpXml(BgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
             String result = null;
             result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -159,18 +158,9 @@ public class VPNServiceImpl implements VPNService {
             //modify vpn
             LOG.info("VPN {} is already exist ,update", vpnName);
 
-            Map<String, Boolean> modifyMap = vpnInstance.compareVpnInfo(vpnName,
-                    routerId,
-                    businessRegion,
-                    rd,
-                    importRT,
-                    exportRT,
-                    peerAS,
-                    peerIP,
-                    routeSelectDelay,
-                    importDirectRouteEnable,
-                    deviceInterfaceList,
-                    networkSegList);
+            Map<String, Boolean> modifyMap = vpnInstance.compareVpnInfo(vpnName, routerId, businessRegion,
+                    rd, importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable,
+                    deviceInterfaceList, networkSegList);
             String sendMsg = "";
             L3vpnInstance l3vpnInstance1 = new L3vpnInstance();
             l3vpnInstance1.setVrfName(l3vpnInstance.getVrfName());
@@ -243,10 +233,7 @@ public class VPNServiceImpl implements VPNService {
             for (VPNInstance vpnInstance : vpnInstanceList) {
 
                 if (true == vpnName.equals(vpnInstance.getVpnName())) {
-
-
                     NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
-                    //LOG.info("enter getVpnIstance");
                     String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
                     LOG.info("get sendMsg={}", new Object[]{sendMsg});
                     String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -289,7 +276,6 @@ public class VPNServiceImpl implements VPNService {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }
-
         resultMap.put(ResponseEnum.BODY.getName(), ret);
         return resultMap;
     }
@@ -309,9 +295,7 @@ public class VPNServiceImpl implements VPNService {
         LOG.info("get vpnInfo sendMsg={}", new Object[]{sendMsg});
         String result = netconfController.sendMessage(netconfClient, sendMsg);
         LOG.info("get vpnInfo result={}", new Object[]{result});
-
         List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(result);
-
         sendMsg = EbgpXml.getEbgpXml(vpnName);
         LOG.info("get ebgpInfo sendMsg={}", new Object[]{sendMsg});
         result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -500,12 +484,10 @@ public class VPNServiceImpl implements VPNService {
             return null;
         }
         BgpVrf bgpVrf = new BgpVrf();
-
         bgpVrf.setVrfName(vfrName);
         List<BgpPeer> bgpPeerList = new ArrayList<BgpPeer>();
         List<ImportRoute> importRouteList = new ArrayList<ImportRoute>();
         List<NetworkRoute> networkRouteList = new ArrayList<NetworkRoute>();
-
         BgpPeer bgpPeer = null;
 
         if ((null != peerIP) && (null != peerAS)) {
@@ -513,13 +495,10 @@ public class VPNServiceImpl implements VPNService {
             bgpPeerList.add(bgpPeer);
         }
         bgpVrf.setBgpPeers(bgpPeerList);
-
-
         if ((null != importDirectRouteEnable) && importDirectRouteEnable.equals(1)) {
             ImportRoute importRoute = new ImportRoute("direct", "0");
             importRouteList.add(importRoute);
         }
-
         bgpVrf.setImportRoutes(importRouteList);
         if (networkSegList != null) {
             for (NetworkSeg networkSeg : networkSegList) {
@@ -548,11 +527,8 @@ public class VPNServiceImpl implements VPNService {
             }
         }
         for (Device device : deviceManager.getDeviceList()) {
-
-
             syncVpnInstanceConf(device.getRouterId());
         }
-
         return true;
     }
 

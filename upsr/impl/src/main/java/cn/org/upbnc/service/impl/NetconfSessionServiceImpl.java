@@ -88,7 +88,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
-        resultMap.put(ResponseEnum.MESSAGE.getName(), "error");
         NetConf netconf = null;
         Device device = this.deviceManager.getDevice(routerId);
         if (null != device) {
@@ -127,9 +126,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
 
         if ((null != netconf) && (null != netconf.getIp())) {
             NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
-            String connStatus = (NetConfStatusEnum.Connected == netconfStat.getStatus()) ? "" +
-                    "" +
-                    "" : disConnected;
             netconf.setStatus(netconfStat.getStatus());
             if (NetConfStatusEnum.Connected == netconfStat.getStatus()) {
                 NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
@@ -143,7 +139,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         }
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), true);
-        resultMap.put(ResponseEnum.MESSAGE.getName(), "success");
         return resultMap;
     }
 
@@ -152,7 +147,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
-        resultMap.put(ResponseEnum.MESSAGE.getName(), "error");
         LOG.info("routerId = {}", new Object[]{routerId});
         Device device = this.deviceManager.getDevice(routerId);
         if (null != device) {
@@ -162,7 +156,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             this.deviceManager.delDevice(routerId);
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             resultMap.put(ResponseEnum.BODY.getName(), true);
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "success");
             return resultMap;
         }
         return resultMap;
@@ -182,15 +175,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setDeviceType(device.getDeviceType());
             netconfSession.setSysName(device.getSysName());
             if (null != device.getNetConf()) {
-
                 netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
                 netconfSession.setDevicePort(device.getNetConf().getPort());
                 netconfSession.setUserName(device.getNetConf().getUser());
                 String connStatus = disConnected;
-                //get status from device for avoiding connect break in use
-
                 NetConf netconf = device.getNetConf(); // can't be null
-
                 long start = System.currentTimeMillis();
                 NetConf device_netconf = this.netConfManager.getDevice(netconf.getIp().getAddress());
                 long end = System.currentTimeMillis();
@@ -204,8 +193,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 netconfSession.setStatus(connStatus);
             }
         }
-        resultMap.put(ResponseEnum.CODE.getName(), "1");
-        resultMap.put(ResponseEnum.MESSAGE.getName(), "ok");
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), netconfSession);
         return resultMap;
     }
@@ -226,8 +214,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 netconfSessionList.add(netconfSession);
             }
         }
-        resultMap.put(ResponseEnum.CODE.getName(), "1");
-        resultMap.put(ResponseEnum.MESSAGE.getName(), "ok");
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), netconfSessionList);
         return resultMap;
     }

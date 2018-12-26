@@ -18,11 +18,9 @@ import java.util.*;
 
 public class DeviceManagerImpl implements DeviceManager {
     private static DeviceManager instance = null;
-    //private Map<String,Device> mapInstance;
     private List<Device> deviceList;
 
     private DeviceManagerImpl() {
-        //this.mapInstance = new HashMap<String,Device>();
         this.deviceList = Collections.synchronizedList(new ArrayList<Device>());
         return;
     }
@@ -88,22 +86,6 @@ public class DeviceManagerImpl implements DeviceManager {
             }
         }
         return null;
-//        Device device = null;
-//        Map.Entry entry = null;
-//        if(null == deviceName){
-//            return null;
-//        }
-//        Iterator iter = mapInstance.entrySet().iterator();
-//        while(iter.hasNext())
-//        {
-//            entry = (Map.Entry) iter.next();
-//            device = (Device)entry.getValue();
-//            if(true == deviceName.equals(device.getDeviceName()))
-//            {
-//                return device;
-//            }
-//        }
-//        return null;
     }
 
     @Override
@@ -120,22 +102,6 @@ public class DeviceManagerImpl implements DeviceManager {
             }
         }
         return null;
-//        Device device = null;
-//        Map.Entry entry = null;
-//        if(null == deviceIP){
-//            return null;
-//        }
-//        Iterator iter = mapInstance.entrySet().iterator();
-//        while(iter.hasNext())
-//        {
-//            entry = (Map.Entry) iter.next();
-//            device = (Device)entry.getValue();
-//            if(true == deviceIP.equals(device.getNetConf().getIp().getAddress()))
-//            {
-//                return device;
-//            }
-//        }
-//        return null;
     }
 
     @Override
@@ -156,23 +122,6 @@ public class DeviceManagerImpl implements DeviceManager {
             }
         }
         return false;
-//        Device device = null;
-//        Map.Entry entry = null;
-//        if(null == routerId){
-//            return false;
-//        }
-//        Iterator iter = mapInstance.entrySet().iterator();
-//        while(iter.hasNext())
-//        {
-//            entry = (Map.Entry) iter.next();
-//            device = (Device)entry.getValue();
-//            if(true == routerId.equals(device.getRouterId()))
-//            {
-//                iter.remove();
-//                return true;
-//            }
-//        }
-//        return false;
     }
 
     @Override
@@ -188,23 +137,6 @@ public class DeviceManagerImpl implements DeviceManager {
             }
         }
         return false;
-//        Device device = null;
-//        Map.Entry entry = null;
-//        if(null == deviceName){
-//            return false;
-//        }
-//        Iterator iter = mapInstance.entrySet().iterator();
-//        while(iter.hasNext())
-//        {
-//            entry = (Map.Entry) iter.next();
-//            device = (Device)entry.getValue();
-//            if(true == deviceName.equals(device.getDeviceName()))
-//            {
-//                iter.remove();
-//                return true;
-//            }
-//        }
-//        return false;
     }
 
     @Override
@@ -222,23 +154,6 @@ public class DeviceManagerImpl implements DeviceManager {
             }
         }
         return false;
-//        Device device = null;
-//        Map.Entry entry = null;
-//        if(null == deviceIP){
-//            return false;
-//        }
-//        Iterator iter = mapInstance.entrySet().iterator();
-//        while(iter.hasNext())
-//        {
-//            entry = (Map.Entry) iter.next();
-//            device = (Device)entry.getValue();
-//            if(true == deviceIP.equals(device.getNetConf().getIp().getAddress()))
-//            {
-//                iter.remove();
-//                return true;
-//            }
-//        }
-//        return true;
     }
 
     @Override
