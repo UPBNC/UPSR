@@ -44,13 +44,13 @@ module upsrVpnInstance {
         }
     }
     grouping bindDevices {
-        list bind {
+        list deviceBind {
              leaf deviceName { type string; }
              leaf routerId { type string; }
              leaf vpnRd { type string; }
              leaf vpnExport { type string; }
              leaf vpnImport { type string; }
-             list bindIf {
+             list bindIfNet {
                 leaf ifName { type string; }
                 leaf ifAddress { type string; }
                 leaf ifNetMask { type string; }

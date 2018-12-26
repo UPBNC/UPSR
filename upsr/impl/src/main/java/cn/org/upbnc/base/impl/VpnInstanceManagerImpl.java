@@ -69,7 +69,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
     public boolean delVpnInstance(String routerId, String vpnName) {
-        if ((null == routerId)||routerId.isEmpty() ||(null == vpnName)||vpnName.isEmpty()) {
+        if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty()) {
             return false;
         }
         VPNInstance vpnInstance = null;
@@ -77,7 +77,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         while (iter.hasNext()) {
             vpnInstance = iter.next();
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
-                if((null != vpnInstance.getDevice())&&
+                if ((null != vpnInstance.getDevice()) &&
                         (true == routerId.equals(vpnInstance.getDevice().getRouterId()))) {
                     iter.remove();
                     return true;
@@ -101,7 +101,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
 
     public VPNInstance getVpnInstance(String routerId, String vpnName) {
         LOG.info("enter getVpnIstance routerid={} vpnName = {}", new Object[]{routerId, vpnName});
-        if ((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty()) {
+        if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty()) {
             return null;
         }
 
@@ -110,7 +110,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         while (iter.hasNext()) {
             vpnInstance = iter.next();
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
-                if((null != vpnInstance.getDevice())&&
+                if ((null != vpnInstance.getDevice()) &&
                         (true == routerId.equals(vpnInstance.getDevice().getRouterId()))) {
                     return vpnInstance;
                 }
@@ -120,21 +120,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     }
 
 
-    public VPNInstance updateVpnInstance(String vpnName,
-                                         String routerId,
-                                         Device device,
-                                         String businessRegion,
-                                         String rd,
-                                         String importRT,
-                                         String exportRT,
-                                         Integer peerAS,
-                                         Address peerIP,
-                                         Integer routeSelectDelay,
-                                         Integer importDirectRouteEnable,
-                                         List<DeviceInterface> deviceInterfaceList,
-                                         List<NetworkSeg> networkSegList) {
+    public VPNInstance updateVpnInstance(String vpnName, String routerId, Device device,
+                                         String businessRegion, String rd, String importRT,
+                                         String exportRT, Integer peerAS, Address peerIP,
+                                         Integer routeSelectDelay, Integer importDirectRouteEnable,
+                                         List<DeviceInterface> deviceInterfaceList, List<NetworkSeg> networkSegList) {
         LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName});
-        if ((null == routerId)||routerId.isEmpty()||(null == vpnName)||vpnName.isEmpty())
+        if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty())
             return null;
 
         VPNInstance vpnInstance = getVpnInstance(routerId, vpnName);
@@ -165,15 +157,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstance;
     }
 
-    public VPNInstance updateVpnInstance(VPNInstance vpnInstance){
+    public VPNInstance updateVpnInstance(VPNInstance vpnInstance) {
         if (null == vpnInstance) {
             return null;
         }
-        VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getRouterId(),vpnInstance.getVpnName());
+        VPNInstance findVpnInstance = getVpnInstance(vpnInstance.getRouterId(), vpnInstance.getVpnName());
         if (null != findVpnInstance) {
             vpnInstance.setId(findVpnInstance.getId());
-            //findVpnInstance = vpnInstance;
-            //return findVpnInstance;
             vpnInstanceList.remove(findVpnInstance);
             vpnInstanceList.add(vpnInstance);
         } else {
@@ -187,14 +177,14 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstanceList;
     }
 
-    public List<VPNInstance> getVpnInstanceListByRouterId(String routerId){
+    public List<VPNInstance> getVpnInstanceListByRouterId(String routerId) {
         LOG.info("enter getVpnIstance routerid={} ", new Object[]{routerId});
-        if ((null == routerId)||routerId.isEmpty()) {
+        if ((null == routerId) || routerId.isEmpty()) {
             return null;
         }
         List<VPNInstance> vpnInstanceList = new ArrayList<VPNInstance>();
-        for(VPNInstance vpnInstance:this.vpnInstanceList){
-            if(vpnInstance.getRouterId().equals(routerId)){
+        for (VPNInstance vpnInstance : this.vpnInstanceList) {
+            if (vpnInstance.getRouterId().equals(routerId)) {
                 vpnInstanceList.add(vpnInstance);
             }
         }
@@ -202,26 +192,26 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return vpnInstanceList;
     }
 
-    public boolean isContainVpnName(String vpnName){
-        boolean isContain=false;
-        for(VPNInstance vpnInstance:this.vpnInstanceList){
-            if(vpnInstance.getVpnName().equals(vpnName)){
-                isContain=true;
-                return  isContain;
+    public boolean isContainVpnName(String vpnName) {
+        boolean isContain = false;
+        for (VPNInstance vpnInstance : this.vpnInstanceList) {
+            if (vpnInstance.getVpnName().equals(vpnName)) {
+                isContain = true;
+                return isContain;
             }
         }
-        return  isContain;
+        return isContain;
     }
 
-    public boolean isContainRd(String routerId,String rd){
-        boolean isContain=false;
-        for(VPNInstance vpnInstance:getVpnInstanceListByRouterId(routerId)){
-            if(vpnInstance.getRd().equals(rd)){
-                isContain=true;
-                return  isContain;
+    public boolean isContainRd(String routerId, String rd) {
+        boolean isContain = false;
+        for (VPNInstance vpnInstance : getVpnInstanceListByRouterId(routerId)) {
+            if (vpnInstance.getRd().equals(rd)) {
+                isContain = true;
+                return isContain;
             }
         }
-        return  isContain;
+        return isContain;
     }
 
 }
