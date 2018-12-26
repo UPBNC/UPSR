@@ -114,7 +114,6 @@ public class VPNServiceImpl implements VPNService {
                     l3vpnIf.setSubnetMask(deviceInterface.getMask().getAddress());
                 }
                 l3vpnIfList.add(l3vpnIf);
-
             }
         }
         if (null == device.getNetConf().getIp()) //device.getNetConf() can't be null before
@@ -414,7 +413,6 @@ public class VPNServiceImpl implements VPNService {
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), null);
         List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceList();
-        List<VPNInstance> vpnInstances = new LinkedList<VPNInstance>();
         for (VPNInstance vpnInstance : vpnInstanceList) {
             if (vpnName.equals(vpnInstance.getVpnName()) && routerId.equals(vpnInstance.getRouterId())) {
                 resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());

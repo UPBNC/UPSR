@@ -57,11 +57,13 @@ public class NetconfClient implements Closeable {
 
     private static NetconfClientSession get(Future<NetconfClientSession> clientFuture) throws InterruptedException {
         try {
-            return clientFuture.get();
+            return clientFuture.get(5, TimeUnit.SECONDS);
         } catch (CancellationException e) {
             throw new RuntimeException("Cancelling " + NetconfClient.class.getSimpleName(), e);
         } catch (ExecutionException e) {
             throw new IllegalStateException("Unable to create " + NetconfClient.class.getSimpleName(), e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Timeout when creating " + NetconfClient.class.getSimpleName(), e);
         }
     }
 

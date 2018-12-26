@@ -67,10 +67,6 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
             netconfSessionList = (List<NetconfSession>) this.getNetconfSessionApi().getNetconfSessionList().get(
                     ResponseEnum.BODY.getName()
             );
-            String code = (String) this.getNetconfSessionApi().getNetconfSessionList().get(ResponseEnum.CODE.getName());
-            String message = (String) this.getNetconfSessionApi().getNetconfSessionList().get(ResponseEnum.MESSAGE.getName());
-            LOG.info("code : " + code);
-            LOG.info("message : " + message);
             if (null != netconfSessionList) {
                 netconfOutputBuilder.setResult("success");
                 for (NetconfSession netconfSession : netconfSessionList) {
