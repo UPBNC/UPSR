@@ -4,8 +4,8 @@ public enum SrLabelErrorCodeEnum {
     EXECUTE_SUCCESS(0, "success"),
     INPUT_INVALID(1, "Input invalid"),
     LABEL_INVALID(2, "Label invalid"),
-    DEVICE_INVALID(3, "Device invalid");
-
+    DEVICE_INVALID(3, "Device invalid"),
+    CONFIG_FAILED(4, "Config failed");
 
     private int code;
     private String message;

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SrLabelApiImpl implements SrLabelApi {
-    public static final int MaxNodeLabelRange = 65534;
+    public static final int MAX_NODE_LABEL_RANGE = 65534;
     private static final Logger LOG = LoggerFactory.getLogger(SrLabelApiImpl.class);
     private static SrLabelApi ourInstance = new SrLabelApiImpl();
     private ServiceInterface serviceInterface;
@@ -67,7 +67,7 @@ public class SrLabelApiImpl implements SrLabelApi {
         if ((labelBegin == null) || (labelEnd == null)) {
             return null;
         }
-        if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MaxNodeLabelRange) {
+        if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MAX_NODE_LABEL_RANGE) {
             return null;
         }
         return srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);
@@ -75,8 +75,11 @@ public class SrLabelApiImpl implements SrLabelApi {
 
     @Override
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
+        Map<String, Object> resultMap = new HashMap<>();
         if ((ifAddress == null) || (labelVal == null)) {
-            return null;
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
         }
         return srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);
     }

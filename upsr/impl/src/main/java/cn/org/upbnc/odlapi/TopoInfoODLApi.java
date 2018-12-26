@@ -10,12 +10,14 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TopoInfoApi;
 import cn.org.upbnc.core.Session;
-import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.AddressTypeEnum;
+import cn.org.upbnc.entity.Device;
+import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.entity.Link;
+import cn.org.upbnc.entity.TopoInfo;
+import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import cn.org.upbnc.impl.UpsrProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.linkinfo.Links;
@@ -220,7 +222,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
             getTopoOutputBuilder.setLinks(this.getLinks(topoInfo, null));
             getTopoOutputBuilder.setNodes(this.getNodes(topoInfo, null));
         }
-        getTopoOutputBuilder.setResult("success");
+        getTopoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getTopo end");
         return RpcResultBuilder.success(getTopoOutputBuilder.build()).buildFuture();
     }

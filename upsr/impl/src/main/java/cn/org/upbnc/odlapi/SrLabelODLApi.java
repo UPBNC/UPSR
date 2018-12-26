@@ -12,6 +12,8 @@ import cn.org.upbnc.api.SrLabelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SrStatus;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.util.xml.SrLabelXml;
@@ -24,6 +26,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -119,45 +122,73 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         }
         LOG.info(input.toString());
         if (input.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
-            this.disableSrLabel(input);
+            updateSrLabelOutputBuilder.setResult(this.disableSrLabel(input));
         } else if (input.getSrEnabled().equals(SrStatus.ENABLED.getName())) {
-            this.enableSrLabel(input);
+            updateSrLabelOutputBuilder.setResult(this.enableSrLabel(input));
         }
-        updateSrLabelOutputBuilder.setResult("success");
         LOG.info("updateSrLabel end");
         return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
     }
-    private Map<String,Object> disableSrLabel(UpdateSrLabelInput input) {
+    private String disableSrLabel(UpdateSrLabelInput input) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String resultString = null;
         List<IntfLabel> intfLabelList = input.getIntfLabel();
-        srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
+        Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
                 input.getSrgbPrefixSid().getPrefixId(),SrLabelXml.ncOperationDelete);
-        srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
-                input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationDelete);
-        Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
-        while (intfLabelIterator.hasNext()) {
-            IntfLabel intfLabel = intfLabelIterator.next();
-            srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                    intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+        if (updateLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            resultString = resultString + updateLabelRet.get(ResponseEnum.MESSAGE.getName());
         }
-        return null;
-    }
-    private Map<String,Object> enableSrLabel(UpdateSrLabelInput input) {
-        List<IntfLabel> intfLabelList = input.getIntfLabel();
-        srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
-                input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationMerge);
-        srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
-                input.getSrgbPrefixSid().getPrefixId(), SrLabelXml.ncOperationMerge);
+        Map<String, Object> updateLabelRangeRet = srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
+                input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationDelete);
+        if (updateLabelRangeRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            resultString = resultString + updateLabelRangeRet.get(ResponseEnum.MESSAGE.getName());
+        }
         Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
         while (intfLabelIterator.hasNext()) {
             IntfLabel intfLabel = intfLabelIterator.next();
-            if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
-                srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
-            } else {
-                srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationMerge);
+            Map<String, Object> updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                    intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+            if (updateIntfLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+                resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
         }
-        return null;
+        if (resultString == null) {
+            resultString = CodeEnum.SUCCESS.getMessage();
+        }
+        return resultString;
+    }
+    private String enableSrLabel(UpdateSrLabelInput input) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String resultString = null;
+        List<IntfLabel> intfLabelList = input.getIntfLabel();
+        Map<String, Object> updateLabelRangeRet = srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
+                input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationMerge);
+        if (updateLabelRangeRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            resultString = resultString + updateLabelRangeRet.get(ResponseEnum.MESSAGE.getName());
+        }
+        Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
+                input.getSrgbPrefixSid().getPrefixId(), SrLabelXml.ncOperationMerge);
+        if (updateLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            resultString = resultString + updateLabelRet.get(ResponseEnum.MESSAGE.getName());
+        }
+        Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
+        while (intfLabelIterator.hasNext()) {
+            IntfLabel intfLabel = intfLabelIterator.next();
+            Map<String, Object> updateIntfLabelRet = null;
+            if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
+                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+            } else {
+                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
+                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationMerge);
+            }
+            if (updateIntfLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+                resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
+            }
+        }
+        if (resultString == null) {
+            resultString = CodeEnum.SUCCESS.getMessage();
+        }
+        return resultString;
     }
 }
