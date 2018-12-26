@@ -18,7 +18,7 @@ module upsrSrLabel {
     }
     grouping srInterface {
         leaf ifAddress { type string; }
-        leaf mask { type string; }
+        leaf ifNetMask { type string; }
         leaf ifName { type string; }
         leaf srEnabled { type string; }
         leaf adjlabel { type string; }

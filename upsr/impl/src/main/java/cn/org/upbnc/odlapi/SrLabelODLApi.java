@@ -146,8 +146,8 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
         while (intfLabelIterator.hasNext()) {
             IntfLabel intfLabel = intfLabelIterator.next();
-            Map<String, Object> updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                    intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+            Map<String, Object> updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIfAddress(),
+                    intfLabel.getAdjlabel(), SrLabelXml.ncOperationDelete);
             if (updateIntfLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
@@ -176,11 +176,11 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             IntfLabel intfLabel = intfLabelIterator.next();
             Map<String, Object> updateIntfLabelRet = null;
             if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
-                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationDelete);
+                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIfAddress(),
+                        intfLabel.getAdjlabel(), SrLabelXml.ncOperationDelete);
             } else {
-                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIntfLocalAddress(),
-                        intfLabel.getIntfLabelVal(), SrLabelXml.ncOperationMerge);
+                updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIfAddress(),
+                        intfLabel.getAdjlabel(), SrLabelXml.ncOperationMerge);
             }
             if (updateIntfLabelRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
