@@ -307,7 +307,7 @@ public class SrLabelServiceImpl implements SrLabelService {
                 (localDeviceInterface.getAdjLabel().getValue() == Integer.parseInt(labelVal)) &&
                 (true == action.equals(SrLabelXml.ncOperationMerge))) {
             LOG.info("adjlabel is not changed" + localDeviceInterface.getIp().getAddress() + " -> " + remoteAddress + " : " + labelVal);
-            return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
+            return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
         }
         Map<String, Object> updateLabelRet = this.updateIntfAdjLabel(device, localDeviceInterface, remoteAddress, labelVal, action);
         if (updateLabelRet != null) {

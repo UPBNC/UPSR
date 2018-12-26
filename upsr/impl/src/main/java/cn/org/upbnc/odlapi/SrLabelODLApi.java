@@ -131,7 +131,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
     }
     private String disableSrLabel(UpdateSrLabelInput input) {
         Map<String, Object> resultMap = new HashMap<>();
-        String resultString = null;
+        String resultString = "";
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
                 input.getSrgbPrefixSid().getPrefixId(),SrLabelXml.ncOperationDelete);
@@ -152,14 +152,14 @@ public class SrLabelODLApi implements UpsrSrLabelService {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
         }
-        if (resultString == null) {
+        if (resultString.equals("")) {
             resultString = CodeEnum.SUCCESS.getMessage();
         }
         return resultString;
     }
     private String enableSrLabel(UpdateSrLabelInput input) {
         Map<String, Object> resultMap = new HashMap<>();
-        String resultString = null;
+        String resultString = "";
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         Map<String, Object> updateLabelRangeRet = srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
                 input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationMerge);
@@ -186,7 +186,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
         }
-        if (resultString == null) {
+        if (resultString.equals("")) {
             resultString = CodeEnum.SUCCESS.getMessage();
         }
         return resultString;
