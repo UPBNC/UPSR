@@ -45,21 +45,10 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
     }
 
     public Map<String, Object> updateVpnInstance(UpdateVpnInstance updateVpnInstance) {
-
-        String vpnName=updateVpnInstance.getVpnName();
-        String routerId=updateVpnInstance.getRouterId();
-//        String businessRegion,
-        String rd=updateVpnInstance.getRd();
-//        String importRT,
-//        String exportRT,
-//        Integer peerAS,
-//        Address peerIP,
-//        Integer routeSelectDelay,
-//        Integer importDirectRouteEnable,
-        List<DeviceInterface> deviceInterfaceList=updateVpnInstance.getDeviceInterfaceList();
-//        List<NetworkSeg> networkSegList
-
-        boolean ret = false;
+        String vpnName = updateVpnInstance.getVpnName();
+        String routerId = updateVpnInstance.getRouterId();
+        String rd = updateVpnInstance.getRd();
+        List<DeviceInterface> deviceInterfaceList = updateVpnInstance.getDeviceInterfaceList();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.BODY.getName(), false);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
@@ -76,13 +65,13 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         }
         for (DeviceInterface deviceInterface : deviceInterfaceList) {
             if ((null == deviceInterface.getIp().getAddress()) || (deviceInterface.getIp().getAddress().isEmpty())) {
-                if ((null != deviceInterface.getMask().getAddress()) || !(deviceInterface.getMask().getAddress().isEmpty())) {
+                if ((null != deviceInterface.getMask().getAddress()) && !(deviceInterface.getMask().getAddress().isEmpty())) {
                     resultMap.put(ResponseEnum.MESSAGE.getName(), "ip is null,but mask is not.");
                     return resultMap;
                 }
             }
             if ((null == deviceInterface.getMask().getAddress()) || (deviceInterface.getMask().getAddress().isEmpty())) {
-                if ((null != deviceInterface.getIp().getAddress()) || !(deviceInterface.getIp().getAddress().isEmpty())) {
+                if ((null != deviceInterface.getIp().getAddress()) && !(deviceInterface.getIp().getAddress().isEmpty())) {
                     resultMap.put(ResponseEnum.MESSAGE.getName(), "mask is null,but ip is not.");
                     return resultMap;
                 }

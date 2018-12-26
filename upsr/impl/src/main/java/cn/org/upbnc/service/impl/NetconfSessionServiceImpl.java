@@ -171,9 +171,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     @Override
     public Map<String, Object> getNetconfSession(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
-        if ((null == routerId) || routerId.isEmpty()) {
-            return null;
-        }
         LOG.info("routerId = {}", new Object[]{routerId});
         NetconfSession netconfSession = null;
         Device device = this.deviceManager.getDevice(routerId);
@@ -204,7 +201,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                     connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
                     netconf.setStatus(netConfStatus);
                 }
-
                 netconfSession.setStatus(connStatus);
             }
         }

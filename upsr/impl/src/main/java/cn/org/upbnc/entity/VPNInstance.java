@@ -6,11 +6,11 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package cn.org.upbnc.entity;
-import cn.org.upbnc.util.netconf.L3vpnIf;
-import cn.org.upbnc.util.netconf.L3vpnInstance;
-import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VPNInstance {
     private Integer id;

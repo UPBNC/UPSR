@@ -31,8 +31,6 @@ public interface VpnInstanceManager {
                                      Integer importDirectRouteEnable,
                                      List<DeviceInterface> deviceInterfaceList,
                                      List<NetworkSeg> networkSegList);
-
-
     VPNInstance  updateVpnInstance(VPNInstance vpnInstance);
     List<VPNInstance> getVpnInstanceList();
     List<VPNInstance> getVpnInstanceListByRouterId(String routerId);
