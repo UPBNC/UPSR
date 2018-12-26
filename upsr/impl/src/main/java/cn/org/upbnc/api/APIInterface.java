@@ -17,7 +17,6 @@ public class APIInterface {
     private static final Logger LOG = LoggerFactory.getLogger(APIInterface.class);
     private ServiceInterface serviceInterface;
     private UtilInterface utilInterface;
-    private TopoApi topoTestApi;
     private TopoInfoApi topoInfoApi;
     private BgplsSessionApi bgplsSessionApi;
     private VpnInstanceApi vpnInstanceApi;
@@ -32,7 +31,6 @@ public class APIInterface {
         this.utilInterface = null;
 
         // Init API
-        this.topoTestApi = null;
         this.topoInfoApi = null;
         this.bgplsSessionApi = null;
 		this.vpnInstanceApi = null;
@@ -45,7 +43,6 @@ public class APIInterface {
     public void init(){
         try {
             LOG.info("APIInterface init Start...");
-            this.topoTestApi = TopoApiImpl.getInstance();
             this.topoInfoApi = TopoInfoApiImpl.getInstance();
             this.bgplsSessionApi = BgplsSessionApiImpl.getInstance();
 			this.vpnInstanceApi = VpnInstanceApiImpl.getInstance();
@@ -65,7 +62,6 @@ public class APIInterface {
         try {
             this.serviceInterface = serviceInterface;
             ret = true;
-            ret = this.topoTestApi.setServiceInterface(this.serviceInterface);
             ret = this.topoInfoApi.setServiceInterface(this.serviceInterface);
             ret = this.srLabelApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
@@ -93,9 +89,6 @@ public class APIInterface {
         return ret;
     }
 
-    public TopoApi getTopoTestApi() {
-        return topoTestApi;
-    }
     public TopoInfoApi getTopoInfoApi() {
         return topoInfoApi;
     }

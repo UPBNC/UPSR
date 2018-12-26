@@ -8,7 +8,6 @@
 package cn.org.upbnc.util;
 
 import cn.org.upbnc.service.ServiceInterface;
-import cn.org.upbnc.util.impl.NetConfCmd2XmlImpl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +15,13 @@ import org.slf4j.LoggerFactory;
 public class UtilInterface {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceInterface.class);
     private DataBroker dataBroker;
-    private NetConfCmd2Xml netConfCmd2Xml;
 
-    public void init(){
+    public void init() {
         try {
             LOG.info("UtilInterface init Start...");
-            this.netConfCmd2Xml = NetConfCmd2XmlImpl.getInstance();
-            this.netConfCmd2Xml.initXml();
             LOG.info("UtilInterface init End!");
-        }catch (Exception e){
-            LOG.info("UtilInterface init failure! "+e.getMessage());
+        } catch (Exception e) {
+            LOG.info("UtilInterface init failure! " + e.getMessage());
             throw e;
         }
     }
@@ -36,12 +32,5 @@ public class UtilInterface {
 
     public DataBroker getDataBroker() {
         return dataBroker;
-    }
-    public NetConfCmd2Xml getNetConfCmd2Xml() {
-        if(null == this.netConfCmd2Xml){
-            this.netConfCmd2Xml = NetConfCmd2XmlImpl.getInstance();
-            this.netConfCmd2Xml.initXml();
-        }
-        return this.netConfCmd2Xml;
     }
 }

@@ -20,55 +20,51 @@ public class ServiceInterface {
     private UtilInterface utilInterface;
 
     private VPNService vpnService;
-    private SRService srService;
     private TopoService topoService;
     private NetconfSessionService netconfSessionService;
-    private InterfaceService interfaceService ;
+    private InterfaceService interfaceService;
     private SrLabelService srLabelService;
 
-    public ServiceInterface(){
+    public ServiceInterface() {
         // Base Interface
         this.baseInterface = null;
 
         // Init Service
         this.vpnService = null;
-        this.srService = null;
         this.topoService = null;
         this.netconfSessionService = null;
         this.interfaceService = null;
         this.srLabelService = null;
     }
 
-    public void init(){
+    public void init() {
         try {
             LOG.info("ServiceInterface init Start...");
             this.vpnService = VPNServiceImpl.getInstance();
-            this.srService = SRServiceImpl.getInstance();
             this.topoService = TopoServiceImpl.getInstance();
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
             this.interfaceService = InterfaceServiceImpl.getInstance();
             this.srLabelService = SrLabelServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
-        }catch (Exception e){
-            LOG.info("ServiceInterface init failure! "+e.getMessage());
+        } catch (Exception e) {
+            LOG.info("ServiceInterface init failure! " + e.getMessage());
             throw e;
         }
     }
 
     // 安装基础系统接口
-    public boolean setBaseInterface(BaseInterface baseInterface){
+    public boolean setBaseInterface(BaseInterface baseInterface) {
         LOG.info("Service Interface setBaseInterface Start...");
         boolean ret = false;
         try {
             this.baseInterface = baseInterface;
             // 给每个业务服务安装基础系统
-            ret = this.srService.setBaseInterface(this.baseInterface);
-            ret = ret &&this.topoService.setBaseInterface(this.baseInterface);
+            ret = this.topoService.setBaseInterface(this.baseInterface);
             ret = this.srLabelService.setBaseInterface(this.baseInterface);
-            ret = ((true == ret )? this.vpnService.setBaseInterface(this.baseInterface):false);
-            ret = ((true == ret )? this.netconfSessionService.setBaseInterface(this.baseInterface):false);
-            ret = ((true == ret )? this.interfaceService.setBaseInterface(this.baseInterface):false);
-        }catch (Exception e){
+            ret = ((true == ret) ? this.vpnService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.netconfSessionService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.interfaceService.setBaseInterface(this.baseInterface) : false);
+        } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
             LOG.info("Service Interface setBaseInterface Failed");
@@ -85,7 +81,7 @@ public class ServiceInterface {
             ret = true;
             // 给每个业务服务安装工具系统
             /// ...
-        }catch (Exception e){
+        } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
         }
@@ -93,7 +89,7 @@ public class ServiceInterface {
     }
 
     // Start Bussiness
-    public void startBusiness(){
+    public void startBusiness() {
 
         this.netconfSessionService.recoverNetconfSession();
         this.interfaceService.syncInterfaceConf();
@@ -107,40 +103,35 @@ public class ServiceInterface {
     }
 
     public VPNService getVpnService() {
-        if(null == this.vpnService){
+        if (null == this.vpnService) {
             this.vpnService = VPNServiceImpl.getInstance();
         }
         return this.vpnService;
     }
 
-    public SRService getSrService() {
-        if(null == this.srService){
-            this.srService = SRServiceImpl.getInstance();
-        }
-        return this.srService;
-    }
-
-    public TopoService getTopoService(){
-        if(null == this.topoService){
+    public TopoService getTopoService() {
+        if (null == this.topoService) {
             this.topoService = TopoServiceImpl.getInstance();
         }
         return this.topoService;
     }
-    public NetconfSessionService getNetconfSessionService(){
-        if(null == this.netconfSessionService){
+
+    public NetconfSessionService getNetconfSessionService() {
+        if (null == this.netconfSessionService) {
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
         }
         return this.netconfSessionService;
     }
+
     public InterfaceService getInterfaceService() {
-        if(null == this.interfaceService) {
+        if (null == this.interfaceService) {
             this.interfaceService = InterfaceServiceImpl.getInstance();
         }
         return this.interfaceService;
     }
 
     public SrLabelService getSrLabelService() {
-        if(this.srLabelService == null){
+        if (this.srLabelService == null) {
             this.srLabelService = SrLabelServiceImpl.getInstance();
         }
         return srLabelService;
