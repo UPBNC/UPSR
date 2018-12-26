@@ -8,51 +8,29 @@ module upsrBgplsSession {
     }
     rpc addBgpls {
         input {
-            leaf bgpIp {
-                type string;
-            }
-            leaf bgpAs {
-                type string;
-            }
+            leaf bgpIp { type string; }
+            leaf bgpAs { type string; }
         }
         output {
-            leaf retCode {
-                type string;
-            }
-            leaf retMsg {
-                type string;
-            }
+            leaf retCode { type string; }
+            leaf retMsg { type string; }
         }
     }
     rpc getBgpls {
         output {
-            leaf sessionName {
-                type string;
-            }
-            leaf bgpIp {
-                type string;
-            }
-            leaf bgpAs {
-                type string;
-            }
-            leaf bgpStatus {
-                type string;
-            }
+            leaf sessionName { type string; }
+            leaf bgpIp { type string; }
+            leaf bgpAs { type string; }
+            leaf bgpStatus { type string; }
         }
     }
     rpc delBgpls {
         input {
-            leaf bgpIp {
-                type string;
-            }
+            leaf bgpIp { type string; }
         }
         output {
-            leaf retCode {
-                type string;
-            }
-            leaf retMsg {
-                type string;
-            }
+            leaf retCode { type string; }
+            leaf retMsg { type string; }
         }
     }
 }

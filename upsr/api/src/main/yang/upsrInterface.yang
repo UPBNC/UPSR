@@ -8,36 +8,16 @@ module upsrInterface {
     }
     grouping InterfaceInfo
     {
-        leaf ifnetName {
-            type string;
-        }
-        leaf ifnetIP {
-            type string;
-        }
-        leaf ifnetMask {
-            type string;
-        }
-        leaf ifnetMac {
-            type string;
-        }
-        leaf vpnName {
-            type string;
-        }
-        leaf adjLabel {
-            type string;
-        }
-        leaf ifnetStatus {
-            type string;
-        }
-        leaf srStatus {
-            type string;
-        }
-        leaf linkStatus {
-            type string;
-        }
-        leaf runningStatus {
-            type string;
-        }
+        leaf ifnetName { type string; }
+        leaf ifnetIP { type string; }
+        leaf ifnetMask { type string; }
+        leaf ifnetMac { type string; }
+        leaf vpnName { type string; }
+        leaf adjLabel { type string; }
+        leaf ifnetStatus { type string; }
+        leaf srStatus { type string; }
+        leaf linkStatus { type string; }
+        leaf runningStatus { type string; }
     }
     grouping InterfaceListInfo {
         list devInterfaces {
@@ -46,14 +26,10 @@ module upsrInterface {
     }
     rpc getInterfaces {
         input {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
             uses InterfaceListInfo;
         }
     }

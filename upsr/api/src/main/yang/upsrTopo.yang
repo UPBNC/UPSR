@@ -40,12 +40,8 @@ module upsrTopo {
 
     rpc getNodes {
         input {
-            leaf routerId {
-                type string;
-            }
-            leaf ifAddress {
-                type string;
-            }
+            leaf routerId { type string; }
+            leaf ifAddress { type string; }
         }
         output {
             uses nodeInfo;
@@ -54,9 +50,7 @@ module upsrTopo {
 
     rpc getLinks {
         input {
-            leaf linkId {
-                type string;
-            }
+            leaf linkId { type string; }
         }
         output {
             uses linkInfo;

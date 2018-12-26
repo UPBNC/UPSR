@@ -8,83 +8,47 @@ module upsrNetconfSession {
     }
     grouping netconfInfo
     {
-        leaf sshIp {
-            type string;
-        }
-        leaf sshPort {
-            type int32;
-        }
-        leaf userName {
-            type string;
-        }
-        leaf password {
-            type string;
-        }
+        leaf sshIp { type string; }
+        leaf sshPort { type int32; }
+        leaf userName { type string; }
+        leaf password { type string; }
     }
     grouping devNetconfInfo
     {
-        leaf deviceName {
-            type string;
-        }
-
-        leaf centerName {
-            type string;
-        }
-
-        leaf deviceType {
-            type string;
-        }
-        leaf routerId {
-            type string;
-        }
+        leaf deviceName { type string; }
+        leaf centerName { type string; }
+        leaf deviceType { type string; }
+        leaf routerId { type string; }
         uses netconfInfo;
     }
     rpc getAllNetconf {
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
             list devices {
                 uses devNetconfInfo;
-                leaf sysName {
-                    type string;
-                }
-                leaf connectStatus {
-                    type string;
-                }
+                leaf sysName { type string; }
+                leaf connectStatus { type string; }
             }
         }
     }
     rpc getNetconf {
         input {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
             uses devNetconfInfo;
-            leaf sysName {
-                type string;
-            }
-            leaf connectStatus {
-                type string;
-            }
+            leaf sysName { type string; }
+            leaf connectStatus { type string; }
         }
     }
     rpc delNetconf
     {
         input {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
         }
     }
     rpc updateNetconf
@@ -93,9 +57,7 @@ module upsrNetconfSession {
             uses devNetconfInfo;
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
         }
     }
 }

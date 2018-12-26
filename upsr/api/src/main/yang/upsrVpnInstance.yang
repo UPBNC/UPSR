@@ -8,51 +8,23 @@ module upsrVpnInstance {
     }
 
     grouping vpnInstanceInfo {
-        leaf vpnName {
-            type string;
-        }
-        leaf bussinessArea {
-            type string;
-        }
-        leaf routerId {
-            type string;
-        }
-        leaf vpnRd {
-            type string;
-        }
-        leaf vpnRt {
-            type string;
-        }
-        leaf peerAS {
-            type int32;
-        }
-        leaf peerIP {
-            type string;
-        }
-        leaf routeSelectDelay {
-            type int32;
-        }
-        leaf importDirectRouteEnable {
-            type int32;
-        }
+        leaf vpnName { type string; }
+        leaf bussinessArea { type string; }
+        leaf routerId { type string; }
+        leaf vpnRd { type string; }
+        leaf vpnRt { type string; }
+        leaf peerAS { type int32; }
+        leaf peerIP { type string; }
+        leaf routeSelectDelay { type int32; }
+        leaf importDirectRouteEnable { type int32; }
         list bindInterface {
-            leaf ifName {
-                type string;
-            }
-            leaf ifAddress {
-                type string;
-            }
-            leaf ifNetmask {
-                type string;
-            }
+            leaf ifName { type string; }
+            leaf ifAddress { type string; }
+            leaf ifNetmask { type string; }
         }
         list netSegment {
-            leaf address {
-                type string;
-            }
-            leaf mask {
-                type string;
-            }
+            leaf address { type string; }
+            leaf mask { type string; }
         }
     }
     grouping vpnInstanceListInfo
@@ -64,72 +36,36 @@ module upsrVpnInstance {
 
     grouping eBgpInfo {
         container ebgp {
-            leaf network {
-                type string;
-            }
-            leaf mask{
-                type string;
-            }
-            leaf importDirect {
-                type int32;
-            }
-            leaf peerIP {
-                type string;
-            }
-            leaf peerAS {
-                type string;
-            }
+            leaf network { type string; }
+            leaf mask{ type string; }
+            leaf importDirect { type int32; }
+            leaf peerIP { type string; }
+            leaf peerAS { type string; }
         }
     }
     grouping bindDevices {
         list bind {
-             leaf deviceName {
-                type string;
-             }
-             leaf routerId {
-                type string;
-             }
-             leaf vpnRd {
-                type string;
-             }
-             leaf vpnExport {
-                type string;
-             }
-             leaf vpnImport {
-                type string;
-             }
+             leaf deviceName { type string; }
+             leaf routerId { type string; }
+             leaf vpnRd { type string; }
+             leaf vpnExport { type string; }
+             leaf vpnImport { type string; }
              list bindIf {
-                leaf ifName {
-                    type string;
-                }
-                leaf ifAddress {
-                    type string;
-                }
-                leaf ifNetMask {
-                    type string;
-                }
+                leaf ifName { type string; }
+                leaf ifAddress { type string; }
+                leaf ifNetMask { type string; }
              }
              uses eBgpInfo;
         }
     }
     grouping updateBindDevices {
         list deviceBind {
-             leaf routerId {
-                type string;
-             }
-             leaf vpnRd {
-                type string;
-             }
+             leaf routerId { type string; }
+             leaf vpnRd { type string; }
              list bindIfNet {
-                 leaf ifName {
-                     type string;
-                 }
-                 leaf ifAddress {
-                     type string;
-                 }
-                 leaf ifNetMask {
-                     type string;
-                 }
+                 leaf ifName { type string; }
+                 leaf ifAddress { type string; }
+                 leaf ifNetMask { type string; }
              }
              uses eBgpInfo;
         }
@@ -137,143 +73,87 @@ module upsrVpnInstance {
     grouping vpnInstanceListRetInfo
     {
         list vpnInstances {
-            leaf vpnName {
-                type string;
-            }
-            leaf businessArea {
-                type string;
-            }
-            leaf vpnRt {
-                type string;
-            }
+            leaf vpnName { type string; }
+            leaf businessArea { type string; }
+            leaf vpnRt { type string; }
             uses bindDevices;
-            leaf notes {
-                type string;
-            }
+            leaf notes { type string; }
         }
     }
     rpc getVpnInstances {
         input {
-            leaf vpnName {
-                type string;
-            }
+            leaf vpnName { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
             uses vpnInstanceListInfo;
         }
     }
     rpc getVpnInstanceMap {
         input {
-            leaf vpnName {
-                type string;
-            }
+            leaf vpnName { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
             uses vpnInstanceListRetInfo;
         }
     }
     rpc delVpnInstance
     {
         input {
-            leaf routerId {
-                type string;
-            }
-            leaf vpnName {
-                type string;
-            }
+            leaf routerId { type string; }
+            leaf vpnName { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
+            leaf result { type string; }
         }
     }
     rpc updateVpnInstance{
         input {
             container vpnInstance {
-                leaf vpnName {
-                    type string;
-                }
-                leaf vpnRt {
-                    type string;
-                }
-                leaf businessArea {
-                    type string;
-                }
-                leaf notes {
-                    type string;
-                }
+                leaf vpnName { type string; }
+                leaf vpnRt { type string; }
+                leaf businessArea { type string; }
+                leaf notes { type string; }
                 uses updateBindDevices;
             }
         }
         output {
-            leaf result {
-                type string;
-            }
-            leaf message {
-                type string;
-            }
+            leaf result { type string; }
+            leaf message { type string; }
         }
     }
     rpc getVpnInstance{
         input {
-            leaf routerId {
-                type string;
-            }
-            leaf vpnName {
-                type string;
-            }
+            leaf routerId { type string; }
+            leaf vpnName { type string; }
         }
         output {
-            leaf result {
-                type string;
-            }
-            leaf id {
-                type int32;
-            }
+            leaf result { type string; }
+            leaf id { type int32; }
             uses vpnInstanceInfo;
         }
     }
     rpc isContainVpnName
     {
         input{
-           leaf vpnName {
-               type string;
-           }
+           leaf vpnName { type string; }
         }
         output{
-            leaf result{
-                type string;
-            }
-            leaf isContainVpnName{
-                type boolean;
-            }
+            leaf result{ type string; }
+            leaf isContainVpnName{ type boolean; }
         }
     }
 
     rpc isContainRd
     {
         input{
-           leaf routerId {
-               type string;
-           }
-           leaf vpnRd {
-               type string;
-           }
+           leaf routerId { type string; }
+           leaf vpnRd { type string; }
         }
         output{
-            leaf result{
-                type string;
-            }
-            leaf isContainRd{
-                type boolean;
-            }
+            leaf result{ type string; }
+            leaf isContainRd{ type boolean; }
         }
     }
 }

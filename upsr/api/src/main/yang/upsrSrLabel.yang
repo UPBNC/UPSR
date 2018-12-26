@@ -63,9 +63,7 @@ module upsrSrLabel {
     }
     rpc getIntfLabel {
         input {
-            leaf routerId {
-                type string;
-            }
+            leaf routerId { type string; }
             leaf intfLocalAddress { type string; }
         }
         output {
