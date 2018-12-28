@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.UpsrSrLabelService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.UpsrSyncConfService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.UpsrTunnelService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.UpsrVpnInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrSrLabelService> upsrSrLabelServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrInterfaceService> upsrInterfaceServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrSyncConfService> upsrSyncConfServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrTunnelService> upsrTunnelServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -75,6 +77,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrSrLabelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSrLabelService.class, new SrLabelODLApi(this.upsr));
         this.upsrInterfaceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrInterfaceService.class, new InterfaceODLApi(this.upsr));
         this.upsrSyncConfServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSyncConfService.class, new ConfSyncODLApi(this.upsr));
+        this.upsrTunnelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTunnelService.class, new TunnelODLApi(this.upsr));
     }
 
     private void closeServices() {
@@ -85,6 +88,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrSrLabelServiceRpcRegistration.close();
         this.upsrInterfaceServiceRpcRegistration.close();
         this.upsrSyncConfServiceRpcRegistration.close();
+        this.upsrTunnelServiceRpcRegistration.close();
     }
 
 }
