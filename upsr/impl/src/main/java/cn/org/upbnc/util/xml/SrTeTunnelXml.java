@@ -1,9 +1,14 @@
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.SExplicitPath;
+import cn.org.upbnc.util.netconf.SExplicitPathHop;
 import cn.org.upbnc.util.netconf.SSrTeTunnel;
+import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,9 +104,27 @@ public class SrTeTunnelXml {
 
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
+        SSrTeTunnel srTeTunnel;
         if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                for (org.dom4j.Element element : childElements) {
+                    srTeTunnel = new SSrTeTunnel();
+                    srTeTunnel.setTunnelName(element.elementText("tunnelName"));
+                    srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));
+                    srTeTunnel.setMplsTunnelIndex(element.elementText("mplsTunnelIndex"));
+                    for (org.dom4j.Element child : element.elements("srTeTunnelPaths").get(0).elements()) {
+                        srTeTunnel.setPathType(child.elementText("pathType"));
+                        srTeTunnel.setExplicitPathName(child.elementText("explicitPathName"));
+                    }
+                    srTeTunnels.add(srTeTunnel);
+                }
+            } catch (Exception e) {
 
-
+            }
         }
         return srTeTunnels;
     }
@@ -122,18 +145,9 @@ public class SrTeTunnelXml {
                 "        </mpls:srTeTunnels>\n" +
                 "      </mpls:mplsTe>\n" +
                 "    </mpls:mpls>\n" +
-                "  <ifm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
-                "      <interfaces>\n" +
-                "        <interface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
-                "          <ifName>" + tunnelName + "</ifName>\n" +
-                "        </interface>\n" +
-                "      </interfaces>\n" +
-                "    </ifm>\n" +
                 "  </config>\n" +
                 "</edit-config>\n" +
                 "</rpc>";
         return start;
     }
-
-
 }

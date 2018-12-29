@@ -85,7 +85,8 @@ public class ExplicitPathXml {
     }
 
     public static String getDeleteExplicitPathXml(List<SExplicitPath> explicitPaths) {
-        String start = "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
                 "    <running/>\n" +
                 "  </target>\n" +
@@ -106,21 +107,37 @@ public class ExplicitPathXml {
                         "      </mplsTe>\n" +
                         "    </mpls>\n" +
                         "  </config>\n" +
-                        "</edit-config>";
+                        "</edit-config>" +
+                        "</rpc>";
         return start + middle + end;
     }
 
     public static List<SExplicitPath> getExplicitPathFromXml(String xml) {
         List<SExplicitPath> explicitPaths = new ArrayList<>();
+        SExplicitPath explicitPath;
+        List<SExplicitPathHop> explicitPathHops;
+        SExplicitPathHop explicitPathHop;
         if (!("".equals(xml))) {
             try {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 org.dom4j.Element root = document.getRootElement();
                 List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
-
-
-
+                for (org.dom4j.Element element : childElements) {
+                    explicitPath = new SExplicitPath();
+                    explicitPathHops = new ArrayList<>();
+                    explicitPath.setExplicitPathName(element.elementText("explicitPathName"));
+                    for (org.dom4j.Element child : element.elements("explicitPathHops").get(0).elements()) {
+                        explicitPathHop = new SExplicitPathHop();
+                        explicitPathHop.setMplsTunnelHopIndex(child.elementText("mplsTunnelHopIndex"));
+                        explicitPathHop.setMplsTunnelHopMode(child.elementText("mplsTunnelHopMode"));
+                        explicitPathHop.setMplsTunnelHopSidLabel(child.elementText("mplsTunnelHopSidLabel"));
+                        explicitPathHop.setMplsTunnelHopSidLabelType(child.elementText("mplsTunnelHopSidLabelType"));
+                        explicitPathHops.add(explicitPathHop);
+                    }
+                    explicitPath.setExplicitPathHops(explicitPathHops);
+                    explicitPaths.add(explicitPath);
+                }
             } catch (Exception e) {
 
             }
