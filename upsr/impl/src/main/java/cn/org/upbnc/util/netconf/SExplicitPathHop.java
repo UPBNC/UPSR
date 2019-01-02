@@ -2,9 +2,9 @@ package cn.org.upbnc.util.netconf;
 
 public class SExplicitPathHop {
     private String mplsTunnelHopIndex;
-    private String mplsTunnelHopMode;
+    private String mplsTunnelHopMode = "SID_LABEL";
     private String mplsTunnelHopSidLabel;
-    private String mplsTunnelHopSidLabelType;
+    private String mplsTunnelHopSidLabelType = "adjacency";
 
     public String getMplsTunnelHopIndex() {
         return mplsTunnelHopIndex;
@@ -36,5 +36,15 @@ public class SExplicitPathHop {
 
     public void setMplsTunnelHopSidLabelType(String mplsTunnelHopSidLabelType) {
         this.mplsTunnelHopSidLabelType = mplsTunnelHopSidLabelType;
+    }
+
+    @Override
+    public String toString() {
+        return "SExplicitPathHop{" +
+                "mplsTunnelHopIndex='" + mplsTunnelHopIndex + '\'' +
+                ", mplsTunnelHopMode='" + mplsTunnelHopMode + '\'' +
+                ", mplsTunnelHopSidLabel='" + mplsTunnelHopSidLabel + '\'' +
+                ", mplsTunnelHopSidLabelType='" + mplsTunnelHopSidLabelType + '\'' +
+                '}';
     }
 }

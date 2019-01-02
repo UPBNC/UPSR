@@ -1,18 +1,20 @@
 package cn.org.upbnc.util.netconf;
 
+import java.util.List;
+
 public class SSrTeTunnel {
     private String tunnelName;
     private String mplsTunnelEgressLSRId;
     private String mplsTunnelIndex;
-    private String mplsTeTunnelSetupPriority;
-    private String holdPriority;
+    private String mplsTeTunnelSetupPriority = "7";
+    private String holdPriority = "7";
     private String mplsTunnelBandwidth;
     private String mplsTeTunnelBfdMinTx;
     private String mplsTeTunnelBfdMinnRx;
-    private String pathType;
-    private String explicitPathName;
-    private String unNumIfName;
-    private String addrCfgType;
+    private String mplsTeTunnelBfdDetectMultiplier;
+    private List<SSrTeTunnelPath> srTeTunnelPaths;
+    private String unNumIfName = "LoopBack0";
+    private String addrCfgType = "unnumbered";
 
     public String getTunnelName() {
         return tunnelName;
@@ -78,22 +80,6 @@ public class SSrTeTunnel {
         this.mplsTeTunnelBfdMinnRx = mplsTeTunnelBfdMinnRx;
     }
 
-    public String getPathType() {
-        return pathType;
-    }
-
-    public void setPathType(String pathType) {
-        this.pathType = pathType;
-    }
-
-    public String getExplicitPathName() {
-        return explicitPathName;
-    }
-
-    public void setExplicitPathName(String explicitPathName) {
-        this.explicitPathName = explicitPathName;
-    }
-
     public String getUnNumIfName() {
         return unNumIfName;
     }
@@ -108,5 +94,39 @@ public class SSrTeTunnel {
 
     public void setAddrCfgType(String addrCfgType) {
         this.addrCfgType = addrCfgType;
+    }
+
+    public String getMplsTeTunnelBfdDetectMultiplier() {
+        return mplsTeTunnelBfdDetectMultiplier;
+    }
+
+    public void setMplsTeTunnelBfdDetectMultiplier(String mplsTeTunnelBfdDetectMultiplier) {
+        this.mplsTeTunnelBfdDetectMultiplier = mplsTeTunnelBfdDetectMultiplier;
+    }
+
+    public List<SSrTeTunnelPath> getSrTeTunnelPaths() {
+        return srTeTunnelPaths;
+    }
+
+    public void setSrTeTunnelPaths(List<SSrTeTunnelPath> srTeTunnelPaths) {
+        this.srTeTunnelPaths = srTeTunnelPaths;
+    }
+
+    @Override
+    public String toString() {
+        return "SSrTeTunnel{" +
+                "tunnelName='" + tunnelName + '\'' +
+                ", mplsTunnelEgressLSRId='" + mplsTunnelEgressLSRId + '\'' +
+                ", mplsTunnelIndex='" + mplsTunnelIndex + '\'' +
+                ", mplsTeTunnelSetupPriority='" + mplsTeTunnelSetupPriority + '\'' +
+                ", holdPriority='" + holdPriority + '\'' +
+                ", mplsTunnelBandwidth='" + mplsTunnelBandwidth + '\'' +
+                ", mplsTeTunnelBfdMinTx='" + mplsTeTunnelBfdMinTx + '\'' +
+                ", mplsTeTunnelBfdMinnRx='" + mplsTeTunnelBfdMinnRx + '\'' +
+                ", mplsTeTunnelBfdDetectMultiplier='" + mplsTeTunnelBfdDetectMultiplier + '\'' +
+                ", srTeTunnelPaths=" + srTeTunnelPaths +
+                ", unNumIfName='" + unNumIfName + '\'' +
+                ", addrCfgType='" + addrCfgType + '\'' +
+                '}';
     }
 }

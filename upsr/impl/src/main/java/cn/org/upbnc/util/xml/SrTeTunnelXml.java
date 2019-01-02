@@ -1,8 +1,7 @@
 package cn.org.upbnc.util.xml;
 
-import cn.org.upbnc.util.netconf.SExplicitPath;
-import cn.org.upbnc.util.netconf.SExplicitPathHop;
 import cn.org.upbnc.util.netconf.SSrTeTunnel;
+import cn.org.upbnc.util.netconf.SSrTeTunnelPath;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,29 +42,44 @@ public class SrTeTunnelXml {
                     "            <mplsTeTunnelBfd>\n" +
                     "              <mplsTeTunnelBfdMinTx>" + srTeTunnel.getMplsTeTunnelBfdMinTx() + "</mplsTeTunnelBfdMinTx>\n" +
                     "              <mplsTeTunnelBfdMinnRx>" + srTeTunnel.getMplsTeTunnelBfdMinnRx() + "</mplsTeTunnelBfdMinnRx>\n" +
-                    "            </mplsTeTunnelBfd>\n" +
-                    "            <srTeTunnelPaths>\n" +
-                    "              <srTeTunnelPath>\n" +
-                    "                <pathType>" + srTeTunnel.getPathType() + "</pathType>\n" +
-                    "                <explicitPathName>" + srTeTunnel.getExplicitPathName() + "</explicitPathName>\n" +
-                    "              </srTeTunnelPath>\n" +
-                    "            </srTeTunnelPaths>\n" +
+                    "              <mplsTeTunnelBfdDetectMultiplier>" + srTeTunnel.getMplsTeTunnelBfdDetectMultiplier() + "</mplsTeTunnelBfdDetectMultiplier>\n" +
+                    "            </mplsTeTunnelBfd>\n";
+            String pathsStart = "";
+            if (srTeTunnel.getSrTeTunnelPaths() != null && srTeTunnel.getSrTeTunnelPaths().size() > 0) {
+                pathsStart = "            <srTeTunnelPaths>\n";
+                String pathsMiddle = "";
+                for (SSrTeTunnelPath srTeTunnelPath : srTeTunnel.getSrTeTunnelPaths()) {
+                    pathsMiddle = pathsMiddle +
+                            "              <srTeTunnelPath>\n" +
+                            "                <pathType>" + srTeTunnelPath.getPathType() + "</pathType>\n" +
+                            "                <explicitPathName>" + srTeTunnelPath.getExplicitPathName() + "</explicitPathName>\n" +
+                            "              </srTeTunnelPath>\n";
+
+                }
+                String pathsEnd =
+                        "            </srTeTunnelPaths>\n";
+                pathsStart = pathsStart + pathsMiddle + pathsEnd;
+
+            }
+
+            String middleEnd =
                     "          </srTeTunnel>\n" +
-                    "        </srTeTunnels>\n" +
-                    "      </mplsTe>\n" +
-                    "    </mpls>\n" +
-                    "    <ifm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
-                    "      <interfaces>\n" +
-                    "        <interface>\n" +
-                    "          <ifName>" + srTeTunnel.getTunnelName() + "</ifName>\n" +
-                    "          <ipv4Config>\n" +
-                    "            <unNumIfName>" + srTeTunnel.getUnNumIfName() + "</unNumIfName>\n" +
-                    "            <addrCfgType>" + srTeTunnel.getAddrCfgType() + "</addrCfgType>\n" +
-                    "          </ipv4Config>\n" +
-                    "        </interface>\n" +
-                    "      </interfaces>\n" +
-                    "    </ifm>\n" +
-                    "  </config>\n";
+                            "        </srTeTunnels>\n" +
+                            "      </mplsTe>\n" +
+                            "    </mpls>\n" +
+                            "    <ifm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                            "      <interfaces>\n" +
+                            "        <interface>\n" +
+                            "          <ifName>" + srTeTunnel.getTunnelName() + "</ifName>\n" +
+                            "          <ipv4Config>\n" +
+                            "            <unNumIfName>" + srTeTunnel.getUnNumIfName() + "</unNumIfName>\n" +
+                            "            <addrCfgType>" + srTeTunnel.getAddrCfgType() + "</addrCfgType>\n" +
+                            "          </ipv4Config>\n" +
+                            "        </interface>\n" +
+                            "      </interfaces>\n" +
+                            "    </ifm>\n" +
+                            "  </config>\n";
+            middle = middle + pathsStart + middleEnd;
         }
         String end =
                 "</edit-config>" +
@@ -116,10 +130,21 @@ public class SrTeTunnelXml {
                     srTeTunnel.setTunnelName(element.elementText("tunnelName"));
                     srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));
                     srTeTunnel.setMplsTunnelIndex(element.elementText("mplsTunnelIndex"));
+                    srTeTunnel.setMplsTeTunnelBfdMinTx(
+                            element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdMinTx"));
+                    srTeTunnel.setMplsTeTunnelBfdMinnRx(
+                            element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdMinnRx"));
+                    srTeTunnel.setMplsTeTunnelBfdDetectMultiplier(
+                            element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdDetectMultiplier"));
+                    List<SSrTeTunnelPath> srTeTunnelPaths = new ArrayList<>();
+                    SSrTeTunnelPath srTeTunnelPath;
                     for (org.dom4j.Element child : element.elements("srTeTunnelPaths").get(0).elements()) {
-                        srTeTunnel.setPathType(child.elementText("pathType"));
-                        srTeTunnel.setExplicitPathName(child.elementText("explicitPathName"));
+                        srTeTunnelPath = new SSrTeTunnelPath();
+                        srTeTunnelPath.setPathType(child.elementText("pathType"));
+                        srTeTunnelPath.setExplicitPathName(child.elementText("explicitPathName"));
+                        srTeTunnelPaths.add(srTeTunnelPath);
                     }
+                    srTeTunnel.setSrTeTunnelPaths(srTeTunnelPaths);
                     srTeTunnels.add(srTeTunnel);
                 }
             } catch (Exception e) {
