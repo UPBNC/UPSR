@@ -2,6 +2,8 @@ package cn.org.upbnc.odlapi;
 
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.service.entity.ExplicitPathServiceEntity;
+import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstancesBuilder;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -23,9 +26,7 @@ public class TunnelODLApi implements UpsrTunnelService {
         this.session = session;
     }
 
-    @Override
-    public Future<RpcResult<GetTunnelInstancesOutput>> getTunnelInstances(GetTunnelInstancesInput input) {
-        GetTunnelInstancesOutputBuilder getTunnelInstancesOutputBuilder = new GetTunnelInstancesOutputBuilder();
+    List<TunnelInstances> testTuunel() {
         List<TunnelInstances> tunnelInstancesList = new ArrayList<>();
         List<MainPath> mainPathList = new ArrayList<>();
         List<BackPath> backPathList = new ArrayList<>();
@@ -85,8 +86,15 @@ public class TunnelODLApi implements UpsrTunnelService {
         tunnelInstancesBuilder.setBandWidth("200");
         tunnelInstancesList.add(tunnelInstancesBuilder.build());
 //-----------------------------------------------------------------------------------
-        getTunnelInstancesOutputBuilder.setTunnelInstances(tunnelInstancesList);
+        return tunnelInstancesList;
+    }
+
+    @Override
+    public Future<RpcResult<GetTunnelInstancesOutput>> getTunnelInstances(GetTunnelInstancesInput input) {
+        GetTunnelInstancesOutputBuilder getTunnelInstancesOutputBuilder = new GetTunnelInstancesOutputBuilder();
+
         getTunnelInstancesOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        getTunnelInstancesOutputBuilder.setTunnelInstances(testTuunel());
         return RpcResultBuilder.success(getTunnelInstancesOutputBuilder.build()).buildFuture();
     }
 
@@ -104,5 +112,27 @@ public class TunnelODLApi implements UpsrTunnelService {
         LOG.info("deleteTunnelInstance input : " + input);
         deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         return RpcResultBuilder.success(deleteTunnelInstanceOutputBuilder.build()).buildFuture();
+    }
+
+    private TunnelServiceEntity tunnelServiceEntityBuild(UpdateTunnelInstanceInput input) {
+        TunnelServiceEntity tunnelServiceEntity = new TunnelServiceEntity();
+        LOG.info("tunnelServiceEntityBuild begin");
+        tunnelServiceEntity.setTunnelId(input.getTunnelId());
+        LOG.info("tunnelServiceEntityBuild end");
+        return tunnelServiceEntity;
+    }
+
+    private ExplicitPathServiceEntity explicitPathServiceEntityBuild(UpdateTunnelInstanceInput input) {
+        ExplicitPathServiceEntity explicitPathServiceEntity = new ExplicitPathServiceEntity();
+        LOG.info("explicitPathServiceEntityBuild begin");
+        List<MainPath> mainPathList = input.getMainPath();
+        Iterator<MainPath> mainPathIterator = mainPathList.iterator();
+        while (mainPathIterator.hasNext()) {
+            MainPath mainPath = mainPathIterator.next();
+        }
+
+        List<BackPath> backPathList = input.getBackPath();
+        LOG.info("explicitPathServiceEntityBuild end");
+        return explicitPathServiceEntity;
     }
 }
