@@ -21,4 +21,12 @@ public class SExplicitPath {
     public void setExplicitPathHops(List<SExplicitPathHop> explicitPathHops) {
         this.explicitPathHops = explicitPathHops;
     }
+
+    @Override
+    public String toString() {
+        return "SExplicitPath{" +
+                "explicitPathName='" + explicitPathName + '\'' +
+                ", explicitPathHops=" + explicitPathHops +
+                '}';
+    }
 }
