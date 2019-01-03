@@ -23,6 +23,7 @@ module upsrTunnel {
         leaf srcDevice { type string; }
         leaf srcRouterId { type string; }
         leaf tunnelId { type string; }
+        leaf tunnelName { type string; }
         leaf destDevice { type string; }
         leaf destRouterId { type string; }
         leaf bandWidth { type string; }

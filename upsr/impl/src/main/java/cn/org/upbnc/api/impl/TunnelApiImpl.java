@@ -2,7 +2,6 @@ package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.service.ServiceInterface;
-import cn.org.upbnc.service.entity.ExplicitPathServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ public class TunnelApiImpl implements TunnelApi {
     }
 
     @Override
-    public Map<String, Object> updateTunnel(TunnelServiceEntity tunnelServiceEntity, ExplicitPathServiceEntity explicitPathServiceEntity) {
+    public Map<String, Object> updateTunnel(TunnelServiceEntity tunnelServiceEntity) {
         return null;
     }
 

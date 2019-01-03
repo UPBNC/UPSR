@@ -24,6 +24,7 @@ public class APIInterface {
     private InterfaceApi interfaceApi;
     private ConfSyncApi  confSyncApi;
     private SrLabelApi srLabelApi;
+    private TunnelApi tunnelApi;
 
     public APIInterface(){
         // Service Interface
@@ -38,6 +39,7 @@ public class APIInterface {
 		this.netconfSessionApi = null;
 		this.confSyncApi = null;
 		this.srLabelApi = null;
+		this.tunnelApi = null;
     }
 
     public void init(){
@@ -50,6 +52,7 @@ public class APIInterface {
 			this.confSyncApi = ConfSyncApiImpl.getInstance();
             this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
             this.srLabelApi = SrLabelApiImpl.getInstance();
+            this.tunnelApi = TunnelApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
             LOG.info("APIInterface init Failure!" + e.getMessage());
@@ -64,6 +67,7 @@ public class APIInterface {
             ret = true;
             ret = this.topoInfoApi.setServiceInterface(this.serviceInterface);
             ret = this.srLabelApi.setServiceInterface(this.serviceInterface);
+            ret = this.tunnelApi.setServiceInterface(this.serviceInterface);
             ret = ((true == ret )? this.vpnInstanceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.interfaceApi.setServiceInterface(this.serviceInterface):false);
@@ -95,7 +99,9 @@ public class APIInterface {
     public SrLabelApi getSrLabelApi(){
         return srLabelApi;
     }
-
+    public TunnelApi getTunnelApi(){
+        return tunnelApi;
+    }
     public BgplsSessionApi getBgplsSessionApi() {
         return bgplsSessionApi;
     }

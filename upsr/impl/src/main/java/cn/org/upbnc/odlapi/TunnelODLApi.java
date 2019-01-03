@@ -1,13 +1,17 @@
 package cn.org.upbnc.odlapi;
 
+import cn.org.upbnc.api.APIInterface;
+import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.CodeEnum;
-import cn.org.upbnc.service.entity.ExplicitPathServiceEntity;
+import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.tunnelinstance.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.tunnelinstance.TunnelBfd;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -21,9 +25,20 @@ import java.util.concurrent.Future;
 public class TunnelODLApi implements UpsrTunnelService {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelODLApi.class);
     Session session;
+    TunnelApi tunnelApi;
 
     public TunnelODLApi(Session session) {
         this.session = session;
+    }
+
+    private TunnelApi getTunnelApi() {
+        if (this.tunnelApi == null) {
+            APIInterface apiInterface = session.getApiInterface();
+            if (apiInterface != null) {
+                this.tunnelApi = apiInterface.getTunnelApi();
+            }
+        }
+        return this.tunnelApi;
     }
 
     List<TunnelInstances> testTuunel() {
@@ -102,6 +117,17 @@ public class TunnelODLApi implements UpsrTunnelService {
     public Future<RpcResult<UpdateTunnelInstanceOutput>> updateTunnelInstance(UpdateTunnelInstanceInput input) {
         UpdateTunnelInstanceOutputBuilder updateTunnelInstanceOutputBuilder = new UpdateTunnelInstanceOutputBuilder();
         LOG.info("updateTunnelInstance input : " + input);
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(updateTunnelInstanceOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        TunnelServiceEntity tunnelServiceEntity = new TunnelServiceEntity();
+        tunnelServiceEntity.setTunnelId(input.getTunnelId());
+        this.tunnelBfdBuild(tunnelServiceEntity,input);
+        this.tunnelPathBuild(tunnelServiceEntity,input);
+        LOG.info(tunnelServiceEntity.toString());
+        this.tunnelApi.updateTunnel(tunnelServiceEntity);
         updateTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         return RpcResultBuilder.success(updateTunnelInstanceOutputBuilder.build()).buildFuture();
     }
@@ -114,25 +140,46 @@ public class TunnelODLApi implements UpsrTunnelService {
         return RpcResultBuilder.success(deleteTunnelInstanceOutputBuilder.build()).buildFuture();
     }
 
-    private TunnelServiceEntity tunnelServiceEntityBuild(UpdateTunnelInstanceInput input) {
-        TunnelServiceEntity tunnelServiceEntity = new TunnelServiceEntity();
-        LOG.info("tunnelServiceEntityBuild begin");
-        tunnelServiceEntity.setTunnelId(input.getTunnelId());
-        LOG.info("tunnelServiceEntityBuild end");
-        return tunnelServiceEntity;
+    private void tunnelBfdBuild(TunnelServiceEntity tunnelServiceEntity,UpdateTunnelInstanceInput input) {
+        LOG.info("tunnelBfdBuild begin");
+        TunnelBfd tunnelBfd = input.getTunnelBfd();
+        if(tunnelBfd != null) {
+            tunnelServiceEntity.setBfdMultiplier(tunnelBfd.getBfdMultiplier());
+            tunnelServiceEntity.setBfdrxInterval(tunnelBfd.getBfdrxInterval());
+            tunnelServiceEntity.setBfdtxInterval(tunnelBfd.getBfdtxInterval());
+        }
+        LOG.info("tunnelBfdBuild end");
+        return ;
     }
 
-    private ExplicitPathServiceEntity explicitPathServiceEntityBuild(UpdateTunnelInstanceInput input) {
-        ExplicitPathServiceEntity explicitPathServiceEntity = new ExplicitPathServiceEntity();
-        LOG.info("explicitPathServiceEntityBuild begin");
+    private void tunnelPathBuild(TunnelServiceEntity tunnelServiceEntity,UpdateTunnelInstanceInput input) {
+        LOG.info("tunnelPathBuild begin");
         List<MainPath> mainPathList = input.getMainPath();
         Iterator<MainPath> mainPathIterator = mainPathList.iterator();
         while (mainPathIterator.hasNext()) {
+            TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
             MainPath mainPath = mainPathIterator.next();
+            tunnelHopServiceEntity.setIndex(mainPath.getIndex());
+            tunnelHopServiceEntity.setDeviceName(mainPath.getDeviceName());
+            tunnelHopServiceEntity.setRouterId(mainPath.getRouterId());
+            tunnelHopServiceEntity.setAdjlabel(mainPath.getAdjlabel());
+            tunnelHopServiceEntity.setIfAddress(mainPath.getIfAddress());
+            tunnelServiceEntity.addMainPathHop(tunnelHopServiceEntity);
         }
 
         List<BackPath> backPathList = input.getBackPath();
-        LOG.info("explicitPathServiceEntityBuild end");
-        return explicitPathServiceEntity;
+        Iterator<BackPath> backPathIterator = backPathList.iterator();
+        while (backPathIterator.hasNext()) {
+            TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
+            BackPath backPath = backPathIterator.next();
+            tunnelHopServiceEntity.setIndex(backPath.getIndex());
+            tunnelHopServiceEntity.setDeviceName(backPath.getDeviceName());
+            tunnelHopServiceEntity.setRouterId(backPath.getRouterId());
+            tunnelHopServiceEntity.setAdjlabel(backPath.getAdjlabel());
+            tunnelHopServiceEntity.setIfAddress(backPath.getIfAddress());
+            tunnelServiceEntity.addBackPathHop(tunnelHopServiceEntity);
+        }
+        LOG.info("tunnelPathBuild end");
+        return ;
     }
 }
