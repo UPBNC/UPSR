@@ -7,5 +7,19 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.entity.Tunnel;
+
+import java.util.List;
+import java.util.Map;
+
 public interface TunnelManager {
+    Tunnel createTunnel(Tunnel tunnel);
+
+    Tunnel updateTunnel(Tunnel tunnel);
+
+    List<Tunnel> getTunnel(String routerId, String name);
+
+    Map<String, List<Tunnel>> getTunnels();
+
+    boolean deleteTunnel(String routerId, String name);
 }

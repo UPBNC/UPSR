@@ -13,30 +13,35 @@ public class BfdSession {
     private Device device;
     private Integer type;
     private Integer bfdId;
-    private Integer minRecvTime;
-    private Integer minSendTime;
+    private String minRecvTime;
+    private String minSendTime;
+    private String Multiplier;
 
-    public BfdSession(){
-        this.id = 0;
-        this.device = null;
-        this.type = 0;
-        this.bfdId = 0;
-        this.minRecvTime = 0;
-        this.minSendTime = 0;
+    public BfdSession() {
     }
 
-    public BfdSession(Integer id,
-                      Device device,
-                      Integer type,
-                      Integer bfdId,
-                      Integer minRecvTime,
-                      Integer minSendTime) {
-        this.id = id;
-        this.device = device;
-        this.type = type;
-        this.bfdId = bfdId;
+    public String getMinRecvTime() {
+        return minRecvTime;
+    }
+
+    public void setMinRecvTime(String minRecvTime) {
         this.minRecvTime = minRecvTime;
+    }
+
+    public String getMinSendTime() {
+        return minSendTime;
+    }
+
+    public void setMinSendTime(String minSendTime) {
         this.minSendTime = minSendTime;
+    }
+
+    public String getMultiplier() {
+        return Multiplier;
+    }
+
+    public void setMultiplier(String multiplier) {
+        Multiplier = multiplier;
     }
 
     public void setId(Integer id) {
@@ -69,21 +74,5 @@ public class BfdSession {
 
     public Integer getBfdId() {
         return bfdId;
-    }
-
-    public void setMinRecvTime(Integer minRecvTime) {
-        this.minRecvTime = minRecvTime;
-    }
-
-    public Integer getMinRecvTime() {
-        return minRecvTime;
-    }
-
-    public void setMinSendTime(Integer minSendTime) {
-        this.minSendTime = minSendTime;
-    }
-
-    public Integer getMinSendTime() {
-        return minSendTime;
     }
 }
