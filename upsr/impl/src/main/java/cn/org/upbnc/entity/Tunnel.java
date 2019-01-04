@@ -15,7 +15,7 @@ public class Tunnel {
     private String tunnelName;
     private String description;
     private Address destIP;
-    private Integer bandWidth = 0;
+    private String bandWidth = "0";
     private ExplicitPath masterPath;
     private ExplicitPath slavePath;
     private Boolean bfdEnable;
@@ -72,12 +72,11 @@ public class Tunnel {
         this.destIP = destIP;
     }
 
-
-    public Integer getBandWidth() {
+    public String getBandWidth() {
         return bandWidth;
     }
 
-    public void setBandWidth(Integer bandWidth) {
+    public void setBandWidth(String bandWidth) {
         this.bandWidth = bandWidth;
     }
 

@@ -55,7 +55,7 @@ module upsrTunnel {
     rpc deleteTunnelInstance {
         input {
             leaf routerId { type string; }
-            leaf tunnelId { type string; }
+            leaf tunnelName { type string; }
         }
         output {
             leaf result { type string; }

@@ -22,6 +22,7 @@ public class BaseInterface {
     private VpnInstanceManager vpnInstanceManager;
     private LinkManager linkManager;
     private IniSectionManager iniSectionManager;
+    private TunnelManager tunnelManager;
 
     public BaseInterface() {
     }
@@ -37,9 +38,10 @@ public class BaseInterface {
             this.bgpManager = BGPManagerImpl.getInstance();
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
             this.iniSectionManager = IniSectionManagerImpl.getInstance();
+            this.tunnelManager = TunnelManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
-        }catch (Exception e){
-            LOG.info("BaseInterface init failure! "+e.getMessage());
+        } catch (Exception e) {
+            LOG.info("BaseInterface init failure! " + e.getMessage());
             throw e;
         }
     }
@@ -52,11 +54,18 @@ public class BaseInterface {
             ret = true;
             // 每个基础系统安装工具
             ret = ret && this.bgpManager.setUtilInterface(this.utilInterface);
-        }catch (Exception e){
+        } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
         }
         return ret;
+    }
+
+    public TunnelManager getTunnelManager() {
+        if (null == this.tunnelManager) {
+            this.tunnelManager = TunnelManagerImpl.getInstance();
+        }
+        return this.tunnelManager;
     }
 
     public DeviceManager getDeviceManager() {
@@ -73,30 +82,29 @@ public class BaseInterface {
         return this.netConfManager;
     }
 
-    public BGPManager getBgpManager(){
-        if(null == this.bgpManager){
+    public BGPManager getBgpManager() {
+        if (null == this.bgpManager) {
             this.bgpManager = BGPManagerImpl.getInstance();
         }
         return this.bgpManager;
     }
 
-    public VpnInstanceManager getVpnInstanceManager()
-    {
-        if(null == this.vpnInstanceManager)
-        {
+    public VpnInstanceManager getVpnInstanceManager() {
+        if (null == this.vpnInstanceManager) {
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
         }
         return this.vpnInstanceManager;
     }
 
-    public LinkManager getLinkManager(){
-        if(null == this.linkManager){
+    public LinkManager getLinkManager() {
+        if (null == this.linkManager) {
             this.linkManager = LinkManagerImpl.getInstance();
         }
         return this.linkManager;
     }
+
     public IniSectionManager getIniSectionManager() {
-        if(null == this.iniSectionManager) {
+        if (null == this.iniSectionManager) {
             this.iniSectionManager = IniSectionManagerImpl.getInstance();
         }
         return this.iniSectionManager;

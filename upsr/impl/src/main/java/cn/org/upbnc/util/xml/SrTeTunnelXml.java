@@ -31,6 +31,7 @@ public class SrTeTunnelXml {
                     "            <tunnelName>" + srTeTunnel.getTunnelName() + "</tunnelName>\n" +
                     "            <mplsTunnelEgressLSRId>" + srTeTunnel.getMplsTunnelEgressLSRId() + "</mplsTunnelEgressLSRId>\n" +
                     "            <mplsTunnelIndex>" + srTeTunnel.getMplsTunnelIndex() + "</mplsTunnelIndex>\n" +
+                    "            <hotStandbyEnable>true</hotStandbyEnable>" +
                     "            <mplsTeTunnelSetupPriority>" + srTeTunnel.getMplsTeTunnelSetupPriority() + "</mplsTeTunnelSetupPriority>\n" +
                     "            <holdPriority>" + srTeTunnel.getHoldPriority() + "</holdPriority>\n" +
                     "            <mplsTunnelBandwidth>" + srTeTunnel.getMplsTunnelBandwidth() + "</mplsTunnelBandwidth>\n" +

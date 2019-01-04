@@ -24,6 +24,7 @@ public class ServiceInterface {
     private NetconfSessionService netconfSessionService;
     private InterfaceService interfaceService;
     private SrLabelService srLabelService;
+    private TunnelService tunnelService;
 
     public ServiceInterface() {
         // Base Interface
@@ -35,6 +36,7 @@ public class ServiceInterface {
         this.netconfSessionService = null;
         this.interfaceService = null;
         this.srLabelService = null;
+        this.tunnelService = null;
     }
 
     public void init() {
@@ -45,6 +47,7 @@ public class ServiceInterface {
             this.netconfSessionService = NetconfSessionServiceImpl.getInstance();
             this.interfaceService = InterfaceServiceImpl.getInstance();
             this.srLabelService = SrLabelServiceImpl.getInstance();
+            this.tunnelService = TunnelServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -64,6 +67,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.vpnService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.netconfSessionService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.interfaceService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.tunnelService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -135,5 +139,12 @@ public class ServiceInterface {
             this.srLabelService = SrLabelServiceImpl.getInstance();
         }
         return srLabelService;
+    }
+
+    public TunnelService getTunnelService() {
+        if (this.tunnelService == null) {
+            this.tunnelService = TunnelServiceImpl.getInstance();
+        }
+        return tunnelService;
     }
 }

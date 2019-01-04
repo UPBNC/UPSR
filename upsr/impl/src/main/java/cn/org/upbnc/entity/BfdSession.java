@@ -15,7 +15,7 @@ public class BfdSession {
     private Integer bfdId;
     private String minRecvTime;
     private String minSendTime;
-    private String Multiplier;
+    private String multiplier;
 
     public BfdSession() {
     }
@@ -37,11 +37,11 @@ public class BfdSession {
     }
 
     public String getMultiplier() {
-        return Multiplier;
+        return multiplier;
     }
 
     public void setMultiplier(String multiplier) {
-        Multiplier = multiplier;
+        this.multiplier = multiplier;
     }
 
     public void setId(Integer id) {

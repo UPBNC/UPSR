@@ -119,6 +119,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             }
             device.setDataCenter(deviceDesc);
             device.setDeviceType(deviceType);
+            Address address = new Address();
+            address.setAddress(deviceIP);
+            device.setAddress(address);
             device.setNetConf(netconf);
         }
         this.netConfManager.addDevice(netconf);

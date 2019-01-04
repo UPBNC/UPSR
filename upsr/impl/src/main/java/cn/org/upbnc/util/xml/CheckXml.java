@@ -11,11 +11,13 @@ public class CheckXml {
     public static final String RESULT_OK = "ok";
 
     public static String checkOk(String result) {
-        String str;
-        if ((!result.isEmpty()) && result.contains(RESULT_OK)) {
-            str = RESULT_OK;
-        } else {
-            str = result;
+        String str = "";
+        if (null != result) {
+            if (result.contains(RESULT_OK)) {
+                str = RESULT_OK;
+            } else {
+                str = result;
+            }
         }
         return str;
     }

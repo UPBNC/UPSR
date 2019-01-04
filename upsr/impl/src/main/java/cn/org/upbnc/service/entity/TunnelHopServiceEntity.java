@@ -46,4 +46,15 @@ public class TunnelHopServiceEntity {
     public void setRouterId(String routerId) {
         this.routerId = routerId;
     }
+
+    @Override
+    public String toString() {
+        return "TunnelHopServiceEntity{" +
+                "adjlabel='" + adjlabel + '\'' +
+                ", deviceName='" + deviceName + '\'' +
+                ", ifAddress='" + ifAddress + '\'' +
+                ", index='" + index + '\'' +
+                ", routerId='" + routerId + '\'' +
+                '}';
+    }
 }

@@ -2,6 +2,7 @@ package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.service.ServiceInterface;
+import cn.org.upbnc.service.TunnelService;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ public class TunnelApiImpl implements TunnelApi {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelApiImpl.class);
     private ServiceInterface serviceInterface;
     public static TunnelApi ourInstance = new TunnelApiImpl();
+    private TunnelService tunnelService;
 
     public static TunnelApi getInstance() {
         return ourInstance;
@@ -20,16 +22,17 @@ public class TunnelApiImpl implements TunnelApi {
 
     @Override
     public boolean setServiceInterface(ServiceInterface serviceInterface) {
-        boolean ret = true;
-        try {
-            if (this.serviceInterface == null) {
-                this.serviceInterface = serviceInterface;
-            }
-        } catch (Exception e) {
-            ret = false;
-            LOG.info(e.toString());
+        boolean ret = false;
+        this.serviceInterface = serviceInterface;
+        if (null != serviceInterface) {
+            tunnelService = serviceInterface.getTunnelService();
         }
         return ret;
+    }
+
+    @Override
+    public Map<String, Object> createTunnel(TunnelServiceEntity tunnelServiceEntity) {
+        return tunnelService.createTunnel(tunnelServiceEntity);
     }
 
     @Override
@@ -38,8 +41,8 @@ public class TunnelApiImpl implements TunnelApi {
     }
 
     @Override
-    public Map<String, Object> deleteTunnel(String routerId, String tunnelId) {
-        return null;
+    public Map<String, Object> deleteTunnel(String routerId, String tunnelName) {
+        return tunnelService.deleteTunnel(routerId, tunnelName);
     }
 
     @Override

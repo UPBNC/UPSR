@@ -5,15 +5,60 @@ import java.util.List;
 
 public class TunnelServiceEntity {
     String tunnelId;
+    String tunnelName;
     String bfdMultiplier;
     String bfdrxInterval;
     String bfdtxInterval;
+    String routerId;
+    String egressLSRId;
+    String bandwidth;
+    String unNumIfName;
     List<TunnelHopServiceEntity> mainPath;
     List<TunnelHopServiceEntity> backPath;
 
     public TunnelServiceEntity() {
         this.mainPath = new ArrayList<>();
         this.backPath = new ArrayList<>();
+    }
+
+    public String getUnNumIfName() {
+        return unNumIfName;
+    }
+
+    public void setUnNumIfName(String unNumIfName) {
+        this.unNumIfName = unNumIfName;
+    }
+
+    public String getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(String bandwidth) {
+        this.bandwidth = bandwidth;
+    }
+
+    public String getEgressLSRId() {
+        return egressLSRId;
+    }
+
+    public void setEgressLSRId(String egressLSRId) {
+        this.egressLSRId = egressLSRId;
+    }
+
+    public String getTunnelName() {
+        return tunnelName;
+    }
+
+    public void setTunnelName(String tunnelName) {
+        this.tunnelName = tunnelName;
+    }
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
     }
 
     public String getTunnelId() {
@@ -70,5 +115,22 @@ public class TunnelServiceEntity {
 
     public void addBackPathHop(TunnelHopServiceEntity tunnelHopServiceEntity) {
         this.backPath.add(tunnelHopServiceEntity);
+    }
+
+    @Override
+    public String toString() {
+        return "TunnelServiceEntity{" +
+                "tunnelId='" + tunnelId + '\'' +
+                ", tunnelName='" + tunnelName + '\'' +
+                ", bfdMultiplier='" + bfdMultiplier + '\'' +
+                ", bfdrxInterval='" + bfdrxInterval + '\'' +
+                ", bfdtxInterval='" + bfdtxInterval + '\'' +
+                ", routerId='" + routerId + '\'' +
+                ", egressLSRId='" + egressLSRId + '\'' +
+                ", bandwidth='" + bandwidth + '\'' +
+                ", unNumIfName='" + unNumIfName + '\'' +
+                ", mainPath=" + mainPath +
+                ", backPath=" + backPath +
+                '}';
     }
 }
