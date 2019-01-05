@@ -48,6 +48,7 @@ public class TunnelODLApi implements UpsrTunnelService {
         TunnelInstancesBuilder tunnelInstancesBuilder = new TunnelInstancesBuilder();
         tunnelInstancesBuilder.setSrcDevice("R1");
         tunnelInstancesBuilder.setSrcRouterId("1.1.1.1");
+        tunnelInstancesBuilder.setTunnelName("Tunnel100");
         tunnelInstancesBuilder.setTunnelId("100");
         tunnelInstancesBuilder.setDestDevice("R2");
         tunnelInstancesBuilder.setDestRouterId("2.2.2.2");

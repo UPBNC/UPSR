@@ -14,10 +14,7 @@ import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.entity.Link;
 import cn.org.upbnc.entity.TopoInfo;
-import cn.org.upbnc.enumtype.CodeEnum;
-import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.SrStatusEnum;
-import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.enumtype.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.linkinfo.Links;
@@ -87,6 +84,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
             }
             LinksBuilder linksBuilder = new LinksBuilder();
             linksBuilder.setLinkId(link.getId().toString());
+            linksBuilder.setLinkStatus(InterfaceStatusEnum.UP.getName());
             SourceBuilder sourceBuilder = new SourceBuilder();
             sourceBuilder.setRouterId(link.getDeviceInterface1().getDevice().getRouterId());
             sourceBuilder.setIfAddress(link.getDeviceInterface1().getIp().getAddress());
