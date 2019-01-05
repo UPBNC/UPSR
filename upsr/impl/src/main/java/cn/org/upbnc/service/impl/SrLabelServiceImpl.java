@@ -83,7 +83,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         if (device == null) {
             return buildResult(SrLabelErrorCodeEnum.DEVICE_INVALID);
         }
-        if (SrLabelXml.ncOperationDelete.equals(action) && SrStatus.DISENABLED.getName().equals(device.getSrStatus())) {
+        if (SrLabelXml.ncOperationDelete.equals(action) && SrStatusEnum.DISENABLED.getName().equals(device.getSrStatus())) {
             return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
         }
         if ((device.getNodeLabel() != null) && (device.getNodeLabel().getValue().equals(Integer.parseInt(labelVal)))) {
@@ -108,12 +108,12 @@ public class SrLabelServiceImpl implements SrLabelService {
         }
         if (action.equals(SrLabelXml.ncOperationDelete)) {
             device.setNodeLabel(null);
-            device.setSrStatus(SrStatus.DISENABLED.getName());
+            device.setSrStatus(SrStatusEnum.DISENABLED.getName());
         } else {
             NodeLabel nodeLabel = (device.getNodeLabel() == null) ? new NodeLabel() : device.getNodeLabel();
             nodeLabel.setValue(Integer.valueOf(labelVal));
             device.setNodeLabel(nodeLabel);
-            device.setSrStatus(SrStatus.ENABLED.getName());
+            device.setSrStatus(SrStatusEnum.ENABLED.getName());
         }
         LOG.info("updateNodeLabel end");
         return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
@@ -244,9 +244,9 @@ public class SrLabelServiceImpl implements SrLabelService {
         NodeLabel nodeLabel = new NodeLabel();
         if ((null != netconfSrLabelInfo.getPrefixLabel()) && (Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) != 0)) {
             nodeLabel.setValue(Integer.valueOf(netconfSrLabelInfo.getPrefixLabel()));
-            device.setSrStatus(SrStatus.ENABLED.getName());
+            device.setSrStatus(SrStatusEnum.ENABLED.getName());
         } else {
-            device.setSrStatus(SrStatus.DISENABLED.getName());
+            device.setSrStatus(SrStatusEnum.DISENABLED.getName());
         }
         device.setNodeLabel(nodeLabel);
         return null;
@@ -329,14 +329,14 @@ public class SrLabelServiceImpl implements SrLabelService {
             return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
         }
         if (true == action.equals(SrLabelXml.ncOperationDelete)) {
-            localDeviceInterface.setSrStatus(SrStatus.DISENABLED.getName());
+            localDeviceInterface.setSrStatus(SrStatusEnum.DISENABLED.getName());
             localDeviceInterface.setAdjLabel(null);
         } else {
             AdjLabel adjLabel = new AdjLabel();
             adjLabel.setAddressLocal(new Address(localDeviceInterface.getIp().getAddress(), AddressTypeEnum.V4));
             adjLabel.setAddressRemote(new Address(remoteAddress, AddressTypeEnum.V4));
             adjLabel.setValue(Integer.valueOf(labelVal));
-            localDeviceInterface.setSrStatus(SrStatus.ENABLED.getName());
+            localDeviceInterface.setSrStatus(SrStatusEnum.ENABLED.getName());
             localDeviceInterface.setAdjLabel(adjLabel);
         }
         LOG.info("updateIntfLabel end");
@@ -393,7 +393,7 @@ public class SrLabelServiceImpl implements SrLabelService {
                 DeviceInterface deviceInterface1Peer = linkManager.getPeerDeviceInterface(deviceInterface);
                 if (deviceInterface1Peer != null) {
                     deviceInterface.setAdjLabel(adjLabel);
-                    deviceInterface.setSrStatus(SrStatus.ENABLED.getName());
+                    deviceInterface.setSrStatus(SrStatusEnum.ENABLED.getName());
                 } else {
                     deviceInterface.setAdjLabel(null);
                     deviceInterface.setSrStatus(null);

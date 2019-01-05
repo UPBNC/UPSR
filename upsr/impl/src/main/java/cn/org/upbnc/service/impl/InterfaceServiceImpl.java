@@ -15,7 +15,7 @@ import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
-import cn.org.upbnc.enumtype.SrStatus;
+import cn.org.upbnc.enumtype.SrStatusEnum;
 import cn.org.upbnc.service.InterfaceService;
 import cn.org.upbnc.service.entity.DevInterfaceInfo;
 import cn.org.upbnc.util.netconf.GigabitEthernet;
@@ -87,7 +87,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         if(null != deviceInterfaceList)
         {
             for(DeviceInterface deviceInterface:deviceInterfaceList) {
-                srStatus = (SrStatus.ENABLED.getName() == deviceInterface.getSrStatus()) ? "up" :"down";
+                srStatus = (SrStatusEnum.ENABLED.getName() == deviceInterface.getSrStatus()) ? "up" :"down";
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
                         ifnetStatus, srStatus,

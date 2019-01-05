@@ -8,6 +8,21 @@
 package cn.org.upbnc.enumtype;
 
 public enum InterfaceStatusEnum {
-    StatusDown,
-    StatusUp
+    UP(1, "1"),
+    DOWN(2, "2");
+    private int code;
+    private String name;
+
+    InterfaceStatusEnum(int code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

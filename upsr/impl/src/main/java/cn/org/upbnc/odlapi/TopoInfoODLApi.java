@@ -16,7 +16,7 @@ import cn.org.upbnc.entity.Link;
 import cn.org.upbnc.entity.TopoInfo;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.SrStatus;
+import cn.org.upbnc.enumtype.SrStatusEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.*;
@@ -120,9 +120,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
             DeviceInterfacesBuilder deviceInterfacesBuilder = new DeviceInterfacesBuilder();
             deviceInterfacesBuilder.setIfName(deviceInterface.getName());
             if ((deviceInterface.getBgpStatus() != null) && (deviceInterface.getBgpStatus() == 1)) {
-                deviceInterfacesBuilder.setIsSrDomain(SrStatus.ENABLED.getName());
+                deviceInterfacesBuilder.setIsSrDomain(SrStatusEnum.ENABLED.getName());
             } else {
-                deviceInterfacesBuilder.setIsSrDomain(SrStatus.DISENABLED.getName());
+                deviceInterfacesBuilder.setIsSrDomain(SrStatusEnum.DISENABLED.getName());
             }
             deviceInterfacesBuilder.setIfAddress(deviceInterface.getIp().getAddress());
             if (deviceInterface.getMask() != null) {
@@ -142,7 +142,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
 
     private SrgbPrefixSidBuilder srgbPrefixSidBuilderCreate(Device device) {
         SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
-        if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatus.ENABLED.getName()) &&
+        if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatusEnum.ENABLED.getName()) &&
                 device.getNodeLabel() != null) {
             srgbPrefixSidBuilder.setPrefixId(String.valueOf(new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID())));
             srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());

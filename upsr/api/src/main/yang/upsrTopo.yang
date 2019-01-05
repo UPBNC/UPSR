@@ -25,6 +25,7 @@ module upsrTopo {
     grouping linkInfo {
         list links {
             leaf linkId { type string; }
+            leaf linkStatus { type string; }
             container source {
                 leaf routerId { type string; }
                 leaf ifAddress { type string; }

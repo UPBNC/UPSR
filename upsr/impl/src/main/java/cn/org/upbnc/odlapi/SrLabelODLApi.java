@@ -10,16 +10,12 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.SrLabelApi;
 import cn.org.upbnc.core.Session;
-import cn.org.upbnc.entity.Device;
-import cn.org.upbnc.entity.DeviceInterface;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.SrStatus;
+import cn.org.upbnc.enumtype.SrStatusEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.util.xml.SrLabelXml;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.updatesrlabel.input.IntfLabel;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -121,9 +117,9 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
         }
         LOG.info(input.toString());
-        if (input.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
+        if (input.getSrEnabled().equals(SrStatusEnum.DISENABLED.getName())) {
             updateSrLabelOutputBuilder.setResult(this.disableSrLabel(input));
-        } else if (input.getSrEnabled().equals(SrStatus.ENABLED.getName())) {
+        } else if (input.getSrEnabled().equals(SrStatusEnum.ENABLED.getName())) {
             updateSrLabelOutputBuilder.setResult(this.enableSrLabel(input));
         }
         LOG.info("updateSrLabel end");
@@ -175,7 +171,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         while (intfLabelIterator.hasNext()) {
             IntfLabel intfLabel = intfLabelIterator.next();
             Map<String, Object> updateIntfLabelRet = null;
-            if (intfLabel.getSrEnabled().equals(SrStatus.DISENABLED.getName())) {
+            if (intfLabel.getSrEnabled().equals(SrStatusEnum.DISENABLED.getName())) {
                 updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIfAddress(),
                         intfLabel.getAdjlabel(), SrLabelXml.ncOperationDelete);
             } else {
