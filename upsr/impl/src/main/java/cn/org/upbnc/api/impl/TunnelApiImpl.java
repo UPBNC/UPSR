@@ -26,6 +26,7 @@ public class TunnelApiImpl implements TunnelApi {
         this.serviceInterface = serviceInterface;
         if (null != serviceInterface) {
             tunnelService = serviceInterface.getTunnelService();
+            ret = true;
         }
         return ret;
     }
