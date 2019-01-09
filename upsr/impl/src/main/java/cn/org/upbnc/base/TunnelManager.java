@@ -19,7 +19,7 @@ public interface TunnelManager {
 
     List<Tunnel> getTunnel(String routerId, String name);
 
-    Map<String, List<Tunnel>> getTunnels();
+    List<Tunnel> getTunnels();
 
     boolean deleteTunnel(String routerId, String name);
 }

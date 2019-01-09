@@ -3,7 +3,11 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.entity.AdjLabel;
+import cn.org.upbnc.entity.ExplicitPath;
+import cn.org.upbnc.entity.Tunnel;
 import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 public class TunnelODLApi implements UpsrTunnelService {
@@ -41,76 +46,88 @@ public class TunnelODLApi implements UpsrTunnelService {
         return this.tunnelApi;
     }
 
-    List<TunnelInstances> testTuunel() {
+    List<TunnelInstances> getTunnel(List<Tunnel> tunnels) {
         List<TunnelInstances> tunnelInstancesList = new ArrayList<>();
-        List<MainPath> mainPathList = new ArrayList<>();
-        List<BackPath> backPathList = new ArrayList<>();
-        TunnelInstancesBuilder tunnelInstancesBuilder = new TunnelInstancesBuilder();
-        tunnelInstancesBuilder.setSrcDevice("R1");
-        tunnelInstancesBuilder.setSrcRouterId("1.1.1.1");
-        tunnelInstancesBuilder.setTunnelName("Tunnel100");
-        tunnelInstancesBuilder.setTunnelId("100");
-        tunnelInstancesBuilder.setDestDevice("R2");
-        tunnelInstancesBuilder.setDestRouterId("2.2.2.2");
-        tunnelInstancesBuilder.setBandWidth("200");
-        TunnelBfdBuilder tunnelBfdBuilder = new TunnelBfdBuilder();
-        tunnelBfdBuilder.setBfdMultiplier("5");
-        tunnelBfdBuilder.setBfdrxInterval("10");
-        tunnelBfdBuilder.setBfdtxInterval("10");
-        tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
+        List<MainPath> mainPathList;
+        List<BackPath> backPathList;
+        TunnelBfdBuilder tunnelBfdBuilder;
+        MainPathBuilder mainPathBuilder;
+        BackPathBuilder backPathBuilder;
+        Map<String, AdjLabel> map;
+        TunnelInstancesBuilder tunnelInstancesBuilder;
+        for (Tunnel tunnel : tunnels) {
+            mainPathList = new ArrayList<>();
+            backPathList = new ArrayList<>();
+            tunnelInstancesBuilder = new TunnelInstancesBuilder();
+            tunnelInstancesBuilder.setSrcDevice(tunnel.getDevice().getDeviceName());
+            tunnelInstancesBuilder.setSrcRouterId(tunnel.getDevice().getRouterId());
+            tunnelInstancesBuilder.setTunnelId(tunnel.getTunnelId());
+            tunnelInstancesBuilder.setTunnelName(tunnel.getTunnelName());
+            tunnelInstancesBuilder.setDestDevice(tunnel.getDestDeviceName());
+            tunnelInstancesBuilder.setDestRouterId(tunnel.getDestRouterId());
+            tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
 
-        MainPathBuilder mainPathBuilder = new MainPathBuilder();
-        mainPathBuilder.setIndex("0");
-        mainPathBuilder.setIfAddress("12.1.2.2");
-        mainPathBuilder.setRouterId("2.2.2.2");
-        mainPathBuilder.setDeviceName("R2");
-        mainPathBuilder.setAdjlabel("322006");
-        mainPathList.add(mainPathBuilder.build());
+            tunnelBfdBuilder = new TunnelBfdBuilder();
+            tunnelBfdBuilder.setBfdMultiplier(tunnel.getBfdSession().getMultiplier());
+            tunnelBfdBuilder.setBfdrxInterval(tunnel.getBfdSession().getMinRecvTime());
+            tunnelBfdBuilder.setBfdtxInterval(tunnel.getBfdSession().getMinSendTime());
+            tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
 
-        BackPathBuilder backPathBuilder = new BackPathBuilder();
-        backPathBuilder.setIndex("0");
-        backPathBuilder.setIfAddress("13.1.1.2");
-        backPathBuilder.setRouterId("3.3.3.3");
-        backPathBuilder.setDeviceName("R3");
-        backPathBuilder.setAdjlabel("322002");
-        backPathList.add(backPathBuilder.build());
-        backPathBuilder = new BackPathBuilder();
-        backPathBuilder.setIndex("1");
-        backPathBuilder.setIfAddress("4.4.4.4");
-        backPathBuilder.setRouterId("4.4.4.4");
-        backPathBuilder.setDeviceName("R4");
-        backPathBuilder.setAdjlabel("230040");
-        backPathList.add(backPathBuilder.build());
-        backPathBuilder = new BackPathBuilder();
-        backPathBuilder.setIndex("2");
-        backPathBuilder.setIfAddress("24.1.1.1");
-        backPathBuilder.setRouterId("2.2.2.2");
-        backPathBuilder.setDeviceName("R2");
-        backPathBuilder.setAdjlabel("322001");
-        backPathList.add(backPathBuilder.build());
-
-        tunnelInstancesBuilder.setMainPath(mainPathList);
-        tunnelInstancesBuilder.setBackPath(backPathList);
-        tunnelInstancesList.add(tunnelInstancesBuilder.build());
-//tunnel2---------------------------------------------------------------------
-        tunnelInstancesBuilder = new TunnelInstancesBuilder();
-        tunnelInstancesBuilder.setSrcDevice("R3");
-        tunnelInstancesBuilder.setSrcRouterId("3.3.3.3");
-        tunnelInstancesBuilder.setTunnelId("300");
-        tunnelInstancesBuilder.setDestDevice("R1");
-        tunnelInstancesBuilder.setDestRouterId("1.1.1.1");
-        tunnelInstancesBuilder.setBandWidth("200");
-        tunnelInstancesList.add(tunnelInstancesBuilder.build());
-//-----------------------------------------------------------------------------------
+            ExplicitPath mainPath = tunnel.getMasterPath();
+            map = mainPath.getLabelMap();
+            for (String key : map.keySet()) {
+                mainPathBuilder = new MainPathBuilder();
+                mainPathBuilder.setIndex(key);
+                if (null != map.get(key).getAddressLocal()) {
+                    mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
+                }
+                if (null != map.get(key).getDevice()) {
+                    mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
+                    mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
+                }
+                mainPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
+                mainPathList.add(mainPathBuilder.build());
+            }
+            tunnelInstancesBuilder.setMainPath(mainPathList);
+            ExplicitPath backPath = tunnel.getSlavePath();
+            if (null != backPath) {
+                map = backPath.getLabelMap();
+                for (String key : map.keySet()) {
+                    backPathBuilder = new BackPathBuilder();
+                    backPathBuilder.setIndex(key);
+                    if (null != map.get(key).getAddressLocal()) {
+                        backPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
+                    }
+                    if (null != map.get(key).getDevice()) {
+                        backPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
+                        backPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
+                    }
+                    backPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
+                    backPathList.add(backPathBuilder.build());
+                }
+                tunnelInstancesBuilder.setBackPath(backPathList);
+            }
+            tunnelInstancesList.add(tunnelInstancesBuilder.build());
+        }
         return tunnelInstancesList;
     }
 
     @Override
     public Future<RpcResult<GetTunnelInstancesOutput>> getTunnelInstances(GetTunnelInstancesInput input) {
         GetTunnelInstancesOutputBuilder getTunnelInstancesOutputBuilder = new GetTunnelInstancesOutputBuilder();
-
-        getTunnelInstancesOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
-        getTunnelInstancesOutputBuilder.setTunnelInstances(testTuunel());
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(getTunnelInstancesOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        getTunnelInstancesOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
+        Map<String, Object> resultMap = this.tunnelApi.getAllTunnel(input.getRouterId(), input.getTunnelName());
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (CodeEnum.SUCCESS.getName().equals(code)) {
+            List<Tunnel> tunnelList = (List<Tunnel>) resultMap.get(ResponseEnum.BODY.getName());
+            getTunnelInstancesOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+            getTunnelInstancesOutputBuilder.setTunnelInstances(getTunnel(tunnelList));
+        }
         return RpcResultBuilder.success(getTunnelInstancesOutputBuilder.build()).buildFuture();
     }
 

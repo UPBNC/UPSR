@@ -15,5 +15,5 @@ public interface TunnelApi {
 
     Map<String, Object> deleteTunnel(String routerId, String tunnelName);
 
-    Map<String, Object> getAllTunnel();
+    Map<String, Object> getAllTunnel(String routerId, String tunnelName);
 }

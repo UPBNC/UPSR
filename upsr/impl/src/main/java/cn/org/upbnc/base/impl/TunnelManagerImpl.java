@@ -43,38 +43,44 @@ public class TunnelManagerImpl implements TunnelManager {
 
     @Override
     public Tunnel updateTunnel(Tunnel tunnel) {
-        return null;
+        if (tunnel == null) {
+            return null;
+        }
+        if (tunnelMap.containsKey(tunnel.getDevice().getRouterId())) {
+            tunnelMap.get(tunnel.getDevice().getRouterId()).put(tunnel.getTunnelName(), tunnel);
+        } else {
+            Map<String, Tunnel> map = new HashMap<>();
+            map.put(tunnel.getTunnelName(), tunnel);
+            tunnelMap.put(tunnel.getDevice().getRouterId(), map);
+        }
+        return tunnel;
     }
 
     @Override
     public List<Tunnel> getTunnel(String routerId, String name) {
         List<Tunnel> tunnelList = new ArrayList<>();
-        if (null == name || "".equals(name)) {
-            if (tunnelMap.containsKey(routerId)) {
+        if (tunnelMap.containsKey(routerId)) {
+            if (null == name || "".equals(name)) {
                 Collection<Tunnel> collection = tunnelMap.get(routerId).values();
                 tunnelList = new ArrayList<Tunnel>(collection);
-            }
-        } else {
-            if (tunnelMap.containsKey(routerId)) {
+            } else {
                 if (tunnelMap.get(routerId).containsKey(name)) {
                     tunnelList.add(tunnelMap.get(routerId).get(name));
                 }
             }
-
         }
         return tunnelList;
     }
 
     @Override
-    public Map<String, List<Tunnel>> getTunnels() {
-        Map<String, List<Tunnel>> maps = new HashMap<>();
-        List<Tunnel> tunnelList;
+    public List<Tunnel> getTunnels() {
+        List<Tunnel> tunnelList = new ArrayList<>();
         for (String key : tunnelMap.keySet()) {
-            Collection<Tunnel> collection = tunnelMap.get(key).values();
-            tunnelList = new ArrayList<Tunnel>(collection);
-            maps.put(key, tunnelList);
+            for (String keytunnel : tunnelMap.get(key).keySet()) {
+                tunnelList.add(tunnelMap.get(key).get(keytunnel));
+            }
         }
-        return maps;
+        return tunnelList;
     }
 
     @Override

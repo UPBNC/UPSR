@@ -14,14 +14,40 @@ public class Tunnel {
     private String tunnelId;
     private String tunnelName;
     private String description;
-    private Address destIP;
+    private String destRouterId;
+    private String destDeviceName;
     private String bandWidth = "0";
     private ExplicitPath masterPath;
     private ExplicitPath slavePath;
     private Boolean bfdEnable;
     private BfdSession bfdSession;
+    private boolean RefreshFlag;
 
     public Tunnel() {
+    }
+
+    public boolean isRefreshFlag() {
+        return RefreshFlag;
+    }
+
+    public void setRefreshFlag(boolean refreshFlag) {
+        RefreshFlag = refreshFlag;
+    }
+
+    public String getDestRouterId() {
+        return destRouterId;
+    }
+
+    public void setDestRouterId(String destRouterId) {
+        this.destRouterId = destRouterId;
+    }
+
+    public String getDestDeviceName() {
+        return destDeviceName;
+    }
+
+    public void setDestDeviceName(String destDeviceName) {
+        this.destDeviceName = destDeviceName;
     }
 
     public String getTunnelId() {
@@ -64,14 +90,6 @@ public class Tunnel {
         this.description = description;
     }
 
-    public Address getDestIP() {
-        return destIP;
-    }
-
-    public void setDestIP(Address destIP) {
-        this.destIP = destIP;
-    }
-
     public String getBandWidth() {
         return bandWidth;
     }
@@ -110,5 +128,24 @@ public class Tunnel {
 
     public void setBfdSession(BfdSession bfdSession) {
         this.bfdSession = bfdSession;
+    }
+
+    @Override
+    public String toString() {
+        return "Tunnel{" +
+                "id=" + id +
+                ", device=" + device +
+                ", tunnelId='" + tunnelId + '\'' +
+                ", tunnelName='" + tunnelName + '\'' +
+                ", description='" + description + '\'' +
+                ", destRouterId='" + destRouterId + '\'' +
+                ", destDeviceName='" + destDeviceName + '\'' +
+                ", bandWidth='" + bandWidth + '\'' +
+                ", masterPath=" + masterPath +
+                ", slavePath=" + slavePath +
+                ", bfdEnable=" + bfdEnable +
+                ", bfdSession=" + bfdSession +
+                ", RefreshFlag=" + RefreshFlag +
+                '}';
     }
 }

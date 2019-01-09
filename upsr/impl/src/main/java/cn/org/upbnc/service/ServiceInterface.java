@@ -100,7 +100,7 @@ public class ServiceInterface {
         this.vpnService.syncVpnInstanceConf();
         this.srLabelService.syncAllIntfLabel();
         this.srLabelService.syncAllNodeLabel();
-
+        this.tunnelService.syncTunnelInstanceConf();
         // Start topology service at last
         this.topoService.startService();
 

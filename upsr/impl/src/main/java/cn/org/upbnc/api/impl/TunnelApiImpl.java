@@ -47,7 +47,7 @@ public class TunnelApiImpl implements TunnelApi {
     }
 
     @Override
-    public Map<String, Object> getAllTunnel() {
-        return null;
+    public Map<String, Object> getAllTunnel(String routerId, String tunnelName) {
+        return tunnelService.getAllTunnel(routerId,tunnelName);
     }
 }

@@ -89,7 +89,7 @@ public class SrTeTunnelXml {
     }
 
     public static String getSrTeTunnelXml(String tunnelName) {
-        String str = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <source>\n" +
                 "    <running/>\n" +
@@ -98,23 +98,26 @@ public class SrTeTunnelXml {
                 "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "      <mpls:mplsTe>\n" +
                 "        <mpls:srTeTunnels>\n" +
-                "          <mpls:srTeTunnel>\n" +
-                "            <mpls:tunnelName>" + tunnelName + "</mpls:tunnelName>\n" +
-                "          </mpls:srTeTunnel>\n" +
+                "          <mpls:srTeTunnel>\n";
+        String middle = "";
+        if (!("".equals(tunnelName))) {
+            middle = middle + "            <mpls:tunnelName>" + tunnelName + "</mpls:tunnelName>\n";
+        }
+        String end = "          </mpls:srTeTunnel>\n" +
                 "        </mpls:srTeTunnels>\n" +
                 "      </mpls:mplsTe>\n" +
                 "    </mpls:mpls>\n" +
-                "    <ifm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
-                "      <interfaces>\n" +
-                "        <interface>\n" +
-                "          <ifName>" + tunnelName + "</ifName>\n" +
-                "        </interface>\n" +
-                "      </interfaces>\n" +
-                "    </ifm>\n" +
+//                "    <ifm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+//                "      <interfaces>\n" +
+//                "        <interface>\n" +
+//                "          <ifName>" + tunnelName + "</ifName>\n" +
+//                "        </interface>\n" +
+//                "      </interfaces>\n" +
+//                "    </ifm>\n" +
                 "  </filter>\n" +
                 "</get-config>" +
                 "</rpc>";
-        return str;
+        return start + middle + end;
     }
 
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml) {
