@@ -9,6 +9,9 @@ package cn.org.upbnc.callback;
 
 import cn.org.upbnc.entity.BgpTopoInfo;
 
+import java.util.Map;
+
 public interface TopoCallback {
     void updateBgpTopoInfoCb(BgpTopoInfo bgpTopoInfo);
+//    void updateBgpTopoInfoDomainCb(Map<String,BgpTopoInfo> map);
 }
