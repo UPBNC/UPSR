@@ -4,10 +4,16 @@ import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.service.entity.DetectTunnelServiceEntity;
 import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.PingResultBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.TraceResultBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.traceresult.PathInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.traceresult.PathInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.tunnelinstance.*;
@@ -17,9 +23,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 
 public class TunnelODLApi implements UpsrTunnelService {
@@ -149,6 +153,105 @@ public class TunnelODLApi implements UpsrTunnelService {
         this.tunnelApi.deleteTunnel(input.getRouterId(), input.getTunnelName());
         deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         return RpcResultBuilder.success(deleteTunnelInstanceOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<PingTunnelInstanceOutput>> pingTunnelInstance(PingTunnelInstanceInput input) {
+        PingTunnelInstanceOutputBuilder pingTunnelInstanceOutputBuilder = new PingTunnelInstanceOutputBuilder();
+        Map<String, Object> pingResultMap = new HashMap<>();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(pingTunnelInstanceOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        LOG.info("pingTunnelInstance input : " + input);
+        if (input != null) {
+            pingResultMap = this.tunnelApi.pingTunnel(input.getRouterId(), input.getTunnelName(), null);
+        } else {
+            pingTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        }
+        if (pingResultMap.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            pingTunnelInstanceOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
+        } else {
+            pingTunnelInstanceOutputBuilder.setResult((String) pingResultMap.get(ResponseEnum.MESSAGE.getName()));
+        }
+        return RpcResultBuilder.success(pingTunnelInstanceOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<TraceTunnelInstanceOutput>> traceTunnelInstance(TraceTunnelInstanceInput input) {
+        TraceTunnelInstanceOutputBuilder traceTunnelInstanceOutputBuilder = new TraceTunnelInstanceOutputBuilder();
+        Map<String, Object> traceResultMap = new HashMap<>();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(traceTunnelInstanceOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        LOG.info("traceTunnelInstance input : " + input);
+        if (input != null) {
+            traceResultMap = this.tunnelApi.traceTunnel(input.getRouterId(), input.getTunnelName(), null);
+        } else {
+
+        }
+        if (traceResultMap.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            traceTunnelInstanceOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
+        } else {
+            traceTunnelInstanceOutputBuilder.setResult((String) traceResultMap.get(ResponseEnum.MESSAGE.getName()));
+        }
+        return RpcResultBuilder.success(traceTunnelInstanceOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<DetectTunnelPathOutput>> detectTunnelPath(DetectTunnelPathInput input) {
+        DetectTunnelPathOutputBuilder detectTunnelPathOutputBuilder = new DetectTunnelPathOutputBuilder();
+        Map<String, Object> detectResultMap = new HashMap<>();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(detectTunnelPathOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        LOG.info("detectTunnelPath input : " + input);
+        if (input != null) {
+            detectResultMap = this.tunnelApi.detectTunnel(input.getRouterId(), input.getTunnelName(), input.getLspPath());
+        } else {
+
+        }
+        if (detectResultMap.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
+            detectTunnelPathOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
+        } else {
+            detectTunnelPathOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+            detectTunnelPathOutputBuilder.setTunnelName(input.getTunnelName());
+            detectTunnelPathOutputBuilder.setPingResult(this.pingResultBuilder(detectResultMap).build());
+            detectTunnelPathOutputBuilder.setTraceResult(this.traceResultBuilder(detectResultMap).build());
+        }
+        return RpcResultBuilder.success(detectTunnelPathOutputBuilder.build()).buildFuture();
+    }
+
+    private PingResultBuilder pingResultBuilder(Map<String, Object> map) {
+        PingResultBuilder pingResultBuilder = new PingResultBuilder();
+        DetectTunnelServiceEntity detectTunnelServiceEntity =
+                (DetectTunnelServiceEntity) map.get(ResponseEnum.BODY.getName());
+        pingResultBuilder.setPacketSend(detectTunnelServiceEntity.getPacketSend());
+        pingResultBuilder.setPacketRecv(detectTunnelServiceEntity.getPacketRecv());
+        pingResultBuilder.setLossRatio(detectTunnelServiceEntity.getLossRatio() + "%");
+        return pingResultBuilder;
+    }
+
+    private TraceResultBuilder traceResultBuilder(Map<String, Object> map) {
+        TraceResultBuilder traceResultBuilder = new TraceResultBuilder();
+        DetectTunnelServiceEntity detectTunnelServiceEntity =
+                (DetectTunnelServiceEntity) map.get(ResponseEnum.BODY.getName());
+        traceResultBuilder.setStatus(detectTunnelServiceEntity.getStatus());
+        traceResultBuilder.setErrorType(detectTunnelServiceEntity.getErrorType());
+        List<PathInfo> pathInfoList = new ArrayList<>();
+        for (TunnelHopServiceEntity tunnelHopServiceEntity : detectTunnelServiceEntity.getTunnelHopServiceEntityList()) {
+            PathInfoBuilder pathInfoBuilder = new PathInfoBuilder();
+            pathInfoBuilder.setIfAddress(tunnelHopServiceEntity.getIfAddress());
+            pathInfoBuilder.setIndex(tunnelHopServiceEntity.getIndex());
+            pathInfoList.add(pathInfoBuilder.build());
+        }
+        traceResultBuilder.setPathInfo(pathInfoList);
+        return traceResultBuilder;
     }
 
     private void tunnelBfdBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {

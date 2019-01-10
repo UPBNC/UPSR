@@ -126,7 +126,6 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
     }
     private String disableSrLabel(UpdateSrLabelInput input) {
-        Map<String, Object> resultMap = new HashMap<>();
         String resultString = "";
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
@@ -154,7 +153,6 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         return resultString;
     }
     private String enableSrLabel(UpdateSrLabelInput input) {
-        Map<String, Object> resultMap = new HashMap<>();
         String resultString = "";
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         Map<String, Object> updateLabelRangeRet = srLabelApi.updateNodeLabelRange(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),

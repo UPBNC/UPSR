@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SrLabelXml {
-    private static final Logger LOG = LoggerFactory.getLogger(VpnXml.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SrLabelXml.class);
     public static final String ncOperationCreate = "create";
     public static final String ncOperationMerge = "merge";
     public static final String ncOperationDelete = "delete";

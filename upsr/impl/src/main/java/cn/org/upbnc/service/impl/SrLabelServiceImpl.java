@@ -62,7 +62,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         return true;
     }
 
-    public Map<String, Object> buildResult(SrLabelErrorCodeEnum srLabelErrorCodeEnum) {
+    private Map<String, Object> buildResult(SrLabelErrorCodeEnum srLabelErrorCodeEnum) {
         Map<String, Object> resultMap = new HashMap<>();
         if (srLabelErrorCodeEnum != SrLabelErrorCodeEnum.EXECUTE_SUCCESS) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());

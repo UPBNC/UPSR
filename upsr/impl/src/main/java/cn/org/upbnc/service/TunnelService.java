@@ -15,4 +15,10 @@ public interface TunnelService {
     Map<String, Object> deleteTunnel(String routerId, String tunnelName);
 
     Map<String, Object> getAllTunnel();
+
+    Map<String, Object> pingTunnel(String routerId, String tunnelName, String lspPath);
+
+    Map<String, Object> traceTunnel(String routerId, String tunnelName, String lspPath);
+
+    Map<String, Object> detectTunnel(String routerId, String tunnelName, String lspPath);
 }

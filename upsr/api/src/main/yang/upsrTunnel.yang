@@ -61,4 +61,49 @@ module upsrTunnel {
             leaf result { type string; }
         }
     }
+
+    rpc traceTunnelInstance {
+        input {
+            leaf routerId { type string; }
+            leaf tunnelName { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc pingTunnelInstance {
+        input {
+            leaf routerId { type string; }
+            leaf tunnelName { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc detectTunnelPath{
+        input {
+            leaf routerId { type string; }
+            leaf tunnelName { type string; }
+            leaf lspPath { type string; }
+        }
+        output {
+            leaf result { type string; }
+            leaf tunnelName { type string; }
+            container pingResult {
+                leaf packetSend { type string; }
+                leaf packetRecv { type string; }
+                leaf lossRatio { type string; }
+            }
+            container traceResult {
+                leaf status { type string; }
+                leaf errorType { type string; }
+                list pathInfo {
+                    leaf index { type string; }
+                    leaf ifAddress { type string; }
+                }
+            }
+        }
+    }
 }
