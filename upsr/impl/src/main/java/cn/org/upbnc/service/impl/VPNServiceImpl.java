@@ -29,7 +29,6 @@ import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.EbgpXml;
 import cn.org.upbnc.util.xml.VpnUpdateXml;
 import cn.org.upbnc.util.xml.VpnXml;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatevpninstance.input.VpnInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

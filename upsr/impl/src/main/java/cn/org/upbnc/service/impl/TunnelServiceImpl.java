@@ -6,6 +6,7 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.TunnelErrorCodeEnum;
 import cn.org.upbnc.service.TunnelService;
@@ -57,14 +58,29 @@ public class TunnelServiceImpl implements TunnelService {
     @Override
     public Map<String, Object> createTunnel(TunnelServiceEntity tunnelServiceEntity) {
         LOG.info("createTunnel :" + tunnelServiceEntity.toString());
+        Map<String, Object> map = new HashMap<>();
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        String routerId = tunnelServiceEntity.getRouterId();
+        String tunnelId = tunnelServiceEntity.getTunnelId();
+        String tunnelName = tunnelServiceEntity.getTunnelName();
+        if (tunnelManager.checkTunnelNameAndId(routerId, tunnelName, tunnelId)) {
+            map.put(ResponseEnum.MESSAGE.getName(), "tunnel's id or name has been exist.");
+            return map;
+        }
         Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
         if (device != null) {
             LOG.info(device.getAddress().getAddress());
         } else {
-            LOG.info("deviceManager.getDevice is null.");
+            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            LOG.info("get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            return map;
         }
+        if (!("".equals(device.getOspfProcess().getIntfName())) || null != device.getOspfProcess().getIntfName()) {
+            LOG.info("device.getOspfProcess().getIntfName() :" + device.getOspfProcess().getIntfName());
+            tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
+        }
+        LOG.info("device.getLoopBack() :" + device.getLoopBack());
         String deviceIp = device.getAddress().getAddress();
-        Map<String, Object> map = new HashMap<>();
         NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
         boolean createExplicitPathFlag = createExplicitPath(netconfClient, tunnelServiceEntity);
         if (createExplicitPathFlag) {
@@ -72,6 +88,8 @@ public class TunnelServiceImpl implements TunnelService {
             if (createTunnelFlag) {
                 addTunnel(tunnelServiceEntity);
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            } else {
+                map.put(ResponseEnum.MESSAGE.getName(), "create tunnel error,which name is : " + tunnelServiceEntity.getTunnelName());
             }
         }
         return map;
@@ -84,13 +102,14 @@ public class TunnelServiceImpl implements TunnelService {
         Tunnel tunnel = new Tunnel();
         tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
         tunnel.setBfdEnable(true);
+        tunnel.setDestRouterId(tunnelServiceEntity.getEgressLSRId());
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
         tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
         Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
         tunnel.setDevice(device);
         Device destDevice = deviceManager.getDevice(tunnelServiceEntity.getEgressLSRId());
         if (null != destDevice) {
-            tunnel.setDestIP(destDevice.getAddress());
+            tunnel.setDestDeviceName(destDevice.getDeviceName());
         }
         BfdSession bfdSession = new BfdSession();
         bfdSession.setDevice(device);
@@ -101,13 +120,16 @@ public class TunnelServiceImpl implements TunnelService {
         ExplicitPath masterPath = new ExplicitPath();
         masterPath.setDevice(device);
         masterPath.setPathName(mainPathExplicitPathName);
-        Map<String, Label> masterLabelMap = new LinkedHashMap<>();
-        Label label;
+        Map<String, AdjLabel> masterLabelMap = new LinkedHashMap<>();
+        AdjLabel label;
         for (TunnelHopServiceEntity entity : tunnelServiceEntity.getMainPath()) {
-            label = new Label();
+            label = new AdjLabel();
             Device entityDevice = deviceManager.getDevice(entity.getRouterId());
             label.setDevice(entityDevice);
             label.setValue(Integer.valueOf(entity.getAdjlabel()));
+            Address address = new Address();
+            address.setAddress(entity.getIfAddress());
+            label.setAddressLocal(address);
             masterLabelMap.put(entity.getIndex(), label);
         }
         masterPath.setLabelMap(masterLabelMap);
@@ -115,12 +137,15 @@ public class TunnelServiceImpl implements TunnelService {
         ExplicitPath slavePath = new ExplicitPath();
         slavePath.setDevice(device);
         slavePath.setPathName(backPathExplicitPathName);
-        Map<String, Label> slaveLabelMap = new LinkedHashMap<>();
+        Map<String, AdjLabel> slaveLabelMap = new LinkedHashMap<>();
         for (TunnelHopServiceEntity entity : tunnelServiceEntity.getBackPath()) {
-            label = new Label();
+            label = new AdjLabel();
             Device entityDevice = deviceManager.getDevice(entity.getRouterId());
             label.setDevice(entityDevice);
             label.setValue(Integer.valueOf(entity.getAdjlabel()));
+            Address address = new Address();
+            address.setAddress(entity.getIfAddress());
+            label.setAddressLocal(address);
             slaveLabelMap.put(entity.getIndex(), label);
         }
         slavePath.setLabelMap(slaveLabelMap);
@@ -237,7 +262,9 @@ public class TunnelServiceImpl implements TunnelService {
         if (device != null) {
             LOG.info(device.getAddress().getAddress());
         } else {
-            LOG.info("deviceManager.getDevice is null.");
+            LOG.info("get device is null,which routerId is " + routerId);
+            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + routerId);
+            return map;
         }
         String deviceIp = device.getAddress().getAddress();
         NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
@@ -245,6 +272,9 @@ public class TunnelServiceImpl implements TunnelService {
         String result = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
             flag = true;
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "delete tunnel error: " + result + " .");
+            return map;
         }
         if (flag) {
             List<SExplicitPath> explicitPaths = new ArrayList<>();
@@ -258,19 +288,182 @@ public class TunnelServiceImpl implements TunnelService {
             result = netconfController.sendMessage(netconfClient, ExplicitPathXml.getDeleteExplicitPathXml(explicitPaths));
             if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
                 device.getTunnelList().removeAll(tunnelManager.getTunnel(routerId, tunnelName));
-                tunnelManager.deleteTunnel(routerId, tunnelName);
+                LOG.info("deleteTunnel routerId :" + routerId);
+                boolean deleteFlag = tunnelManager.deleteTunnel(routerId, tunnelName);
+                LOG.info("tunnel（" + tunnelName + "）deleteFlag :" + deleteFlag);
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             } else {
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-                map.put(ResponseEnum.MESSAGE.getName(), "delete explicit path error.");
+                map.put(ResponseEnum.MESSAGE.getName(), "delete explicit path error: " + result);
             }
         }
         return map;
     }
 
     @Override
-    public Map<String, Object> getAllTunnel() {
-        return null;
+    public Map<String, Object> getAllTunnel(String routerId, String tunnelName) {
+        LOG.info("getAllTunnel : routerId " + routerId + " tunnelName " + tunnelName);
+        Map<String, Object> map = new HashMap<>();
+        if (null == tunnelName || "".equals(tunnelName)) {
+            if (null == routerId || "".equals(routerId)) {
+                map.put(ResponseEnum.BODY.getName(), tunnelManager.getTunnels());
+            } else {
+                map.put(ResponseEnum.BODY.getName(), tunnelManager.getTunnel(routerId, ""));
+            }
+        } else {
+            map.put(ResponseEnum.BODY.getName(), tunnelManager.getTunnel(routerId, tunnelName));
+        }
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return map;
+    }
+
+    @Override
+    public boolean syncTunnelInstanceConf() {
+        boolean flag = true;
+        List<Device> devices = deviceManager.getDeviceList();
+        for (Device device : devices) {
+            flag = syncTunnelInstanceConf(device.getRouterId());
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean syncTunnelInstanceConf(String routerId) {
+        if (null == routerId || routerId.equals("")) {
+            LOG.info("syncTunnelInstanceConf failed,routerId is null or empty ");
+            return false;
+        }
+        Device device = deviceManager.getDevice(routerId);
+        tunnelManager.emptyTunnels(routerId);
+        if ((null != device.getNetConf()) && (device.getNetConf().getStatus() == NetConfStatusEnum.Connected)) {
+            List<Tunnel> tunnels = getTunnelInstanceListFromDevice(routerId);
+            if (tunnels.size() > 0) {
+                for (Tunnel tunnel : tunnels) {
+                    tunnelManager.updateTunnel(tunnel);
+                }
+            } else {
+                LOG.info("Can not get device's tunnel info which device routerId=" + device.getRouterId());
+                return false;
+            }
+        } else {
+            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            return false;
+        }
+        return true;
+    }
+
+    private List<Tunnel> getTunnelInstanceListFromDevice(String routerId) {
+        List<Tunnel> tunnels = new ArrayList<>();
+        Tunnel tunnel;
+        Device device = this.deviceManager.getDevice(routerId);
+        if ((null == device) || (null == device.getNetConf())) {
+            return tunnels;
+        }
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        LOG.info("enter getTunnelInstanceListFromDevice");
+        String xml = SrTeTunnelXml.getSrTeTunnelXml("");
+        LOG.info(xml);
+        String result = netconfController.sendMessage(netconfClient, xml);
+        List<SSrTeTunnel> srTeTunnels = SrTeTunnelXml.getSrTeTunnelFromXml(result);
+        List<SExplicitPath> explicitPaths;
+        SExplicitPath explicitPath;
+        BfdSession bfdSession;
+        ExplicitPath path;
+        Map<String, AdjLabel> labelMap;
+        String masterPath = null;
+        String slavePath;
+        AdjLabel adjLabel;
+        AdjLabel adjLabelTemp;
+        for (SSrTeTunnel srTeTunnel : srTeTunnels) {
+            tunnel = new Tunnel();
+            bfdSession = new BfdSession();
+            bfdSession.setMultiplier(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
+            bfdSession.setMinSendTime(srTeTunnel.getMplsTeTunnelBfdMinTx());
+            bfdSession.setMinRecvTime(srTeTunnel.getMplsTeTunnelBfdMinnRx());
+            tunnel.setBfdSession(bfdSession);
+            tunnel.setDevice(device);
+            tunnel.setBfdEnable(true);
+            tunnel.setTunnelName(srTeTunnel.getTunnelName());
+            tunnel.setTunnelId(srTeTunnel.getMplsTunnelIndex());
+            tunnel.setDestRouterId(srTeTunnel.getMplsTunnelEgressLSRId());
+            tunnel.setBandWidth(srTeTunnel.getMplsTunnelBandwidth());
+            explicitPaths = new ArrayList<>();
+            List<SSrTeTunnelPath> srTeTunnelPaths = srTeTunnel.getSrTeTunnelPaths();
+            for (SSrTeTunnelPath srTeTunnelPath : srTeTunnelPaths) {
+                explicitPath = new SExplicitPath();
+                explicitPath.setExplicitPathName(srTeTunnelPath.getExplicitPathName());
+                if ("primary".equals(srTeTunnelPath.getPathType())) {
+                    masterPath = srTeTunnelPath.getExplicitPathName();
+                } else {
+                    slavePath = srTeTunnelPath.getExplicitPathName();
+                }
+                explicitPaths.add(explicitPath);
+            }
+            xml = ExplicitPathXml.getExplicitPathXml(explicitPaths);
+            LOG.info(xml);
+            result = netconfController.sendMessage(netconfClient, xml);
+            List<SExplicitPath> paths = ExplicitPathXml.getExplicitPathFromXml(result);
+            boolean flag;
+            for (SExplicitPath sExplicitPath : paths) {
+                Device deviceTemp = this.deviceManager.getDevice(routerId);
+                flag = true;
+                path = new ExplicitPath();
+                labelMap = new LinkedHashMap<>();
+                List<SExplicitPathHop> sExplicitPathHops = sExplicitPath.getExplicitPathHops();
+                for (SExplicitPathHop hop : sExplicitPathHops) {
+                    adjLabel = new AdjLabel();
+                    if (flag) {
+                        adjLabel.setDevice(deviceTemp);
+                        for (AdjLabel label : deviceTemp.getAdjLabelList()) {
+                            if (label.getValue().equals(Integer.valueOf(hop.getMplsTunnelHopSidLabel()))) {
+                                adjLabel.setAddressLocal(label.getAddressLocal());
+                                adjLabel.setAddressRemote(label.getAddressRemote());
+                                break;
+                            }
+                        }
+                        if (null == adjLabel.getAddressRemote()) {
+                            deviceTemp = null;
+                        } else {
+                            deviceTemp = findLocalAndRemoteAddress(adjLabel.getAddressRemote().getAddress());
+                        }
+                    }
+                    if (null == deviceTemp) {
+                        flag = false;
+                    }
+                    adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                    labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
+                }
+                path.setPathName(sExplicitPath.getExplicitPathName());
+                path.setDevice(device);
+                path.setLabelMap(labelMap);
+                if (masterPath.equals(sExplicitPath.getExplicitPathName())) {
+                    tunnel.setMasterPath(path);
+                } else {
+                    tunnel.setSlavePath(path);
+                }
+            }
+            tunnels.add(tunnel);
+        }
+        return tunnels;
+    }
+
+    private Device findLocalAndRemoteAddress(String remoteIp) {
+
+        Device device = null;
+        if (remoteIp == null || remoteIp.equals("")) {
+            return device;
+        }
+        List<Device> devices = deviceManager.getDeviceList();
+        for (Device dev : devices) {
+            List<AdjLabel> adjLabelList = dev.getAdjLabelList();
+            for (AdjLabel label : adjLabelList) {
+                if (label.getAddressLocal().getAddress().equals(remoteIp)) {
+                    device = dev;
+                    return device;
+                }
+            }
+        }
+        return device;
     }
 
     @Override
@@ -387,4 +580,5 @@ public class TunnelServiceImpl implements TunnelService {
         }
         return resultMap;
     }
+
 }

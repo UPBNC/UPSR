@@ -14,7 +14,11 @@ public interface TunnelService {
 
     Map<String, Object> deleteTunnel(String routerId, String tunnelName);
 
-    Map<String, Object> getAllTunnel();
+    Map<String, Object> getAllTunnel(String routerId, String tunnelName);
+
+    boolean syncTunnelInstanceConf();
+
+    boolean syncTunnelInstanceConf(String routerId);
 
     Map<String, Object> pingTunnel(String routerId, String tunnelName, String lspPath);
 

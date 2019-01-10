@@ -60,7 +60,6 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         String result = null;
         if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
             String tmpRet = null;
-
             result = "sync device configure start......";
             tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
             result += tmpRet;
@@ -77,6 +76,10 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             tmpRet = this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success" : "failed";
             result += tmpRet;
             result += "\n";
+            tmpRet = this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
+            result += tmpRet;
+            result += "\n";
+            result += "sync tunnel configure....";
             result += "sync device configure end.";
         }
         if (ret) {

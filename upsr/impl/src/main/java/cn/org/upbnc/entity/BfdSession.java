@@ -75,4 +75,17 @@ public class BfdSession {
     public Integer getBfdId() {
         return bfdId;
     }
+
+    @Override
+    public String toString() {
+        return "BfdSession{" +
+                "id=" + id +
+                ", device=" + device +
+                ", type=" + type +
+                ", bfdId=" + bfdId +
+                ", minRecvTime='" + minRecvTime + '\'' +
+                ", minSendTime='" + minSendTime + '\'' +
+                ", multiplier='" + multiplier + '\'' +
+                '}';
+    }
 }
