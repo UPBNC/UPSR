@@ -315,18 +315,21 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelHopServiceEntity.setIfAddress(mainPath.getIfAddress());
             tunnelServiceEntity.addMainPathHop(tunnelHopServiceEntity);
         }
-
         List<BackPath> backPathList = input.getBackPath();
-        Iterator<BackPath> backPathIterator = backPathList.iterator();
-        while (backPathIterator.hasNext()) {
-            TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
-            BackPath backPath = backPathIterator.next();
-            tunnelHopServiceEntity.setIndex(backPath.getIndex());
-            tunnelHopServiceEntity.setDeviceName(backPath.getDeviceName());
-            tunnelHopServiceEntity.setRouterId(backPath.getRouterId());
-            tunnelHopServiceEntity.setAdjlabel(backPath.getAdjlabel());
-            tunnelHopServiceEntity.setIfAddress(backPath.getIfAddress());
-            tunnelServiceEntity.addBackPathHop(tunnelHopServiceEntity);
+        if (null == backPathList || 0 == backPathList.size()) {
+            LOG.info("this tunnel does not have back path.");
+        } else {
+            Iterator<BackPath> backPathIterator = backPathList.iterator();
+            while (backPathIterator.hasNext()) {
+                TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
+                BackPath backPath = backPathIterator.next();
+                tunnelHopServiceEntity.setIndex(backPath.getIndex());
+                tunnelHopServiceEntity.setDeviceName(backPath.getDeviceName());
+                tunnelHopServiceEntity.setRouterId(backPath.getRouterId());
+                tunnelHopServiceEntity.setAdjlabel(backPath.getAdjlabel());
+                tunnelHopServiceEntity.setIfAddress(backPath.getIfAddress());
+                tunnelServiceEntity.addBackPathHop(tunnelHopServiceEntity);
+            }
         }
         LOG.info("tunnelPathBuild end");
     }

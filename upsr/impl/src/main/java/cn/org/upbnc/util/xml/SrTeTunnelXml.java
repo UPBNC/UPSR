@@ -38,9 +38,11 @@ public class SrTeTunnelXml {
                     "            <resvForBinding>true</resvForBinding>\n" +
                     "            <tunnelInterface>\n" +
                     "              <interfaceName>" + srTeTunnel.getTunnelName() + "</interfaceName>\n" +
+                    "              <lsp_tpEnable>true</lsp_tpEnable>" +
                     "              <statEnable>true</statEnable>\n" +
                     "            </tunnelInterface>\n" +
                     "            <mplsTeTunnelBfd>\n" +
+                    "              <mplsTeTunnelBfdEnable>true</mplsTeTunnelBfdEnable>" +
                     "              <mplsTeTunnelBfdMinTx>" + srTeTunnel.getMplsTeTunnelBfdMinTx() + "</mplsTeTunnelBfdMinTx>\n" +
                     "              <mplsTeTunnelBfdMinnRx>" + srTeTunnel.getMplsTeTunnelBfdMinnRx() + "</mplsTeTunnelBfdMinnRx>\n" +
                     "              <mplsTeTunnelBfdDetectMultiplier>" + srTeTunnel.getMplsTeTunnelBfdDetectMultiplier() + "</mplsTeTunnelBfdDetectMultiplier>\n" +
