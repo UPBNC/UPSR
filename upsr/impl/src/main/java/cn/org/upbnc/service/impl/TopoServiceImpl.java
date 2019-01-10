@@ -20,8 +20,7 @@ import cn.org.upbnc.service.TopoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map;
 
 public class TopoServiceImpl implements TopoService {
@@ -148,5 +147,30 @@ public class TopoServiceImpl implements TopoService {
         LOG.info("Update Topo By BGP End!");
         return;
     }
+
+//    @Override
+//    public void updateBgpTopoInfoDomainCb(Map<String,BgpTopoInfo> map){
+//        this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATED;
+//
+//        if(this.serviceStatusEnum == ServiceStatusEnum.INIT){
+//            return;
+//        }
+//        LOG.info("Update Topo Domain By BGP Start ...");
+//        LOG.info("Update BGP Device Start...");
+//        Set<Map.Entry<String,BgpTopoInfo>> set =  map.entrySet();
+//        Iterator<Map.Entry<String,BgpTopoInfo>> iterator = set.iterator();
+//        while (iterator.hasNext()) {
+//            Map.Entry<String,BgpTopoInfo> entry = iterator.next();
+//            BgpTopoInfo bgpTopoInfo = entry.getValue();
+//            List<BgpDevice> bgpDevicelist = bgpTopoInfo.getBgpDeviceList();
+//            List<Device> deviceList = this.deviceManager.updateDeviceListByBgpDeviceList(bgpDevicelist);
+//            this.topoInfo.setDeviceList(deviceList);
+//            List<Link> linkList = this.linkManager.updateLinkListByBgpLinkList(deviceList, bgpTopoInfo.getBgpLinkList());
+//            this.topoInfo.setLinkList(linkList);
+//        }
+//
+//        LOG.info("Update Topo By BGP End!");
+//        return;
+//    }
 
 }

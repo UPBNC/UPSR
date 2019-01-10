@@ -53,9 +53,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 //import cn.org.upbnc.entity.Device;
 
@@ -69,6 +67,7 @@ import java.util.List;
 public class BGPManagerImpl implements BGPManager, DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPManagerImpl.class);
     private static BGPManager instance = null;
+    private String DOMAIN="domain";
 
     private static final InstanceIdentifier<Topology> II_TO_TOPOLOGY_DEFAULT = InstanceIdentifier.create(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(new TopologyId("example-linkstate-topology")));
@@ -80,6 +79,8 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     private BgpTopoInfo bgpTopoInfoTotal;
     private TopoCallback tcb;
     private BgpTopoStatusEnum bgpTopoStatusEnum;
+    private Map<String,BgpTopoInfo> bgpTopoInfoMap;
+    private Map<String,BgpTopoInfo> bgpTopoInfoTotalMap;
 
 
     private BGPManagerImpl(){
@@ -88,6 +89,8 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         this.odlTopology = null;
         this.bgpTopoInfoTotal = null;
         this.tcb = null;
+        this.bgpTopoInfoMap = null;
+        this.bgpTopoInfoTotalMap = null;
         this.bgpTopoStatusEnum = BgpTopoStatusEnum.INIT;
         return;
     }
@@ -138,8 +141,13 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
                         if (null != odlTopology) {
                             LOG.info(odlTopology.getKey().toString());
                             LOG.info("Read Topology from ODL Start...");
-                            bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
-                            bgpTopoInfo = dealBgpTopoInfo(bgpTopoInfoTotal);
+//                            bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
+//                            bgpTopoInfo = dealBgpTopoInfo(bgpTopoInfoTotal);
+
+                            bgpTopoInfoTotalMap = updateBgpTopoInfoByODLTopoDomain(odlTopology);
+                            bgpTopoInfoMap = dealBgpTopoInfoMapDomain(bgpTopoInfoTotalMap);
+                            bgpTopoInfo = dealBgpTopoInfoDomain(bgpTopoInfoMap);
+
                             if(bgpTopoInfo == null) {
                                 LOG.info("Bgp Topo is null!");
                             }
@@ -179,17 +187,158 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     /*
      * private function
      * Transfer ODL Topology to UPSR Bgp Topology
+     * Set into map
+     */
+    private Map<String,BgpTopoInfo> updateBgpTopoInfoByODLTopoDomain(Topology odlTopology){
+        // Create map
+        Map<String,BgpTopoInfo> map = new HashMap<String,BgpTopoInfo>();
+
+        // Check odlTopology
+        if( null == odlTopology){
+            return map;
+        }
+        // Set BgpDevices
+        List<Node> nodes = odlTopology.getNode();
+        // Get domain and node list
+        Map<String,List<Node> > nodeMap = this.getODLDomainNodeMap(odlTopology);
+
+        // Get domain and link list
+        //Map<String,List<Link>> linkMap = this.getODLDomainLinkMap(odlTopology,nodeMap);
+
+        // Get bgp topo map
+        map = this.getDomainBgpTopoMap(nodeMap,odlTopology);
+
+        return map;
+    }
+
+    private Map<String,BgpTopoInfo> dealBgpTopoInfoMapDomain(Map<String,BgpTopoInfo> totalMap){
+        Map<String,BgpTopoInfo> map = new HashMap<String,BgpTopoInfo>();
+        Set<Map.Entry<String,BgpTopoInfo>> set =  totalMap.entrySet();
+        Iterator<Map.Entry<String,BgpTopoInfo>> iterator = set.iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String,BgpTopoInfo> entry = iterator.next();
+            BgpTopoInfo temp = this.dealBgpTopoInfo(entry.getValue());
+            map.put(entry.getKey(),temp);
+        }
+        return map;
+    }
+
+    private BgpTopoInfo dealBgpTopoInfoDomain(Map<String,BgpTopoInfo> map){
+        BgpTopoInfo bgpTopoInfo = new BgpTopoInfo();
+        Set<Map.Entry<String,BgpTopoInfo>> set =  map.entrySet();
+        Iterator<Map.Entry<String,BgpTopoInfo>> iterator = set.iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String,BgpTopoInfo> entry = iterator.next();
+            this.addDomainInfo(bgpTopoInfo,entry.getValue());
+        }
+        return bgpTopoInfo;
+    }
+
+    private void addDomainInfo(BgpTopoInfo target, BgpTopoInfo source){
+        List<BgpDevice> tDeveice = target.getBgpDeviceList();
+        if(null == tDeveice){
+            tDeveice = new ArrayList<BgpDevice>();
+            if(null != source.getBgpDeviceList()) {
+                tDeveice.addAll(source.getBgpDeviceList());
+            }
+            target.setBgpDeviceList(tDeveice);
+        }else{
+            if(null != source.getBgpDeviceList()) {
+                addBgpDeviceIntoTargetListDomain(tDeveice, source.getBgpDeviceList());
+            }
+        }
+
+        List<BgpLink> tLink = target.getBgpLinkList();
+        if(null == tLink){
+            tLink = new ArrayList<BgpLink>();
+            if(null != source.getBgpLinkList()) {
+                tLink.addAll(source.getBgpLinkList());
+            }
+            target.setBgpLinkList(tLink);
+        }else{
+            if(null != source.getBgpLinkList()) {
+                addBgpLinkIntoTargetListDomain(tLink, source.getBgpLinkList());
+            }
+        }
+
+        return;
+    }
+
+    private void addBgpDeviceIntoTargetListDomain(List<BgpDevice> target,List<BgpDevice> source){
+        if(null != target && !target.isEmpty() && null != source && !source.isEmpty()){
+            for(BgpDevice bgpDevice : source){
+                if(!isBgpDeviceInListDomain(bgpDevice,target)){
+                    target.add(bgpDevice);
+                }
+            }
+        }
+        return;
+    }
+
+    private boolean isBgpDeviceInListDomain(BgpDevice bgpDevice,List<BgpDevice> list){
+        for(BgpDevice t : list){
+            if(t.getRouterId().equals(bgpDevice.getRouterId())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addBgpLinkIntoTargetListDomain(List<BgpLink> target,List<BgpLink> source){
+        if(null != target && !target.isEmpty() && null != source && !source.isEmpty()){
+            for(BgpLink bgpLink : source){
+                if(!isBgpLinkiInListDomain(bgpLink,target)){
+                    target.add(bgpLink);
+                }
+            }
+        }
+        return;
+    }
+    private boolean isBgpLinkiInListDomain(BgpLink bgpLink,List<BgpLink> list){
+        for(BgpLink t : list){
+            if(t.getBgpDeviceInterface1().getIp().getAddress().equals(bgpLink.getBgpDeviceInterface1().getIp().getAddress())&&
+                    t.getBgpDeviceInterface2().getIp().getAddress().equals(bgpLink.getBgpDeviceInterface2().getIp().getAddress())
+            ){
+                return true;
+            }
+        }
+        return false;
+    }
+    /*
+     * private function
+     * Transfer ODL Topology to UPSR Bgp Topology
      */
     private BgpTopoInfo updateBgpTopoInfoByODLTopo(Topology odlTopology){
         // Create TopoInfo
         BgpTopoInfo bgpTopoInfo = new BgpTopoInfo();
 
+        // Check odlTopology
+        if( null == odlTopology){
+            return bgpTopoInfo;
+        }
+
+//        // 方案一：所有域，node取并集，link取交集
+//        // Set BgpDevices
+//        List<Node> nodes = odlTopology.getNode();
+//        List<BgpDevice> bgpDevices = this.getDeviceByODLNode(nodes);
+//        //bgpTopoInfo.setBgpDeviceList(this.getCombineDevice(bgpDevices));
+//        bgpTopoInfo.setBgpDeviceList(bgpDevices);
+//
+//        // Set BgpLinks
+//        List<Link> links = odlTopology.getLink();
+//        bgpTopoInfo.setBgpLinkList(this.getLinkByODLLink(links,bgpTopoInfo.getBgpDeviceList()));
+
+
+        // 方案二，取第一个domain处理
+        // Get domain topo
+        String domain = this.getDomain(odlTopology);
+
         // Set BgpDevices
-        List<Node> nodes = odlTopology.getNode();
-        bgpTopoInfo.setBgpDeviceList(this.getDeveiceByODLNode(nodes));
+        List<Node> nodes = this.getODLDomainNode(odlTopology.getNode(),DOMAIN+domain);
+        bgpTopoInfo.setBgpDeviceList(this.getDeviceByODLNode(nodes));
 
         // Set BgpLinks
-        List<Link> links = odlTopology.getLink();
+        List<Link> links = this.getODLDomainLink(odlTopology.getLink(),DOMAIN+domain);
         bgpTopoInfo.setBgpLinkList(this.getLinkByODLLink(links,bgpTopoInfo.getBgpDeviceList()));
 
         return bgpTopoInfo;
@@ -259,7 +408,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
      * private function
      * Transfer ODL Nodes to UPSR Devices
      */
-    private List<BgpDevice> getDeveiceByODLNode(List<Node> nodes){
+    private List<BgpDevice> getDeviceByODLNode(List<Node> nodes){
         Iterator<Node> nodeIterator = nodes.iterator();
         List<BgpDevice> bgpDeviceList = new ArrayList<BgpDevice>();
         int deviceId = 0;
@@ -559,6 +708,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         ret.setPrefixList(copy.getPrefixList());
         return ret;
     }
+    //**********************************************************************
 
     private List<BgpDeviceInterface> copyBgpDeviceInterface(List<BgpDeviceInterface> copy){
         List<BgpDeviceInterface> ret = null;
@@ -581,6 +731,179 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         return ret;
     }
 
+    private List<BgpDevice> getCombineDevice(List<BgpDevice> bgpDevices){
+        List<BgpDevice> ret = new ArrayList<BgpDevice>();
+        Iterator<BgpDevice> iterator = bgpDevices.iterator();
+        while (iterator.hasNext()){
+            BgpDevice bgpDevice = iterator.next();
+            if(!this.isBgpDeviceInList(bgpDevice,ret)){
+                ret.add(bgpDevice);
+            }
+        }
+
+        return ret;
+    }
+
+    private boolean isBgpDeviceInList(BgpDevice bgpDevice,List<BgpDevice> bgpDevices){
+        Iterator<BgpDevice> iterator = bgpDevices.iterator();
+        while(iterator.hasNext()){
+            BgpDevice temp = iterator.next();
+            if(bgpDevice.getRouterId() != null && bgpDevice.getRouterId().equals(temp.getRouterId())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //**********************************************************************
+    //        // Get domain and node list
+    //        Map<String,List<Node> > nodeMap = this.getODLDomainNodeMap(odlTopology);
+    //
+    //        // Get domain and link list
+    //        Map<String,List<Link>> linkMap = this.getODLDomainLinkMap(odlTopology,nodeMap);
+    //
+    //        // Combine nodes
+    //
+    //
+    //        // Get bgp topo map
+    //        //Map<String,BgpTopoInfo> bgpTopoInfoMap = this.getDomainBgpTopoMap(nodeMap,odlTopology);
+    //**********************************************************************
+    /*
+     * 暂时不用！！！
+     */
+    private Map<String,List<Node>> getODLDomainNodeMap(Topology topology){
+        Map<String,List<Node>> domainMap = new HashMap<String,List<Node>>();
+
+        List<Node> nodes = topology.getNode();
+        Iterator<Node> nodeIterator = nodes.iterator();
+        while (nodeIterator.hasNext()) {
+            // Find a node of ODL
+            Node node = nodeIterator.next();
+            String domain = isNodeInDomain(node,domainMap.keySet());
+            if(null != domain ){
+                List<Node> list = domainMap.get(domain);
+                list.add(node);
+            }else{
+                List<Node> list = new ArrayList<Node>();
+                list.add(node);
+                String domain2 = this.getDomainByNode(node);
+                domainMap.put(domain2,list);
+            }
+        }
+        return domainMap;
+    }
+
+    private Map<String,List<Link>> getODLDomainLinkMap(Topology topology,Map nodeMap){
+        Map<String,List<Link>> domainMap = new HashMap<String,List<Link>>();
+
+        Set<String> domainSet = nodeMap.keySet();
+        Iterator<String> iterator = domainSet.iterator();
+        while(iterator.hasNext()){
+
+            String domain = iterator.next();
+            List<Link> links = this.getODLDomainLink(topology.getLink(),DOMAIN+domain);
+            domainMap.put(domain,links);
+        }
+        return domainMap;
+    }
+
+    private Map<String,BgpTopoInfo> getDomainBgpTopoMap(Map nodeMap,Topology topology){
+        Map<String,BgpTopoInfo> map = new  HashMap<String,BgpTopoInfo>();
+        Set<String> domainSet = nodeMap.keySet();
+        Iterator<String> iterator = domainSet.iterator();
+        while(iterator.hasNext()){
+            String domain = iterator.next();
+            BgpTopoInfo bgpTopoInfo = new BgpTopoInfo();
+
+            // Set BgpDevices
+            List<Node> nodes = (List<Node>)nodeMap.get(domain);
+            bgpTopoInfo.setBgpDeviceList(this.getDeviceByODLNode(nodes));
+
+            // Set BgpLinks
+            List<Link> links = this.getODLDomainLink(topology.getLink(),DOMAIN+domain);
+            bgpTopoInfo.setBgpLinkList(this.getLinkByODLLink(links,bgpTopoInfo.getBgpDeviceList()));
+
+            // add to map
+            map.put(domain,bgpTopoInfo);
+        }
+        return map;
+    }
+
+    private String isNodeInDomain(Node node,Set<String> domainSet){
+        Iterator<String> iterator = domainSet.iterator();
+        while (iterator.hasNext()){
+            String domain = iterator.next();
+            if(node.getNodeId().getValue().contains(domain)){
+                return domain;
+            }
+        }
+        return null;
+    }
+
+    private String getDomainByNode(Node node){
+        String nodeId = node.getNodeId().getValue();
+        String[] first = nodeId.split(DOMAIN);
+        if(first.length > 1) {
+            String[] second = first[1].split("&");
+            if(second.length >1){
+                return second[0];
+            }
+        }
+        return null;
+    }
+    //**********************************************************************
+
+    //**********************************************************************
+    /*
+     * 暂时不用！！！
+     */
+
+    private String getDomain(Topology topology){
+        List<Node> nodes = topology.getNode();
+        if(nodes != null && !nodes.isEmpty()){
+            Node node = nodes.get(0);
+            String nodeId = node.getNodeId().getValue();
+            String[] temp = nodeId.split(DOMAIN);
+            if(temp.length > 1) {
+                String[] temp2 = temp[1].split("&");
+                if(temp2.length >1){
+                    return temp2[0];
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<Node> getODLDomainNode(List<Node> nodes,String domain) {
+        List<Node> ret = new ArrayList<Node>();
+        Iterator<Node> nodeIterator = nodes.iterator();
+
+        while (nodeIterator.hasNext()) {
+            // Find a node of ODL
+            Node node = nodeIterator.next();
+            String nodeId = node.getNodeId().getValue();
+            if(nodeId.contains(domain)){
+                ret.add(node);
+            }
+        }
+        return ret;
+    }
+
+    private List<Link> getODLDomainLink(List<Link> links,String domain) {
+        List<Link> ret = new ArrayList<Link>();
+        Iterator<Link> linkIterator = links.iterator();
+
+        while (linkIterator.hasNext()) {
+            // Find a link of ODL
+            Link link = linkIterator.next();
+            String linkId = link.getLinkId().getValue();
+            if(linkId.contains(domain)){
+                ret.add(link);
+            }
+        }
+        return ret;
+    }
+    //**********************************************************************
 
     @Override
     public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
@@ -590,8 +913,11 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
             Topology odlTopology = (Topology) dataObject;
             LOG.info("Update Topology from ODL Start...");
             this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATING;
-            this.bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
-            this.bgpTopoInfo = dealBgpTopoInfo(this.bgpTopoInfoTotal);
+//            this.bgpTopoInfoTotal = updateBgpTopoInfoByODLTopo(odlTopology);
+//            this.bgpTopoInfo = dealBgpTopoInfo(this.bgpTopoInfoTotal);
+            this.bgpTopoInfoTotalMap = updateBgpTopoInfoByODLTopoDomain(odlTopology);
+            this.bgpTopoInfoMap = dealBgpTopoInfoMapDomain(bgpTopoInfoTotalMap);
+            this.bgpTopoInfo = dealBgpTopoInfoDomain(bgpTopoInfoMap);
             this.tcb.updateBgpTopoInfoCb(this.bgpTopoInfo);
             this.bgpTopoStatusEnum = BgpTopoStatusEnum.UPDATED;
             LOG.info("Update Topology from ODL End!");
