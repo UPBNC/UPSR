@@ -115,18 +115,21 @@ public class TunnelODLApi implements UpsrTunnelService {
     @Override
     public Future<RpcResult<GetTunnelInstancesOutput>> getTunnelInstances(GetTunnelInstancesInput input) {
         GetTunnelInstancesOutputBuilder getTunnelInstancesOutputBuilder = new GetTunnelInstancesOutputBuilder();
+        getTunnelInstancesOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         if (SystemStatusEnum.ON != this.session.getStatus()) {
+            getTunnelInstancesOutputBuilder.setResult("SystemStatus is not on.");
             return RpcResultBuilder.success(getTunnelInstancesOutputBuilder.build()).buildFuture();
         } else {
             this.getTunnelApi();
         }
-        getTunnelInstancesOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         Map<String, Object> resultMap = this.tunnelApi.getAllTunnel(input.getRouterId(), input.getTunnelName());
         String code = (String) resultMap.get(ResponseEnum.CODE.getName());
         if (CodeEnum.SUCCESS.getName().equals(code)) {
             List<Tunnel> tunnelList = (List<Tunnel>) resultMap.get(ResponseEnum.BODY.getName());
             getTunnelInstancesOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
             getTunnelInstancesOutputBuilder.setTunnelInstances(getTunnel(tunnelList));
+        } else {
+            getTunnelInstancesOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         }
         return RpcResultBuilder.success(getTunnelInstancesOutputBuilder.build()).buildFuture();
     }
@@ -134,8 +137,10 @@ public class TunnelODLApi implements UpsrTunnelService {
     @Override
     public Future<RpcResult<UpdateTunnelInstanceOutput>> updateTunnelInstance(UpdateTunnelInstanceInput input) {
         UpdateTunnelInstanceOutputBuilder updateTunnelInstanceOutputBuilder = new UpdateTunnelInstanceOutputBuilder();
+        updateTunnelInstanceOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         LOG.info("updateTunnelInstance input : " + input);
         if (SystemStatusEnum.ON != this.session.getStatus()) {
+            updateTunnelInstanceOutputBuilder.setResult("SystemStatus is not on.");
             return RpcResultBuilder.success(updateTunnelInstanceOutputBuilder.build()).buildFuture();
         } else {
             this.getTunnelApi();
@@ -149,22 +154,36 @@ public class TunnelODLApi implements UpsrTunnelService {
         this.tunnelPathBuild(tunnelServiceEntity, input);
         LOG.info(tunnelServiceEntity.toString());
         tunnelServiceEntity.setRouterId(input.getSrcRouterId());
-        this.tunnelApi.createTunnel(tunnelServiceEntity);
-        updateTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        Map<String, Object> resultMap = this.tunnelApi.createTunnel(tunnelServiceEntity);
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (CodeEnum.SUCCESS.getName().equals(code)) {
+            updateTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        } else {
+            String message = (String) resultMap.get(ResponseEnum.MESSAGE.getName());
+            updateTunnelInstanceOutputBuilder.setResult(message);
+        }
         return RpcResultBuilder.success(updateTunnelInstanceOutputBuilder.build()).buildFuture();
     }
 
     @Override
     public Future<RpcResult<DeleteTunnelInstanceOutput>> deleteTunnelInstance(DeleteTunnelInstanceInput input) {
         DeleteTunnelInstanceOutputBuilder deleteTunnelInstanceOutputBuilder = new DeleteTunnelInstanceOutputBuilder();
+        deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         if (SystemStatusEnum.ON != this.session.getStatus()) {
+            deleteTunnelInstanceOutputBuilder.setResult("SystemStatus is not on.");
             return RpcResultBuilder.success(deleteTunnelInstanceOutputBuilder.build()).buildFuture();
         } else {
             this.getTunnelApi();
         }
         LOG.info("deleteTunnelInstance input : " + input);
-        this.tunnelApi.deleteTunnel(input.getRouterId(), input.getTunnelName());
-        deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        Map<String, Object> resultMap = this.tunnelApi.deleteTunnel(input.getRouterId(), input.getTunnelName());
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (CodeEnum.SUCCESS.getName().equals(code)) {
+            deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        } else {
+            String message = (String) resultMap.get(ResponseEnum.MESSAGE.getName());
+            deleteTunnelInstanceOutputBuilder.setResult(message);
+        }
         return RpcResultBuilder.success(deleteTunnelInstanceOutputBuilder.build()).buildFuture();
     }
 
@@ -208,6 +227,5 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelServiceEntity.addBackPathHop(tunnelHopServiceEntity);
         }
         LOG.info("tunnelPathBuild end");
-        return;
     }
 }

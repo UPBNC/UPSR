@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
-
 public class TunnelServiceImpl implements TunnelService {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelServiceImpl.class);
     private static TunnelService tunnelService;
@@ -55,18 +53,29 @@ public class TunnelServiceImpl implements TunnelService {
     @Override
     public Map<String, Object> createTunnel(TunnelServiceEntity tunnelServiceEntity) {
         LOG.info("createTunnel :" + tunnelServiceEntity.toString());
+        Map<String, Object> map = new HashMap<>();
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        String routerId = tunnelServiceEntity.getRouterId();
+        String tunnelId = tunnelServiceEntity.getTunnelId();
+        String tunnelName = tunnelServiceEntity.getTunnelName();
+        if (tunnelManager.checkTunnelNameAndId(routerId, tunnelName, tunnelId)) {
+            map.put(ResponseEnum.MESSAGE.getName(), "tunnel's id or name has been exist.");
+            return map;
+        }
         Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
+        if (device != null) {
+            LOG.info(device.getAddress().getAddress());
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            LOG.info("get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            return map;
+        }
         if (!("".equals(device.getOspfProcess().getIntfName())) || null != device.getOspfProcess().getIntfName()) {
             LOG.info("device.getOspfProcess().getIntfName() :" + device.getOspfProcess().getIntfName());
             tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
         }
-        if (device != null) {
-            LOG.info(device.getAddress().getAddress());
-        } else {
-            LOG.info("deviceManager.getDevice is null.");
-        }
+        LOG.info("device.getLoopBack() :" + device.getLoopBack());
         String deviceIp = device.getAddress().getAddress();
-        Map<String, Object> map = new HashMap<>();
         NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
         boolean createExplicitPathFlag = createExplicitPath(netconfClient, tunnelServiceEntity);
         if (createExplicitPathFlag) {
@@ -74,6 +83,8 @@ public class TunnelServiceImpl implements TunnelService {
             if (createTunnelFlag) {
                 addTunnel(tunnelServiceEntity);
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            } else {
+                map.put(ResponseEnum.MESSAGE.getName(), "create tunnel error,which name is : " + tunnelServiceEntity.getTunnelName());
             }
         }
         return map;
@@ -246,7 +257,9 @@ public class TunnelServiceImpl implements TunnelService {
         if (device != null) {
             LOG.info(device.getAddress().getAddress());
         } else {
-            LOG.info("deviceManager.getDevice is null.");
+            LOG.info("get device is null,which routerId is " + routerId);
+            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + routerId);
+            return map;
         }
         String deviceIp = device.getAddress().getAddress();
         NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
@@ -254,6 +267,9 @@ public class TunnelServiceImpl implements TunnelService {
         String result = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
             flag = true;
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "delete tunnel error: " + result + " .");
+            return map;
         }
         if (flag) {
             List<SExplicitPath> explicitPaths = new ArrayList<>();
@@ -267,11 +283,13 @@ public class TunnelServiceImpl implements TunnelService {
             result = netconfController.sendMessage(netconfClient, ExplicitPathXml.getDeleteExplicitPathXml(explicitPaths));
             if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
                 device.getTunnelList().removeAll(tunnelManager.getTunnel(routerId, tunnelName));
-                tunnelManager.deleteTunnel(routerId, tunnelName);
+                LOG.info("deleteTunnel routerId :" + routerId);
+                boolean deleteFlag = tunnelManager.deleteTunnel(routerId, tunnelName);
+                LOG.info("tunnel（" + tunnelName + "）deleteFlag :" + deleteFlag);
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             } else {
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-                map.put(ResponseEnum.MESSAGE.getName(), "delete explicit path error.");
+                map.put(ResponseEnum.MESSAGE.getName(), "delete explicit path error: " + result);
             }
         }
         return map;
@@ -311,6 +329,7 @@ public class TunnelServiceImpl implements TunnelService {
             return false;
         }
         Device device = deviceManager.getDevice(routerId);
+        tunnelManager.emptyTunnels(routerId);
         if ((null != device.getNetConf()) && (device.getNetConf().getStatus() == NetConfStatusEnum.Connected)) {
             List<Tunnel> tunnels = getTunnelInstanceListFromDevice(routerId);
             if (tunnels.size() > 0) {
