@@ -244,40 +244,51 @@ public class StatisticODLApi implements UpsrStatisticService {
         List<IfClearedHistory> ifClearedHistoryList = new ArrayList<>();
         Map<String, Object> resultMap;
         int entityNum = 50;
-        if ((input != null) && (input.getRouterId() != null)) {
-            if (input.getHistoryNum() != null) {
+        String routerId = null;
+        String tunnelName = null;
+        String vpnName = null;
+        if ((input != null) && (input.getRouterId() != null) && (input.getRouterId().equals("") != true)) {
+            routerId = input.getRouterId();
+            if ((input.getHistoryNum() != null) && (input.getHistoryNum().equals("") != true)) {
                 entityNum = Integer.parseInt(input.getHistoryNum()) + 1;
             }
-            resultMap = this.getStatisticsApi().getMemoryInfo(null, entityNum);
-            List<Map<String, List<MemoryInfoServiceEntity>>> mapMemServiceList = (List<Map<String,
-                    List<MemoryInfoServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
-            for (Map<String, List<MemoryInfoServiceEntity>> memoryInfoMap : mapMemServiceList) {
-                MemoryInfoHistoryBuilder memoryInfoHistoryBuilder = new MemoryInfoHistoryBuilder();
-                memoryInfoHistoryBuilder.setHistoryIndex("" + mapMemServiceList.indexOf(memoryInfoMap));
-                memoryInfoHistoryBuilder.setMemoryInfoStat(this.buildMemoryInfoStat(memoryInfoMap, input.getRouterId()));
-                memoryInfoHistoryList.add(memoryInfoHistoryBuilder.build());
+            if ((input.getTunnelName() != null) && (input.getTunnelName().equals("") != true)) {
+                tunnelName = input.getTunnelName();
+            }
+            if ((input.getVpnName() != null) && (input.getVpnName().equals("") != true)) {
+                vpnName = input.getVpnName();
+            }
+            if ((tunnelName == null) && (vpnName == null)) {
+                resultMap = this.getStatisticsApi().getMemoryInfo(null, entityNum);
+                List<Map<String, List<MemoryInfoServiceEntity>>> mapMemServiceList = (List<Map<String,
+                        List<MemoryInfoServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
+                for (Map<String, List<MemoryInfoServiceEntity>> memoryInfoMap : mapMemServiceList) {
+                    MemoryInfoHistoryBuilder memoryInfoHistoryBuilder = new MemoryInfoHistoryBuilder();
+                    memoryInfoHistoryBuilder.setHistoryIndex("" + mapMemServiceList.indexOf(memoryInfoMap));
+                    memoryInfoHistoryBuilder.setMemoryInfoStat(this.buildMemoryInfoStat(memoryInfoMap, routerId));
+                    memoryInfoHistoryList.add(memoryInfoHistoryBuilder.build());
+                }
+                resultMap = this.getStatisticsApi().getCpuInfo(null, entityNum);
+                List<Map<String, List<CpuInfoServiceEntity>>> mapCpuServiceList = (List<Map<String,
+                        List<CpuInfoServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
+                for (Map<String, List<CpuInfoServiceEntity>> cpuInfoMap : mapCpuServiceList) {
+                    CpuInfoHistoryBuilder cpuInfoHistoryBuilder = new CpuInfoHistoryBuilder();
+                    cpuInfoHistoryBuilder.setHistoryIndex("" + mapCpuServiceList.indexOf(cpuInfoMap));
+                    cpuInfoHistoryBuilder.setCpuInfoStat(this.buildCpuInfoStat(cpuInfoMap,routerId));
+                    cpuInfoHistoryList.add(cpuInfoHistoryBuilder.build());
+                }
+            } else {
+                resultMap = this.getStatisticsApi().getIfClearedStat(null, entityNum);
+                List<Map<String, List<IfClearedStatServiceEntity>>> mapIfServiceList = (List<Map<String,
+                        List<IfClearedStatServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
+                for (Map<String, List<IfClearedStatServiceEntity>> ifClearedStatMap : mapIfServiceList) {
+                    IfClearedHistoryBuilder ifClearedHistoryBuilder = new IfClearedHistoryBuilder();
+                    ifClearedHistoryBuilder.setHistoryIndex("" + mapIfServiceList.indexOf(ifClearedStatMap));
+                    ifClearedHistoryBuilder.setRouterIfCleared(this.buildIfClearedStat(ifClearedStatMap, routerId, vpnName, tunnelName));
+                    ifClearedHistoryList.add(ifClearedHistoryBuilder.build());
+                }
             }
 
-            resultMap = this.getStatisticsApi().getIfClearedStat(null, entityNum);
-            List<Map<String, List<IfClearedStatServiceEntity>>> mapIfServiceList = (List<Map<String,
-                    List<IfClearedStatServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
-            for (Map<String, List<IfClearedStatServiceEntity>> ifClearedStatMap : mapIfServiceList) {
-                IfClearedHistoryBuilder ifClearedHistoryBuilder = new IfClearedHistoryBuilder();
-                ifClearedHistoryBuilder.setHistoryIndex("" + mapIfServiceList.indexOf(ifClearedStatMap));
-                ifClearedHistoryBuilder.setRouterIfCleared(this.buildIfClearedStat(ifClearedStatMap,
-                        input.getRouterId(),input.getVpnName(),input.getTunnelName()));
-                ifClearedHistoryList.add(ifClearedHistoryBuilder.build());
-            }
-
-            resultMap = this.getStatisticsApi().getCpuInfo(null, entityNum);
-            List<Map<String, List<CpuInfoServiceEntity>>> mapCpuServiceList = (List<Map<String,
-                    List<CpuInfoServiceEntity>>>) resultMap.get(ResponseEnum.BODY.getName());
-            for (Map<String, List<CpuInfoServiceEntity>> cpuInfoMap : mapCpuServiceList) {
-                CpuInfoHistoryBuilder cpuInfoHistoryBuilder = new CpuInfoHistoryBuilder();
-                cpuInfoHistoryBuilder.setHistoryIndex("" + mapCpuServiceList.indexOf(cpuInfoMap));
-                cpuInfoHistoryBuilder.setCpuInfoStat(this.buildCpuInfoStat(cpuInfoMap,input.getRouterId()));
-                cpuInfoHistoryList.add(cpuInfoHistoryBuilder.build());
-            }
             getStatisticHistoryOutputBuilder.setCpuInfoHistory(cpuInfoHistoryList);
             getStatisticHistoryOutputBuilder.setMemoryInfoHistory(memoryInfoHistoryList);
             getStatisticHistoryOutputBuilder.setIfClearedHistory(ifClearedHistoryList);
