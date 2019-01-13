@@ -626,53 +626,305 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String result = "";
         String flag;
         ActionEntity actionEntity;
+
         for (String routerId : routers) {
             result = result + "\nrouter : " + routerId + "\n";
-            synType = "0";
+            synType = "1";
+            String action = "";
+            List<SExplicitPath> explicitPaths = new ArrayList<>();
+            SExplicitPath explicitPath;
             NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+            String tunnelName = "";
             {
+                LOG.info("************* tunnel ***************");
                 String tunnelRunningXml = RunningXml.getTunnelXml();
                 String tunnelCandidateXml = CandidateXml.getTunnelXml();
                 String xmlRunningResult = netconfController.sendMessage(netconfClient, tunnelRunningXml);
                 String xmlCandidateResult = netconfController.sendMessage(netconfClient, tunnelCandidateXml);
                 String xml1 = xmlCandidateResult;
                 String xml2 = xmlRunningResult;
-                List<SeparateEntity> separateEntities = Separate.getSeparate(xml1, xml2);
-                if (separateEntities.size() > 0 && separateEntities.get(0).getActionEntities().size() > 0) {
-                    actionEntity = separateEntities.get(0).getActionEntities().get(0);
-                    if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                        LOG.info("add");
-                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                        if (sSrTeTunnels.size() != 0) {
-                            LOG.info(sSrTeTunnels.get(0).toString());
+                xml1 = XmlUtils.subString(xml1);
+                xml2 = XmlUtils.subString(xml2);
+                actionEntity = XmlUtils.compare(xml1, xml2, "");
+                String des = "";
+                if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("add");
+                    action = "add";
+                    List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    if (sSrTeTunnels.size() != 0) {
+                        for (SSrTeTunnelPath srTeTunnelPath : sSrTeTunnels.get(0).getSrTeTunnelPaths()) {
+                            explicitPath = new SExplicitPath();
+                            explicitPath.setExplicitPathName(srTeTunnelPath.getExplicitPathName());
+                            explicitPaths.add(explicitPath);
                         }
-                    } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                        LOG.info("delete");
-                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                        if (sSrTeTunnels.size() != 0) {
-                            LOG.info(sSrTeTunnels.get(0).toString());
+                        tunnelName = sSrTeTunnels.get(0).getTunnelName();
+                        String desResult = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getInterfaceDes(tunnelName, "candidate"));
+                        if (desResult.contains("ifDescr")) {
+                            des = desResult.substring(desResult.indexOf("<ifDescr>") + 9, desResult.indexOf("</ifDescr>"));
                         }
-                    } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
-                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                        LOG.info("modify");
-                        if (sSrTeTunnels.size() != 0) {
-                            LOG.info(sSrTeTunnels.get(0).getTunnelName());
-                            List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
-                            for (ModifyEntity modifyEntity : modifyEntities) {
-                                List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
-                                String label = attributes.get(attributes.size() - 2).getName();
-                                modifyEntity.setLabel(label);
-                                LOG.info("label :" + modifyEntity.getLabel());
-                                LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                                LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                        String path = "";
+                        result = result + "  #\n+ interface " + tunnelName;
+                        if (!("").equals(des)) {
+                            result = result + "\n+  description " + des;
+                        }
+                        result = result + "\n+  ip address " + sSrTeTunnels.get(0).getAddrCfgType() + " interface " + sSrTeTunnels.get(0).getUnNumIfName() + "\n+  tunnel-protocol mpls te" + "\n+  destination " +
+                                sSrTeTunnels.get(0).getMplsTunnelEgressLSRId() + "\n+  mpls te signal-protocol segment-routing" + "";
+                        if (!("0".equals(sSrTeTunnels.get(0).getMplsTunnelBandwidth()))) {
+                            result = result +
+                                    "\n+  mpls te bandwidth ct0 " + sSrTeTunnels.get(0).getMplsTunnelBandwidth();
+                        }
+                        result = result + "\n+  mpls te backup hot-standby";
+                        result = result +
+                                "\n+  mpls te reserved-for-binding" + "\n+  mpls te lsp-tp outbound" + "\n+  statistic enable" + "\n+  mpls te tunnel-id " +
+                                sSrTeTunnels.get(0).getMplsTunnelIndex();
+                        for (SSrTeTunnelPath srTeTunnelPath : sSrTeTunnels.get(0).getSrTeTunnelPaths()) {
+                            if ("primary".equals(srTeTunnelPath.getPathType())) {
+                                path = path + "\n+  mpls te path explicit-path " + srTeTunnelPath.getExplicitPathName();
+                            }
+                            if ("hotStandby".equals(srTeTunnelPath.getPathType())) {
+                                path = path + "\n+  mpls te path explicit-path " + srTeTunnelPath.getExplicitPathName() + " secondary";
                             }
                         }
-                    } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
-                        System.out.println("modifyEntity action() :" + actionEntity.getAction());
+                        result = result + path;
+                        if ("true".equals(sSrTeTunnels.get(0).getMplsTeTunnelBfdEnable())) {
+                            result = result + "\n+  mpls te bfd enable" + "\n+  mpls te bfd min-tx-interval " + sSrTeTunnels.get(0).getMplsTeTunnelBfdMinTx()
+                                    + " min-rx-interval " + sSrTeTunnels.get(0).getMplsTeTunnelBfdMinnRx() + " detect-multiplier " + sSrTeTunnels.get(0).getMplsTeTunnelBfdDetectMultiplier();
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf1ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "af1";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf2ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "af2";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf3ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "af3";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf4ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "af4";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isEfServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "ef";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isBeServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "be";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isDefaultServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "default";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isCs6ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "cs6";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isCs7ServiceClassEnable()) {
+                            result = result + "\n+  mpls te service-class " + "cs7";
+                        }
+                        LOG.info(sSrTeTunnels.get(0).toString());
                     }
+                } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("delete");
+                    action = "delete";
+                    List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    if (sSrTeTunnels.size() != 0) {
+                        for (SSrTeTunnelPath srTeTunnelPath : sSrTeTunnels.get(0).getSrTeTunnelPaths()) {
+                            explicitPath = new SExplicitPath();
+                            explicitPath.setExplicitPathName(srTeTunnelPath.getExplicitPathName());
+                            explicitPaths.add(explicitPath);
+                        }
+                        tunnelName = sSrTeTunnels.get(0).getTunnelName();
+                        String desResult = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getInterfaceDes(tunnelName, "running"));
+                        if (desResult.contains("ifDescr")) {
+                            des = desResult.substring(desResult.indexOf("<ifDescr>") + 9, desResult.indexOf("</ifDescr>"));
+                        }
+                        String path = "";
+                        result = result + "  #\n- interface " + tunnelName;
+                        if (!("").equals(des)) {
+                            result = result + "\n-  description " + des;
+                        }
+                        result = result + "\n-  ip address " + sSrTeTunnels.get(0).getAddrCfgType() + " interface " + sSrTeTunnels.get(0).getUnNumIfName()
+                                + "\n-  tunnel-protocol mpls te" + "\n-  destination " +
+                                sSrTeTunnels.get(0).getMplsTunnelEgressLSRId() + "\n-  mpls te signal-protocol segment-routing";
+                        if (!("0".equals(sSrTeTunnels.get(0).getMplsTunnelBandwidth()))) {
+                            result = result +
+                                    "\n-  mpls te bandwidth ct0 " + sSrTeTunnels.get(0).getMplsTunnelBandwidth();
+                        }
+                        result = result + "\n-  mpls te backup hot-standby" + "" +
+                                "\n-  mpls te reserved-for-binding" + "\n-  mpls te lsp-tp outbound" + "\n-  statistic enable" + "\n-  mpls te tunnel-id " +
+                                sSrTeTunnels.get(0).getMplsTunnelIndex();
+                        for (SSrTeTunnelPath srTeTunnelPath : sSrTeTunnels.get(0).getSrTeTunnelPaths()) {
+                            if ("primary".equals(srTeTunnelPath.getPathType())) {
+                                path = path + "\n-  mpls te path explicit-path " + srTeTunnelPath.getExplicitPathName();
+                            }
+                            if ("hotStandby".equals(srTeTunnelPath.getPathType())) {
+                                path = path + "\n-  mpls te path explicit-path " + srTeTunnelPath.getExplicitPathName() + " secondary";
+                            }
+                        }
+                        result = result + path;
+                        if ("true".equals(sSrTeTunnels.get(0).getMplsTeTunnelBfdEnable())) {
+                            result = result + "\n-  mpls te bfd enable" + "\n-  mpls te bfd min-tx-interval " + sSrTeTunnels.get(0).getMplsTeTunnelBfdMinTx()
+                                    + " min-rx-interval " + sSrTeTunnels.get(0).getMplsTeTunnelBfdMinnRx() + " detect-multiplier " + sSrTeTunnels.get(0).getMplsTeTunnelBfdDetectMultiplier();
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf1ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "af1";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf2ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "af2";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf3ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "af3";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isAf4ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "af4";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isEfServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "ef";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isBeServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "be";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isDefaultServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "default";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isCs6ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "cs6";
+                        }
+                        if (sSrTeTunnels.get(0).getMplsteServiceClass().isCs7ServiceClassEnable()) {
+                            result = result + "\n-  mpls te service-class " + "cs7";
+                        }
+                        LOG.info(sSrTeTunnels.get(0).toString());
+                    }
+                } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
+                    List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    LOG.info("modify");
+                    if (sSrTeTunnels.size() != 0) {
+                        LOG.info(sSrTeTunnels.get(0).getTunnelName());
+                        List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
+                        for (ModifyEntity modifyEntity : modifyEntities) {
+                            List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
+                            String str = attributes.get(attributes.size() - 2).getName();
+                            LOG.info("str :" + str);
+                            LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
+                            LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                        }
+                    }
+                } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("modifyEntity action() :" + actionEntity.getAction());
+                }
+            }
+
+            {
+                LOG.info("************* explicit path ***************");
+                if (action.equals("delete") && explicitPaths.size() > 0) {
+                    LOG.info("delete");
+                    String deleteResult = netconfController.sendMessage(netconfClient,
+                            ExplicitPathXml.getExplicitPathXml(explicitPaths, "running"));
+                    List<SExplicitPath> sExplicitPaths = ExplicitPathXml.getExplicitPathFromXml(deleteResult);
+                    for (SExplicitPath sExplicitPath : sExplicitPaths) {
+                        String next = "";
+                        result = result + "\n  #" + "\n- explicit-path " + sExplicitPath.getExplicitPathName();
+                        for (SExplicitPathHop sExplicitPathHop : sExplicitPath.getExplicitPathHops()) {
+                            next = next + "\n-  next sid label " + sExplicitPathHop.getMplsTunnelHopSidLabel() + " type prefix";
+                        }
+                        result = result + next;
+                    }
+                    LOG.info(sExplicitPaths.toString());
+                } else if (action.equals("add") && explicitPaths.size() > 0) {
+                    LOG.info("add");
+                    String addResult = netconfController.sendMessage(netconfClient,
+                            ExplicitPathXml.getExplicitPathXml(explicitPaths, "candidate"));
+                    List<SExplicitPath> sExplicitPaths = ExplicitPathXml.getExplicitPathFromXml(addResult);
+
+                    for (SExplicitPath sExplicitPath : sExplicitPaths) {
+                        String next = "";
+                        result = result + "\n  #" + "\n+ explicit-path " + sExplicitPath.getExplicitPathName();
+                        for (SExplicitPathHop sExplicitPathHop : sExplicitPath.getExplicitPathHops()) {
+                            next = next + "\n+  next sid label " + sExplicitPathHop.getMplsTunnelHopSidLabel() + " type prefix";
+                        }
+                        result = result + next;
+                    }
+                    LOG.info(sExplicitPaths.toString());
+                }
+            }
+
+            {
+                LOG.info("************* bfd ***************");
+                String bfdRunningXml = BfdCfgSessionXml.getBfdCfgSessionsXml("running");
+                String bfdCandidateXml = BfdCfgSessionXml.getBfdCfgSessionsXml("candidate");
+                String xmlRunningResult = netconfController.sendMessage(netconfClient, bfdRunningXml);
+                String xmlCandidateResult = netconfController.sendMessage(netconfClient, bfdCandidateXml);
+                String xml1 = xmlCandidateResult;
+                String xml2 = xmlRunningResult;
+                xml1 = XmlUtils.subString(xml1);
+                xml2 = XmlUtils.subString(xml2);
+                //xml1 candidate  xml2 running
+                flag = "explicitPath";
+                xml1 = XmlUtils.subString(xml1);
+                xml2 = XmlUtils.subString(xml2);
+                actionEntity = XmlUtils.compare(xml1, xml2, flag);
+                if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("add");
+//                    List<SBfdCfgSession> sBfdCfgSessions = GetXml.getBfdCfgSessionsFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+//                    if (sBfdCfgSessions.size() != 0) {
+//                        LOG.info(sBfdCfgSessions.get(0).toString());
+//                    }
+                    List<SBfdCfgSession> bfdCfgSessions = BfdCfgSessionXml.getBfdCfgSessionsFromXml(xmlCandidateResult);
+                    for (SBfdCfgSession bfd : bfdCfgSessions) {
+                        if (tunnelName.equals(bfd.getTunnelName())) {
+                            if ("TE_LSP".equals(bfd.getLinkType())) {
+                                result = result + "\n  #\n+ bfd " + bfd.getSessName() + " bind mpls-te interface " + bfd.getTunnelName() + " te-lsp" +
+                                        "\n+  discriminator local " + bfd.getLocalDiscr() + "\n+  discriminator remote " + bfd.getRemoteDiscr() + "" +
+                                        "\n+  detect-multiplier " + bfd.getMultiplier() + "\n+  min-tx-interval " + bfd.getMinTxInt() +
+                                        "\n+  min-rx-interval " + bfd.getMinRxInt();
+                            }
+                            if ("TE_TUNNEL".equals(bfd.getLinkType())) {
+                                result = result + "\n  #\n+ bfd " + bfd.getSessName() + " bind mpls-te interface " + bfd.getTunnelName() +
+                                        "\n+  discriminator local " + bfd.getLocalDiscr() + "\n+  discriminator remote " + bfd.getRemoteDiscr() + "" +
+                                        "\n+  detect-multiplier " + bfd.getMultiplier() + "\n+  min-tx-interval " + bfd.getMinTxInt() +
+                                        "\n+  min-rx-interval " + bfd.getMinRxInt();
+                            }
+                            LOG.info(bfd.toString());
+                        }
+                    }
+                } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("delete");
+//                    List<SBfdCfgSession> sBfdCfgSessions = GetXml.getBfdCfgSessionsFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+//                    if (sBfdCfgSessions.size() != 0) {
+//                        LOG.info(sBfdCfgSessions.get(0).toString());
+//                    }
+                    List<SBfdCfgSession> bfdCfgSessions = BfdCfgSessionXml.getBfdCfgSessionsFromXml(xmlRunningResult);
+                    for (SBfdCfgSession bfd : bfdCfgSessions) {
+                        if (tunnelName.equals(bfd.getTunnelName())) {
+                            if ("TE_LSP".equals(bfd.getLinkType())) {
+                                result = result + "\n  #\n- bfd " + bfd.getSessName() + " bind mpls-te interface " + bfd.getTunnelName() + " te-lsp" +
+                                        "\n-  discriminator local " + bfd.getLocalDiscr() + "\n-  discriminator remote " + bfd.getRemoteDiscr() + "" +
+                                        "\n-  detect-multiplier " + bfd.getMultiplier() + "\n-  min-tx-interval " + bfd.getMinTxInt() +
+                                        "\n-  min-rx-interval " + bfd.getMinRxInt();
+                            }
+                            if ("TE_TUNNEL".equals(bfd.getLinkType())) {
+                                result = result + "\n  #\n- bfd " + bfd.getSessName() + " bind mpls-te interface " + bfd.getTunnelName() +
+                                        "\n-  discriminator local " + bfd.getLocalDiscr() + "\n-  discriminator remote " + bfd.getRemoteDiscr() + "" +
+                                        "\n-  detect-multiplier " + bfd.getMultiplier() + "\n-  min-tx-interval " + bfd.getMinTxInt() +
+                                        "\n-  min-rx-interval " + bfd.getMinRxInt();
+                            }
+                            LOG.info(bfd.toString());
+                        }
+                    }
+                } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
+                    List<SBfdCfgSession> sBfdCfgSessions = GetXml.getBfdCfgSessionsFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    LOG.info("modify");
+                    if (sBfdCfgSessions.size() != 0) {
+                        LOG.info(sBfdCfgSessions.get(0).getSessName());
+                        List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
+                        for (ModifyEntity modifyEntity : modifyEntities) {
+                            LOG.info("lable :" + modifyEntity.getLabel());
+                            LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
+                            LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                        }
+                    }
+                } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
+                    LOG.info("modifyEntity action() :" + actionEntity.getAction());
                 }
             }
         }
+        result = result + "\n  #";
         LOG.info(result);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -692,7 +944,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             result = result + "\n";
             LOG.info(result);
         }
-        syn(synType);
+        syn(synType,routers);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
@@ -711,23 +963,29 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             result = result + "\n";
             LOG.info(result);
         }
-        syn(synType);
+        syn(synType,routers);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
     }
 
-    private void syn(String type) {
-        if (type.equals("2") || type.equals("3")) {
-            VPNServiceImpl.getInstance().syncVpnInstanceConf();
-            RoutePolicyServiceImpl.getInstance().syncRoutePolicyConf();
+    private void syn(String type, List<String> routers) {
+        for(String r:routers){
+            if (type.equals("1") || type.equals("3")) {
+                TunnelServiceImpl.getInstance().syncTunnelInstanceConf(r);
+                TunnelPolicyServiceImpl.getInstance().syncTunnelPolicyConf();
+            }
+            if (type.equals("2") || type.equals("3")) {
+                VPNServiceImpl.getInstance().syncVpnInstanceConf(r);
+                RoutePolicyServiceImpl.getInstance().syncRoutePolicyConf();
+            }
+            if (type.equals("3")) {
+                InterfaceServiceImpl.getInstance().syncInterfaceConf(r);
+                SrLabelServiceImpl.getInstance().syncIntfLabel(r);
+                SrLabelServiceImpl.getInstance().syncNodeLabel(r);
+            }
+            InterfaceServiceImpl.getInstance().syncInterfaceConf(r);
         }
-        if (type.equals("3")) {
-            InterfaceServiceImpl.getInstance().syncInterfaceConf();
-            SrLabelServiceImpl.getInstance().syncAllIntfLabel();
-            SrLabelServiceImpl.getInstance().syncAllNodeLabel();
-        }
-        InterfaceServiceImpl.getInstance().syncInterfaceConf();
         synType = "0";
     }
 

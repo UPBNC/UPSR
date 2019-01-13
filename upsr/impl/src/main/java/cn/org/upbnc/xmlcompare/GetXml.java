@@ -30,12 +30,22 @@ public class GetXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 Element root = document.getRootElement();
-                List<Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                List<Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
                 Element element;
-                if (ActionTypeEnum.delete == actionTypeEnum) {
-                    element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
-                } else {
+                if (ActionTypeEnum.modify == actionTypeEnum) {
                     element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                } else if (ActionTypeEnum.delete == actionTypeEnum) {
+                    if (("srTeTunnels").equals(attributes.get(attributes.size() - 2).getName())) {
+                        element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    } else {
+                        element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                    }
+                } else {
+                    if (("srTeTunnels").equals(attributes.get(attributes.size() - 2).getName())) {
+                        element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    } else {
+                        element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                    }
                 }
                 srTeTunnel = new SSrTeTunnel();
                 srTeTunnel.setTunnelName(element.elementText("tunnelName"));
@@ -131,13 +141,14 @@ public class GetXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 org.dom4j.Element root = document.getRootElement();
-                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
                 Element element;
-                if (ActionTypeEnum.modify == actionTypeEnum) {
-                    element = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
-                } else {
+                if (ActionTypeEnum.delete == actionTypeEnum) {
                     element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                } else {
+                    element = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
                 }
+
                 explicitPath = new SExplicitPath();
                 explicitPathHops = new ArrayList<>();
                 explicitPath.setExplicitPathName(element.elementText("explicitPathName"));
@@ -360,8 +371,10 @@ public class GetXml {
                 Element child = null;
                 if (ActionTypeEnum.modify == actionTypeEnum) {
                     child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
-                } else {
+                } else if (ActionTypeEnum.delete == actionTypeEnum) {
                     child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                } else {
+                    child = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
                 }
                 sBfdCfgSession = new SBfdCfgSession();
                 sBfdCfgSession.setSessName(child.elementText("sessName"));

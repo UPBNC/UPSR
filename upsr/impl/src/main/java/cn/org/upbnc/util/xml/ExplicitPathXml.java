@@ -90,6 +90,34 @@ public class ExplicitPathXml {
         return start + middle + end;
     }
 
+    public static String getExplicitPathXml(List<SExplicitPath> explicitPaths,String database) {
+        String start =
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                        "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                        "  <source>\n" +
+                        "    <"+database+"/>\n" +
+                        "  </source>\n" +
+                        "  <filter type=\"subtree\">\n" +
+                        "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                        "      <mpls:mplsTe>\n" +
+                        "        <mpls:explicitPaths>\n";
+        String middle = "";
+        for (SExplicitPath explicitPath : explicitPaths) {
+            middle = middle +
+                    "          <mpls:explicitPath>\n" +
+                    "            <mpls:explicitPathName>" + explicitPath.getExplicitPathName() + "</mpls:explicitPathName>\n" +
+                    "          </mpls:explicitPath>\n";
+        }
+        String end =
+                "        </mpls:explicitPaths>\n" +
+                        "      </mpls:mplsTe>\n" +
+                        "    </mpls:mpls>\n" +
+                        "  </filter>\n" +
+                        "</get-config>" +
+                        "</rpc>";
+        return start + middle + end;
+    }
+
     public static String getExplicitPathXml() {
         return
                 "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">  \n" +
