@@ -8,6 +8,7 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.ConfSyncApi;
+import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class ConfSyncApiImpl implements ConfSyncApi {
         result += this.serviceInterface.getTunnelService().syncTunnelInstanceConf();
         result += "\n";
         result += "sync device configure end.";
-        return result;
+        LOG.info("sync ret : " + result);
+        return CodeEnum.SUCCESS.getMessage();
     }
 }

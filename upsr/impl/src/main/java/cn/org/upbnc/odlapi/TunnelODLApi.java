@@ -125,7 +125,12 @@ public class TunnelODLApi implements UpsrTunnelService {
         } else {
             this.getTunnelApi();
         }
-        Map<String, Object> resultMap = this.tunnelApi.getAllTunnel(input.getRouterId(), input.getTunnelName());
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.tunnelApi.getAllTunnel(null, null);
+        } else {
+            resultMap = this.tunnelApi.getAllTunnel(input.getRouterId(), input.getTunnelName());
+        }
         String code = (String) resultMap.get(ResponseEnum.CODE.getName());
         if (CodeEnum.SUCCESS.getName().equals(code)) {
             List<Tunnel> tunnelList = (List<Tunnel>) resultMap.get(ResponseEnum.BODY.getName());
