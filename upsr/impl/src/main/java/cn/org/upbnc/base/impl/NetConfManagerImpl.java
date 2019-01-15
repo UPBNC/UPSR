@@ -48,7 +48,7 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public NetConf addDevice(NetConf netConf) {
+    public synchronized NetConf addDevice(NetConf netConf) {
         boolean need_connect = true;
         if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
             if (netconfClientMap.get(netConf.getIp().getAddress()).isFlag()) {
@@ -103,7 +103,7 @@ public class NetConfManagerImpl implements NetConfManager {
         return netconfClient;
     }
 
-    private void reconnect(String ip) {
+    private synchronized void reconnect(String ip) {
         NetConf netConf;
         if (netConfMap.containsKey(ip)) {
             netConf = netConfMap.get(ip);
