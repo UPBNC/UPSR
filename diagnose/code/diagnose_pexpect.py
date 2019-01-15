@@ -6,6 +6,7 @@ import configparser
 import os
 import datetime
 import re
+import json
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Diagnose')
@@ -15,7 +16,7 @@ def arg_parse():
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--upsrname", dest='upsrname', help="upsrname",default="root", type=str)
     parser.add_argument("--upsrword", dest='upsrword', help="upsrword",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
     return parser.parse_args()
 
 def create_file():
@@ -47,14 +48,12 @@ def child_expect(child,expectStr):
         child.close(force=True)
         exit(2)
 def analysis_business(tunnelName):
-    dic_ww = {'1': '内网接入区', '2': '直连无卡',  '3':'第二非金','4':'直连机构',
-           '5':'非金机构',  '6':'分公司接入区','7':'人行接入区','15':'测试PIT'}
-    dic_xy = {'1':'上海CNTZRT12001','3':'上海CNTZRT12002',
-              '2':'北京CNBJRT12001','4':'北京CNBJRT12002'}
-    dic_z = {'5':'EF','4':'AF4','3':'AF3','1':'AF1'}
-    dic_line = {'12':'移动线路','32':'移动线路',
-              '14':'联通线路','34':'联通线路'}
-    
+    load_f = open("/root/tools/test/o2/karaf-0.8.2/diagnose/definition.json", 'r')
+    load_dict = json.load(load_f)
+    dic_ww = load_dict["dic_ww"]
+    dic_xy = load_dict["dic_xy"]
+    dic_z = load_dict["dic_z"]
+    dic_line = load_dict["dic_line"]
     ret = ''
     tunnelId = filter(str.isdigit, tunnelName)
     if len(tunnelId) < 4 or len(tunnelId) > 5:
@@ -63,10 +62,11 @@ def analysis_business(tunnelName):
             dic_line.has_key(tunnelId[(len(tunnelId) - 3):(len(tunnelId) - 1)]) and \
             dic_xy.has_key(tunnelId[len(tunnelId) - 3]) and dic_xy.has_key(tunnelId[len(tunnelId) - 2]) and \
             dic_z.has_key(tunnelId[len(tunnelId) - 1]):
-            ret = ': ' + dic_ww[tunnelId[0:(len(tunnelId)-3)]] + \
-                  ' 的 '+ dic_line[tunnelId[(len(tunnelId)-3):(len(tunnelId)-1)]] +\
-                  ', 从 ' + dic_xy[tunnelId[len(tunnelId)-3]] +\
-                  ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]] + ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]] + ' 业务'
+            ret = ': ' + dic_ww[tunnelId[0:(len(tunnelId)-3)]].encode("utf-8") + \
+                  ' 的 '+ dic_line[tunnelId[(len(tunnelId)-3):(len(tunnelId)-1)]].encode("utf-8") +\
+                  ', 从 ' + dic_xy[tunnelId[len(tunnelId)-3]].encode("utf-8") +\
+                  ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]].encode("utf-8") + \
+                  ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]].encode("utf-8") + ' 业务'
     else:
         ret = ': 没有与之对应的业务'
     return ret
@@ -104,8 +104,11 @@ def analysis_alarm_bfd(echo_info):
                     NeighborIp = bfddetail[j].split('=')
                     ret = ret + '' + NeighborIp[1] + ', 发生过中断，可能是导致隧道down的原因'
     return ret
-def analysis_ospf_up(echo_info):
-    interfaceList = ['GE0/3/2','GE0/3/6']
+def analysis_ospf_up(echo_info,deviceName):
+    load_f = open("/root/tools/test/o2/karaf-0.8.2/diagnose/definition.json", 'r')
+    load_dict = json.load(load_f)
+    interfaceListMap = load_dict["interfaceListMap"]
+    interfaceList = interfaceListMap['<SHPE1>']
     ospfInterfaceList = []
     ret = ''
     areas = echo_info.split('Area')
@@ -125,7 +128,7 @@ def analysis_ospf_up(echo_info):
             ret = ret + " ，OSPF形成时间小于24小时，OSPF可能有问题"
     ifDownList = list(set(interfaceList).difference(set(ospfInterfaceList)))
     for i in range(len(ifDownList)):
-        ret = ret + '\n  ' + "interface " + ifDownList[i] +': 没有OSPF邻居，可能有问题'
+        ret = ret + '\n  ' + "interface " + str(ifDownList[i]) +': 没有OSPF邻居，可能有问题'
     return ret
 def analysis_logbuffer_hot(echo_info):
     ret = '\nLogbuffer info:'
@@ -288,10 +291,10 @@ def diagnose_vpn_by_name(child,deviceName,vpnName):
         #2.使用display tunnel-policy tunnel-policy-name检查隧道策略的内容。
         ret = ret + 'tnl-policy字段为 ' + policyName
         tunnelList = get_tunnel_list_by_tunnel_policy(child, deviceName, policyName)
-        ret = ret + '\n  ' + policyName + ' 包含的隧道有 ' + ', '.join(tunnelList)
+        ret = ret + '\n    ' + policyName + ' 包含的隧道有 ' + ', '.join(tunnelList)
         for i in range(len(tunnelList)):
             if check_tunnel_up(child, deviceName, tunnelList[i]) == True:
-                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态UP，'
+                ret = ret + ('\n      %-13s' % tunnelList[i]) + ' 隧道状态UP，'
                 # 3.进入Tunnel接口视图，执行display this命令检查Tunnel接口下是否配置了mpls te reserved-for-binding命令。
                 if check_resvered_bind(child, deviceName,tunnelList[i]) == True:
                     ret = ret + '已配置绑定 '
@@ -311,7 +314,7 @@ def diagnose_vpn_by_name(child,deviceName,vpnName):
                         ret = ret + collect_alarm_and_contact_hw(child,deviceName)
             else:
                 #5.检查TE接口下的配置，并根据TE相关的告警确认和排除问题，然后看是否出现告警
-                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态DOWN'
+                ret = ret + ('\n      %-13s' % tunnelList[i]) + ' 隧道状态DOWN'
                 if get_te_interface_alarm(child, deviceName, tunnelList[i]) == True:
                     pass
                     # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
@@ -332,9 +335,26 @@ def analysis_vpn_down(child,deviceName):
     # vpnIndexList = get_all_vpn_down_list(child,deviceName)
     # vpnNameList = get_cpn_name_by_index(child,vpnIndexList,deviceName)
     vpnNameList = get_all_vpn_down_name_list(child,deviceName)
-    ret = ret + '\n处于down状态的vpn： ' + ', '.join(vpnNameList)
+    ret = ret + '\n一、处于down状态的vpn： ' + ', '.join(vpnNameList)
+    if len(vpnNameList) == 0:
+        ret = ret + '\n  没有处于down状态的vpn，结束诊断'
     for i in range(len(vpnNameList)):
-        ret = ret + '\n' +vpnNameList[i] + ' :'+ diagnose_vpn_by_name(child, deviceName, vpnNameList[i])
+        ret = ret + '\n  ' +vpnNameList[i] + ' :'+ diagnose_vpn_by_name(child, deviceName, vpnNameList[i])
+    ret = ret + '\n二、查看是否出现告警： '
+    child.sendline('display trapbuffer | no-more | include "hwTnl2VpnTrapEvent"')
+    child_expect(child, deviceName)
+    if child.before.find('The tunnel up event is occurred') == -1:
+        ret = ret + '\n  没有隧道UP告警'
+    else:
+        ret = ret + '\n  有隧道UP告警'
+    ret = ret + '\n三、通过以下命令收集告警信息和配置信息，联系技术支持工程师做进一步分析'
+    ret = ret + '\n  <~HUAWEI>display version'\
+                '\n  <~HUAWEI>display esn'\
+                '\n  <~HUAWEI>save logfile'\
+                '\n  <~HUAWEI>system'\
+                '\n  [~HUAWEI] diagnose'\
+                '\n  [~HUAWEI-diagnose] diaplay diagnostic-information >> diagnose.log'\
+                '\n  [~HUAWEI-diagnose] save logfile diagnose-log '
     return ret
 
 def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
@@ -366,7 +386,7 @@ def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
             analysis = analysis + '\n第二步: 查看ospf邻居的up时间'
             child.sendline('display ospf peer | no-more | include "(Neighbor is up for) | (Router ID: )"')
             child_expect(child,deviceName)
-            analysis = analysis + analysis_ospf_up(child.before)
+            analysis = analysis + analysis_ospf_up(child.before,deviceName)
             analysis = analysis + '\n第三步: 分析业务影响'
             for i in range(len(tunnelList)):
                 analysis = analysis + '\n  ' + tunnelList[i] + analysis_business(tunnelList[i])
