@@ -24,4 +24,5 @@ public interface NetconfSessionApi {
 
     Map<String, Object> getNetconfSessionList();
 
+    void close();
 }

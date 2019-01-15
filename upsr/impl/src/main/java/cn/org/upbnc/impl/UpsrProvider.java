@@ -29,6 +29,7 @@ public class UpsrProvider implements AutoCloseable {
     private final Session upsr = Session.getSession();
     private final RpcProviderRegistry rpcRegistry;
     private final DataBroker dataBroker;
+    private NetconfSessionODLApi netconfSessionODLApi;
 
     //ODL REST Service RpcRegistration start;
     private BindingAwareBroker.RpcRegistration<UpsrTopoService> topoInfoServiceReg;
@@ -70,10 +71,11 @@ public class UpsrProvider implements AutoCloseable {
     }
 
     private void registerServices() {
+        netconfSessionODLApi = new NetconfSessionODLApi(this.upsr);
         this.topoInfoServiceReg = this.rpcRegistry.addRpcImplementation(UpsrTopoService.class, new TopoInfoODLApi(this.upsr));
         this.upsrBgplsSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrBgplsSessionService.class, new BgplsSessionODLApi(this.upsr));
         this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrVpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
-        this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, new NetconfSessionODLApi(this.upsr));
+        this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, netconfSessionODLApi);
         this.upsrSrLabelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSrLabelService.class, new SrLabelODLApi(this.upsr));
         this.upsrInterfaceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrInterfaceService.class, new InterfaceODLApi(this.upsr));
         this.upsrSyncConfServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSyncConfService.class, new ConfSyncODLApi(this.upsr));
@@ -84,6 +86,7 @@ public class UpsrProvider implements AutoCloseable {
         this.topoInfoServiceReg.close();
         this.upsrBgplsSessionServiceRpcRegistration.close();
         this.vpnInstanceServiceRpcRegistration.close();
+        netconfSessionODLApi.close();
         this.upsrNetconfSessionServiceRpcRegistration.close();
         this.upsrSrLabelServiceRpcRegistration.close();
         this.upsrInterfaceServiceRpcRegistration.close();

@@ -27,4 +27,5 @@ public interface NetconfSessionService {
 
     boolean recoverNetconfSession();
 
+    void close();
 }

@@ -116,4 +116,9 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
     public Map<String, Object> getNetconfSessionList() {
         return this.netconfSessionService.getNetconfSession();
     }
+
+    @Override
+    public void close() {
+        this.netconfSessionService.close();
+    }
 }

@@ -281,4 +281,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         }
         return true;
     }
+
+    @Override
+    public void close() {
+        this.netConfManager.close();
+    }
 }

@@ -13,7 +13,6 @@ import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.netconf.SessionListener;
-import cn.org.upbnc.util.xml.VpnXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public List<NetConf> getDevices() {
+    public synchronized List<NetConf> getDevices() {
         for (String key : netConfMap.keySet()) {
             if (NetConfStatusEnum.Disconnect.equals(netConfMap.get(key).getStatus())) {
                 reconnect(key);
@@ -83,7 +82,7 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public List<NetconfClient> getNetconClients() {
+    public synchronized List<NetconfClient> getNetconClients() {
         for (String key : netconfClientMap.keySet()) {
             if (!netconfClientMap.get(key).isFlag()) {
                 reconnect(key);
@@ -93,7 +92,7 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public NetconfClient getNetconClient(String ip) {
+    public synchronized NetconfClient getNetconClient(String ip) {
         NetconfClient netconfClient = null;
         if (netconfClientMap.containsKey(ip)) {
             if (!netconfClientMap.get(ip).isFlag()) {
@@ -123,7 +122,7 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public NetConf getDevice(String ip) {
+    public synchronized NetConf getDevice(String ip) {
         NetConf netConf = new NetConf();
         if (netConfMap.containsKey(ip)) {
             if (NetConfStatusEnum.Disconnect.equals(netConfMap.get(ip).getStatus())) {
@@ -135,13 +134,20 @@ public class NetConfManagerImpl implements NetConfManager {
     }
 
     @Override
-    public void deleteDevice(NetConf netConf) {
+    public synchronized void deleteDevice(NetConf netConf) {
         if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
             netconfClientMap.get(netConf.getIp().getAddress()).clientSession.close();
             netconfClientMap.remove(netConf.getIp().getAddress());
         }
         if (netConfMap.containsKey(netConf.getIp().getAddress())) {
             netConfMap.remove(netConf.getIp().getAddress());
+        }
+    }
+
+    @Override
+    public void close() {
+        for (String key : netconfClientMap.keySet()) {
+            netconfClientMap.get(key).clientSession.close();
         }
     }
 }

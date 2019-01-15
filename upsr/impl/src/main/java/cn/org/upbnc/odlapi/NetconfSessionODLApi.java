@@ -188,4 +188,7 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
         netconfOutputBuilder.setResult("failed");
         return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
     }
+    public void close() {
+        this.getNetconfSessionApi().close();
+    }
 }
