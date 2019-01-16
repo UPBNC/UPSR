@@ -397,6 +397,7 @@ public class TunnelServiceImpl implements TunnelService {
         AdjLabel adjLabelTemp;
         for (SSrTeTunnel srTeTunnel : srTeTunnels) {
             tunnel = new Tunnel();
+            Device destDevice = this.deviceManager.getDevice(srTeTunnel.getMplsTunnelEgressLSRId());
             bfdSession = new BfdSession();
             bfdSession.setMultiplier(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
             bfdSession.setMinSendTime(srTeTunnel.getMplsTeTunnelBfdMinTx());
@@ -407,6 +408,9 @@ public class TunnelServiceImpl implements TunnelService {
             tunnel.setTunnelName(srTeTunnel.getTunnelName());
             tunnel.setTunnelId(srTeTunnel.getMplsTunnelIndex());
             tunnel.setDestRouterId(srTeTunnel.getMplsTunnelEgressLSRId());
+            if (destDevice != null) {
+                tunnel.setDestDeviceName(destDevice.getDeviceName());
+            }
             tunnel.setBandWidth(srTeTunnel.getMplsTunnelBandwidth());
             explicitPaths = new ArrayList<>();
             List<SSrTeTunnelPath> srTeTunnelPaths = srTeTunnel.getSrTeTunnelPaths();
