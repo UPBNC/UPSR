@@ -144,6 +144,7 @@ public class SrTeTunnelXml {
                     srTeTunnel.setTunnelName(element.elementText("tunnelName"));
                     srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));
                     srTeTunnel.setMplsTunnelIndex(element.elementText("mplsTunnelIndex"));
+                    srTeTunnel.setMplsTunnelBandwidth(element.elementText("mplsTunnelBandwidth"));
                     srTeTunnel.setMplsTeTunnelBfdMinTx(
                             element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdMinTx"));
                     srTeTunnel.setMplsTeTunnelBfdMinnRx(
