@@ -33,20 +33,30 @@ public class SrTeTunnelXml {
                     "            <mplsTunnelIndex>" + srTeTunnel.getMplsTunnelIndex() + "</mplsTunnelIndex>\n" +
                     "            <hotStandbyEnable>true</hotStandbyEnable>" +
                     "            <mplsTeTunnelSetupPriority>" + srTeTunnel.getMplsTeTunnelSetupPriority() + "</mplsTeTunnelSetupPriority>\n" +
-                    "            <holdPriority>" + srTeTunnel.getHoldPriority() + "</holdPriority>\n" +
-                    "            <mplsTunnelBandwidth>" + srTeTunnel.getMplsTunnelBandwidth() + "</mplsTunnelBandwidth>\n" +
+                    "            <holdPriority>" + srTeTunnel.getHoldPriority() + "</holdPriority>\n";
+            if (!("".equals(srTeTunnel.getMplsTunnelBandwidth()))) {
+                middle = middle +
+                        "            <mplsTunnelBandwidth>" + srTeTunnel.getMplsTunnelBandwidth() + "</mplsTunnelBandwidth>\n";
+            }
+            middle = middle +
                     "            <resvForBinding>true</resvForBinding>\n" +
                     "            <tunnelInterface>\n" +
                     "              <interfaceName>" + srTeTunnel.getTunnelName() + "</interfaceName>\n" +
                     "              <lsp_tpEnable>true</lsp_tpEnable>" +
                     "              <statEnable>true</statEnable>\n" +
-                    "            </tunnelInterface>\n" +
-                    "            <mplsTeTunnelBfd>\n" +
-                    "              <mplsTeTunnelBfdEnable>true</mplsTeTunnelBfdEnable>" +
-                    "              <mplsTeTunnelBfdMinTx>" + srTeTunnel.getMplsTeTunnelBfdMinTx() + "</mplsTeTunnelBfdMinTx>\n" +
-                    "              <mplsTeTunnelBfdMinnRx>" + srTeTunnel.getMplsTeTunnelBfdMinnRx() + "</mplsTeTunnelBfdMinnRx>\n" +
-                    "              <mplsTeTunnelBfdDetectMultiplier>" + srTeTunnel.getMplsTeTunnelBfdDetectMultiplier() + "</mplsTeTunnelBfdDetectMultiplier>\n" +
-                    "            </mplsTeTunnelBfd>\n";
+                    "            </tunnelInterface>\n";
+            if ("".equals(srTeTunnel.getMplsTeTunnelBfdMinTx()) || "".equals(srTeTunnel.getMplsTeTunnelBfdMinnRx())
+                    || "".equals(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier())) {
+                LOG.info("bfd is not set.");
+            } else {
+                middle = middle +
+                        "            <mplsTeTunnelBfd>\n" +
+                        "              <mplsTeTunnelBfdEnable>true</mplsTeTunnelBfdEnable>" +
+                        "              <mplsTeTunnelBfdMinTx>" + srTeTunnel.getMplsTeTunnelBfdMinTx() + "</mplsTeTunnelBfdMinTx>\n" +
+                        "              <mplsTeTunnelBfdMinnRx>" + srTeTunnel.getMplsTeTunnelBfdMinnRx() + "</mplsTeTunnelBfdMinnRx>\n" +
+                        "              <mplsTeTunnelBfdDetectMultiplier>" + srTeTunnel.getMplsTeTunnelBfdDetectMultiplier() + "</mplsTeTunnelBfdDetectMultiplier>\n" +
+                        "            </mplsTeTunnelBfd>\n";
+            }
             String pathsStart = "";
             if (srTeTunnel.getSrTeTunnelPaths() != null && srTeTunnel.getSrTeTunnelPaths().size() > 0) {
                 pathsStart = "            <srTeTunnelPaths>\n";
@@ -62,9 +72,7 @@ public class SrTeTunnelXml {
                 String pathsEnd =
                         "            </srTeTunnelPaths>\n";
                 pathsStart = pathsStart + pathsMiddle + pathsEnd;
-
             }
-
             String middleEnd =
                     "          </srTeTunnel>\n" +
                             "        </srTeTunnels>\n" +
@@ -148,7 +156,10 @@ public class SrTeTunnelXml {
                         srTeTunnelPath = new SSrTeTunnelPath();
                         srTeTunnelPath.setPathType(child.elementText("pathType"));
                         srTeTunnelPath.setExplicitPathName(child.elementText("explicitPathName"));
-                        srTeTunnelPaths.add(srTeTunnelPath);
+                        LOG.info("child.elementText(\"explicitPathName\") :" + child.elementText("explicitPathName"));
+                        if (null != child.elementText("explicitPathName")) {
+                            srTeTunnelPaths.add(srTeTunnelPath);
+                        }
                     }
                     srTeTunnel.setSrTeTunnelPaths(srTeTunnelPaths);
                     srTeTunnels.add(srTeTunnel);

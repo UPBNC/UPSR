@@ -69,27 +69,27 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelInstancesBuilder.setDestDevice(tunnel.getDestDeviceName());
             tunnelInstancesBuilder.setDestRouterId(tunnel.getDestRouterId());
             tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
-
             tunnelBfdBuilder = new TunnelBfdBuilder();
             tunnelBfdBuilder.setBfdMultiplier(tunnel.getBfdSession().getMultiplier());
             tunnelBfdBuilder.setBfdrxInterval(tunnel.getBfdSession().getMinRecvTime());
             tunnelBfdBuilder.setBfdtxInterval(tunnel.getBfdSession().getMinSendTime());
             tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
-
             ExplicitPath mainPath = tunnel.getMasterPath();
-            map = mainPath.getLabelMap();
-            for (String key : map.keySet()) {
-                mainPathBuilder = new MainPathBuilder();
-                mainPathBuilder.setIndex(key);
-                if (null != map.get(key).getAddressLocal()) {
-                    mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
+            if (mainPath != null) {
+                map = mainPath.getLabelMap();
+                for (String key : map.keySet()) {
+                    mainPathBuilder = new MainPathBuilder();
+                    mainPathBuilder.setIndex(key);
+                    if (null != map.get(key).getAddressLocal()) {
+                        mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
+                    }
+                    if (null != map.get(key).getDevice()) {
+                        mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
+                        mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
+                    }
+                    mainPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
+                    mainPathList.add(mainPathBuilder.build());
                 }
-                if (null != map.get(key).getDevice()) {
-                    mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
-                    mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
-                }
-                mainPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
-                mainPathList.add(mainPathBuilder.build());
             }
             tunnelInstancesBuilder.setMainPath(mainPathList);
             ExplicitPath backPath = tunnel.getSlavePath();
@@ -108,8 +108,8 @@ public class TunnelODLApi implements UpsrTunnelService {
                     backPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
                     backPathList.add(backPathBuilder.build());
                 }
-                tunnelInstancesBuilder.setBackPath(backPathList);
             }
+            tunnelInstancesBuilder.setBackPath(backPathList);
             tunnelInstancesList.add(tunnelInstancesBuilder.build());
         }
         return tunnelInstancesList;
