@@ -38,7 +38,7 @@ public class ExplicitPathXml {
                         "                <mplsTunnelHopIndex>" + explicitPathHop.getMplsTunnelHopIndex() + "</mplsTunnelHopIndex>\n" +
                         "                <mplsTunnelHopMode>SID_LABEL</mplsTunnelHopMode>\n" +
                         "                <mplsTunnelHopSidLabel>" + explicitPathHop.getMplsTunnelHopSidLabel() + "</mplsTunnelHopSidLabel>\n" +
-                        "                <mplsTunnelHopSidLabelType>adjacency</mplsTunnelHopSidLabelType>\n" +
+                        "                <mplsTunnelHopSidLabelType>" + explicitPathHop.getMplsTunnelHopSidLabelType() + "</mplsTunnelHopSidLabelType>\n" +
                         "              </explicitPathHop>\n";
             }
             String middleEnd =

@@ -185,7 +185,17 @@ public class DeviceManagerImpl implements DeviceManager {
         return this.deviceList;
     }
 
-
+    @Override
+    public Device getDeviceByNodeLabelValue(int labelVal) {
+        Iterator<Device> deviceIterator = this.deviceList.iterator();
+        while(deviceIterator.hasNext()){
+            Device device = deviceIterator.next();
+            if ((labelVal - device.getMinNodeSID().intValue()) == device.getNodeLabel().getValue()) {
+                return device;
+            }
+        }
+        return null;
+    }
 
     // 更新Device
     private Device updateDevice(Device device,BgpDevice bgpDevice){

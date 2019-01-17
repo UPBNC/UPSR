@@ -1,10 +1,12 @@
 package cn.org.upbnc.util.netconf;
 
 public class SExplicitPathHop {
+    public static final String SIDLABEL_TYPE_ADJACENCY = "adjacency";
+    public static final String SIDLABEL_TYPE_PREFIX = "prefix";
     private String mplsTunnelHopIndex;
     private String mplsTunnelHopMode = "SID_LABEL";
     private String mplsTunnelHopSidLabel;
-    private String mplsTunnelHopSidLabelType = "adjacency";
+    private String mplsTunnelHopSidLabelType = SIDLABEL_TYPE_ADJACENCY;
 
     public String getMplsTunnelHopIndex() {
         return mplsTunnelHopIndex;

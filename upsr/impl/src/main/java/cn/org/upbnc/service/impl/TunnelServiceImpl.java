@@ -5,10 +5,7 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.CodeEnum;
-import cn.org.upbnc.enumtype.NetConfStatusEnum;
-import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.TunnelErrorCodeEnum;
+import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.service.TunnelService;
 import cn.org.upbnc.service.entity.DetectTunnelServiceEntity;
 import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
@@ -205,41 +202,32 @@ public class TunnelServiceImpl implements TunnelService {
         return flag;
     }
 
+    private SExplicitPath buildSExplicitPath(String explicitPathName,List<TunnelHopServiceEntity> tunnelHopServiceEntityList) {
+        SExplicitPath explicitPath = null;
+        if (tunnelHopServiceEntityList.size() > 0) {
+            explicitPath = new SExplicitPath();
+            explicitPath.setExplicitPathName(explicitPathName);
+            List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
+            for (TunnelHopServiceEntity entity : tunnelHopServiceEntityList) {
+                SExplicitPathHop explicitPathHop = new SExplicitPathHop();
+                if (entity.getIfAddress().equals(entity.getRouterId())) {
+                    explicitPathHop.setMplsTunnelHopSidLabelType(SExplicitPathHop.SIDLABEL_TYPE_PREFIX);
+                }
+                explicitPathHop.setMplsTunnelHopIndex(entity.getIndex());
+                explicitPathHop.setMplsTunnelHopSidLabel(entity.getAdjlabel());
+                explicitPathHops.add(explicitPathHop);
+            }
+            explicitPath.setExplicitPathHops(explicitPathHops);
+        }
+        return explicitPath;
+    }
+
     private boolean createExplicitPath(NetconfClient netconfClient, TunnelServiceEntity tunnelServiceEntity) {
         boolean flag = false;
         String tunnelName = tunnelServiceEntity.getTunnelName();
         List<SExplicitPath> explicitPaths = new ArrayList<>();
-        SExplicitPath explicitPath;
-        List<TunnelHopServiceEntity> tunnelMainPathHopServiceEntities = tunnelServiceEntity.getMainPath();
-        if (tunnelMainPathHopServiceEntities.size() > 0) {
-            String mainPathExplicitPathName = tunnelName + link;
-            explicitPath = new SExplicitPath();
-            explicitPath.setExplicitPathName(mainPathExplicitPathName);
-            List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
-            for (TunnelHopServiceEntity entity : tunnelMainPathHopServiceEntities) {
-                SExplicitPathHop explicitPathHop = new SExplicitPathHop();
-                explicitPathHop.setMplsTunnelHopIndex(entity.getIndex());
-                explicitPathHop.setMplsTunnelHopSidLabel(entity.getAdjlabel());
-                explicitPathHops.add(explicitPathHop);
-            }
-            explicitPath.setExplicitPathHops(explicitPathHops);
-            explicitPaths.add(explicitPath);
-        }
-        List<TunnelHopServiceEntity> tunnelBackPathHopServiceEntities = tunnelServiceEntity.getBackPath();
-        if (tunnelBackPathHopServiceEntities.size() > 0) {
-            String backPathExplicitPathName = tunnelName + linkback;
-            explicitPath = new SExplicitPath();
-            explicitPath.setExplicitPathName(backPathExplicitPathName);
-            List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
-            for (TunnelHopServiceEntity entity : tunnelBackPathHopServiceEntities) {
-                SExplicitPathHop explicitPathHop = new SExplicitPathHop();
-                explicitPathHop.setMplsTunnelHopIndex(entity.getIndex());
-                explicitPathHop.setMplsTunnelHopSidLabel(entity.getAdjlabel());
-                explicitPathHops.add(explicitPathHop);
-            }
-            explicitPath.setExplicitPathHops(explicitPathHops);
-            explicitPaths.add(explicitPath);
-        }
+        explicitPaths.add(buildSExplicitPath(tunnelName + link,tunnelServiceEntity.getMainPath()));
+        explicitPaths.add(buildSExplicitPath(tunnelName + linkback,tunnelServiceEntity.getBackPath()));
         LOG.info(ExplicitPathXml.createExplicitPathXml(explicitPaths));
         String result = netconfController.sendMessage(netconfClient, ExplicitPathXml.createExplicitPathXml(explicitPaths));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
@@ -456,26 +444,36 @@ public class TunnelServiceImpl implements TunnelService {
                 List<SExplicitPathHop> sExplicitPathHops = sExplicitPath.getExplicitPathHops();
                 for (SExplicitPathHop hop : sExplicitPathHops) {
                     adjLabel = new AdjLabel();
-                    if (flag) {
-                        adjLabel.setDevice(deviceTemp);
-                        for (AdjLabel label : deviceTemp.getAdjLabelList()) {
-                            if (label.getValue().equals(Integer.valueOf(hop.getMplsTunnelHopSidLabel()))) {
-                                adjLabel.setAddressLocal(label.getAddressLocal());
-                                adjLabel.setAddressRemote(label.getAddressRemote());
-                                break;
+                    if (hop.getMplsTunnelHopSidLabelType().equals(SExplicitPathHop.SIDLABEL_TYPE_ADJACENCY)) {
+                        if (flag) {
+                            adjLabel.setDevice(deviceTemp);
+                            for (AdjLabel label : deviceTemp.getAdjLabelList()) {
+                                if (label.getValue().equals(Integer.valueOf(hop.getMplsTunnelHopSidLabel()))) {
+                                    adjLabel.setAddressLocal(label.getAddressLocal());
+                                    adjLabel.setAddressRemote(label.getAddressRemote());
+                                    break;
+                                }
+                            }
+                            if (null == adjLabel.getAddressRemote()) {
+                                deviceTemp = null;
+                            } else {
+                                deviceTemp = findLocalAndRemoteAddress(adjLabel.getAddressRemote().getAddress());
                             }
                         }
-                        if (null == adjLabel.getAddressRemote()) {
-                            deviceTemp = null;
-                        } else {
-                            deviceTemp = findLocalAndRemoteAddress(adjLabel.getAddressRemote().getAddress());
+                        if (null == deviceTemp) {
+                            flag = false;
+                        }
+                        adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                        labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
+                    } else {
+                        deviceTemp = deviceManager.getDeviceByNodeLabelValue(Integer.parseInt(hop.getMplsTunnelHopSidLabel()));
+                        if (deviceTemp != null) {
+                            adjLabel.setDevice(deviceTemp);
+                            adjLabel.setAddressLocal(new Address(deviceTemp.getRouterId(), AddressTypeEnum.V4));
+                            adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                            labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
                         }
                     }
-                    if (null == deviceTemp) {
-                        flag = false;
-                    }
-                    adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
-                    labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
                 }
                 path.setPathName(sExplicitPath.getExplicitPathName());
                 path.setDevice(device);

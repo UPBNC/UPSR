@@ -19,6 +19,7 @@ public interface DeviceManager {
 
     // Get device fucntions
     Device getDevice(String routerId);
+    Device getDeviceByNodeLabelValue(int labelVal);
     Device getDeviceByDeviceName(String deviceName);
     Device getDeviceByNetconfIP(String deviceIP);
     List<Device> getDeviceList();
