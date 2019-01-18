@@ -155,7 +155,11 @@ public class TunnelODLApi implements UpsrTunnelService {
         }
         TunnelServiceEntity tunnelServiceEntity = new TunnelServiceEntity();
         tunnelServiceEntity.setTunnelId(input.getTunnelId());
-        tunnelServiceEntity.setTunnelName(input.getTunnelName());
+        String tunnelName = input.getTunnelName();
+        String partOne = tunnelName.substring(0, 1).toUpperCase();
+        String partTwo = tunnelName.substring(1);
+        tunnelName = partOne + partTwo;
+        tunnelServiceEntity.setTunnelName(tunnelName);
         tunnelServiceEntity.setEgressLSRId(input.getDestRouterId());
         tunnelServiceEntity.setBandwidth(input.getBandWidth());
         this.tunnelBfdBuild(tunnelServiceEntity, input);
@@ -184,7 +188,11 @@ public class TunnelODLApi implements UpsrTunnelService {
             this.getTunnelApi();
         }
         LOG.info("deleteTunnelInstance input : " + input);
-        Map<String, Object> resultMap = this.tunnelApi.deleteTunnel(input.getRouterId(), input.getTunnelName());
+        String tunnelName = input.getTunnelName();
+        String partOne = tunnelName.substring(0, 1).toUpperCase();
+        String partTwo = tunnelName.substring(1);
+        tunnelName = partOne + partTwo;
+        Map<String, Object> resultMap = this.tunnelApi.deleteTunnel(input.getRouterId(), tunnelName);
         String code = (String) resultMap.get(ResponseEnum.CODE.getName());
         if (CodeEnum.SUCCESS.getName().equals(code)) {
             deleteTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());

@@ -97,7 +97,11 @@ public class TunnelServiceImpl implements TunnelService {
         String mainPathExplicitPathName = tunnelName + link;
         String backPathExplicitPathName = tunnelName + linkback;
         Tunnel tunnel = new Tunnel();
-        tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
+        if ("".equals(tunnelServiceEntity.getBandwidth())) {
+            tunnel.setBandWidth("0");
+        } else {
+            tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
+        }
         tunnel.setBfdEnable(true);
         tunnel.setDestRouterId(tunnelServiceEntity.getEgressLSRId());
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
@@ -431,57 +435,59 @@ public class TunnelServiceImpl implements TunnelService {
                     explicitPaths.add(explicitPath);
                 }
             }
-            xml = ExplicitPathXml.getExplicitPathXml(explicitPaths);
-            LOG.info(xml);
-            result = netconfController.sendMessage(netconfClient, xml);
-            List<SExplicitPath> paths = ExplicitPathXml.getExplicitPathFromXml(result);
-            boolean flag;
-            for (SExplicitPath sExplicitPath : paths) {
-                Device deviceTemp = this.deviceManager.getDevice(routerId);
-                flag = true;
-                path = new ExplicitPath();
-                labelMap = new LinkedHashMap<>();
-                List<SExplicitPathHop> sExplicitPathHops = sExplicitPath.getExplicitPathHops();
-                for (SExplicitPathHop hop : sExplicitPathHops) {
-                    adjLabel = new AdjLabel();
-                    if (hop.getMplsTunnelHopSidLabelType().equals(SExplicitPathHop.SIDLABEL_TYPE_ADJACENCY)) {
-                        if (flag) {
-                            adjLabel.setDevice(deviceTemp);
-                            for (AdjLabel label : deviceTemp.getAdjLabelList()) {
-                                if (label.getValue().equals(Integer.valueOf(hop.getMplsTunnelHopSidLabel()))) {
-                                    adjLabel.setAddressLocal(label.getAddressLocal());
-                                    adjLabel.setAddressRemote(label.getAddressRemote());
-                                    break;
+            if(explicitPaths.size()>0){
+                xml = ExplicitPathXml.getExplicitPathXml(explicitPaths);
+                LOG.info(xml);
+                result = netconfController.sendMessage(netconfClient, xml);
+                List<SExplicitPath> paths = ExplicitPathXml.getExplicitPathFromXml(result);
+                boolean flag;
+                for (SExplicitPath sExplicitPath : paths) {
+                    Device deviceTemp = this.deviceManager.getDevice(routerId);
+                    flag = true;
+                    path = new ExplicitPath();
+                    labelMap = new LinkedHashMap<>();
+                    List<SExplicitPathHop> sExplicitPathHops = sExplicitPath.getExplicitPathHops();
+                    for (SExplicitPathHop hop : sExplicitPathHops) {
+                        adjLabel = new AdjLabel();
+                        if (hop.getMplsTunnelHopSidLabelType().equals(SExplicitPathHop.SIDLABEL_TYPE_ADJACENCY)) {
+                            if (flag) {
+                                adjLabel.setDevice(deviceTemp);
+                                for (AdjLabel label : deviceTemp.getAdjLabelList()) {
+                                    if (label.getValue().equals(Integer.valueOf(hop.getMplsTunnelHopSidLabel()))) {
+                                        adjLabel.setAddressLocal(label.getAddressLocal());
+                                        adjLabel.setAddressRemote(label.getAddressRemote());
+                                        break;
+                                    }
+                                }
+                                if (null == adjLabel.getAddressRemote()) {
+                                    deviceTemp = null;
+                                } else {
+                                    deviceTemp = findLocalAndRemoteAddress(adjLabel.getAddressRemote().getAddress());
                                 }
                             }
-                            if (null == adjLabel.getAddressRemote()) {
-                                deviceTemp = null;
-                            } else {
-                                deviceTemp = findLocalAndRemoteAddress(adjLabel.getAddressRemote().getAddress());
+                            if (null == deviceTemp) {
+                                flag = false;
                             }
-                        }
-                        if (null == deviceTemp) {
-                            flag = false;
-                        }
-                        adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
-                        labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
-                    } else {
-                        deviceTemp = deviceManager.getDeviceByNodeLabelValue(Integer.parseInt(hop.getMplsTunnelHopSidLabel()));
-                        if (deviceTemp != null) {
-                            adjLabel.setDevice(deviceTemp);
-                            adjLabel.setAddressLocal(new Address(deviceTemp.getRouterId(), AddressTypeEnum.V4));
                             adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
                             labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
+                        } else {
+                            deviceTemp = deviceManager.getDeviceByNodeLabelValue(Integer.parseInt(hop.getMplsTunnelHopSidLabel()));
+                            if (deviceTemp != null) {
+                                adjLabel.setDevice(deviceTemp);
+                                adjLabel.setAddressLocal(new Address(deviceTemp.getRouterId(), AddressTypeEnum.V4));
+                                adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                                labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
+                            }
                         }
                     }
-                }
-                path.setPathName(sExplicitPath.getExplicitPathName());
-                path.setDevice(device);
-                path.setLabelMap(labelMap);
-                if (masterPath.equals(sExplicitPath.getExplicitPathName())) {
-                    tunnel.setMasterPath(path);
-                } else {
-                    tunnel.setSlavePath(path);
+                    path.setPathName(sExplicitPath.getExplicitPathName());
+                    path.setDevice(device);
+                    path.setLabelMap(labelMap);
+                    if (masterPath.equals(sExplicitPath.getExplicitPathName())) {
+                        tunnel.setMasterPath(path);
+                    } else {
+                        tunnel.setSlavePath(path);
+                    }
                 }
             }
             tunnels.add(tunnel);
