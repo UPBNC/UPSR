@@ -120,7 +120,8 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     public Map<String, Object> deleteSrNodeLabelRange(Device device) {
-        if ((device.getMinNodeSID() != null) || (device.getMaxNodeSID() != null)) {
+        if (((device.getMinNodeSID() != null) && (device.getMinNodeSID().intValue() != 0)) ||
+                ((device.getMaxNodeSID() != null) && (device.getMaxNodeSID().intValue() != 0))) {
             NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
             String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
                     device.getMinNodeSID().toString(), device.getMaxNodeSID().toString(), SrLabelXml.ncOperationDelete);

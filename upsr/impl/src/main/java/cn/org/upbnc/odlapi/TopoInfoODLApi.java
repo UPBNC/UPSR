@@ -145,10 +145,10 @@ public class TopoInfoODLApi implements UpsrTopoService {
             srgbPrefixSidBuilder.setPrefixId(String.valueOf(new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID())));
             srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
             srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
-            if (device.getMinAdjSID() != null) {
-                srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
-                srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
-            }
+        }
+        if (device.getMinAdjSID() != null) {
+            srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());
+            srgbPrefixSidBuilder.setAdjEnd(device.getMaxAdjSID().toString());
         }
         return srgbPrefixSidBuilder;
     }

@@ -48,7 +48,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public Map<String, Object> updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
         Map<String, Object> resultMap = new HashMap<>();
-        if ((labelBegin == null) || (labelValAbs == null)) {
+        if ((labelBegin == null) || (labelValAbs == null) ||
+                labelBegin.equals("") || labelValAbs.equals("")) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;
@@ -64,11 +65,17 @@ public class SrLabelApiImpl implements SrLabelApi {
 
     @Override
     public Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
-        if ((labelBegin == null) || (labelEnd == null)) {
-            return null;
+        Map<String, Object> resultMap = new HashMap<>();
+        if ((labelBegin == null) || (labelEnd == null) ||
+                labelBegin.equals("") || labelEnd.equals("")) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
         }
         if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MAX_NODE_LABEL_RANGE) {
-            return null;
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.LABEL_INVALID.getMessage());
+            return resultMap;
         }
         return srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);
     }
@@ -76,7 +83,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
         Map<String, Object> resultMap = new HashMap<>();
-        if ((ifAddress == null) || (labelVal == null)) {
+        if ((ifAddress == null) || (labelVal == null) ||
+                ifAddress.equals("") || labelVal.equals("")) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;

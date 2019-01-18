@@ -147,10 +147,8 @@ public class SrLabelODLApi implements UpsrSrLabelService {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
         }
-        if (resultString.equals("")) {
-            resultString = CodeEnum.SUCCESS.getMessage();
-        }
-        return resultString;
+        LOG.info(resultString);
+        return CodeEnum.SUCCESS.getMessage();
     }
     private String enableSrLabel(UpdateSrLabelInput input) {
         String resultString = "";
@@ -180,9 +178,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
                 resultString = resultString + updateIntfLabelRet.get(ResponseEnum.MESSAGE.getName());
             }
         }
-        if (resultString.equals("")) {
-            resultString = CodeEnum.SUCCESS.getMessage();
-        }
-        return resultString;
+        LOG.info(resultString);
+        return CodeEnum.SUCCESS.getMessage();
     }
 }
