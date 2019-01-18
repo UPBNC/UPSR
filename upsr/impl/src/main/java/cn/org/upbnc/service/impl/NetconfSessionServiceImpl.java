@@ -223,6 +223,27 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     }
 
     @Override
+    public boolean isSyn(NetconfSession netconfSession) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getDeviceIP());
+        if (null == netconfClient) {
+            return true;
+        } else {
+            Device device = this.deviceManager.getDevice(netconfSession.getRouterId());
+            if (null != device) {
+                if (!(device.getNetConf().getIp().getAddress().equals(netconfSession.getDeviceIP()))) {
+                    return true;
+                }
+            }
+            NetConf netConf = this.netConfManager.getDevice(netconfSession.getDeviceIP());
+            NetConfStatusEnum netConfStatus = netConf.getStatus();
+            if (NetConfStatusEnum.Connected != netConfStatus) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "NetconfSessionServiceImpl{" +
                 "baseInterface=" + baseInterface +

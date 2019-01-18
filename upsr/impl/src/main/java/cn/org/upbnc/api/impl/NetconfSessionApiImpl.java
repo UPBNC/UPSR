@@ -56,31 +56,34 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceName , deviceIP or devicePort is null");
             return resultMap;
         }
+        boolean isSyn = this.netconfSessionService.isSyn(netconfSession);
         boolean ret = (boolean) this.netconfSessionService.updateNetconfSession(netconfSession).get(ResponseEnum.BODY.getName());
         String result = null;
         if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
-            String tmpRet = null;
-            result = "sync device configure start......";
-            tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
-            result += tmpRet;
-            result += "\n";
-            result += "sync vpnInstance configure....";
-            tmpRet = this.serviceInterface.getVpnService().syncVpnInstanceConf(routerId) ? " success" : "failed";
-            result += tmpRet;
-            result += "\n";
-            result += "sync IntfLabel configure....";
-            tmpRet = this.serviceInterface.getSrLabelService().syncIntfLabel(routerId) ? " success" : "failed";
-            result += tmpRet;
-            result += "\n";
-            result += "sync NodeLabel configure....";
-            tmpRet = this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success" : "failed";
-            result += tmpRet;
-            result += "\n";
-            tmpRet = this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
-            result += tmpRet;
-            result += "\n";
-            result += "sync tunnel configure....";
-            result += "sync device configure end.";
+            if (isSyn) {
+                String tmpRet = null;
+                result = "sync device configure start......";
+                tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
+                result += tmpRet;
+                result += "\n";
+                result += "sync vpnInstance configure....";
+                tmpRet = this.serviceInterface.getVpnService().syncVpnInstanceConf(routerId) ? " success" : "failed";
+                result += tmpRet;
+                result += "\n";
+                result += "sync IntfLabel configure....";
+                tmpRet = this.serviceInterface.getSrLabelService().syncIntfLabel(routerId) ? " success" : "failed";
+                result += tmpRet;
+                result += "\n";
+                result += "sync NodeLabel configure....";
+                tmpRet = this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success" : "failed";
+                result += tmpRet;
+                result += "\n";
+                tmpRet = this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
+                result += tmpRet;
+                result += "\n";
+                result += "sync tunnel configure....";
+                result += "sync device configure end.";
+            }
         }
         if (ret) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());

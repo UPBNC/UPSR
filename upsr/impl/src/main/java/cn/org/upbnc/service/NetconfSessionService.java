@@ -25,6 +25,8 @@ public interface NetconfSessionService {
 
     Map<String, Object> getNetconfSession();
 
+    boolean isSyn(NetconfSession netconfSession);
+
     boolean recoverNetconfSession();
 
     void close();
