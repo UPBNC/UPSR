@@ -14,26 +14,37 @@ import java.util.List;
 
 public interface VpnInstanceManager {
     boolean addVpnInstance(VPNInstance vpnInstance);
+
     boolean delVpnInstance(Integer id);
+
     boolean delVpnInstance(String routerId, String vpnName);
+
     VPNInstance getVpnInstance(Integer id);
+
     VPNInstance getVpnInstance(String routerId, String vpnName);
+
     VPNInstance updateVpnInstance(String vpnName,
-                                     String routerId,
-                                     Device device,
-                                     String businessRegion,
-                                     String rd,
-                                     String importRT,
-                                     String exportRT,
-                                     Integer peerAS,
-                                     Address peerIP,
-                                     Integer routeSelectDelay,
-                                     Integer importDirectRouteEnable,
-                                     List<DeviceInterface> deviceInterfaceList,
-                                     List<NetworkSeg> networkSegList);
-    VPNInstance  updateVpnInstance(VPNInstance vpnInstance);
+                                  String routerId,
+                                  Device device,
+                                  String businessRegion,
+                                  String rd,
+                                  String importRT,
+                                  String exportRT,
+                                  Integer peerAS,
+                                  Address peerIP,
+                                  Integer routeSelectDelay,
+                                  Integer importDirectRouteEnable,
+                                  List<DeviceInterface> deviceInterfaceList,
+                                  List<NetworkSeg> networkSegList,
+                                  String note);
+
+    VPNInstance updateVpnInstance(VPNInstance vpnInstance);
+
     List<VPNInstance> getVpnInstanceList();
+
     List<VPNInstance> getVpnInstanceListByRouterId(String routerId);
+
     boolean isContainVpnName(String vpnName);
-    boolean isContainRd(String routerId,String rd);
+
+    boolean isContainRd(String routerId, String rd);
 }

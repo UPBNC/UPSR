@@ -123,6 +123,9 @@ public class VPNServiceImpl implements VPNService {
         }
 
         L3vpnInstance l3vpnInstance = new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIfList);
+        if (null != updateVpnInstance.getNote()) {
+            l3vpnInstance.setVrfDescription(updateVpnInstance.getNote());
+        }
         BgpVrf bgpVrf = mapEbgpInfoToBgpVfr(vpnName, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
 
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
@@ -209,7 +212,7 @@ public class VPNServiceImpl implements VPNService {
         //vpn info update in vpnManager
         if (true == ret) {
             this.vpnInstanceManager.updateVpnInstance(vpnName, routerId, device, businessRegion, rd, importRT, exportRT,
-                    peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, deviceInterfaceList, networkSegList);
+                    peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, deviceInterfaceList, networkSegList, updateVpnInstance.getNote());
         }
         resultMap.put(ResponseEnum.BODY.getName(), true);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -428,11 +431,12 @@ public class VPNServiceImpl implements VPNService {
             return null;
         }
         VPNInstance vpnInstance = new VPNInstance(routerId, l3vpnInstance.getVrfName());
-
         vpnInstance.setDevice(device);
         vpnInstance.setRd(l3vpnInstance.getVrfRD());
         vpnInstance.setExportRT(l3vpnInstance.getVrfRTValue());
         vpnInstance.setImportRT(l3vpnInstance.getVrfRTValue());
+        vpnInstance.setNote(l3vpnInstance.getVrfDescription());
+        vpnInstance.setBusinessRegion("VPN隔离");
         LOG.info("get vrfname={} rt={}", new Object[]{l3vpnInstance.getVrfRD(), l3vpnInstance.getVrfRTValue()});
         List<L3vpnIf> l3vpnIfs = l3vpnInstance.getL3vpnIfs();
         if (null != l3vpnIfs) {

@@ -28,7 +28,7 @@ public class VPNInstance {
     private Integer importDirectRouteEnable;
     private List<NetworkSeg> networkSegList;
     private boolean RefreshFlag;
-
+    private String note;
 
 
     public VPNInstance() {
@@ -46,7 +46,7 @@ public class VPNInstance {
         this.routeSelectDelay = 0;
         this.importDirectRouteEnable = 2;
         this.networkSegList = new ArrayList<NetworkSeg>();
-        RefreshFlag=false;
+        RefreshFlag = false;
     }
 
     public VPNInstance(Integer id,
@@ -66,7 +66,7 @@ public class VPNInstance {
         this.id = id;
         this.device = device;
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
-        if(null  != deviceInterfaceList) {
+        if (null != deviceInterfaceList) {
             this.deviceInterfaceList.addAll(deviceInterfaceList);
         }
         this.vpnName = vpnName;
@@ -80,10 +80,10 @@ public class VPNInstance {
         this.routeSelectDelay = routeSelectDelay;
         this.importDirectRouteEnable = importDirectRouteEnable;
         this.networkSegList = new ArrayList<NetworkSeg>();
-        if(null != networkSegList) {
+        if (null != networkSegList) {
             this.networkSegList.addAll(networkSegList);
         }
-        RefreshFlag=false;
+        RefreshFlag = false;
     }
 
     public VPNInstance(String routerId, String vpnName) {
@@ -92,7 +92,15 @@ public class VPNInstance {
         this.deviceInterfaceList = new ArrayList<DeviceInterface>();
         this.networkSegList = new ArrayList<NetworkSeg>();
         this.importDirectRouteEnable = 2;
-        RefreshFlag=false;
+        RefreshFlag = false;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public Integer getId() {
@@ -219,12 +227,12 @@ public class VPNInstance {
         RefreshFlag = refreshFlag;
     }
 
-    public boolean isIfmBinded(String ifmName){
-        if(null==ifmName){
+    public boolean isIfmBinded(String ifmName) {
+        if (null == ifmName) {
             return false;
         }
-        for(DeviceInterface deviceInterface:deviceInterfaceList){
-            if(deviceInterface.getName().equals(ifmName)){
+        for (DeviceInterface deviceInterface : deviceInterfaceList) {
+            if (deviceInterface.getName().equals(ifmName)) {
                 return true;
             }
         }
@@ -237,127 +245,128 @@ public class VPNInstance {
     }
 
     public Map<String, Boolean> compareVpnInfo(String vpnName,
-                                String routerId,
-                                String businessRegion,
-                                String rd,
-                                String importRT,
-                                String exportRT,
-                                Integer peerAS,
-                                Address peerIP,
-                                Integer routeSelectDelay,
-                                Integer importDirectRouteEnable,
-                                List<DeviceInterface> deviceInterfaceList,
-                                List<NetworkSeg> networkSegList) {
+                                               String routerId,
+                                               String businessRegion,
+                                               String rd,
+                                               String importRT,
+                                               String exportRT,
+                                               Integer peerAS,
+                                               Address peerIP,
+                                               Integer routeSelectDelay,
+                                               Integer importDirectRouteEnable,
+                                               List<DeviceInterface> deviceInterfaceList,
+                                               List<NetworkSeg> networkSegList) {
 
-        Map<String, Boolean> compMap=new HashMap<String,Boolean>();
-        boolean isRdChanged=false;
-        boolean isRtChanged=false;
-        boolean isIfmChanged=false;
-        boolean isEbgpChanged=false;
-        if(!rd.equals(this.rd)){
-            isRdChanged=true;
-            isRtChanged=true;
-            isEbgpChanged=true;
-        }else{
-            if(!exportRT.equals(this.exportRT)){
-                isRtChanged=true;
+        Map<String, Boolean> compMap = new HashMap<String, Boolean>();
+        boolean isRdChanged = false;
+        boolean isRtChanged = false;
+        boolean isIfmChanged = false;
+        boolean isEbgpChanged = false;
+        if (!rd.equals(this.rd)) {
+            isRdChanged = true;
+            isRtChanged = true;
+            isEbgpChanged = true;
+        } else {
+            if (!exportRT.equals(this.exportRT)) {
+                isRtChanged = true;
             }
-            if(!compareEbgpInfoIsEqual(peerAS,peerIP,routeSelectDelay,importDirectRouteEnable,networkSegList)){
-                isEbgpChanged=true;
+            if (!compareEbgpInfoIsEqual(peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList)) {
+                isEbgpChanged = true;
             }
         }
-        if(!compareDeviceInterfaceListInfoIsEqual(deviceInterfaceList)){
-            isIfmChanged=true;
+        if (!compareDeviceInterfaceListInfoIsEqual(deviceInterfaceList)) {
+            isIfmChanged = true;
         }
 
-        compMap.put("isRdChanged",isRdChanged);
-        compMap.put("isRtChanged",isRtChanged);
-        compMap.put("isIfmChanged",isIfmChanged);
-        compMap.put("isEbgpChanged",isEbgpChanged);
+        compMap.put("isRdChanged", isRdChanged);
+        compMap.put("isRtChanged", isRtChanged);
+        compMap.put("isIfmChanged", isIfmChanged);
+        compMap.put("isEbgpChanged", isEbgpChanged);
         return compMap;
     }
 
     public boolean compareEbgpInfoIsEqual(Integer peerAS,
-                                 Address peerIP,
-                                 Integer routeSelectDelay,
-                                 Integer importDirectRouteEnable,
-                                 List<NetworkSeg> networkSegList){
-        if((peerAS!=null&&this.peerAS==null)||(peerAS==null&&this.peerAS!=null)){
+                                          Address peerIP,
+                                          Integer routeSelectDelay,
+                                          Integer importDirectRouteEnable,
+                                          List<NetworkSeg> networkSegList) {
+        if ((peerAS != null && this.peerAS == null) || (peerAS == null && this.peerAS != null)) {
             return false;
         }
-        if((peerAS!=null&&this.peerAS!=null)){
-            if(!peerAS.equals(this.peerAS)){
+        if ((peerAS != null && this.peerAS != null)) {
+            if (!peerAS.equals(this.peerAS)) {
                 return false;
             }
         }
-        if((peerIP!=null&&this.peerIP==null)||(peerIP==null&&this.peerIP!=null)){
+        if ((peerIP != null && this.peerIP == null) || (peerIP == null && this.peerIP != null)) {
             return false;
         }
-        if(peerIP!=null&&this.peerIP!=null){
-            if(!peerIP.getAddress().equals(this.peerIP.getAddress())){
-                return false;
-            }
-        }
-
-        if((importDirectRouteEnable!=null&&this.importDirectRouteEnable==null)||(importDirectRouteEnable==null&&this.importDirectRouteEnable!=null)){
-            return false;
-        }
-
-        if((importDirectRouteEnable!=null&&this.importDirectRouteEnable!=null)){
-            if(!importDirectRouteEnable.equals(this.importDirectRouteEnable)){
+        if (peerIP != null && this.peerIP != null) {
+            if (!peerIP.getAddress().equals(this.peerIP.getAddress())) {
                 return false;
             }
         }
 
-        if(!compareNetworkSegListInfoIsEqual(networkSegList)){
+        if ((importDirectRouteEnable != null && this.importDirectRouteEnable == null) || (importDirectRouteEnable == null && this.importDirectRouteEnable != null)) {
+            return false;
+        }
+
+        if ((importDirectRouteEnable != null && this.importDirectRouteEnable != null)) {
+            if (!importDirectRouteEnable.equals(this.importDirectRouteEnable)) {
+                return false;
+            }
+        }
+
+        if (!compareNetworkSegListInfoIsEqual(networkSegList)) {
             return false;
         }
         return true;
     }
 
-    public boolean compareNetworkSegListInfoIsEqual(List<NetworkSeg> networkSegList){
-        if(networkSegList==null&&this.networkSegList==null){
-            return  true;
+    public boolean compareNetworkSegListInfoIsEqual(List<NetworkSeg> networkSegList) {
+        if (networkSegList == null && this.networkSegList == null) {
+            return true;
         }
-        if(networkSegList==null||this.networkSegList==null){
+        if (networkSegList == null || this.networkSegList == null) {
             return false;
         }
-        if(networkSegList.size()!=this.networkSegList.size()){
+        if (networkSegList.size() != this.networkSegList.size()) {
             return false;
         }
         for (NetworkSeg seg1 : networkSegList) {
-            if(networkSegListContainNetworkSegList(this.networkSegList,seg1)){
+            if (networkSegListContainNetworkSegList(this.networkSegList, seg1)) {
                 continue;
-            }else{
+            } else {
                 return false;
             }
         }
         return true;
     }
-    public boolean networkSegListContainNetworkSegList(List<NetworkSeg> networkSegList,NetworkSeg seg1){
-        for(NetworkSeg seg2: networkSegList){
-            if(compareNetworkSegInfoIsEqual(seg1,seg2)){
+
+    public boolean networkSegListContainNetworkSegList(List<NetworkSeg> networkSegList, NetworkSeg seg1) {
+        for (NetworkSeg seg2 : networkSegList) {
+            if (compareNetworkSegInfoIsEqual(seg1, seg2)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean compareNetworkSegInfoIsEqual(NetworkSeg seg1,NetworkSeg seg2){
+    private boolean compareNetworkSegInfoIsEqual(NetworkSeg seg1, NetworkSeg seg2) {
 
-        if((seg1.getAddress()!=null&&seg2.getAddress()==null)||(seg1.getAddress()==null&&seg2.getAddress()!=null)){
+        if ((seg1.getAddress() != null && seg2.getAddress() == null) || (seg1.getAddress() == null && seg2.getAddress() != null)) {
             return false;
         }
-        if(seg1.getAddress()!=null&&seg2.getAddress()!=null){
-            if(!seg1.getAddress().getAddress().equals(seg2.getAddress().getAddress())){
+        if (seg1.getAddress() != null && seg2.getAddress() != null) {
+            if (!seg1.getAddress().getAddress().equals(seg2.getAddress().getAddress())) {
                 return false;
             }
         }
-        if((seg1.getMask()!=null&&seg2.getMask()==null)||(seg1.getMask()==null&&seg2.getMask()!=null)){
+        if ((seg1.getMask() != null && seg2.getMask() == null) || (seg1.getMask() == null && seg2.getMask() != null)) {
             return false;
         }
-        if(seg1.getMask()!=null&&seg2.getMask()!=null){
-            if(!seg1.getMask().getAddress().equals(seg2.getMask().getAddress())){
+        if (seg1.getMask() != null && seg2.getMask() != null) {
+            if (!seg1.getMask().getAddress().equals(seg2.getMask().getAddress())) {
                 return false;
             }
         }
@@ -365,63 +374,62 @@ public class VPNInstance {
     }
 
 
-
-    public boolean compareDeviceInterfaceListInfoIsEqual(List<DeviceInterface> deviceInterfaceList){
-        if(deviceInterfaceList==null&&this.deviceInterfaceList==null){
-            return  true;
+    public boolean compareDeviceInterfaceListInfoIsEqual(List<DeviceInterface> deviceInterfaceList) {
+        if (deviceInterfaceList == null && this.deviceInterfaceList == null) {
+            return true;
         }
-        if(deviceInterfaceList==null||this.deviceInterfaceList==null){
+        if (deviceInterfaceList == null || this.deviceInterfaceList == null) {
             return false;
         }
-        if(deviceInterfaceList.size()!=this.deviceInterfaceList.size()){
+        if (deviceInterfaceList.size() != this.deviceInterfaceList.size()) {
             return false;
         }
         for (DeviceInterface d1 : deviceInterfaceList) {
-            if(deviceInterfaceListContainDeviceInterface(this.deviceInterfaceList,d1)){
+            if (deviceInterfaceListContainDeviceInterface(this.deviceInterfaceList, d1)) {
                 continue;
-            }else{
+            } else {
                 return false;
             }
         }
         return true;
     }
 
-    public boolean deviceInterfaceListContainDeviceInterface(List<DeviceInterface> deviceInterfaceList,DeviceInterface d1){
-        for(DeviceInterface d2: deviceInterfaceList){
-            if(compareDeviceInterfaceInfoIsEqual(d1,d2)){
+    public boolean deviceInterfaceListContainDeviceInterface(List<DeviceInterface> deviceInterfaceList, DeviceInterface d1) {
+        for (DeviceInterface d2 : deviceInterfaceList) {
+            if (compareDeviceInterfaceInfoIsEqual(d1, d2)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean compareDeviceInterfaceInfoIsEqual(DeviceInterface d1,DeviceInterface d2){
-        if(!d1.getName().equals(d2.getName())){
+    private boolean compareDeviceInterfaceInfoIsEqual(DeviceInterface d1, DeviceInterface d2) {
+        if (!d1.getName().equals(d2.getName())) {
             return false;
         }
-        if((d1.getIp()!=null&&d2.getIp()==null)||(d1.getIp()==null&&d2.getIp()!=null)){
+        if ((d1.getIp() != null && d2.getIp() == null) || (d1.getIp() == null && d2.getIp() != null)) {
             return false;
         }
-        if(d1.getIp()!=null&&d2.getIp()!=null){
-            if(!d1.getIp().getAddress().equals(d2.getIp().getAddress())){
+        if (d1.getIp() != null && d2.getIp() != null) {
+            if (!d1.getIp().getAddress().equals(d2.getIp().getAddress())) {
                 return false;
             }
         }
-        if((d1.getMask()!=null&&d2.getMask()==null)||(d1.getMask()==null&&d2.getMask()!=null)){
+        if ((d1.getMask() != null && d2.getMask() == null) || (d1.getMask() == null && d2.getMask() != null)) {
             return false;
         }
 
-        if(d1.getMask()!=null&&d2.getMask()!=null){
-            if(!d1.getMask().getAddress().equals(d2.getMask().getAddress())){
+        if (d1.getMask() != null && d2.getMask() != null) {
+            if (!d1.getMask().getAddress().equals(d2.getMask().getAddress())) {
                 return false;
             }
         }
         return true;
     }
 
-    public boolean ebgpIsNull(){
-        if((null==peerAS||peerAS.equals(0))&&(null==peerIP||peerIP.getAddress().equals(""))&&
-                (null==importDirectRouteEnable||importDirectRouteEnable.equals(2))&&(null==networkSegList||networkSegList.size()==0)){
+    public boolean ebgpIsNull() {
+        if ((null == peerAS || peerAS.equals(0)) && (null == peerIP || peerIP.getAddress().equals("")) &&
+                (null == importDirectRouteEnable || importDirectRouteEnable.equals(2)) && (null == networkSegList || networkSegList.size() == 0)) {
             return true;
         }
         return false;
