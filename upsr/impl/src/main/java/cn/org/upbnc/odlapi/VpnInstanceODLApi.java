@@ -280,7 +280,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     UpdateVpnInstance updateVpnInstance = new UpdateVpnInstance(vpnName, routerId, businessArea,
                             vpnRd, vpnRT, vpnRT, peerAs, peerIP_Address, null, importDirect,
                             deviceInterfaceList, networkSegList);
-
+                    updateVpnInstance.setNote(notes);
                     ret = (boolean) this.getVpnInstanceApi().updateVpnInstance(updateVpnInstance
                     ).get(ResponseEnum.BODY.getName());
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
@@ -331,7 +331,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     if (null != vpnInstanceList) {
                         VPNInstance vpnInstance_front = vpnInstanceList.get(0);
                         vpnInstancesRetBuilder.setBusinessArea(vpnInstance_front.getBusinessRegion());
-                        vpnInstancesRetBuilder.setNotes("VPN隔离");
+                        vpnInstancesRetBuilder.setNotes(vpnInstance_front.getNote());
                         vpnInstancesRetBuilder.setVpnRt(vpnInstance_front.getExportRT());
                         for (VPNInstance vpnInstance : vpnInstanceList) {
                             bindDevice = new DeviceBindBuilder();

@@ -124,7 +124,7 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
                                          String businessRegion, String rd, String importRT,
                                          String exportRT, Integer peerAS, Address peerIP,
                                          Integer routeSelectDelay, Integer importDirectRouteEnable,
-                                         List<DeviceInterface> deviceInterfaceList, List<NetworkSeg> networkSegList) {
+                                         List<DeviceInterface> deviceInterfaceList, List<NetworkSeg> networkSegList, String note) {
         LOG.info("enter updateVpnInstance vpnName={}", new Object[]{vpnName});
         if ((null == routerId) || routerId.isEmpty() || (null == vpnName) || vpnName.isEmpty())
             return null;
@@ -144,11 +144,12 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
             vpnInstance.setImportDirectRouteEnable(importDirectRouteEnable);
             vpnInstance.setDeviceInterfaceList(deviceInterfaceList);
             vpnInstance.setNetworkSegList(networkSegList);
-
+            vpnInstance.setNote(note);
         } else {
             Integer id = 0;
             vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, routerId, businessRegion, rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
+            vpnInstance.setNote(note);
             if (null != vpnInstance) {
                 this.vpnInstanceList.add(vpnInstance);
             }

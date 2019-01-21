@@ -19,6 +19,8 @@ public class UpdateVpnInstance {
     private Integer importDirectRouteEnable;
     private List<DeviceInterface> deviceInterfaceList;
     private List<NetworkSeg> networkSegList;
+    private String note;
+
 
     public UpdateVpnInstance() {
     }
@@ -47,6 +49,14 @@ public class UpdateVpnInstance {
         this.importDirectRouteEnable = importDirectRouteEnable;
         this.deviceInterfaceList = deviceInterfaceList;
         this.networkSegList = networkSegList;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String getVpnName() {
