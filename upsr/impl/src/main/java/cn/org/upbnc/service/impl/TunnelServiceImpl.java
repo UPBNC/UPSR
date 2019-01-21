@@ -207,22 +207,19 @@ public class TunnelServiceImpl implements TunnelService {
     }
 
     private SExplicitPath buildSExplicitPath(String explicitPathName,List<TunnelHopServiceEntity> tunnelHopServiceEntityList) {
-        SExplicitPath explicitPath = null;
-        if (tunnelHopServiceEntityList.size() > 0) {
-            explicitPath = new SExplicitPath();
-            explicitPath.setExplicitPathName(explicitPathName);
-            List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
-            for (TunnelHopServiceEntity entity : tunnelHopServiceEntityList) {
-                SExplicitPathHop explicitPathHop = new SExplicitPathHop();
-                if (entity.getIfAddress().equals(entity.getRouterId())) {
-                    explicitPathHop.setMplsTunnelHopSidLabelType(SExplicitPathHop.SIDLABEL_TYPE_PREFIX);
-                }
-                explicitPathHop.setMplsTunnelHopIndex(entity.getIndex());
-                explicitPathHop.setMplsTunnelHopSidLabel(entity.getAdjlabel());
-                explicitPathHops.add(explicitPathHop);
+        SExplicitPath explicitPath = new SExplicitPath();
+        explicitPath.setExplicitPathName(explicitPathName);
+        List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
+        for (TunnelHopServiceEntity entity : tunnelHopServiceEntityList) {
+            SExplicitPathHop explicitPathHop = new SExplicitPathHop();
+            if (entity.getIfAddress().equals(entity.getRouterId())) {
+                explicitPathHop.setMplsTunnelHopSidLabelType(SExplicitPathHop.SIDLABEL_TYPE_PREFIX);
             }
-            explicitPath.setExplicitPathHops(explicitPathHops);
+            explicitPathHop.setMplsTunnelHopIndex(entity.getIndex());
+            explicitPathHop.setMplsTunnelHopSidLabel(entity.getAdjlabel());
+            explicitPathHops.add(explicitPathHop);
         }
+        explicitPath.setExplicitPathHops(explicitPathHops);
         return explicitPath;
     }
 
@@ -230,9 +227,12 @@ public class TunnelServiceImpl implements TunnelService {
         boolean flag = false;
         String tunnelName = tunnelServiceEntity.getTunnelName();
         List<SExplicitPath> explicitPaths = new ArrayList<>();
-        explicitPaths.add(buildSExplicitPath(tunnelName + link,tunnelServiceEntity.getMainPath()));
-        explicitPaths.add(buildSExplicitPath(tunnelName + linkback,tunnelServiceEntity.getBackPath()));
-        LOG.info(ExplicitPathXml.createExplicitPathXml(explicitPaths));
+        if (tunnelServiceEntity.getMainPath().size() > 0) {
+            explicitPaths.add(buildSExplicitPath(tunnelName + link, tunnelServiceEntity.getMainPath()));
+        }
+        if (tunnelServiceEntity.getBackPath().size() > 0) {
+            explicitPaths.add(buildSExplicitPath(tunnelName + linkback, tunnelServiceEntity.getBackPath()));
+        }
         String result = netconfController.sendMessage(netconfClient, ExplicitPathXml.createExplicitPathXml(explicitPaths));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
             flag = true;
