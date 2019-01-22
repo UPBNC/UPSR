@@ -180,9 +180,16 @@ public class VPNServiceImpl implements VPNService {
                 sendMsg = VpnUpdateXml.getUpdateVpnDeleteXml(modifyMap, l3vpnInstance1, new BgpVrf(vpnName, null, null, null));
             }
             LOG.info("sendMsg={}", new Object[]{sendMsg});
-            String result = netconfController.sendMessage(netconfClient, sendMsg);
-            LOG.info("result={}", new Object[]{result});
-            ret = CheckXml.checkOk(result).equals("ok");
+            String result;
+            if (sendMsg.contains("  <config>\n" +
+                    "  </config>")) {
+                ret = true;
+            } else {
+                result = netconfController.sendMessage(netconfClient, sendMsg);
+                LOG.info("result={}", new Object[]{result});
+                ret = CheckXml.checkOk(result).equals("ok");
+            }
+
             if (!ret) {
                 resultMap.put(ResponseEnum.MESSAGE.getName(), "vpn update(delete) error.");
                 return resultMap;

@@ -65,11 +65,13 @@ public class EbgpXml {
         String networkRoutes = "";
         if (null != bgpVrf.getNetworkRoutes()) {
             for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
-                networkRoutes = networkRoutes +
-                        "                    <networkRoute>\n" +
-                        "                      <networkAddress>" + networkRoute.getNetworkAddress() + "</networkAddress>\n" +
-                        "                      <maskLen>" + networkRoute.getMaskLen() + "</maskLen>\n" +
-                        "                    </networkRoute>\n";
+                if (!("".equals(networkRoute.getNetworkAddress()))) {
+                    networkRoutes = networkRoutes +
+                            "                    <networkRoute>\n" +
+                            "                      <networkAddress>" + networkRoute.getNetworkAddress() + "</networkAddress>\n" +
+                            "                      <maskLen>" + networkRoute.getMaskLen() + "</maskLen>\n" +
+                            "                    </networkRoute>\n";
+                }
             }
         }
         String end =
