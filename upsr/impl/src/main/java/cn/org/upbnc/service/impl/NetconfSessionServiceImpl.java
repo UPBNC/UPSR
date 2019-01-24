@@ -207,9 +207,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         NetconfSession netconfSession = null;
         List<NetconfSession> netconfSessionList = null;
         List<Device> deviceList = this.deviceManager.getDeviceList();
-        if ((null == deviceList) || (0 == deviceList.size())) {
-            return null;
-        }
         netconfSessionList = new LinkedList<NetconfSession>();
         for (Device device : deviceList) {
             netconfSession = (NetconfSession) getNetconfSession(device.getRouterId()).get(ResponseEnum.BODY.getName());
