@@ -175,7 +175,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
 
 
     public List<VPNInstance> getVpnInstanceList() {
-        return vpnInstanceList;
+        List<VPNInstance> vpnInstances = new ArrayList<>();
+        for (VPNInstance vpnInstance : vpnInstanceList) {
+            if (vpnInstance.isRefreshFlag()) {
+                vpnInstances.add(vpnInstance);
+            }
+        }
+        return vpnInstances;
     }
 
     public List<VPNInstance> getVpnInstanceListByRouterId(String routerId) {
