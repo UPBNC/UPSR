@@ -194,6 +194,19 @@ def get_all_vpn_down_name_list(child,deviceName):
                 name = vpndetail[i].strip().split(',')
                 ret.append(name[0])
     return ret
+def get_all_vpn_up_name_list(child,deviceName):
+    ret = []
+    child.sendline('display ip vpn-instance verbose | no-more | include "(VPN-Instance Name and ID :)|(Vrf Status :)"')
+    child_expect(child, deviceName)
+    echo_string = child.before
+    allVpn = echo_string.strip().split('\r\n\r\n')
+    if len(allVpn) >1:
+        vpndetail = allVpn[1].strip().split('VPN-Instance Name and ID :')
+        for i in range(1,len(vpndetail)):
+            if vpndetail[i].strip().find('Vrf Status : DOWN') != -1:
+                name = vpndetail[i].strip().split(',')
+                ret.append(name[0])
+    return ret
 def get_tunnel_policy_by_vpnname(child,deviceName,vpnName):
     child.sendline('display ip vpn-instance verbose ' + vpnName + ' | no-more | include "Tunnel Policy :"')
     child_expect(child, deviceName)
@@ -265,14 +278,35 @@ def vpn_route_get_diff(def_route,cur_route):
     print def_route
     print '=cur='
     print cur_route
+    route_less = ''
+    route_more = ''
     for key in def_route.keys():
         def_route_list = def_route[key]
-        route_diff = def_route_list
+        route_diff_less = def_route_list
         if cur_route.has_key(key):
             cur_route_list = cur_route[key]
-            route_diff = list(set(def_route_list).difference(set(cur_route_list)))
-        if len(route_diff) != 0:
-            ret = ret + '      ' + key + ":\n        " + ',\n        '.join(route_diff) + '\n'
+            route_diff_less = list(set(def_route_list).difference(set(cur_route_list)))
+        if len(route_diff_less) != 0:
+            # route_less = route_less + '        ' + key + "\n          " + ',\n          '.join(route_diff_less) + '\n'
+            route_less = route_less + '        ' + key + "\n          " + ','.join(route_diff_less) + '\n'
+    for key in cur_route.keys():
+        cur_route_list = cur_route[key]
+        route_diff_more = cur_route_list
+        if def_route.has_key(key):
+            def_route_list = def_route[key]
+            route_diff_more = list(set(cur_route_list).difference(set(def_route_list)))
+        if len(route_diff_more) != 0:
+            # route_more = route_more + '        ' + key + "\n          " + ',\n          '.join(route_diff_more) + '\n'
+            route_more = route_more + '        ' + key + "\n          " + ','.join(route_diff_more) + '\n'
+    if (route_less != '' or route_more != ''):
+        if route_less == '':
+            ret = ret + '      a)减少的路由: 无减少的路由\n'
+        else:
+            ret = ret + '      a)减少的路由: \n' + route_less
+        if route_more == '':
+            ret = ret + '      b)增加的路由: 无增加路由\n'
+        else:
+            ret = ret + '      b)增加的路由: \n' + route_more
     print '=diff='
     print ret
     if ret == '':
@@ -282,15 +316,17 @@ def vpn_route_get_diff(def_route,cur_route):
     return ret
 def analysis_vpn_down(child,deviceName):
     ret = ''
-    vpnNameList = get_all_vpn_down_name_list(child,deviceName)
-    ret = ret + '\n一、处于down状态的vpn： ' + ', '.join(vpnNameList)
-    if len(vpnNameList) == 0:
-        ret = ret + '\n  没有处于down状态的vpn，结束诊断'
-    for i in range(len(vpnNameList)):
-        ret = ret + '\n  ' +vpnNameList[i] + ' :'+ diagnose_vpn_by_name(child, deviceName, vpnNameList[i])
-        print '=====================================' + vpnNameList[i]
-        def_route = vpn_route_definition_get(deviceName, vpnNameList[i])
-        cur_route = vpn_route_current_get(child, deviceName, vpnNameList[i])
+    vpnDownList = get_all_vpn_down_name_list(child,deviceName)
+    ret = ret + '\n一、处于down状态的vpn： ' + ', '.join(vpnDownList)
+    vpnUpList = get_all_vpn_up_name_list(child, deviceName)
+    ret = ret + '\n二、处于up状态的vpn： ' + ', '.join(vpnUpList)
+    if len(vpnUpList) == 0:
+        ret = ret + '\n  没有处于up状态的vpn'
+    for i in range(len(vpnUpList)):
+        ret = ret + '\n  ' +vpnUpList[i] + ':'
+        print '=====================================' + vpnUpList[i]
+        def_route = vpn_route_definition_get(deviceName, vpnUpList[i])
+        cur_route = vpn_route_current_get(child, deviceName, vpnUpList[i])
         ret = ret + vpn_route_get_diff(def_route, cur_route)
     return ret
 
