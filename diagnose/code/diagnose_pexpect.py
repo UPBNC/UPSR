@@ -16,7 +16,7 @@ def arg_parse():
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--upsrname", dest='upsrname', help="upsrname",default="root", type=str)
     parser.add_argument("--upsrword", dest='upsrword', help="upsrword",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/upmdc/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
     return parser.parse_args()
 
 def create_file():
@@ -48,7 +48,7 @@ def child_expect(child,expectStr):
         child.close(force=True)
         exit(2)
 def analysis_business(tunnelName):
-    load_f = open("/root/tools/test/o2/karaf-0.8.2/diagnose/definition.json", 'r')
+    load_f = open("/root/upmdc/o2/karaf-0.8.2/diagnose/definition.json", 'r')
     load_dict = json.load(load_f)
     dic_ww = load_dict["dic_ww"]
     dic_xy = load_dict["dic_xy"]
@@ -105,7 +105,7 @@ def analysis_alarm_bfd(echo_info):
                     ret = ret + '' + NeighborIp[1] + ', 发生过中断，可能是导致隧道down的原因'
     return ret
 def analysis_ospf_up(echo_info,deviceName):
-    load_f = open("/root/tools/test/o2/karaf-0.8.2/diagnose/definition.json", 'r')
+    load_f = open("/root/upmdc/o2/karaf-0.8.2/diagnose/definition.json", 'r')
     load_dict = json.load(load_f)
     interfaceListMap = load_dict["interfaceListMap"]
     interfaceList = interfaceListMap['<SHPE1>']
@@ -130,37 +130,56 @@ def analysis_ospf_up(echo_info,deviceName):
     for i in range(len(ifDownList)):
         ret = ret + '\n  ' + "interface " + str(ifDownList[i]) +': 没有OSPF邻居，可能有问题'
     return ret
-def analysis_logbuffer_hot(echo_info):
-    ret = '\nLogbuffer info:'
-    ret = ret + '\n  There is no logbuffer info'
-    return ''
-def get_vpn_down_index_list(child):
-    echo_info = 'occurred. (VpnIndex=41, NextHop=35.8.177.222, Ckey=16777706, TrapType=2)'+\
-                'occurred. (VpnIndex=58, NextHop=35.8.177.222, Ckey=16777706, TrapType=2)'
-    ret = []
-    vpnDownList = re.findall(r'[(](.*?)[)]', echo_info)
-    if len(vpnDownList) == 0:
-        return ret
-    else:
-        for i in range(len(vpnDownList)):
-            vpnDownString = vpnDownList[i]
-            if vpnDownString.find('TrapType=2') != -1:
-                indexString = re.findall('VpnIndex=\d+',vpnDownString)
-                index = filter(str.isdigit,  indexString[0])
-                ret.append(index)
+def vpn_route_definition_get(deviceName, name):
+    ret = {}
+    load_f = open("/root/upmdc/o2/karaf-0.8.2/diagnose/definition.json", 'r')
+    load_dict = json.load(load_f)
+    deviceMap = load_dict["vpn-route"]
+    vpnrouteMap = deviceMap[deviceName]
+    if vpnrouteMap.has_key(name):
+        echo = ''.join(vpnrouteMap[name])
+        # 过滤key值
+        route_dest = re.findall(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)/\d+', echo)
+        # 按照key值分割字符串
+        route_table = re.split(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)/\d+', echo.strip())
+        for i in range(1, len(route_table)):
+            nexthop = []
+            # 取出每一条路由中的IP地址
+            ip_next = re.findall(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)', route_table[i])
+            # 使用IP地址进行分割
+            if_next = re.split(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)', route_table[i].strip())
+            for j in range(len(if_next)):
+                tunnel = re.findall(r'Tunnel\d+', if_next[j])
+                nexthop = nexthop + tunnel
+            nexthop.append(if_next[-1].strip())
+            ip_nexthop = []
+            for k in range(len(ip_next)):
+                ip_nexthop.append(' '.join([ip_next[k].encode('utf-8'),nexthop[k].encode('utf-8')]))
+            ret.update({route_dest[i - 1].encode('utf-8'):ip_nexthop})
     return ret
-def get_all_vpn_down_list(child,deviceName):
-    ret = []
-    child.sendline('display ip vpn-instance verbose | no-more | include "(VPN-Instance Name and ID :)|(Vrf Status :)"')
+def vpn_route_current_get(child, deviceName, name):
+    ret = {}
+    child.sendline('display ip routing-table vpn-instance ' + name + ' | no-more ')
     child_expect(child, deviceName)
-    echo_string = child.before
-    allVpn = echo_string.strip().split('\r\n\r\n')
-    if len(allVpn) >1:
-        vpndetail = allVpn[1].strip().split('VPN-Instance Name and ID :')
-        for i in range(1,len(vpndetail)):
-            if vpndetail[i].strip().find('Vrf Status : DOWN') != -1:
-                id = re.findall(', (\d+)', vpndetail[i].strip())
-                ret.append(id[0])
+    echo = child.before
+    # 过滤key值
+    route_dest = re.findall(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)/\d+', echo)
+    # 按照key值分割字符串
+    route_table = re.split(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)/\d+', echo.strip())
+    for i in range(1, len(route_table)):
+        nexthop = []
+        # 取出每一条路由中的IP地址
+        ip_next = re.findall(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)', route_table[i])
+        # 使用IP地址进行分割
+        if_next = re.split(r'(?:\d{1,3}\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)', route_table[i].strip())
+        for j in range(len(if_next)):
+            tunnel = re.findall(r'Tunnel\d+', if_next[j])
+            nexthop = nexthop + tunnel
+        nexthop.append(if_next[-1].strip())
+        ip_nexthop = []
+        for k in range(len(ip_next)):
+            ip_nexthop.append(' '.join([ip_next[k], nexthop[k]]))
+        ret.update({route_dest[i - 1]: ip_nexthop})
     return ret
 def get_all_vpn_down_name_list(child,deviceName):
     ret = []
@@ -175,54 +194,15 @@ def get_all_vpn_down_name_list(child,deviceName):
                 name = vpndetail[i].strip().split(',')
                 ret.append(name[0])
     return ret
-def get_cpn_name_by_index(child,index_list,deviceName):
-    ret = []
-    for i in range(len(index_list)):
-        child.sendline('display ip vpn-instance verbose | no-more | include "VPN-Instance Name and ID"')
-        child_expect(child, deviceName)
-        echo_string = child.before
-        nameIDList = echo_string.split('VPN-Instance Name and ID :')
-        for j in range(1,len(nameIDList)):
-            name = nameIDList[j].split(',')[0].strip()
-            id = nameIDList[j].split(',')[1].strip()
-            if id==index_list[i]:
-                ret.append(name)
-    return ret
 def get_tunnel_policy_by_vpnname(child,deviceName,vpnName):
     child.sendline('display ip vpn-instance verbose ' + vpnName + ' | no-more | include "Tunnel Policy :"')
     child_expect(child, deviceName)
     echo_info = child.before
-    policy = echo_info.split('Tunnel Policy :')
-    if len(policy) > 1:
+    policy_line = echo_info.split('\r\n')
+    if len(policy_line) == 4:
+        policy = policy_line[2].split('Tunnel Policy :')
         return policy[1].strip()
-    else:
-        return ''
-#vpn的第四步
-def get_reserved_bind_alarm(child, deviceName,tunnelName):
-    child.sendline('interface ' + tunnelName)
-    child_expect(child, deviceName)
-    child.sendline('mpls te reserved-for-binding')
-    child_expect(child, deviceName)
-    child.sendline('quit')
-    child_expect(child, deviceName)
-    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
-    child_expect(child, deviceName)
-    return True
-#vpn的第五步
-def get_te_interface_alarm(child, deviceName,tunnelNam):
-    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
-    child_expect(child, deviceName)
-    return True
-#vpn的第六步
-def get_ldp_lsp_alarm(child,deviceName,vpnName):
-    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
-    child_expect(child, deviceName)
-    return True
-#vpn的第七步
-def get_vpn_instance_status(child,deviceName,vpnName):
-    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
-    child_expect(child, deviceName)
-    return False
+    return ''
 def get_tunnel_list_by_tunnel_policy(child,deviceName,policyName):
     child.sendline('display tunnel-policy ' + policyName + ' | no-more | include Tunnel')
     child_expect(child, deviceName)
@@ -254,35 +234,6 @@ def check_resvered_bind(child, deviceName, tunnelName):
     child.sendline('quit ')
     child_expect(child, deviceName)
     return ret
-def collect_alarm_and_contact_hw(child,deviceName):
-    return ''
-    ret = ''
-    child.sendline('display version | no-more')
-    child_expect(child, deviceName)
-    ret = ret + child.before
-    child.sendline('display esn | no-more')
-    child_expect(child, deviceName)
-    ret = ret + child.before
-    child.sendline('save logfile')
-    child_expect(child, deviceName)
-    ret = ret + child.before
-    child.sendline('system')
-    child_expect(child, deviceName[1:-1]+']')
-    ret = ret + child.before
-    child.sendline('diagnose')
-    child_expect(child, deviceName[1:-1]+'-diagnose]')
-    ret = ret + child.before
-    # child.sendline('display diagnostic-information >> diagnose.log')
-    # child_expect(child, deviceName[1:-1]+'-diagnose]')
-    # ret = ret + child.before
-    # child.sendline('save logfile diagnose-log')
-    # child_expect(child, deviceName[1:-1]+'-diagnose]')
-    # ret = ret + child.before
-    child.sendline('quit')
-    child_expect(child, deviceName[1:-1]+']')
-    child.sendline('quit')
-    child_expect(child, deviceName)
-    return ''
 def diagnose_vpn_by_name(child,deviceName,vpnName):
     ret = ''
     policyName = get_tunnel_policy_by_vpnname(child, deviceName, vpnName)
@@ -298,63 +249,49 @@ def diagnose_vpn_by_name(child,deviceName,vpnName):
                 # 3.进入Tunnel接口视图，执行display this命令检查Tunnel接口下是否配置了mpls te reserved-for-binding命令。
                 if check_resvered_bind(child, deviceName,tunnelList[i]) == True:
                     ret = ret + '已配置绑定 '
-                    #7.检查VPN实例的接口状态。查看status是否为UP，查看是否存在对端VPN路由。
-                    if get_vpn_instance_status(child,deviceName,vpnName) == True:
-                        # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
-                        pass
-                    else:
-                        ret = ret + collect_alarm_and_contact_hw(child,deviceName)
                 else:
                     #4.进入Tunnel接口视图，配置mpls te reserved-for-binding命令，然后看是否出现告警
                     ret = ret + '未配置绑定 '
-                    if get_reserved_bind_alarm(child, deviceName,tunnelList[i]) == True:
-                        pass
-                        # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
-                    else:
-                        ret = ret + collect_alarm_and_contact_hw(child,deviceName)
             else:
                 #5.检查TE接口下的配置，并根据TE相关的告警确认和排除问题，然后看是否出现告警
                 ret = ret + ('\n      %-13s' % tunnelList[i]) + ' 隧道状态DOWN'
-                if get_te_interface_alarm(child, deviceName, tunnelList[i]) == True:
-                    pass
-                    # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
-                else:
-                    ret = ret + collect_alarm_and_contact_hw(child,deviceName)
     else:
-        #6.检查LDP LSP的配置，并根据LSP相关的告警确认和排除问题，然后看是否出现告警
         ret = ret + 'tnl-policy字段为空'
-        if get_ldp_lsp_alarm(child, deviceName, vpnName) == True:
-            pass
-            # ret = ret + '\n  ' + 'The tunnel up event is occurred'
-        else:
-            ret = ret + '\n  ' + collect_alarm_and_contact_hw(child,deviceName)
+        pass
+    return ret
+def vpn_route_get_diff(def_route,cur_route):
+    ret = ''
+    print '=define='
+    print def_route
+    print '=cur='
+    print cur_route
+    for key in def_route.keys():
+        def_route_list = def_route[key]
+        route_diff = def_route_list
+        if cur_route.has_key(key):
+            cur_route_list = cur_route[key]
+            route_diff = list(set(def_route_list).difference(set(cur_route_list)))
+        if len(route_diff) != 0:
+            ret = ret + '      ' + key + ":\n        " + ',\n        '.join(route_diff) + '\n'
+    print '=diff='
+    print ret
+    if ret == '':
+        ret = '\n    vpn路由差异：vpn路由没有差异'
+    else:
+        ret = '\n    vpn路由差异：\n' + ret
     return ret
 def analysis_vpn_down(child,deviceName):
     ret = ''
-    # vpnIndexList = get_vpn_down_index_list(child)
-    # vpnIndexList = get_all_vpn_down_list(child,deviceName)
-    # vpnNameList = get_cpn_name_by_index(child,vpnIndexList,deviceName)
     vpnNameList = get_all_vpn_down_name_list(child,deviceName)
     ret = ret + '\n一、处于down状态的vpn： ' + ', '.join(vpnNameList)
     if len(vpnNameList) == 0:
         ret = ret + '\n  没有处于down状态的vpn，结束诊断'
     for i in range(len(vpnNameList)):
         ret = ret + '\n  ' +vpnNameList[i] + ' :'+ diagnose_vpn_by_name(child, deviceName, vpnNameList[i])
-    ret = ret + '\n二、查看是否出现告警： '
-    child.sendline('display trapbuffer | no-more | include "hwTnl2VpnTrapEvent"')
-    child_expect(child, deviceName)
-    if child.before.find('The tunnel up event is occurred') == -1:
-        ret = ret + '\n  没有隧道UP告警'
-    else:
-        ret = ret + '\n  有隧道UP告警'
-    ret = ret + '\n三、通过以下命令收集告警信息和配置信息，联系技术支持工程师做进一步分析'
-    ret = ret + '\n  <~HUAWEI>display version'\
-                '\n  <~HUAWEI>display esn'\
-                '\n  <~HUAWEI>save logfile'\
-                '\n  <~HUAWEI>system'\
-                '\n  [~HUAWEI] diagnose'\
-                '\n  [~HUAWEI-diagnose] diaplay diagnostic-information >> diagnose.log'\
-                '\n  [~HUAWEI-diagnose] save logfile diagnose-log '
+        print '=====================================' + vpnNameList[i]
+        def_route = vpn_route_definition_get(deviceName, vpnNameList[i])
+        cur_route = vpn_route_current_get(child, deviceName, vpnNameList[i])
+        ret = ret + vpn_route_get_diff(def_route, cur_route)
     return ret
 
 def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
