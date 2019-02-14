@@ -60,7 +60,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         boolean ret = (boolean) this.netconfSessionService.updateNetconfSession(netconfSession).get(ResponseEnum.BODY.getName());
         String result = null;
         if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
-            if (isSyn) {
+            if (isSyn && ret) {
                 String tmpRet = null;
                 result = "sync device configure start......";
                 tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
@@ -85,13 +85,10 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
                 result += "sync device configure end.";
             }
         }
-        if (ret) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), result);
-            resultMap.put(ResponseEnum.BODY.getName(), ret);
-        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.MESSAGE.getName(), result);
+        resultMap.put(ResponseEnum.BODY.getName(), true);
         return resultMap;
-
     }
 
     @Override
