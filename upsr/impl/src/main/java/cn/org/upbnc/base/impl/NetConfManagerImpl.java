@@ -13,9 +13,15 @@ import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
 import cn.org.upbnc.util.netconf.SessionListener;
+import cn.org.upbnc.util.xml.RouterIdXml;
+import org.opendaylight.controller.config.util.xml.XmlUtil;
+import org.opendaylight.netconf.api.NetconfMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,26 +56,61 @@ public class NetConfManagerImpl implements NetConfManager {
     @Override
     public synchronized NetConf addDevice(NetConf netConf) {
         boolean need_connect = true;
+        boolean flag = false;
+        NetConf netconf = new NetConf();
         if (netconfClientMap.containsKey(netConf.getIp().getAddress())) {
             if (netconfClientMap.get(netConf.getIp().getAddress()).isFlag()) {
                 need_connect = false;
+                flag = checkRouterId(netConf.getDevice().getRouterId(),netconfClientMap.get(netConf.getIp().getAddress()));
+                if (flag){
+                    netconf.setStatus(NetConfStatusEnum.Connected);
+                }
             }
         }
         if (need_connect) {
             netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
             if (netconfClient == null) {
-                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + "netConf.getPort()" + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
+                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser());
             } else {
-                if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
-                    netconfClient.setFlag(true);
-                    netConf.setStatus(NetConfStatusEnum.Connected);
+                flag = checkRouterId(netConf.getDevice().getRouterId(), netconfClient);
+                if (flag) {
+                    if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
+                        netconfClient.setFlag(true);
+                        netConf.setStatus(NetConfStatusEnum.Connected);
+                        netconf.setStatus(NetConfStatusEnum.Connected);
+                    }
+                    netconfClientMap.put(netConf.getIp().getAddress(), netconfClient);
                 }
-                netconfClientMap.put(netConf.getIp().getAddress(), netconfClient);
             }
         }
-        netConfMap.put(netConf.getIp().getAddress(), netConf);
-        return netConf;
+        if (flag) {
+            netConfMap.put(netConf.getIp().getAddress(), netConf);
+        }
+        return netconf;
     }
+
+    private boolean checkRouterId(String routerId, NetconfClient netconfClient) {
+        boolean flag = false;
+        String sendMsg = RouterIdXml.getRouterIdXml();
+        LOG.info("sendMsg={}", new Object[]{sendMsg});
+        String result;
+        String getRouterId;
+        try {
+            Document doc = XmlUtil.readXmlToDocument(sendMsg);
+            NetconfMessage message = netconfClient.sendMessage(new NetconfMessage(doc));
+            result = XmlUtil.toString(message.getDocument());
+            LOG.info("result :" + result);
+            getRouterId = RouterIdXml.getRouterIdFromXml(result);
+            LOG.info("getRouterId :" + getRouterId);
+            if (getRouterId.equals(routerId)) {
+                flag = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return flag;
+    }
+
 
     @Override
     public synchronized List<NetConf> getDevices() {

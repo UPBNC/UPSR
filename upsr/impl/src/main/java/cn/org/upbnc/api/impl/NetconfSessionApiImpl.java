@@ -60,7 +60,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         boolean ret = (boolean) this.netconfSessionService.updateNetconfSession(netconfSession).get(ResponseEnum.BODY.getName());
         String result = null;
         if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
-            if (isSyn) {
+            if (isSyn && ret) {
                 String tmpRet = null;
                 result = "sync device configure start......";
                 tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
