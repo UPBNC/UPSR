@@ -24,6 +24,7 @@ module upsrSrLabel {
         leaf adjlabel { type string; }
         leaf phyStatus{type string;}
         leaf isSrDomain { type string; }
+        leaf vpnBind { type string; }
     }
     grouping srgbLabelInfo {
         leaf routerId { type string; }

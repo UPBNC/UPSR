@@ -29,7 +29,8 @@ import java.util.Map;
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class SrLabelServiceImpl implements SrLabelService {
-    public static final String PREFIX_SID_TYPE = "index";
+    public static final String PREFIX_SID_TYPE_ABSOLUTE = "absolute";
+    public static final String PREFIX_SID_TYPE_INDEX= "index";
     private static final Logger LOG = LoggerFactory.getLogger(SrLabelServiceImpl.class);
     private static SrLabelService ourInstance = null;
     private BaseInterface baseInterface;
@@ -99,7 +100,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
-                device.getOspfProcess().getAreaId(), device.getOspfProcess().getIntfName(), this.PREFIX_SID_TYPE, labelVal, action);
+                device.getOspfProcess().getAreaId(), device.getOspfProcess().getIntfName(), this.PREFIX_SID_TYPE_ABSOLUTE, labelVal, action);
         LOG.info("commandSetSrNodeLabelXml : " + commandSetSrNodeLabelXml);
         String outPutXml = netconfController.sendMessage(netconfClient, commandSetSrNodeLabelXml);
         if (CheckXml.checkOk(outPutXml).equals(CheckXml.RESULT_OK) != true) {
@@ -128,10 +129,6 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("commandDeleteSrNodeLabelRangeXml: " + commandDeleteSrNodeLabelRangeXml);
             String outPutdeleteXml = netconfController.sendMessage(netconfClient, commandDeleteSrNodeLabelRangeXml);
             LOG.info("outPutdeleteXml: " + outPutdeleteXml);
-            if (CheckXml.checkOk(outPutdeleteXml).equals(CheckXml.RESULT_OK) != true) {
-                LOG.info("updateNodeLabelRange delete failed");
-                return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
-            }
             device.setMinNodeSID(null);
             device.setMaxNodeSID(null);
         }
@@ -175,9 +172,9 @@ public class SrLabelServiceImpl implements SrLabelService {
                 LOG.info("updateNodeLabelRange create failed");
                 return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
             }
+            device.setMinNodeSID(Integer.valueOf(labelBegin));
+            device.setMaxNodeSID(Integer.valueOf(labelEnd));
         }
-        device.setMinNodeSID(Integer.valueOf(labelBegin));
-        device.setMaxNodeSID(Integer.valueOf(labelEnd));
         LOG.info("updateNodeLabelRange end");
         return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
     }
@@ -244,7 +241,12 @@ public class SrLabelServiceImpl implements SrLabelService {
         ospfProcess.setAreaId(netconfSrLabelInfo.getOspfAreaId());
         NodeLabel nodeLabel = new NodeLabel();
         if ((null != netconfSrLabelInfo.getPrefixLabel()) && (Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) != 0)) {
-            nodeLabel.setValue(Integer.valueOf(netconfSrLabelInfo.getPrefixLabel()));
+            if (netconfSrLabelInfo.getPrefixType().equals(this.PREFIX_SID_TYPE_INDEX)) {
+                nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) + device.getMinNodeSID().intValue());
+            } else {
+                nodeLabel.setValue(Integer.valueOf(netconfSrLabelInfo.getPrefixLabel()));
+            }
+            nodeLabel.setPrefixType(netconfSrLabelInfo.getPrefixType());
             device.setSrStatus(SrStatusEnum.ENABLED.getName());
         } else {
             device.setSrStatus(SrStatusEnum.DISENABLED.getName());
@@ -263,8 +265,8 @@ public class SrLabelServiceImpl implements SrLabelService {
             return false;
         }
         this.syncDeviceOspfProcess(device);
-        this.syncDeviceNodeLabel(device);
         this.syncDeviceNodeLabelRange(device);
+        this.syncDeviceNodeLabel(device);
         LOG.info("syncNodeLabel end ");
         return true;
     }

@@ -133,6 +133,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
             if (deviceInterface.getIfPhyStatus() != null) {
                 deviceInterfacesBuilder.setPhyStatus(deviceInterface.getIfPhyStatus());
             }
+            if (deviceInterface.getVpn() != null) {
+                deviceInterfacesBuilder.setVpnBind(deviceInterface.getVpn().getVpnName());
+            }
             deviceInterfaces.add(deviceInterfacesBuilder.build());
         }
         return deviceInterfaces;
@@ -142,7 +145,7 @@ public class TopoInfoODLApi implements UpsrTopoService {
         SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
         if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatusEnum.ENABLED.getName()) &&
                 device.getNodeLabel() != null) {
-            srgbPrefixSidBuilder.setPrefixId(String.valueOf(new Integer(device.getNodeLabel().getValue() + device.getMinNodeSID())));
+            srgbPrefixSidBuilder.setPrefixId(device.getNodeLabel().getValue().toString());
             srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
             srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
         }

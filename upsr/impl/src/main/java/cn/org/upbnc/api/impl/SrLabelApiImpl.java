@@ -59,8 +59,7 @@ public class SrLabelApiImpl implements SrLabelApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.LABEL_INVALID.getMessage());
             return resultMap;
         }
-        int labelVal = Integer.parseInt(labelValAbs) - Integer.parseInt(labelBegin);
-        return srLabelService.updateNodeLabel(routerId, labelVal + "", action);
+        return srLabelService.updateNodeLabel(routerId, labelValAbs, action);
     }
 
     @Override

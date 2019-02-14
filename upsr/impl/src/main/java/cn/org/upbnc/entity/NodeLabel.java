@@ -8,9 +8,15 @@
 package cn.org.upbnc.entity;
 
 public class NodeLabel extends Label {
-
-
+    String prefixType;
     public NodeLabel() {
+    }
 
+    public String getPrefixType() {
+        return prefixType;
+    }
+
+    public void setPrefixType(String prefixType) {
+        this.prefixType = prefixType;
     }
 }

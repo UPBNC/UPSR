@@ -190,7 +190,7 @@ public class DeviceManagerImpl implements DeviceManager {
         Iterator<Device> deviceIterator = this.deviceList.iterator();
         while(deviceIterator.hasNext()){
             Device device = deviceIterator.next();
-            if ((labelVal - device.getMinNodeSID().intValue()) == device.getNodeLabel().getValue()) {
+            if (labelVal == device.getNodeLabel().getValue()) {
                 return device;
             }
         }

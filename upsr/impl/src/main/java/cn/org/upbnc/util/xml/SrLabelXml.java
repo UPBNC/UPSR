@@ -133,6 +133,7 @@ public class SrLabelXml {
                 "                <ospfv2:interfaces>                                                    \n" +
                 "                  <ospfv2:interface>                                                   \n" +
                 "                    <ospfv2:srInterface>                                               \n" +
+                "                      <ospfv2:prefixSidType/>                                          \n" +
                 "                      <ospfv2:prefixLabel/>                                            \n" +
                 "                    </ospfv2:srInterface>                                              \n" +
                 "                  </ospfv2:interface>                                                  \n" +
@@ -165,6 +166,7 @@ public class SrLabelXml {
                                 netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
                                 netconfSrLabelInfo.setPrefixIfName(interfaceElement.elementText("ifName"));
                                 netconfSrLabelInfo.setPrefixLabel(interfaceElement.element("srInterface").elementText("prefixLabel"));
+                                netconfSrLabelInfo.setPrefixType(interfaceElement.element("srInterface").elementText("prefixSidType"));
                             }
                         }
                         break;
@@ -222,64 +224,120 @@ public class SrLabelXml {
         return netconfSrLabelInfo;
     }
     public static String setSrNodeLabelXml(String processId,String areaId,String ifName,String prefixSidType,String prefixLabel,String operation) {
-        return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
-                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                                     \n" +
-                "  <target>                                                                                                          \n" +
-                "    <running/>                                                                                                      \n" +
-                "  </target>                                                                                                         \n" +
-                "  <config>                                                                                                          \n" +
-                "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                              \n" +
-                "      <ospfv2comm>                                                                                                  \n" +
-                "        <ospfSites>                                                                                                 \n" +
-                "          <ospfSite>                                                                                                \n" +
-                "            <processId>" + processId + "</processId>                                                                  \n" +
-                "            <areas>                                                                                                 \n" +
-                "              <area>                                                                                                \n" +
-                "                <areaId>" + areaId + "</areaId>                                                                      \n" +
-                "                <interfaces>                                                                                        \n" +
-                "                  <interface>                                                                                       \n" +
-                "                    <ifName>" + ifName + "</ifName>                                                                  \n" +
-                "                <srInterface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\""+ operation +"\">  \n" +
-                "                      <prefixSidType>" + prefixSidType + "</prefixSidType>                                            \n" +
-                "                      <prefixLabel>" + prefixLabel + "</prefixLabel>                                                  \n" +
-                "                    </srInterface>                                                                                  \n" +
-                "                  </interface>                                                                                      \n" +
-                "                </interfaces>                                                                                       \n" +
-                "              </area>                                                                                               \n" +
-                "            </areas>                                                                                                \n" +
-                "          </ospfSite>                                                                                               \n" +
-                "        </ospfSites>                                                                                                \n" +
-                "      </ospfv2comm>                                                                                                 \n" +
-                "    </ospfv2>                                                                                                       \n" +
-                "  </config>                                                                                                         \n" +
-                "</edit-config>                                                                                                      \n" +
-                "</rpc>";
+        if (operation.equals(SrLabelXml.ncOperationDelete)) {
+            return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                    "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                                     \n" +
+                    "  <target>                                                                                                          \n" +
+                    "    <running/>                                                                                                      \n" +
+                    "  </target>                                                                                                         \n" +
+                    "  <config>                                                                                                          \n" +
+                    "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                              \n" +
+                    "      <ospfv2comm>                                                                                                  \n" +
+                    "        <ospfSites>                                                                                                 \n" +
+                    "          <ospfSite>                                                                                                \n" +
+                    "            <processId>" + processId + "</processId>                                                                  \n" +
+                    "            <areas>                                                                                                 \n" +
+                    "              <area>                                                                                                \n" +
+                    "                <areaId>" + areaId + "</areaId>                                                                      \n" +
+                    "                <interfaces>                                                                                        \n" +
+                    "                  <interface>                                                                                       \n" +
+                    "                    <ifName>" + ifName + "</ifName>                                                                  \n" +
+                    "              <srInterface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"" + operation + "\">  \n" +
+                    "                    </srInterface>                                                                                  \n" +
+                    "                  </interface>                                                                                      \n" +
+                    "                </interfaces>                                                                                       \n" +
+                    "              </area>                                                                                               \n" +
+                    "            </areas>                                                                                                \n" +
+                    "          </ospfSite>                                                                                               \n" +
+                    "        </ospfSites>                                                                                                \n" +
+                    "      </ospfv2comm>                                                                                                 \n" +
+                    "    </ospfv2>                                                                                                       \n" +
+                    "  </config>                                                                                                         \n" +
+                    "</edit-config>                                                                                                      \n" +
+                    "</rpc>";
+        } else {
+            return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                    "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                                     \n" +
+                    "  <target>                                                                                                          \n" +
+                    "    <running/>                                                                                                      \n" +
+                    "  </target>                                                                                                         \n" +
+                    "  <config>                                                                                                          \n" +
+                    "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                              \n" +
+                    "      <ospfv2comm>                                                                                                  \n" +
+                    "        <ospfSites>                                                                                                 \n" +
+                    "          <ospfSite>                                                                                                \n" +
+                    "            <processId>" + processId + "</processId>                                                                  \n" +
+                    "            <areas>                                                                                                 \n" +
+                    "              <area>                                                                                                \n" +
+                    "                <areaId>" + areaId + "</areaId>                                                                      \n" +
+                    "                <interfaces>                                                                                        \n" +
+                    "                  <interface>                                                                                       \n" +
+                    "                    <ifName>" + ifName + "</ifName>                                                                  \n" +
+                    "              <srInterface xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"" + operation + "\">  \n" +
+                    "                      <prefixSidType>" + prefixSidType + "</prefixSidType>                                            \n" +
+                    "                      <prefixLabel>" + prefixLabel + "</prefixLabel>                                                  \n" +
+                    "                    </srInterface>                                                                                  \n" +
+                    "                  </interface>                                                                                      \n" +
+                    "                </interfaces>                                                                                       \n" +
+                    "              </area>                                                                                               \n" +
+                    "            </areas>                                                                                                \n" +
+                    "          </ospfSite>                                                                                               \n" +
+                    "        </ospfSites>                                                                                                \n" +
+                    "      </ospfv2comm>                                                                                                 \n" +
+                    "    </ospfv2>                                                                                                       \n" +
+                    "  </config>                                                                                                         \n" +
+                    "</edit-config>                                                                                                      \n" +
+                    "</rpc>";
+        }
     }
     public static String setSrNodeLabelRangeXml(String processId,String srgbBegin, String srgbEnd, String operation) {
-        return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
-                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                          \n" +
-                "  <target>                                                                                               \n" +
-                "    <running/>                                                                                           \n" +
-                "  </target>                                                                                              \n" +
-                "  <config>                                                                                               \n" +
-                "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                   \n" +
-                "      <ospfv2comm>                                                                                       \n" +
-                "        <ospfSites>                                                                                      \n" +
-                "          <ospfSite>                                                                                     \n" +
-                "            <processId>" + processId + "</processId>                                                       \n" +
-                "            <ospfSrgbs>                                                                                  \n" +
-                "              <ospfSrgb xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\""+ operation +"\">  \n" +
-                "                <srgbBegin>" + srgbBegin + "</srgbBegin>                                                   \n" +
-                "                <srgbEnd>" + srgbEnd + "</srgbEnd>                                                         \n" +
-                "              </ospfSrgb>                                                                                \n" +
-                "            </ospfSrgbs>                                                                                 \n" +
-                "          </ospfSite>                                                                                    \n" +
-                "        </ospfSites>                                                                                     \n" +
-                "      </ospfv2comm>                                                                                      \n" +
-                "    </ospfv2>                                                                                            \n" +
-                "  </config>                                                                                              \n" +
-                "</edit-config>                                                                                           \n" +
-                "</rpc>";
+        if (operation.equals(SrLabelXml.ncOperationDelete)) {
+            return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                    "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                          \n" +
+                    "  <target>                                                                                               \n" +
+                    "    <running/>                                                                                           \n" +
+                    "  </target>                                                                                              \n" +
+                    "  <config>                                                                                               \n" +
+                    "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                   \n" +
+                    "      <ospfv2comm>                                                                                       \n" +
+                    "        <ospfSites>                                                                                      \n" +
+                    "          <ospfSite>                                                                                     \n" +
+                    "            <processId>" + processId + "</processId>                                                       \n" +
+                    "      <ospfSrgbs xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"" + operation + "\">  \n" +
+                    "            </ospfSrgbs>                                                                                 \n" +
+                    "          </ospfSite>                                                                                    \n" +
+                    "        </ospfSites>                                                                                     \n" +
+                    "      </ospfv2comm>                                                                                      \n" +
+                    "    </ospfv2>                                                                                            \n" +
+                    "  </config>                                                                                              \n" +
+                    "</edit-config>                                                                                           \n" +
+                    "</rpc>";
+        } else {
+            return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                    "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                          \n" +
+                    "  <target>                                                                                               \n" +
+                    "    <running/>                                                                                           \n" +
+                    "  </target>                                                                                              \n" +
+                    "  <config>                                                                                               \n" +
+                    "    <ospfv2 xmlns=\"http://www.huawei.com/netconf/vrp/huawei-ospfv2\">                                   \n" +
+                    "      <ospfv2comm>                                                                                       \n" +
+                    "        <ospfSites>                                                                                      \n" +
+                    "          <ospfSite>                                                                                     \n" +
+                    "            <processId>" + processId + "</processId>                                                       \n" +
+                    "            <ospfSrgbs>                                                                                  \n" +
+                    "       <ospfSrgb xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"" + operation + "\">  \n" +
+                    "                <srgbBegin>" + srgbBegin + "</srgbBegin>                                                   \n" +
+                    "                <srgbEnd>" + srgbEnd + "</srgbEnd>                                                         \n" +
+                    "              </ospfSrgb>                                                                                \n" +
+                    "            </ospfSrgbs>                                                                                 \n" +
+                    "          </ospfSite>                                                                                    \n" +
+                    "        </ospfSites>                                                                                     \n" +
+                    "      </ospfv2comm>                                                                                      \n" +
+                    "    </ospfv2>                                                                                            \n" +
+                    "  </config>                                                                                              \n" +
+                    "</edit-config>                                                                                           \n" +
+                    "</rpc>";
+        }
     }
 
     public static String getOspfProcessXml() {

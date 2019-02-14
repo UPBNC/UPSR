@@ -15,6 +15,7 @@ public class NetconfSrLabelInfo {
     String srgbEnd;
     String prefixIfName;
     String prefixLabel;
+    String prefixType;
 
     String adjLowerSid;
     String adjUpperSid;
@@ -49,6 +50,14 @@ public class NetconfSrLabelInfo {
 
     public void setPrefixLabel(String prefixLabel) {
         this.prefixLabel = prefixLabel;
+    }
+
+    public String getPrefixType() {
+        return prefixType;
+    }
+
+    public void setPrefixType(String prefixType) {
+        this.prefixType = prefixType;
     }
 
     public String getAdjLowerSid() {
