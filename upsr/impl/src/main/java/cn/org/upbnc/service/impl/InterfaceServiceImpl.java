@@ -32,6 +32,8 @@ import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class InterfaceServiceImpl implements InterfaceService{
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionServiceImpl.class);
+    public static final String INTERFACE_TYPE_GIGABITETHERNET = "GigabitEthernet";
+    public static final String INTERFACE_TYPE_ETHTRUNK  = "Eth-Trunk";
     private static InterfaceService ourInstance = new InterfaceServiceImpl();
     private BaseInterface  baseInterface = null;
     private NetConfManager netConfManager = null;
@@ -91,7 +93,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                 devInterfaceInfo = new DevInterfaceInfo(deviceInterface.getName(),
                         null,null,null,null,
                         ifnetStatus, srStatus,
-                        null,null);
+                        null,null,null);
                 if(null != deviceInterface.getIp()) {
                     devInterfaceInfo.setIfnetIP(deviceInterface.getIp().getAddress());
                 }
@@ -141,28 +143,29 @@ public class InterfaceServiceImpl implements InterfaceService{
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
 
         LOG.info("enter getInterfaceListFromDevice");
-        String sendMsg = VpnXml.getGigabitEthernetsXml();
-        LOG.info("get sendMsg={}", new Object[]{sendMsg});
-        String result = netconfController.sendMessage(netconfClient, sendMsg);
-        LOG.info("get result={}", new Object[]{result});
-        List<GigabitEthernet> gigabitEthernets = VpnXml.getGigabitEthernetsFromXml(result);
-        if(null != gigabitEthernets)
-        {
-            for (GigabitEthernet gigabitEthernet:gigabitEthernets) {
-
-                devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
-                        gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(),
-                        null, gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus());
-                LOG.info("gigabitEthernet getIfName={} getIfIpAddr={} " +
-                        "getSubnetMask={} getIfOperMac={} getVrfName={} getIfPhyStatus={} getIfLinkStatus={} getIfOperStatus+{}",
-                        new Object[]{gigabitEthernet.getIfName(), gigabitEthernet.getIfIpAddr(),
-                                gigabitEthernet.getSubnetMask(), gigabitEthernet.getIfOperMac(),
-                                gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(), gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus()});
-                devInterfaceInfos.add(devInterfaceInfo);
-            }
-            return devInterfaceInfos;
+        String gigabitEthernetMsg = VpnXml.getInterfacesXml(InterfaceServiceImpl.INTERFACE_TYPE_GIGABITETHERNET);
+        LOG.info("gigabitEthernetMsg : " + gigabitEthernetMsg);
+        String gigabitEthernetResult = netconfController.sendMessage(netconfClient, gigabitEthernetMsg);
+        LOG.info("gigabitEthernetResult : " + gigabitEthernetResult);
+        List<GigabitEthernet> gigabitEthernets = VpnXml.getGigabitEthernetsFromXml(gigabitEthernetResult);
+        String ethTrunkMsg = VpnXml.getInterfacesXml(InterfaceServiceImpl.INTERFACE_TYPE_ETHTRUNK);
+        LOG.info("ethTrunkMsg : " + ethTrunkMsg);
+        String ethTrunkResult = netconfController.sendMessage(netconfClient, ethTrunkMsg);
+        LOG.info("ethTrunkResult : " + ethTrunkResult);
+        List<GigabitEthernet> ethTrunks = VpnXml.getGigabitEthernetsFromXml(ethTrunkResult);
+        for (GigabitEthernet gigabitEthernet:gigabitEthernets) {
+            devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
+                    gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(),
+                    null, gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus(),gigabitEthernet.getIfTrunkName());
+            devInterfaceInfos.add(devInterfaceInfo);
         }
-        return null;
+        for (GigabitEthernet gigabitEthernet:ethTrunks) {
+            devInterfaceInfo = new DevInterfaceInfo(gigabitEthernet.getIfName(),gigabitEthernet.getIfIpAddr(),
+                    gigabitEthernet.getSubnetMask(),gigabitEthernet.getIfOperMac(),gigabitEthernet.getVrfName(),gigabitEthernet.getIfPhyStatus(),
+                    null, gigabitEthernet.getIfLinkStatus(),gigabitEthernet.getIfOperStatus(),gigabitEthernet.getIfTrunkName());
+            devInterfaceInfos.add(devInterfaceInfo);
+        }
+        return devInterfaceInfos;
     }
 
 
@@ -257,7 +260,7 @@ public class InterfaceServiceImpl implements InterfaceService{
                         deviceInterfaceInfo.getLinkStatus(), new Address(deviceInterfaceInfo.getIfnetIP(),AddressTypeEnum.V4),
                         new Address(deviceInterfaceInfo.getIfnetMask(), AddressTypeEnum.V4),
                         new Address(deviceInterfaceInfo.getIfnetMac(),AddressTypeEnum.V4),
-                        null, null, null);
+                        null, null, null,deviceInterfaceInfo.getTrunkName());
                 devInterface.setRefreshFlag(true);
                 deviceInterfaceList.add(devInterface);
             }

@@ -20,8 +20,10 @@ public class DevInterfaceInfo {
     private String srStatus;
     private String linkStatus;
     private String runningStatus;
+    private String trunkName;
 
-    public DevInterfaceInfo(String ifnetName, String ifnetIP, String ifnetMask, String ifnetMac, String vpnName, String ifnetStatus, String srStatus, String linkStatus, String runningStatus) {
+    public DevInterfaceInfo(String ifnetName, String ifnetIP, String ifnetMask, String ifnetMac, String vpnName,
+                            String ifnetStatus, String srStatus, String linkStatus, String runningStatus, String trunkName) {
         this.ifnetName = ifnetName;
         this.ifnetIP = ifnetIP;
         this.ifnetMask = ifnetMask;
@@ -31,6 +33,7 @@ public class DevInterfaceInfo {
         this.srStatus = srStatus;
         this.linkStatus = linkStatus;
         this.runningStatus = runningStatus;
+        this.trunkName = trunkName;
     }
 
 
@@ -117,5 +120,13 @@ public class DevInterfaceInfo {
 
     public void setRunningStatus(String runningStatus) {
         this.runningStatus = runningStatus;
+    }
+
+    public String getTrunkName() {
+        return trunkName;
+    }
+
+    public void setTrunkName(String trunkName) {
+        this.trunkName = trunkName;
     }
 }

@@ -136,6 +136,9 @@ public class TopoInfoODLApi implements UpsrTopoService {
             if (deviceInterface.getVpn() != null) {
                 deviceInterfacesBuilder.setVpnBind(deviceInterface.getVpn().getVpnName());
             }
+            if (deviceInterface.getTrunkName() != null) {
+                deviceInterfacesBuilder.setTrunkName(deviceInterface.getTrunkName());
+            }
             deviceInterfaces.add(deviceInterfacesBuilder.build());
         }
         return deviceInterfaces;

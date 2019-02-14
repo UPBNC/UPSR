@@ -12,6 +12,7 @@ public class GigabitEthernet {
     private String ifIndex;
     private String ifPhyType;
     private String ifNumber;
+    private String ifTrunkName;
     private String vrfName;
     private String ifClass;
     private String ifOperStatus;
@@ -75,6 +76,14 @@ public class GigabitEthernet {
 
     public void setIfNumber(String ifNumber) {
         this.ifNumber = ifNumber;
+    }
+
+    public String getIfTrunkName() {
+        return ifTrunkName;
+    }
+
+    public void setIfTrunkName(String ifTrunkName) {
+        this.ifTrunkName = ifTrunkName;
     }
 
     public String getVrfName() {

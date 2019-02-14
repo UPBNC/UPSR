@@ -25,6 +25,7 @@ module upsrSrLabel {
         leaf phyStatus{type string;}
         leaf isSrDomain { type string; }
         leaf vpnBind { type string; }
+        leaf trunkName { type string; }
     }
     grouping srgbLabelInfo {
         leaf routerId { type string; }

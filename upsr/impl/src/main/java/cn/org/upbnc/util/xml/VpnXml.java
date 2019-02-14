@@ -209,7 +209,7 @@ public class VpnXml {
         return str;
     }
 
-    public static String getGigabitEthernetsXml() {
+    public static String getInterfacesXml(String interfaceType) {
         String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <filter type=\"subtree\">\n" +
@@ -219,8 +219,9 @@ public class VpnXml {
                 "          <ifm:ifName/>\n" +
                 "          <ifm:ifIndex/>\n" +
                 "          <ifm:ifClass/>\n" +
-                "          <ifm:ifPhyType>GigabitEthernet</ifm:ifPhyType>\n" +
+                "          <ifm:ifPhyType>" + interfaceType + "</ifm:ifPhyType>\n" +
                 "          <ifm:ifNumber/>\n" +
+                "          <ifm:ifTrunkIfName/>\n" +
                 "          <ifm:vrfName/>\n" +
                 "          <ifm:ifDynamicInfo>\n" +
                 "            <ifm:ifOperStatus/>\n" +
@@ -253,6 +254,7 @@ public class VpnXml {
                     gigabitEthernet.setIfIndex(child.elementText("ifIndex"));
                     gigabitEthernet.setIfPhyType(child.elementText("ifPhyType"));
                     gigabitEthernet.setIfNumber(child.elementText("ifNumber"));
+                    gigabitEthernet.setIfTrunkName(child.elementText("ifTrunkIfName"));
                     gigabitEthernet.setVrfName(child.elementText("vrfName"));
                     gigabitEthernet.setIfClass(child.elementText("ifClass"));
                     gigabitEthernet.setIfOperStatus(child.elements("ifDynamicInfo").get(0).elementText("ifOperStatus"));

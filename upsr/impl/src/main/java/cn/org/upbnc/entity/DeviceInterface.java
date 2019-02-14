@@ -25,6 +25,7 @@ public class DeviceInterface {
     private Integer bgpStatus;
     private AdjLabel adjLabel;
     private boolean refreshFlag;
+    private String trunkName;
 
     public DeviceInterface() {
         this.id = 0;
@@ -68,7 +69,8 @@ public class DeviceInterface {
                            Address mac,
                            VPNInstance vpn,
                            Integer bgpStatus,
-                           AdjLabel adjLabel) {
+                           AdjLabel adjLabel,
+                           String trunkName) {
         this.id = id;
         this.device = device;
         this.deviceName = deviceName;
@@ -86,6 +88,7 @@ public class DeviceInterface {
         this.bgpStatus = bgpStatus;
         this.adjLabel = adjLabel;
         this.refreshFlag = false;
+        this.trunkName = trunkName;
     }
 
     public Integer getId() {
@@ -226,5 +229,11 @@ public class DeviceInterface {
         this.ifLinkStatus = ifLinkStatus;
     }
 
+    public String getTrunkName() {
+        return trunkName;
+    }
 
+    public void setTrunkName(String trunkName) {
+        this.trunkName = trunkName;
+    }
 }
