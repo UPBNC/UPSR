@@ -85,13 +85,10 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
                 result += "sync device configure end.";
             }
         }
-        if (ret) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), result);
-            resultMap.put(ResponseEnum.BODY.getName(), ret);
-        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.MESSAGE.getName(), result);
+        resultMap.put(ResponseEnum.BODY.getName(), true);
         return resultMap;
-
     }
 
     @Override
