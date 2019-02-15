@@ -7,10 +7,7 @@
  */
 package cn.org.upbnc.service.impl;
 
-import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.base.DeviceManager;
-import cn.org.upbnc.base.IniSectionManager;
-import cn.org.upbnc.base.NetConfManager;
+import cn.org.upbnc.base.*;
 import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.NetConf;
@@ -39,6 +36,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     private NetConfManager netConfManager;
     private DeviceManager deviceManager;
     private IniSectionManager iniSectionManager;
+    private TunnelManager tunnelManager;
+    private VpnInstanceManager vpnInstanceManager;
     private String disConnected = "未连接";
     private String connected = "已连接";
     private int netconfSession_seq_min = 1;
@@ -68,6 +67,8 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             this.netConfManager = baseInterface.getNetConfManager();
             this.deviceManager = baseInterface.getDeviceManager();
             this.iniSectionManager = baseInterface.getIniSectionManager();
+            this.tunnelManager = baseInterface.getTunnelManager();
+            this.vpnInstanceManager = baseInterface.getVpnInstanceManager();
         } catch (Exception e) {
             LOG.info(e.getMessage());
         }
@@ -143,6 +144,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             resultMap.put(ResponseEnum.BODY.getName(), true);
         } else {
+            netConfManager.closeNetconfByRouterId(routerId);
+            vpnInstanceManager.emptyVpnInstancesByRouterId(routerId);
+            tunnelManager.emptyTunnelsByRouterId(routerId);
             device.setSysName("");
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.BODY.getName(), false);
@@ -228,6 +232,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
 
     @Override
     public boolean isSyn(NetconfSession netconfSession) {
+        NetConf netConf = this.netConfManager.getDevice(netconfSession.getDeviceIP());
+        NetConfStatusEnum netConfStatus = netConf.getStatus();
+        if (NetConfStatusEnum.Connected != netConfStatus) {
+            return true;
+        }
         NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getDeviceIP());
         if (null == netconfClient) {
             return true;
@@ -237,11 +246,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 if (!(device.getNetConf().getIp().getAddress().equals(netconfSession.getDeviceIP()))) {
                     return true;
                 }
-            }
-            NetConf netConf = this.netConfManager.getDevice(netconfSession.getDeviceIP());
-            NetConfStatusEnum netConfStatus = netConf.getStatus();
-            if (NetConfStatusEnum.Connected != netConfStatus) {
-                return true;
             }
         }
         return false;

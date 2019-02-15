@@ -363,7 +363,7 @@ public class TunnelServiceImpl implements TunnelService {
             return false;
         }
         Device device = deviceManager.getDevice(routerId);
-        tunnelManager.emptyTunnels(routerId);
+        tunnelManager.emptyTunnelsByRouterId(routerId);
         if ((null != device.getNetConf()) && (device.getNetConf().getStatus() == NetConfStatusEnum.Connected)) {
             List<Tunnel> tunnels = getTunnelInstanceListFromDevice(routerId);
             if (tunnels.size() > 0) {

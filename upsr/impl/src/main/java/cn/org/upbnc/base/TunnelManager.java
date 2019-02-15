@@ -20,7 +20,7 @@ public interface TunnelManager {
 
     List<Tunnel> getTunnels();
 
-    void emptyTunnels(String routerId);
+    void emptyTunnelsByRouterId(String routerId);
 
     boolean deleteTunnel(String routerId, String name);
 
