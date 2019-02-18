@@ -96,9 +96,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             device.setDataCenter(deviceDesc);
             device.setDeviceType(deviceType);
             netconf = device.getNetConf();
-            netconf.setDevice(device);
             if ((null != netconf) && ((true != deviceIP.equals(netconf.getIp().getAddress())) || (true != devicePort.equals(netconf.getPort()))
                     || (true != userName.equals(netconf.getUser())) || (true != userPassword.equals(netconf.getPassword())))) {
+                netconf.setDevice(device);
                 netconf.setUser(userName);
                 if (true != userPassword.equals("")) {
                     netconf.setPassword(userPassword);
@@ -109,6 +109,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             if (null == netconf) {
                 netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
                 device.setNetConf(netconf);
+                netconf.setDevice(device);
             }
 
         } else {
@@ -197,12 +198,19 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 long end = System.currentTimeMillis();
                 long timelong = end - start;
                 LOG.info("getDevice time long is " + timelong);
-                if ((null != netconf.getIp()) && (null != device_netconf)) {
-                    if (routerId.equals(device_netconf.getDevice().getRouterId())) {
+                if ((null != netconf.getIp()) && (null != device_netconf) ){
+                    if (null==device_netconf.getDevice()) {
                         NetConfStatusEnum netConfStatus = device_netconf.getStatus();
                         connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
                         netconf.setStatus(netConfStatus);
+                    }else {
+                        if(routerId.equals(device_netconf.getDevice().getRouterId())){
+                            NetConfStatusEnum netConfStatus = device_netconf.getStatus();
+                            connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
+                            netconf.setStatus(netConfStatus);
+                        }
                     }
+
                 }
                 netconfSession.setStatus(connStatus);
             }
