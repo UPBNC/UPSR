@@ -84,7 +84,7 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public void emptyTunnels(String routerId) {
+    public void emptyTunnelsByRouterId(String routerId) {
         tunnelMap.put(routerId, new ConcurrentHashMap());
     }
 

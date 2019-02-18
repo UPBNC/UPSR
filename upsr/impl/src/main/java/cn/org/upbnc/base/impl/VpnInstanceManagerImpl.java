@@ -221,4 +221,15 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
         return isContain;
     }
 
+    @Override
+    public void emptyVpnInstancesByRouterId(String routerId) {
+        VPNInstance vpnInstance;
+        Iterator<VPNInstance> iter = vpnInstanceList.iterator();
+        while (iter.hasNext()) {
+            vpnInstance = iter.next();
+            if (vpnInstance.getRouterId().equals(routerId)) {
+                iter.remove();
+            }
+        }
+    }
 }

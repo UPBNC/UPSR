@@ -47,4 +47,6 @@ public interface VpnInstanceManager {
     boolean isContainVpnName(String vpnName);
 
     boolean isContainRd(String routerId, String rd);
+
+    void emptyVpnInstancesByRouterId(String routerId);
 }

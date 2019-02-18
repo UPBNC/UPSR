@@ -28,4 +28,6 @@ public interface NetConfManager {
     void deleteDevice(NetConf netConf);
 
     void close();
+
+    void closeNetconfByRouterId(String routerId);
 }
