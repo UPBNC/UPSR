@@ -573,15 +573,17 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
     }
 
     private BgpTopoInfo dealBgpTopoInfo(BgpTopoInfo bgpTopoInfoTotalToDeal){
-        BgpTopoInfo bgpTopoInfoDealed = new BgpTopoInfo();
-        // Deal bgp device
-        bgpTopoInfoDealed.setBgpDeviceList(this.dealBgpDevice(bgpTopoInfoTotalToDeal.getBgpDeviceList()));
-        // Deal bgp link
-        bgpTopoInfoDealed.setBgpLinkList(this.dealBgpLink(bgpTopoInfoTotalToDeal.getBgpLinkList(),bgpTopoInfoDealed.getBgpDeviceList()));
-
-        return bgpTopoInfoDealed;
+        return bgpTopoInfoTotalToDeal;
+//        BgpTopoInfo bgpTopoInfoDealed = new BgpTopoInfo();
+//        // Deal bgp device
+//        bgpTopoInfoDealed.setBgpDeviceList(this.dealBgpDevice(bgpTopoInfoTotalToDeal.getBgpDeviceList()));
+//        // Deal bgp link
+//        bgpTopoInfoDealed.setBgpLinkList(this.dealBgpLink(bgpTopoInfoTotalToDeal.getBgpLinkList(),bgpTopoInfoDealed.getBgpDeviceList()));
+//
+//        return bgpTopoInfoDealed;
     }
 
+    //去掉没有routerId的设备
     private List<BgpDevice> dealBgpDevice(List<BgpDevice> bgpDeviceListToDeal){
         List<BgpDevice> bgpDeviceListDealed = null;
         if( null != bgpDeviceListToDeal && !bgpDeviceListToDeal.isEmpty()){
@@ -596,7 +598,6 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         }
         return bgpDeviceListDealed;
     }
-
 
     private List<BgpLink> dealBgpLink(List<BgpLink> bgpLinkListToDeal,List<BgpDevice> bgpDeviceList){
         List<BgpLink> ret = null;
@@ -833,7 +834,7 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
         Iterator<String> iterator = domainSet.iterator();
         while (iterator.hasNext()){
             String domain = iterator.next();
-            if(node.getNodeId().getValue().contains(domain)){
+            if(node.getNodeId().getValue().contains(DOMAIN+domain)){
                 return domain;
             }
         }
