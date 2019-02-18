@@ -15,6 +15,8 @@ import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.ExplicitPathXml;
 import cn.org.upbnc.util.xml.SrTeTunnelXml;
 import cn.org.upbnc.util.xml.TunnelDetectXml;
+import com.google.common.primitives.UnsignedInteger;
+import com.google.common.primitives.UnsignedInts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,7 @@ import static java.lang.Thread.sleep;
 
 public class TunnelServiceImpl implements TunnelService {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelServiceImpl.class);
+    private static long TUNNELID_MAX = 4294967295l;
     private static TunnelService tunnelService;
     private BaseInterface baseInterface = null;
     private TunnelManager tunnelManager = null;
@@ -615,6 +618,22 @@ public class TunnelServiceImpl implements TunnelService {
         String deleteLspTraceXml = TunnelDetectXml.deleteLspTraceXml(tunnelName);
         String deleteLspTraceOutPutXml = netconfController.sendMessage(netconfClient, deleteLspTraceXml);
         return sTraceLspResultInfo;
+    }
+
+    @Override
+    public Map<String, Object> generateTunnelName(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        long tunnelId = TUNNELID_MAX;
+        while (tunnelId > 0) {
+            List<Tunnel> tunnelList = tunnelManager.getTunnel(routerId, "Tunnel" + tunnelId);
+            if (tunnelList.isEmpty()) {
+                break;
+            }
+            tunnelId = tunnelId - 1;
+        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), tunnelId);
+        return resultMap;
     }
 
     private Map<String, Object> buildResult(TunnelErrorCodeEnum tunnelErrorCodeEnum) {

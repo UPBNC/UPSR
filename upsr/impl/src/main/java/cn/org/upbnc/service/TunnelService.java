@@ -25,4 +25,6 @@ public interface TunnelService {
     Map<String, Object> traceTunnel(String routerId, String tunnelName, String lspPath);
 
     Map<String, Object> detectTunnel(String routerId, String tunnelName, String lspPath);
+
+    Map<String, Object> generateTunnelName(String routerId);
 }

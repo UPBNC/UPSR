@@ -109,4 +109,15 @@ public class TunnelApiImpl implements TunnelApi {
         }
         return tunnelService.detectTunnel(routerId, tunnelName, lspPath);
     }
+
+    @Override
+    public Map<String, Object> generateTunnelName(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (routerId == null) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), TunnelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
+        }
+        return tunnelService.generateTunnelName(routerId);
+    }
 }

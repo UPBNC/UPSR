@@ -106,4 +106,15 @@ module upsrTunnel {
             }
         }
     }
+
+    rpc generateTunnelName{
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            leaf tunnelId { type string; }
+            leaf tunnelName { type string; }
+        }
+    }
 }

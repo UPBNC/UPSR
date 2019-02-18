@@ -275,6 +275,24 @@ public class TunnelODLApi implements UpsrTunnelService {
         return RpcResultBuilder.success(detectTunnelPathOutputBuilder.build()).buildFuture();
     }
 
+    @Override
+    public Future<RpcResult<GenerateTunnelNameOutput>> generateTunnelName(GenerateTunnelNameInput input) {
+        Map<String, Object> generateResultMap;
+        GenerateTunnelNameOutputBuilder generateTunnelNameOutputBuilder = new GenerateTunnelNameOutputBuilder();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            return RpcResultBuilder.success(generateTunnelNameOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        generateResultMap = this.tunnelApi.generateTunnelName(input.getRouterId());
+        long tunnelId = (long)generateResultMap.get(ResponseEnum.BODY.getName());
+        LOG.info("generateTunnelName : " + tunnelId);
+        generateTunnelNameOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        generateTunnelNameOutputBuilder.setTunnelId("" + tunnelId);
+        generateTunnelNameOutputBuilder.setTunnelName("Tunnel" + tunnelId);
+        return RpcResultBuilder.success(generateTunnelNameOutputBuilder.build()).buildFuture();
+    }
+
     private PingResultBuilder pingResultBuilder(Map<String, Object> map) {
         PingResultBuilder pingResultBuilder = new PingResultBuilder();
         DetectTunnelServiceEntity detectTunnelServiceEntity =
