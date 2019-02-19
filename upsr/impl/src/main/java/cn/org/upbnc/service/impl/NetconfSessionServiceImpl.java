@@ -92,7 +92,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         NetConf netconf = null;
         Device device = this.deviceManager.getDevice(routerId);
         if (null != device) {
-            device.setDeviceName(deviceName);
+            device.setDeviceName(routerId);
             device.setDataCenter(deviceDesc);
             device.setDeviceType(deviceType);
             netconf = device.getNetConf();
@@ -123,6 +123,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             Address address = new Address();
             address.setAddress(deviceIP);
             device.setAddress(address);
+            device.setDeviceName(routerId);
             netconf.setDevice(device);
             device.setNetConf(netconf);
         }
@@ -140,6 +141,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                     LOG.info("get result=" + result + "\n");
                     String sysName = HostNameXml.getHostNameFromXml(result);
                     device.setSysName(sysName);
+                    device.setDeviceName(sysName);
                 }
             }
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -186,6 +188,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setDeviceName(device.getDeviceName());
             netconfSession.setDeviceDesc(device.getDataCenter());
             netconfSession.setDeviceType(device.getDeviceType());
+            netconfSession.setSysName(device.getSysName());
             netconfSession.setSysName(device.getSysName());
             if (null != device.getNetConf()) {
                 netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
