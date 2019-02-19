@@ -189,6 +189,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setDeviceDesc(device.getDataCenter());
             netconfSession.setDeviceType(device.getDeviceType());
             netconfSession.setSysName(device.getSysName());
+            netconfSession.setSysName(device.getSysName());
             if (null != device.getNetConf()) {
                 netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
                 netconfSession.setDevicePort(device.getNetConf().getPort());
