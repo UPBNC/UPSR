@@ -360,8 +360,9 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                                     bindDevice.setBindIfNet(bindIfs);
                                 }
                             }
+                            EbgpBuilder eBgp = new EbgpBuilder();
+                            eBgp.setNetwork("");
                             if ((null != vpnInstance.getNetworkSegList()) && (0 != vpnInstance.getNetworkSegList().size())) {
-                                EbgpBuilder eBgp = new EbgpBuilder();
                                 NetworkSeg eBgp_network_seg_front = vpnInstance.getNetworkSegList().get(0);
                                 eBgp.setImportDirect(vpnInstance.getImportDirectRouteEnable());
                                 if (null != eBgp_network_seg_front) {
@@ -381,9 +382,8 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                                 if (null != vpnInstance.getPeerIP()) {
                                     eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
                                 }
-
-                                bindDevice.setEbgp(eBgp.build());
                             }
+                            bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());
                         }
                         vpnInstancesRetBuilder.setDeviceBind(bindDevices);
