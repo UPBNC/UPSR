@@ -79,7 +79,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     @Override
     public Map<String, Object> updateNetconfSession(NetconfSession netconfSession) {
         String routerId = netconfSession.getRouterId();
-        String deviceName = netconfSession.getDeviceName();
+        String deviceName = routerId;
         String deviceDesc = netconfSession.getDeviceDesc();
         String deviceType = netconfSession.getDeviceType();
         String deviceIP = netconfSession.getDeviceIP();
@@ -92,7 +92,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         NetConf netconf = null;
         Device device = this.deviceManager.getDevice(routerId);
         if (null != device) {
-            device.setDeviceName(deviceName);
+            device.setDeviceName(routerId);
             device.setDataCenter(deviceDesc);
             device.setDeviceType(deviceType);
             netconf = device.getNetConf();
@@ -123,12 +123,13 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             Address address = new Address();
             address.setAddress(deviceIP);
             device.setAddress(address);
+            device.setDeviceName(routerId);
             netconf.setDevice(device);
             device.setNetConf(netconf);
         }
         NetConf netConf = this.netConfManager.addDevice(netconf);
         if (netConf.getStatus() == NetConfStatusEnum.Connected) {
-            saveNetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
+            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
             if ((null != netconf) && (null != netconf.getIp())) {
                 NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
                 netconf.setStatus(netconfStat.getStatus());
@@ -140,6 +141,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                     LOG.info("get result=" + result + "\n");
                     String sysName = HostNameXml.getHostNameFromXml(result);
                     device.setSysName(sysName);
+                    device.setDeviceName(sysName);
                 }
             }
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -268,7 +270,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 '}';
     }
 
-    private boolean saveNetconfSession(String routerId, String deviceName, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
+    private boolean saveNetconfSession(String routerId, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
         int seq = 0;
         for (seq = netconfSession_seq_min; seq < netconfSession_seq_max; seq++) {
             String sectionName = "netconfSession_" + seq;
@@ -278,7 +280,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             }
 
             this.iniSectionManager.setValue(sectionName, "routerId", routerId);
-            this.iniSectionManager.setValue(sectionName, "deviceName", deviceName);
             this.iniSectionManager.setValue(sectionName, "centerName", deviceDesc);
             this.iniSectionManager.setValue(sectionName, "deviceType", deviceType);
             this.iniSectionManager.setValue(sectionName, "sshIP", deviceIP);
@@ -306,7 +307,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             if (null == routerId) {
                 break;
             }
-            deviceName = this.iniSectionManager.getValue(sectionName, "deviceName", null);
             deviceDesc = this.iniSectionManager.getValue(sectionName, "centerName", null);
             deviceType = this.iniSectionManager.getValue(sectionName, "deviceType", "PE");
             deviceIP = this.iniSectionManager.getValue(sectionName, "sshIP", null);

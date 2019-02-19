@@ -45,13 +45,12 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
     @Override
     public Map<String, Object> updateNetconfSession(NetconfSession netconfSession) {
         String routerId = netconfSession.getRouterId();
-        String deviceName = netconfSession.getDeviceName();
         String deviceIP = netconfSession.getDeviceIP();
         Integer devicePort = netconfSession.getDevicePort();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
-        if ((null == routerId) || routerId.isEmpty() || (null == deviceName) || deviceName.isEmpty()
+        if ((null == routerId) || routerId.isEmpty()
                 || (null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceName , deviceIP or devicePort is null");
             return resultMap;
