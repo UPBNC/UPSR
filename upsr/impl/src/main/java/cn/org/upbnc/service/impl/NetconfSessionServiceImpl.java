@@ -100,9 +100,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                     || (true != userName.equals(netconf.getUser())) || (true != userPassword.equals(netconf.getPassword())))) {
                 netconf.setDevice(device);
                 netconf.setUser(userName);
-                if (true != userPassword.equals("")) {
-                    netconf.setPassword(userPassword);
-                }
+                netconf.setPassword(userPassword);
                 netconf.setPort(devicePort);
                 netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
             }
