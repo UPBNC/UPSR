@@ -120,6 +120,7 @@ public class TunnelServiceImpl implements TunnelService {
         bfdSession.setMinRecvTime(tunnelServiceEntity.getBfdrxInterval());
         bfdSession.setMinSendTime(tunnelServiceEntity.getBfdtxInterval());
         bfdSession.setMultiplier(tunnelServiceEntity.getBfdMultiplier());
+        bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
         tunnel.setBfdSession(bfdSession);
         AdjLabel label;
         if (tunnelServiceEntity.getMainPath().size() > 0) {
@@ -413,6 +414,7 @@ public class TunnelServiceImpl implements TunnelService {
             bfdSession.setMultiplier(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
             bfdSession.setMinSendTime(srTeTunnel.getMplsTeTunnelBfdMinTx());
             bfdSession.setMinRecvTime(srTeTunnel.getMplsTeTunnelBfdMinnRx());
+            bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
             tunnel.setBfdSession(bfdSession);
             tunnel.setDevice(device);
             tunnel.setBfdEnable(true);

@@ -12,10 +12,13 @@ public class BfdSession {
     private Integer id;
     private Device device;
     private Integer type;
-    private Integer bfdId;
+    private String bfdId;
     private String minRecvTime;
     private String minSendTime;
     private String multiplier;
+    private Integer timeout;
+    private Integer discriminatorLocal;
+    private Integer discriminatorRemote;
 
     public BfdSession() {
     }
@@ -68,11 +71,35 @@ public class BfdSession {
         this.type = type;
     }
 
-    public void setBfdId(Integer bfdId) {
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public Integer getDiscriminatorLocal() {
+        return discriminatorLocal;
+    }
+
+    public void setDiscriminatorLocal(Integer discriminatorLocal) {
+        this.discriminatorLocal = discriminatorLocal;
+    }
+
+    public Integer getDiscriminatorRemote() {
+        return discriminatorRemote;
+    }
+
+    public void setDiscriminatorRemote(Integer discriminatorRemote) {
+        this.discriminatorRemote = discriminatorRemote;
+    }
+
+    public void setBfdId(String bfdId) {
         this.bfdId = bfdId;
     }
 
-    public Integer getBfdId() {
+    public String getBfdId() {
         return bfdId;
     }
 
