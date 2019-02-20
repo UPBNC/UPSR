@@ -5,7 +5,8 @@ public enum SrLabelErrorCodeEnum {
     INPUT_INVALID(1, "Input invalid"),
     LABEL_INVALID(2, "Label invalid"),
     DEVICE_INVALID(3, "Device invalid"),
-    CONFIG_FAILED(4, "Config failed");
+    CONFIG_FAILED(4, "Config failed"),
+    LABEL_DUPLICATED(5, "Adjacency label is duplicated");
 
     private int code;
     private String message;

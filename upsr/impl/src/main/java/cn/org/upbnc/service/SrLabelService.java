@@ -28,4 +28,6 @@ public interface SrLabelService {
     boolean syncAllIntfLabel();
 
     boolean syncIntfLabel(String routerId);
+
+    Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal);
 }

@@ -90,4 +90,9 @@ public class SrLabelApiImpl implements SrLabelApi {
         }
         return srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);
     }
+
+    @Override
+    public Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal) {
+        return srLabelService.checkIntfLabel(routerId, ifAddress, labelVal);
+    }
 }

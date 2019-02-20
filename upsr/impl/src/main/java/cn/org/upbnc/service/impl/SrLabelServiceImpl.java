@@ -30,7 +30,8 @@ import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
 public class SrLabelServiceImpl implements SrLabelService {
     public static final String PREFIX_SID_TYPE_ABSOLUTE = "absolute";
-    public static final String PREFIX_SID_TYPE_INDEX= "index";
+    public static final String PREFIX_SID_TYPE_INDEX = "index";
+    public static final int ADJACENCY_LABEL_IS_DUPLICATED = 25783;
     private static final Logger LOG = LoggerFactory.getLogger(SrLabelServiceImpl.class);
     private static SrLabelService ourInstance = null;
     private BaseInterface baseInterface;
@@ -289,7 +290,7 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     @Override
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
-        Device device = null;
+        Device device;
         device = deviceManager.getDevice(routerId);
         if (device == null) {
             return buildResult(SrLabelErrorCodeEnum.DEVICE_INVALID);
@@ -319,6 +320,38 @@ public class SrLabelServiceImpl implements SrLabelService {
         return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
     }
 
+    @Override
+    public Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal) {
+        Device device;
+        device = deviceManager.getDevice(routerId);
+        if (device == null) {
+            return buildResult(SrLabelErrorCodeEnum.DEVICE_INVALID);
+        }
+        DeviceInterface localDeviceInterface = device.getDeviceInterfaceByAddress(ifAddress);
+        if (localDeviceInterface == null) {
+            return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
+        }
+        DeviceInterface remoteDeviceInterface = linkManager.getPeerDeviceInterface(localDeviceInterface);
+        if (remoteDeviceInterface == null) {
+            return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
+        }
+        String remoteAddress = remoteDeviceInterface.getIp().getAddress();
+        if (device.getAdjLabelList() != null) {
+            Iterator<AdjLabel> adjLabelIterator = device.getAdjLabelList().iterator();
+            while (adjLabelIterator.hasNext()) {
+                AdjLabel adjLabel = adjLabelIterator.next();
+                if (Integer.parseInt(labelVal) == adjLabel.getValue() &&
+                        ((adjLabel.getAddressLocal().equals(ifAddress) != true) ||
+                                (adjLabel.getAddressRemote().equals(remoteAddress) != true))) {
+                    {
+                        return buildResult(SrLabelErrorCodeEnum.LABEL_INVALID);
+                    }
+                }
+            }
+        }
+        return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
+    }
+
     //接口标签更新
     public Map<String, Object> updateIntfAdjLabel(Device device, DeviceInterface localDeviceInterface, String remoteAddress, String labelVal, String action) {
         LOG.info("updateIntfLabel begin");
@@ -329,7 +362,11 @@ public class SrLabelServiceImpl implements SrLabelService {
         LOG.info("outPutUpdateXml: " + outPutUpdateXml);
         if (CheckXml.checkOk(outPutUpdateXml).equals(CheckXml.RESULT_OK) != true) {
             LOG.info("updateIntfLabel failed");
-            return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
+            if (CheckXml.getErrorInfoCode(outPutUpdateXml) == this.ADJACENCY_LABEL_IS_DUPLICATED) {
+                return buildResult(SrLabelErrorCodeEnum.LABEL_DUPLICATED);
+            } else {
+                return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
+            }
         }
         if (true == action.equals(SrLabelXml.ncOperationDelete)) {
             localDeviceInterface.setSrStatus(SrStatusEnum.DISENABLED.getName());

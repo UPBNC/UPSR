@@ -7,6 +7,12 @@
  */
 package cn.org.upbnc.util.xml;
 
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
+
 public class CheckXml {
     public static final String RESULT_OK = "ok";
 
@@ -20,5 +26,18 @@ public class CheckXml {
             }
         }
         return str;
+    }
+    public static int getErrorInfoCode(String xml) {
+        int errorInfoCode = 0;
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            Element lspPingResultElement = root.element("rpc-error").element("error-info");
+            errorInfoCode = Integer.parseInt(lspPingResultElement.elementText("error-info-code"));
+            System.out.println(errorInfoCode);
+        } catch (Exception e) {
+        }
+        return errorInfoCode;
     }
 }

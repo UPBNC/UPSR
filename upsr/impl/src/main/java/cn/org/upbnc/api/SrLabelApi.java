@@ -20,4 +20,6 @@ public interface SrLabelApi {
     Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action);
 
     Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
+
+    Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal);
 }

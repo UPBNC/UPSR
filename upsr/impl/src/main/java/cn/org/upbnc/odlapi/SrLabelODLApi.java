@@ -179,6 +179,9 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             }
         }
         LOG.info(resultString);
+        if(resultString.equals("") != true) {
+            return resultString;
+        }
         return CodeEnum.SUCCESS.getMessage();
     }
 }
