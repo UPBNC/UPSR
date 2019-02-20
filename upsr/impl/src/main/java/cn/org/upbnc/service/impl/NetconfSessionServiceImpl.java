@@ -189,7 +189,6 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setDeviceDesc(device.getDataCenter());
             netconfSession.setDeviceType(device.getDeviceType());
             netconfSession.setSysName(device.getSysName());
-            netconfSession.setSysName(device.getSysName());
             if (null != device.getNetConf()) {
                 netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
                 netconfSession.setDevicePort(device.getNetConf().getPort());
@@ -201,13 +200,13 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 long end = System.currentTimeMillis();
                 long timelong = end - start;
                 LOG.info("getDevice time long is " + timelong);
-                if ((null != netconf.getIp()) && (null != device_netconf) ){
-                    if (null==device_netconf.getDevice()) {
+                if ((null != netconf.getIp()) && (null != device_netconf)) {
+                    if (null == device_netconf.getDevice()) {
                         NetConfStatusEnum netConfStatus = device_netconf.getStatus();
                         connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
                         netconf.setStatus(netConfStatus);
-                    }else {
-                        if(routerId.equals(device_netconf.getDevice().getRouterId())){
+                    } else {
+                        if (routerId.equals(device_netconf.getDevice().getRouterId())) {
                             NetConfStatusEnum netConfStatus = device_netconf.getStatus();
                             connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
                             netconf.setStatus(netConfStatus);
@@ -314,8 +313,10 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             devicePort = this.iniSectionManager.getValue(sectionName, "sshPort", null);
             userName = this.iniSectionManager.getValue(sectionName, "userName", null);
             passWord = this.iniSectionManager.getValue(sectionName, "passWord", null);
-            netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
-            updateNetconfSession(netconfSession);
+            if (null != passWord) {
+                netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
+                updateNetconfSession(netconfSession);
+            }
         }
         return true;
     }

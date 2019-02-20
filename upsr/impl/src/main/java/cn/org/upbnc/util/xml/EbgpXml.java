@@ -113,10 +113,6 @@ public class EbgpXml {
                         BgpPeers = new ArrayList<>();
                         ImportRoutes = new ArrayList<>();
                         bgpVrf.setVrfName(child.elementText("vrfName"));
-                        for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").get(0).elements()) {
-                            networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
-                            NetworkRoutes.add(networkRoute);
-                        }
                         try {
                             for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
                                 importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));

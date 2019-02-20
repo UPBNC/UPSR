@@ -145,11 +145,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
             vpnInstance.setDeviceInterfaceList(deviceInterfaceList);
             vpnInstance.setNetworkSegList(networkSegList);
             vpnInstance.setNote(note);
+            vpnInstance.setRefreshFlag(true);
         } else {
             Integer id = 0;
             vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, routerId, businessRegion, rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
             vpnInstance.setNote(note);
+            vpnInstance.setRefreshFlag(true);
             if (null != vpnInstance) {
                 this.vpnInstanceList.add(vpnInstance);
             }

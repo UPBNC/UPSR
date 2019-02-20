@@ -375,13 +375,14 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                                     }
 
                                 }
-                                if (null != vpnInstance.getPeerAS()) {
-                                    eBgp.setPeerAS(vpnInstance.getPeerAS().toString());
-                                }
 
-                                if (null != vpnInstance.getPeerIP()) {
-                                    eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
-                                }
+                            }
+                            if (null != vpnInstance.getPeerAS()) {
+                                eBgp.setPeerAS(vpnInstance.getPeerAS().toString());
+                            }
+
+                            if (null != vpnInstance.getPeerIP()) {
+                                eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
                             }
                             bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());

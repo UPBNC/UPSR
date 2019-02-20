@@ -145,6 +145,8 @@ public class VPNServiceImpl implements VPNService {
             if (!ret) {
                 resultMap.put(ResponseEnum.MESSAGE.getName(), "create vpn error.");
                 return resultMap;
+            }else {
+                //接口添加vpn
             }
             sendMsg = EbgpXml.createEbgpXml(bgpVrf);
             LOG.info("sendMsg={}", new Object[]{sendMsg});
@@ -155,7 +157,6 @@ public class VPNServiceImpl implements VPNService {
                 resultMap.put(ResponseEnum.MESSAGE.getName(), "create ebgp error.");
                 return resultMap;
             }
-
         } else {
             //modify vpn
             LOG.info("VPN {} is already exist ,update", vpnName);
@@ -193,6 +194,8 @@ public class VPNServiceImpl implements VPNService {
             if (!ret) {
                 resultMap.put(ResponseEnum.MESSAGE.getName(), "vpn update(delete) error.");
                 return resultMap;
+            }else {
+                //删除接口上的vpn
             }
 
             sendMsg = VpnUpdateXml.getUpdateVpnAddXml(modifyMap, l3vpnInstance, bgpVrf);
@@ -213,6 +216,8 @@ public class VPNServiceImpl implements VPNService {
                 if (!ret) {
                     resultMap.put(ResponseEnum.MESSAGE.getName(), "vpn update(add) error.");
                     return resultMap;
+                }else {
+                    //往接口添加vpn
                 }
             }
         }
