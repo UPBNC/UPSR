@@ -8,6 +8,7 @@
 
 package cn.org.upbnc.util.netconf;
 
+import cn.org.upbnc.base.impl.NetConfManagerImpl;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -20,6 +21,8 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.AuthenticationHandler;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,9 +33,9 @@ import java.util.Set;
 import java.util.concurrent.*;
 
 public class NetconfClient implements Closeable {
-
+    private static final Logger LOG = LoggerFactory.getLogger(NetconfClient.class);
     public static final int DEFAULT_CONNECT_TIMEOUT = 15000;
-    private final String label;
+    public String label;
     public final NetconfClientSession clientSession;
     final NetconfClientSessionListener sessionListener;
     public final long sessionId;
@@ -59,11 +62,17 @@ public class NetconfClient implements Closeable {
         try {
             return clientFuture.get(30, TimeUnit.SECONDS);
         } catch (CancellationException e) {
+            LOG.info("Cancelling " + NetconfClient.class.getSimpleName(), e);
             throw new RuntimeException("Cancelling " + NetconfClient.class.getSimpleName(), e);
         } catch (ExecutionException e) {
+            LOG.info("Unable to create " + NetconfClient.class.getSimpleName(), e);
             throw new IllegalStateException("Unable to create " + NetconfClient.class.getSimpleName(), e);
         } catch (TimeoutException e) {
+            LOG.info("Timeout when creating " + NetconfClient.class.getSimpleName(), e);
             throw new RuntimeException("Timeout when creating " + NetconfClient.class.getSimpleName(), e);
+        } catch (Exception e) {
+            LOG.info("creating error :" + NetconfClient.class.getSimpleName(), e);
+            throw new RuntimeException("creating error :" + NetconfClient.class.getSimpleName(), e);
         }
     }
 

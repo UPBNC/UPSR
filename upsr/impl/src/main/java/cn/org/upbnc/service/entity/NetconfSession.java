@@ -18,6 +18,7 @@ public class NetconfSession {
     private String routerId;
     private String status;
     private String userPassword;
+    private boolean flag = true;
 
     public NetconfSession() {
     }
@@ -44,6 +45,14 @@ public class NetconfSession {
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
     }
 
     public String getUserPassword() {

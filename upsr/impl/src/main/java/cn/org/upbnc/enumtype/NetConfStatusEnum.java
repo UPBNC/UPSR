@@ -8,5 +8,5 @@
 package cn.org.upbnc.enumtype;
 
 public enum NetConfStatusEnum {
-    Connected,Disconnect
+    Connected, Disconnected, IpError, PortError, IporPortError, UserNameOrPasswordError, RouterIdNotMatchIp, Unknown
 }

@@ -23,7 +23,7 @@ public class NetConf {
     public NetConf() {
         this.id = 0;
         this.device = null;
-        this.status = NetConfStatusEnum.Disconnect;
+        this.status = NetConfStatusEnum.Disconnected;
         this.port = 0;
         this.ip = null;
         this.user = null;

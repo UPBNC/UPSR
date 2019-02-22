@@ -573,7 +573,7 @@ public class VPNServiceImpl implements VPNService {
                 return false;
             }
         } else {
-            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            LOG.info("Can not connect device by Netconf , status is Disconnected,which device routerId=" + device.getRouterId());
             return false;
         }
         return true;
