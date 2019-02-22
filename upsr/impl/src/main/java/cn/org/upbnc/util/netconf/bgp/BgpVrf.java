@@ -7,6 +7,8 @@
  */
 package cn.org.upbnc.util.netconf.bgp;
 
+import cn.org.upbnc.util.netconf.SBgpVrfAF;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,22 +21,29 @@ public class BgpVrf {
 
     private List<ImportRoute> ImportRoutes;
 
-    public BgpVrf(){
-        this.vrfName=null;
-        this.BgpPeers =null;
-        this.NetworkRoutes =new ArrayList<NetworkRoute>();
-        this.ImportRoutes =new ArrayList<ImportRoute>();
+    private List<SBgpVrfAF> bgpVrfAFs;
+
+    public BgpVrf() {
+        this.vrfName = null;
+        this.BgpPeers = null;
+        this.NetworkRoutes = new ArrayList<NetworkRoute>();
+        this.ImportRoutes = new ArrayList<ImportRoute>();
     }
 
-    public BgpVrf(String vrfName, List<BgpPeer> BgpPeers, List<NetworkRoute> NetworkRoutes, List<ImportRoute> ImportRoutes){
-        this.vrfName=vrfName;
+    public BgpVrf(String vrfName, List<BgpPeer> BgpPeers, List<NetworkRoute> NetworkRoutes, List<ImportRoute> ImportRoutes) {
+        this.vrfName = vrfName;
         this.BgpPeers = BgpPeers;
         this.NetworkRoutes = NetworkRoutes;
         this.ImportRoutes = ImportRoutes;
     }
 
+    public List<SBgpVrfAF> getBgpVrfAFs() {
+        return bgpVrfAFs;
+    }
 
-
+    public void setBgpVrfAFs(List<SBgpVrfAF> bgpVrfAFs) {
+        this.bgpVrfAFs = bgpVrfAFs;
+    }
 
     public String getVrfName() {
         return vrfName;

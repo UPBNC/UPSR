@@ -18,17 +18,12 @@ import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.VPNService;
 import cn.org.upbnc.service.entity.UpdateVpnInstance;
-import cn.org.upbnc.util.netconf.L3vpnIf;
-import cn.org.upbnc.util.netconf.L3vpnInstance;
-import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.netconf.bgp.BgpPeer;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 import cn.org.upbnc.util.netconf.bgp.ImportRoute;
 import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
-import cn.org.upbnc.util.xml.CheckXml;
-import cn.org.upbnc.util.xml.EbgpXml;
-import cn.org.upbnc.util.xml.VpnUpdateXml;
-import cn.org.upbnc.util.xml.VpnXml;
+import cn.org.upbnc.util.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -373,6 +368,24 @@ public class VPNServiceImpl implements VPNService {
                 if (null != vpnInsntance) {
                     if (null != bgpVrfList) {
                         for (BgpVrf bgpVrf : bgpVrfList) {
+                            String importRoutePolicyName = null;
+                            for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
+                                for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
+                                    LOG.info("sPeerAF.getImportRtPolicyName() :" + sPeerAF.getImportRtPolicyName());
+                                    importRoutePolicyName = sPeerAF.getImportRtPolicyName();
+                                }
+                            }
+                            if (null != importRoutePolicyName) {
+                                sendMsg = RoutePolicyXml.getRoutePolicyXml(importRoutePolicyName);
+                                LOG.info("getRoutePolicyXml sendMsg={}", new Object[]{sendMsg});
+                                result = netconfController.sendMessage(netconfClient, sendMsg);
+                                LOG.info("getRoutePolicyXml result={}", new Object[]{result});
+
+                                List<SRoutePolicy> sRoutePolicies = RoutePolicyXml.getRoutePolicyFromXml(result);
+                                for (SRoutePolicy routePolicy : sRoutePolicies) {
+                                    routePolicy.toString();
+                                }
+                            }
                             if (vpnInsntance.getVpnName().equals(bgpVrf.getVrfName())) {
                                 mapBgpVrfToVPNInstance(vpnInsntance, bgpVrf);
                             }
