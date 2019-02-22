@@ -125,14 +125,15 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconf.setDevice(device);
             device.setNetConf(netconf);
         }
+        netconf.setRouterID(routerId);
         NetConf netConf = this.netConfManager.addDevice(netconf);
         if (netConf.getStatus() == NetConfStatusEnum.Connected) {
             saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
             if ((null != netconf) && (null != netconf.getIp())) {
-                NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
+                NetConf netconfStat = this.netConfManager.getDevice(netconf.getRouterID());
                 netconf.setStatus(netconfStat.getStatus());
                 if (NetConfStatusEnum.Connected == netconfStat.getStatus()) {
-                    NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
+                    NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getRouterID());
                     String sendMsg = HostNameXml.getHostNameXml();
                     LOG.info("get sendMsg= " + sendMsg + "\n");
                     String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -194,7 +195,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 String connStatus = disConnected;
                 NetConf netconf = device.getNetConf(); // can't be null
                 long start = System.currentTimeMillis();
-                NetConf device_netconf = this.netConfManager.getDevice(netconf.getIp().getAddress());
+                NetConf device_netconf = this.netConfManager.getDevice(netconf.getRouterID());
                 long end = System.currentTimeMillis();
                 long timelong = end - start;
                 LOG.info("getDevice time long is " + timelong);
@@ -240,12 +241,12 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
 
     @Override
     public boolean isSyn(NetconfSession netconfSession) {
-        NetConf netConf = this.netConfManager.getDevice(netconfSession.getDeviceIP());
+        NetConf netConf = this.netConfManager.getDevice(netconfSession.getRouterId());
         NetConfStatusEnum netConfStatus = netConf.getStatus();
         if (NetConfStatusEnum.Connected != netConfStatus) {
             return true;
         }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getDeviceIP());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getRouterId());
         if (null == netconfClient) {
             return true;
         } else {
@@ -322,5 +323,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     @Override
     public void close() {
         this.netConfManager.close();
+    }
+
+    public NetconfClient getNetconfClient(String routeId){
+        return this.netConfManager.getNetconClient(routeId);
     }
 }

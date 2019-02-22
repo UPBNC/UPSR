@@ -45,6 +45,10 @@ public class TunnelApiImpl implements TunnelApi {
             map.put(ResponseEnum.MESSAGE.getName(), "tunnel name ,id or routerId is null");
             return map;
         }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(tunnelServiceEntity.getRouterId())){
+            map.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return map;
+        }
         return tunnelService.createTunnel(tunnelServiceEntity);
     }
 
@@ -59,6 +63,10 @@ public class TunnelApiImpl implements TunnelApi {
         map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         if (null == routerId || "".equals(routerId) || null == tunnelName || "".equals(tunnelName)) {
             map.put(ResponseEnum.MESSAGE.getName(), "tunnel name or routerId is null");
+            return map;
+        }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            map.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return map;
         }
         return tunnelService.deleteTunnel(routerId, tunnelName);
@@ -77,6 +85,10 @@ public class TunnelApiImpl implements TunnelApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), TunnelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;
         }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return resultMap;
+        }
         String lspPathType = lspPath;
         if (lspPathType == null){
             lspPathType = TunnelDetectXml.LSPPATH_WORKING;
@@ -90,6 +102,10 @@ public class TunnelApiImpl implements TunnelApi {
         if ((routerId == null) || (tunnelName == null)) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), TunnelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
+        }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;
         }
         String lspPathType = lspPath;
@@ -107,6 +123,10 @@ public class TunnelApiImpl implements TunnelApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), TunnelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;
         }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return resultMap;
+        }
         return tunnelService.detectTunnel(routerId, tunnelName, lspPath);
     }
 
@@ -116,6 +136,10 @@ public class TunnelApiImpl implements TunnelApi {
         if (routerId == null) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), TunnelErrorCodeEnum.INPUT_INVALID.getMessage());
+            return resultMap;
+        }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;
         }
         return tunnelService.generateTunnelName(routerId);

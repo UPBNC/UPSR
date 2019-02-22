@@ -140,7 +140,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         }
         DevInterfaceInfo devInterfaceInfo = null;
         List<DevInterfaceInfo> devInterfaceInfos = new LinkedList<DevInterfaceInfo>();
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
 
         LOG.info("enter getInterfaceListFromDevice");
         String gigabitEthernetMsg = VpnXml.getInterfacesXml(InterfaceServiceImpl.INTERFACE_TYPE_GIGABITETHERNET);

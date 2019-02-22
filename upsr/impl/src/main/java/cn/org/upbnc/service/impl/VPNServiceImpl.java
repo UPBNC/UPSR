@@ -128,7 +128,7 @@ public class VPNServiceImpl implements VPNService {
         }
         BgpVrf bgpVrf = mapEbgpInfoToBgpVfr(vpnName, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
 
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
 
         vpnInstance = this.vpnInstanceManager.getVpnInstance(routerId, vpnName);
 
@@ -247,7 +247,7 @@ public class VPNServiceImpl implements VPNService {
             for (VPNInstance vpnInstance : vpnInstanceList) {
 
                 if (true == vpnName.equals(vpnInstance.getVpnName())) {
-                    NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+                    NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
                     String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
                     LOG.info("get sendMsg={}", new Object[]{sendMsg});
                     String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -279,7 +279,7 @@ public class VPNServiceImpl implements VPNService {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "device is null or device netconf is not set.");
             return resultMap;
         }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         LOG.info("enter delVpnIstance");
         String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
         LOG.info("get sendMsg={}", new Object[]{sendMsg});
@@ -302,7 +302,7 @@ public class VPNServiceImpl implements VPNService {
         if ((null == device) || (null == device.getNetConf())) {
             return null;
         }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
 
         LOG.info("enter getVpnIstance");
         String sendMsg = VpnXml.getVpnXml(vpnName);
@@ -353,7 +353,7 @@ public class VPNServiceImpl implements VPNService {
             return vpnInstancelist;
         }
 
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         LOG.info("enter getVpnInstanceListFromDevice");
         String sendMsg = VpnXml.getVpnXml(vpnName);
         LOG.info("get sendMsg={}", new Object[]{sendMsg});

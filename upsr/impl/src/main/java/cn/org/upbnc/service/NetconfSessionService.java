@@ -9,6 +9,7 @@ package cn.org.upbnc.service;
 
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.service.entity.NetconfSession;
+import cn.org.upbnc.util.netconf.NetconfClient;
 
 import java.util.List;
 import java.util.Map;
@@ -30,4 +31,5 @@ public interface NetconfSessionService {
     boolean recoverNetconfSession();
 
     void close();
+    NetconfClient getNetconfClient(String routeId);
 }

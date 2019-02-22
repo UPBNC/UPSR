@@ -80,8 +80,8 @@ public class TunnelServiceImpl implements TunnelService {
             tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
         }
         LOG.info("device.getLoopBack() :" + device.getLoopBack());
-        String deviceIp = device.getNetConf().getIp().getAddress();
-        NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
+        //String deviceIp = device.getNetConf().getIp().getAddress();
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         boolean createExplicitPathFlag = createExplicitPath(netconfClient, tunnelServiceEntity);
         if (createExplicitPathFlag) {
             boolean createTunnelFlag = createTunnel(netconfClient, tunnelServiceEntity);
@@ -281,8 +281,8 @@ public class TunnelServiceImpl implements TunnelService {
             map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + routerId);
             return map;
         }
-        String deviceIp = device.getNetConf().getIp().getAddress();
-        NetconfClient netconfClient = netConfManager.getNetconClient(deviceIp);
+        //String deviceIp = device.getNetConf().getIp().getAddress();
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         LOG.info(SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
         String result = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
@@ -392,7 +392,7 @@ public class TunnelServiceImpl implements TunnelService {
         if ((null == device) || (null == device.getNetConf())) {
             return tunnels;
         }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         LOG.info("enter getTunnelInstanceListFromDevice");
         String xml = SrTeTunnelXml.getSrTeTunnelXml("");
         LOG.info(xml);
@@ -526,7 +526,7 @@ public class TunnelServiceImpl implements TunnelService {
         if (device == null) {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
         //String pingBackResult = this.pingLsp(netconfClient, tunnelName, TunnelDetectXml.LSPPATH_HOT);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -541,7 +541,7 @@ public class TunnelServiceImpl implements TunnelService {
         if (device == null) {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         STraceLspResultInfo traceMainResult = this.traceLsp(netconfClient, tunnelName, lspPath);
         //String traceBackResult = this.traceLsp(netconfClient, tunnelName, TunnelDetectXml.LSPPATH_HOT);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -556,7 +556,7 @@ public class TunnelServiceImpl implements TunnelService {
         if (device == null) {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
         STraceLspResultInfo traceMainResult = this.traceLsp(netconfClient, tunnelName, lspPath);
         DetectTunnelServiceEntity detectTunnelServiceEntity = new DetectTunnelServiceEntity();
