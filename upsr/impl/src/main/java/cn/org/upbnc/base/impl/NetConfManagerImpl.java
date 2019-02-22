@@ -78,7 +78,7 @@ public class NetConfManagerImpl implements NetConfManager {
                 netConf.setStatus(NetConfStatusEnum.UserNameOrPasswordError);
             }
         }
-        if (netconfClient.label.equals(key)) {
+        if (netconfClient.label.equals(netConf.getIp().getAddress())) {
             if (netconfClient == null) {
                 LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
             } else {
@@ -96,10 +96,10 @@ public class NetConfManagerImpl implements NetConfManager {
                 }
             }
         }
-        if (flag) {
+            if (flag) {
             netConfMap.put(key, netConf);
         }
-        netconfMap.put(netConf.getIp().getAddress(), netConf);
+        netconfMap.put(netConf.getRouterID(), netConf);
         return netconf;
     }
 
