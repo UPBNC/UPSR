@@ -99,7 +99,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         if ((device.getOspfProcess() == null) || (device.getNetConf() == null)) {
             return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
         }
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
                 device.getOspfProcess().getAreaId(), device.getOspfProcess().getIntfName(), this.PREFIX_SID_TYPE_ABSOLUTE, labelVal, action);
         LOG.info("commandSetSrNodeLabelXml : " + commandSetSrNodeLabelXml);
@@ -124,7 +124,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     public Map<String, Object> deleteSrNodeLabelRange(Device device) {
         if (((device.getMinNodeSID() != null) && (device.getMinNodeSID().intValue() != 0)) ||
                 ((device.getMaxNodeSID() != null) && (device.getMaxNodeSID().intValue() != 0))) {
-            NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+            NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
             String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
                     device.getMinNodeSID().toString(), device.getMaxNodeSID().toString(), SrLabelXml.ncOperationDelete);
             LOG.info("commandDeleteSrNodeLabelRangeXml: " + commandDeleteSrNodeLabelRangeXml);
@@ -163,7 +163,7 @@ public class SrLabelServiceImpl implements SrLabelService {
             return delLabelRangeRet;
         }
         //配置新的标签范围
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         if (action.equals(SrLabelXml.ncOperationDelete) != true) {
             String commandCreateSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
                     labelBegin, labelEnd, SrLabelXml.ncOperationCreate);
@@ -182,7 +182,7 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     //节点标签范围同步
     public String syncDeviceNodeLabelRange(Device device) {
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandGetSrNodeLabelRangeXml = SrLabelXml.getSrNodeLabelRangeXml();
         LOG.info("commandGetSrNodeLabelRangeXml: " + commandGetSrNodeLabelRangeXml);
         String outPutLabelRangeXml = netconfController.sendMessage(netconfClient, commandGetSrNodeLabelRangeXml);
@@ -203,7 +203,7 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     //routerid所在接口、ospf进程号同步
     public String syncDeviceOspfProcess(Device device) {
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandGetOspfProcessXml = SrLabelXml.getOspfProcessXml();
         LOG.info("commandGetOspfProcessXml: " + commandGetOspfProcessXml);
         String outPutOspfProcessXml = netconfController.sendMessage(netconfClient, commandGetOspfProcessXml);
@@ -227,7 +227,7 @@ public class SrLabelServiceImpl implements SrLabelService {
 
     //同步节点标签
     public String syncDeviceNodeLabel(Device device) {
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         OspfProcess ospfProcess = device.getOspfProcess();
         String commandGetSrNodeLabelXml = SrLabelXml.getSrNodeLabelXml(ospfProcess.getProcessId().toString());
         LOG.info("commandGetSrNodeLabelXml: " + commandGetSrNodeLabelXml);
@@ -355,7 +355,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     //接口标签更新
     public Map<String, Object> updateIntfAdjLabel(Device device, DeviceInterface localDeviceInterface, String remoteAddress, String labelVal, String action) {
         LOG.info("updateIntfLabel begin");
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandUpdateXml = SrLabelXml.setSrAdjLabelXml(action, localDeviceInterface.getIp().getAddress(), remoteAddress, labelVal);
         LOG.info("commandUpdateXml: " + commandUpdateXml);
         String outPutUpdateXml = netconfController.sendMessage(netconfClient, commandUpdateXml);
@@ -399,7 +399,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     public String syncDeviceAdjLabelRange(Device device) {
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandGetSrAdjLabelRangeXml = SrLabelXml.getSrAdjLabelRangeXml();
         LOG.info("command xml: " + commandGetSrAdjLabelRangeXml);
         String outPutAdjLabelRangeXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelRangeXml);
@@ -415,7 +415,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     public String syncDeviceIntfLabel(Device device) {
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandGetSrAdjLabelXml = SrLabelXml.getSrAdjLabelXml();
         LOG.info("commandGetSrAdjLabelXml: " + commandGetSrAdjLabelXml);
         String outPutAdjLabelXml = netconfController.sendMessage(netconfClient, commandGetSrAdjLabelXml);

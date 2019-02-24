@@ -63,6 +63,10 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , vpnName or rd is null.");
             return resultMap;
         }
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return resultMap;
+        }
         for (DeviceInterface deviceInterface : deviceInterfaceList) {
             if ((null == deviceInterface.getIp().getAddress()) || (deviceInterface.getIp().getAddress().isEmpty())) {
                 if ((null != deviceInterface.getMask().getAddress()) && !(deviceInterface.getMask().getAddress().isEmpty())) {
@@ -95,6 +99,11 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         if (null == this.vpnService) {
             return resultMap;
         }
+
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return resultMap;
+        }
         return this.vpnService.delVpnInstance(routerId, vpnName);
     }
 
@@ -104,6 +113,11 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.BODY.getName(), null);
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId or vpnName is null.");
+            return resultMap;
+        }
+
+        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;
         }
         return (null == this.vpnService) ? null : this.vpnService.getVpnInstance(routerId, vpnName);
@@ -117,6 +131,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "vpnName is null.");
             return resultMap;
         }
+
         return (null == this.vpnService) ? null : this.vpnService.getVpnInstanceList(vpnName);
     }
 

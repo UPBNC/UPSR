@@ -142,7 +142,6 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
                 netconfOutputBuilder.setResult("success");
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
             }
-
         }
         LOG.info("enter update netconf###");
         //以下是业务代码

@@ -107,6 +107,10 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             if (null == netconf) {
                 netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
                 device.setNetConf(netconf);
+                netconf.setUser(userName);
+                netconf.setPassword(userPassword);
+                netconf.setPort(devicePort);
+                netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
                 netconf.setDevice(device);
             }
 
@@ -125,32 +129,36 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconf.setDevice(device);
             device.setNetConf(netconf);
         }
-        NetConf netConf = this.netConfManager.addDevice(netconf);
-        if (netConf.getStatus() == NetConfStatusEnum.Connected) {
-            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword);
-            if ((null != netconf) && (null != netconf.getIp())) {
-                NetConf netconfStat = this.netConfManager.getDevice(netconf.getIp().getAddress());
-                netconf.setStatus(netconfStat.getStatus());
-                if (NetConfStatusEnum.Connected == netconfStat.getStatus()) {
-                    NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getIp().getAddress());
-                    String sendMsg = HostNameXml.getHostNameXml();
-                    LOG.info("get sendMsg= " + sendMsg + "\n");
-                    String result = netconfController.sendMessage(netconfClient, sendMsg);
-                    LOG.info("get result=" + result + "\n");
-                    String sysName = HostNameXml.getHostNameFromXml(result);
-                    device.setSysName(sysName);
-                    device.setDeviceName(sysName);
+        netconf.setRouterID(routerId);
+        if (netconfSession.isFlag()) {
+            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, NetConfStatusEnum.Unknown.name());
+            NetConf netConf = this.netConfManager.addDevice(netconf);
+            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, netConf.getStatus().name());
+            if (netConf.getStatus() == NetConfStatusEnum.Connected) {
+                if ((null != netconf) && (null != netconf.getIp())) {
+                    NetConf netconfStat = this.netConfManager.getDevice(netconf.getRouterID());
+                    netconf.setStatus(netconfStat.getStatus());
+                    if (NetConfStatusEnum.Connected == netconfStat.getStatus()) {
+                        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconf.getRouterID());
+                        String sendMsg = HostNameXml.getHostNameXml();
+                        LOG.info("get sendMsg= " + sendMsg + "\n");
+                        String result = netconfController.sendMessage(netconfClient, sendMsg);
+                        LOG.info("get result=" + result + "\n");
+                        String sysName = HostNameXml.getHostNameFromXml(result);
+                        device.setSysName(sysName);
+                        device.setDeviceName(sysName);
+                    }
                 }
+                resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+                resultMap.put(ResponseEnum.BODY.getName(), true);
+            } else {
+                netConfManager.closeNetconfByRouterId(routerId);
+                vpnInstanceManager.emptyVpnInstancesByRouterId(routerId);
+                tunnelManager.emptyTunnelsByRouterId(routerId);
+                device.setSysName("");
             }
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.BODY.getName(), true);
         } else {
-            netConfManager.closeNetconfByRouterId(routerId);
-            vpnInstanceManager.emptyVpnInstancesByRouterId(routerId);
-            tunnelManager.emptyTunnelsByRouterId(routerId);
             device.setSysName("");
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-            resultMap.put(ResponseEnum.BODY.getName(), false);
         }
         return resultMap;
     }
@@ -194,20 +202,24 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 String connStatus = disConnected;
                 NetConf netconf = device.getNetConf(); // can't be null
                 long start = System.currentTimeMillis();
-                NetConf device_netconf = this.netConfManager.getDevice(netconf.getIp().getAddress());
+                NetConf device_netconf = this.netConfManager.getDevice(netconf.getRouterID());
                 long end = System.currentTimeMillis();
                 long timelong = end - start;
                 LOG.info("getDevice time long is " + timelong);
                 if ((null != netconf.getIp()) && (null != device_netconf)) {
                     if (null == device_netconf.getDevice()) {
-                        NetConfStatusEnum netConfStatus = device_netconf.getStatus();
-                        connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
-                        netconf.setStatus(netConfStatus);
+//                        NetConfStatusEnum netConfStatus = device_netconf.getStatus();
+//                        connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
+//                        netconf.setStatus(netConfStatus);
+                        connStatus = getStatus(device_netconf.getStatus().name());
+                        netconf.setStatus(device_netconf.getStatus());
                     } else {
                         if (routerId.equals(device_netconf.getDevice().getRouterId())) {
-                            NetConfStatusEnum netConfStatus = device_netconf.getStatus();
-                            connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
-                            netconf.setStatus(netConfStatus);
+//                            NetConfStatusEnum netConfStatus = device_netconf.getStatus();
+//                            connStatus = (NetConfStatusEnum.Connected == netConfStatus) ? connected : disConnected;
+//                            netconf.setStatus(netConfStatus);
+                            connStatus = getStatus(device_netconf.getStatus().name());
+                            netconf.setStatus(device_netconf.getStatus());
                         }
                     }
 
@@ -218,6 +230,32 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), netconfSession);
         return resultMap;
+    }
+
+    private String getStatus(String status) {
+        String str = "未知错误";
+        if ("Connected".equals(status)) {
+            str = "已连接";
+        }
+        if ("Disconnected".equals(status)) {
+            str = "未连接";
+        }
+        if ("IpError".equals(status)) {
+            str = "ip地址错误";
+        }
+        if ("PortError".equals(status)) {
+            str = "端口号错误";
+        }
+        if ("IporPortError".equals(status)) {
+            str = "ip地址或端口号错误";
+        }
+        if ("UserNameOrPasswordError".equals(status)) {
+            str = "用户名或密码错误";
+        }
+        if ("RouterIdNotMatchIp".equals(status)) {
+            str = "routerId与Ip地址不匹配";
+        }
+        return str;
     }
 
     @Override
@@ -240,12 +278,12 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
 
     @Override
     public boolean isSyn(NetconfSession netconfSession) {
-        NetConf netConf = this.netConfManager.getDevice(netconfSession.getDeviceIP());
+        NetConf netConf = this.netConfManager.getDevice(netconfSession.getRouterId());
         NetConfStatusEnum netConfStatus = netConf.getStatus();
         if (NetConfStatusEnum.Connected != netConfStatus) {
             return true;
         }
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getDeviceIP());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(netconfSession.getRouterId());
         if (null == netconfClient) {
             return true;
         } else {
@@ -268,7 +306,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 '}';
     }
 
-    private boolean saveNetconfSession(String routerId, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword) {
+    private boolean saveNetconfSession(String routerId, String deviceDesc, String deviceType, String deviceIP, Integer devicePort, String userName, String userPassword, String status) {
         int seq = 0;
         for (seq = netconfSession_seq_min; seq < netconfSession_seq_max; seq++) {
             String sectionName = "netconfSession_" + seq;
@@ -276,16 +314,14 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             if ((null != value) && (false == value.equals(routerId))) {
                 continue;
             }
-
             this.iniSectionManager.setValue(sectionName, "routerId", routerId);
             this.iniSectionManager.setValue(sectionName, "centerName", deviceDesc);
             this.iniSectionManager.setValue(sectionName, "deviceType", deviceType);
             this.iniSectionManager.setValue(sectionName, "sshIP", deviceIP);
             this.iniSectionManager.setValue(sectionName, "sshPort", devicePort.toString());
             this.iniSectionManager.setValue(sectionName, "userName", userName);
-            if (true != userPassword.equals("")) {
-                this.iniSectionManager.setValue(sectionName, "passWord", userPassword);
-            }
+            this.iniSectionManager.setValue(sectionName, "passWord", userPassword);
+            this.iniSectionManager.setValue(sectionName, "status", status);
             break;
         }
         this.iniSectionManager.storeFile();
@@ -297,7 +333,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         String sectionName = null;
         String routerId = null, deviceName = null, deviceDesc = null, deviceType = null;
         String deviceIP = null, devicePort = null;
-        String userName = null, passWord = null;
+        String userName = null, passWord = null, status = null;
         NetconfSession netconfSession;
         for (seq = netconfSession_seq_min; seq < netconfSession_seq_max; seq++) {
             sectionName = "netconfSession_" + seq;
@@ -311,10 +347,12 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             devicePort = this.iniSectionManager.getValue(sectionName, "sshPort", null);
             userName = this.iniSectionManager.getValue(sectionName, "userName", null);
             passWord = this.iniSectionManager.getValue(sectionName, "passWord", null);
-            if (null != passWord) {
-                netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
-                updateNetconfSession(netconfSession);
+            status = this.iniSectionManager.getValue(sectionName, "status", null);
+            netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
+            if (!(NetConfStatusEnum.Connected.name().equals(status))) {
+                netconfSession.setFlag(false);
             }
+            updateNetconfSession(netconfSession);
         }
         return true;
     }
@@ -322,5 +360,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
     @Override
     public void close() {
         this.netConfManager.close();
+    }
+
+    public NetconfClient getNetconfClient(String routeId){
+        return this.netConfManager.getNetconClient(routeId);
     }
 }

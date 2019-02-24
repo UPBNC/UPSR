@@ -140,7 +140,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         }
         DevInterfaceInfo devInterfaceInfo = null;
         List<DevInterfaceInfo> devInterfaceInfos = new LinkedList<DevInterfaceInfo>();
-        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getIp().getAddress());
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
 
         LOG.info("enter getInterfaceListFromDevice");
         String gigabitEthernetMsg = VpnXml.getInterfacesXml(InterfaceServiceImpl.INTERFACE_TYPE_GIGABITETHERNET);
@@ -225,7 +225,7 @@ public class InterfaceServiceImpl implements InterfaceService{
         }
         Device device=deviceManager.getDevice(routerId);
         if((null==device.getNetConf())||(device.getNetConf().getStatus()!= NetConfStatusEnum.Connected)) {
-            LOG.info("Can not connect device by Netconf , status is Disconnect,which device routerId=" + device.getRouterId());
+            LOG.info("Can not connect device by Netconf , status is Disconnected,which device routerId=" + device.getRouterId());
             return false;
         }
         List<DeviceInterface> deviceInterfaceList = device.getDeviceInterfaceList();

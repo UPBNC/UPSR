@@ -29,6 +29,7 @@ public class VPNInstance {
     private List<NetworkSeg> networkSegList;
     private boolean RefreshFlag;
     private String note;
+    private String importRoutePolicyName;
 
 
     public VPNInstance() {
@@ -93,6 +94,14 @@ public class VPNInstance {
         this.networkSegList = new ArrayList<NetworkSeg>();
         this.importDirectRouteEnable = 2;
         RefreshFlag = false;
+    }
+
+    public String getImportRoutePolicyName() {
+        return importRoutePolicyName;
+    }
+
+    public void setImportRoutePolicyName(String importRoutePolicyName) {
+        this.importRoutePolicyName = importRoutePolicyName;
     }
 
     public String getNote() {

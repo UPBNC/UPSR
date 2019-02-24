@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class NetconfSessionApiImpl implements NetconfSessionApi {
@@ -102,6 +101,8 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             resultMap.put(ResponseEnum.BODY.getName(), false);
             return resultMap;
         }
+
+
         return this.netconfSessionService.delNetconfSession(routerId);
     }
 
@@ -110,6 +111,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         if (null == routerId) {
             return null;
         }
+
         return this.netconfSessionService.getNetconfSession(routerId);
     }
 
