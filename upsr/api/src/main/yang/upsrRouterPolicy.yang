@@ -1,0 +1,29 @@
+module upsrRouterPolicy {
+    yang-version 1.1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrRouterPolicy";
+    prefix "upsrRouterPolicy";
+
+    revision "2012-02-22" { // TODO change revision to date of model creation
+        description "Initial revision of upsrRouterPolicy model";
+    }
+
+    grouping routePolicy {
+        leaf policyName { type string; }
+        list routePolicyNode {
+            leaf nodeSequence { type string; }
+        }
+    }
+
+    rpc getRoutePolicys {
+        input {
+            leaf routerId { type string; }
+            leaf policyName { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list routePolicy {
+                uses routePolicy;
+            }
+        }
+    }
+}

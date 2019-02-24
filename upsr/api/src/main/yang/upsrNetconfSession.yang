@@ -60,4 +60,13 @@ module upsrNetconfSession {
             leaf result { type string; }
         }
     }
+    rpc actConnect {
+        input {
+            leaf routerId { type string; }
+            leaf action { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
 }
