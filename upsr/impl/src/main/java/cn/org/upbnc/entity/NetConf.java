@@ -18,11 +18,12 @@ public class NetConf {
     private Address ip;
     private String user;
     private String password;
+    private String routerID;
 
     public NetConf() {
         this.id = 0;
         this.device = null;
-        this.status = NetConfStatusEnum.Disconnect;
+        this.status = NetConfStatusEnum.Disconnected;
         this.port = 0;
         this.ip = null;
         this.user = null;
@@ -99,5 +100,13 @@ public class NetConf {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRouterID() {
+        return routerID;
+    }
+
+    public void setRouterID(String routerID) {
+        this.routerID = routerID;
     }
 }

@@ -20,6 +20,8 @@ module upsrTunnel {
         leaf bfdMultiplier { type string; }
         leaf bfdrxInterval { type string; }
         leaf bfdtxInterval { type string; }
+        leaf localDiscriminator { type string; }
+        leaf remoteDiscriminator { type string; }
     }
     grouping tunnelHop {
         leaf index { type string; }
@@ -36,7 +38,10 @@ module upsrTunnel {
         leaf destDevice { type string; }
         leaf destRouterId { type string; }
         leaf bandWidth { type string; }
+        leaf serviceClass { type string; }
+        leaf bfdType { type string; }
         container tunnelBfd { uses tunnelBfd; }
+        container mainLspBfd { uses tunnelBfd; }
         list mainPath { uses tunnelHop; }
         list backPath { uses tunnelHop; }
         list staticBfd { uses staticBfdInfo; }

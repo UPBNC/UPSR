@@ -21,9 +21,9 @@ public interface NetConfManager {
 
     List<NetconfClient> getNetconClients();
 
-    NetconfClient getNetconClient(String ip);
+    NetconfClient getNetconClient(String routerID);
 
-    NetConf getDevice(String ip);
+    NetConf getDevice(String routerID);
 
     void deleteDevice(NetConf netConf);
 

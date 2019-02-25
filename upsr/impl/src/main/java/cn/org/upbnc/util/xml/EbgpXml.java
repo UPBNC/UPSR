@@ -7,6 +7,8 @@
  */
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.SBgpVrfAF;
+import cn.org.upbnc.util.netconf.SPeerAF;
 import cn.org.upbnc.util.netconf.bgp.BgpPeer;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 import cn.org.upbnc.util.netconf.bgp.ImportRoute;
@@ -94,6 +96,10 @@ public class EbgpXml {
         List<BgpPeer> BgpPeers = new ArrayList<>();
         List<NetworkRoute> NetworkRoutes;
         List<ImportRoute> ImportRoutes;
+        List<SBgpVrfAF> bgpVrfAFs;
+        List<SPeerAF> peerAFs;
+        SPeerAF peerAF;
+        SBgpVrfAF bgpVrfAF;
         BgpVrf bgpVrf;
         BgpPeer bgpPeer;
         NetworkRoute networkRoute;
@@ -112,7 +118,27 @@ public class EbgpXml {
                         NetworkRoutes = new ArrayList<>();
                         BgpPeers = new ArrayList<>();
                         ImportRoutes = new ArrayList<>();
+                        bgpVrfAFs = new ArrayList<>();
                         bgpVrf.setVrfName(child.elementText("vrfName"));
+                        peerAFs=new ArrayList<>();
+                        bgpVrfAF=new SBgpVrfAF();
+                        for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("peerAFs").get(0).elements()) {
+                            peerAF=new SPeerAF();
+                            peerAF.setImportRtPolicyName(child1.elementText("importRtPolicyName"));
+                            peerAFs.add(peerAF);
+                            LOG.info("importRtPolicyName : " + child1.elementText("importRtPolicyName"));
+                        }
+                        bgpVrfAF.setPeerAFs(peerAFs);
+                        bgpVrfAFs.add(bgpVrfAF);
+                        bgpVrf.setBgpVrfAFs(bgpVrfAFs);
+                        if (child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").size() > 0) {
+                            for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").get(0).elements()) {
+                                networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
+                                NetworkRoutes.add(networkRoute);
+                            }
+                        } else {
+                            LOG.info("networkRoutes is null.");
+                        }
                         try {
                             for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
                                 importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
@@ -159,6 +185,10 @@ public class EbgpXml {
                 "                <afType>ipv4uni</afType>\n" +
                 "                <bgp:importRoutes/>\n" +
                 "                <bgp:networkRoutes/>\n" +
+                "                <bgp:peerAFs/>\n" +
+                "                <bgp:preferenceExternal/>\n" +
+                "                <bgp:preferenceInternal/>\n" +
+                "                <bgp:preferenceLocal/>\n" +
                 "              </bgp:bgpVrfAF>\n" +
                 "            </bgp:bgpVrfAFs>\n" +
                 "          </bgp:bgpVrf>\n" +

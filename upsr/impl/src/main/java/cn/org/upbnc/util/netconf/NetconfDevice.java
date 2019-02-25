@@ -15,11 +15,14 @@ import org.opendaylight.controller.config.util.xml.XmlUtil;
 import org.opendaylight.netconf.api.NetconfMessage;
 import org.opendaylight.netconf.client.NetconfClientDispatcherImpl;
 import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 public class NetconfDevice {
+    private static final Logger LOG = LoggerFactory.getLogger(NetconfDevice.class);
 
-    public NetconfClient createClient(String host, int port, String ip, String loginName, String loginPwd) {
+    public NetconfClient createClient(String host, int port, String ip, String loginName, String loginPwd) throws Exception {
         NetconfClient netconfClient = null;
         try {
             HashedWheelTimer hashedWheelTimer = new HashedWheelTimer();
@@ -32,7 +35,9 @@ public class NetconfDevice {
                     NetconfClient.getClientConfig(ip, port, true, Optional.of(authHandler)));
 
         } catch (Exception e) {
+            LOG.info("e.printStackTrace() :" + e);
             e.printStackTrace();
+            throw new Exception(NetconfClient.class.getSimpleName(), e);
         }
         return netconfClient;
     }

@@ -41,6 +41,11 @@ module upsrVpnInstance {
             leaf importDirect { type int32; }
             leaf peerIP { type string; }
             leaf peerAS { type string; }
+            leaf routerPolicy { type string; }
+            leaf ebgpPreference { type string; }
+            leaf ibgpPreference { type string; }
+            leaf localPreference { type string; }
+            leaf advertiseCommunity { type string; }
         }
     }
     grouping bindDevices {
@@ -62,6 +67,10 @@ module upsrVpnInstance {
         list deviceBind {
              leaf routerId { type string; }
              leaf vpnRd { type string; }
+             leaf tunnelPolicy { type string; }
+             leaf vpnFrr { type string; }
+             leaf applyLabel { type string; }
+             leaf ttlMode { type string; }
              list bindIfNet {
                  leaf ifName { type string; }
                  leaf ifAddress { type string; }

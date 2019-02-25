@@ -142,7 +142,6 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
                 netconfOutputBuilder.setResult("success");
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
             }
-
         }
         LOG.info("enter update netconf###");
         //以下是业务代码
@@ -188,6 +187,12 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
         netconfOutputBuilder.setResult("failed");
         return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
     }
+
+    @Override
+    public Future<RpcResult<ActConnectOutput>> actConnect(ActConnectInput input) {
+        return null;
+    }
+
     public void close() {
         this.getNetconfSessionApi().close();
     }

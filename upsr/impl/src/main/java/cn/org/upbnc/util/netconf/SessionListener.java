@@ -90,7 +90,7 @@ public class SessionListener implements NetconfClientSessionListener {
         }
         if (null != clientSessionKey) {
             if (NetConfManagerImpl.netConfMap.containsKey(clientSessionKey)) {
-                NetConfManagerImpl.netConfMap.get(clientSessionKey).setStatus(NetConfStatusEnum.Disconnect);
+                NetConfManagerImpl.netConfMap.get(clientSessionKey).setStatus(NetConfStatusEnum.Disconnected);
             }
         }
     }
