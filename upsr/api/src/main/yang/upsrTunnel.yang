@@ -7,6 +7,15 @@ module upsrTunnel {
         description "Initial revision of upsrTunnel model";
     }
 
+    grouping staticBfdInfo{
+        leaf bdfType { type int32; }
+        leaf bfdTimeoutTimes { type int32; }
+        leaf bfdrxInterval { type int32; }
+        leaf bfdtxInterval { type int32; }
+        leaf discriminatorLocal { type string; }
+        leaf discriminatorRemote { type string; }
+    }
+
     grouping tunnelBfd {
         leaf bfdMultiplier { type string; }
         leaf bfdrxInterval { type string; }
@@ -30,6 +39,7 @@ module upsrTunnel {
         container tunnelBfd { uses tunnelBfd; }
         list mainPath { uses tunnelHop; }
         list backPath { uses tunnelHop; }
+        list staticBfd { uses staticBfdInfo; }
     }
 
     rpc getTunnelInstances {

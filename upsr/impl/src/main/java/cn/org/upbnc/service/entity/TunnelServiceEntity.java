@@ -15,10 +15,12 @@ public class TunnelServiceEntity {
     String unNumIfName;
     List<TunnelHopServiceEntity> mainPath;
     List<TunnelHopServiceEntity> backPath;
+    List<BfdServiceEntity> bfdServiceEntities;
 
     public TunnelServiceEntity() {
         this.mainPath = new ArrayList<>();
         this.backPath = new ArrayList<>();
+        this.bfdServiceEntities = new ArrayList<>();
     }
 
     public String getUnNumIfName() {
@@ -115,6 +117,18 @@ public class TunnelServiceEntity {
 
     public void addBackPathHop(TunnelHopServiceEntity tunnelHopServiceEntity) {
         this.backPath.add(tunnelHopServiceEntity);
+    }
+
+    public List<BfdServiceEntity> getBfdServiceEntities() {
+        return bfdServiceEntities;
+    }
+
+    public void setBfdServiceEntities(List<BfdServiceEntity> bfdServiceEntities) {
+        this.bfdServiceEntities = bfdServiceEntities;
+    }
+
+    public void addBfdServiceEntities(BfdServiceEntity bfdServiceEntity){
+        this.bfdServiceEntities.add(bfdServiceEntity);
     }
 
     @Override

@@ -7,6 +7,8 @@
  */
 package cn.org.upbnc.entity;
 
+import java.util.List;
+
 public class Tunnel {
     // Local
     private Integer id;
@@ -22,6 +24,7 @@ public class Tunnel {
     private Boolean bfdEnable;
     private BfdSession bfdSession;
     private boolean RefreshFlag;
+    private List<BfdSession> staticBfds;
 
     public Tunnel() {
     }
@@ -128,6 +131,14 @@ public class Tunnel {
 
     public void setBfdSession(BfdSession bfdSession) {
         this.bfdSession = bfdSession;
+    }
+
+    public List<BfdSession> getStaticBfds() {
+        return staticBfds;
+    }
+
+    public void setStaticBfds(List<BfdSession> staticBfds) {
+        this.staticBfds = staticBfds;
     }
 
     @Override
