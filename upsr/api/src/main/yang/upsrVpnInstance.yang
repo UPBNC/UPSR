@@ -41,7 +41,8 @@ module upsrVpnInstance {
             leaf importDirect { type int32; }
             leaf peerIP { type string; }
             leaf peerAS { type string; }
-            leaf routerPolicy { type string; }
+            leaf routerImportPolicy { type string; }
+            leaf routerExportPolicy { type string; }
             leaf ebgpPreference { type string; }
             leaf ibgpPreference { type string; }
             leaf localPreference { type string; }
@@ -55,6 +56,11 @@ module upsrVpnInstance {
              leaf vpnRd { type string; }
              leaf vpnExport { type string; }
              leaf vpnImport { type string; }
+            leaf tunnelPolicy { type string; }
+            leaf vpnFrr { type string; }
+            leaf applyLabel { type string; }
+            leaf ttlMode { type string; }
+            leaf notes { type string; }
              list bindIfNet {
                 leaf ifName { type string; }
                 leaf ifAddress { type string; }
@@ -71,6 +77,7 @@ module upsrVpnInstance {
              leaf vpnFrr { type string; }
              leaf applyLabel { type string; }
              leaf ttlMode { type string; }
+             leaf notes { type string; }
              list bindIfNet {
                  leaf ifName { type string; }
                  leaf ifAddress { type string; }

@@ -30,6 +30,10 @@ public class VPNInstance {
     private boolean RefreshFlag;
     private String note;
     private String importRoutePolicyName;
+    private String exportRoutePolicyName;
+    private String ebgpPreference;
+    private String ibgpPreference;
+    private String localPreference;
 
 
     public VPNInstance() {
@@ -96,12 +100,44 @@ public class VPNInstance {
         RefreshFlag = false;
     }
 
+    public String getExportRoutePolicyName() {
+        return exportRoutePolicyName;
+    }
+
+    public void setExportRoutePolicyName(String exportRoutePolicyName) {
+        this.exportRoutePolicyName = exportRoutePolicyName;
+    }
+
     public String getImportRoutePolicyName() {
         return importRoutePolicyName;
     }
 
     public void setImportRoutePolicyName(String importRoutePolicyName) {
         this.importRoutePolicyName = importRoutePolicyName;
+    }
+
+    public String getEbgpPreference() {
+        return ebgpPreference;
+    }
+
+    public void setEbgpPreference(String ebgpPreference) {
+        this.ebgpPreference = ebgpPreference;
+    }
+
+    public String getIbgpPreference() {
+        return ibgpPreference;
+    }
+
+    public void setIbgpPreference(String ibgpPreference) {
+        this.ibgpPreference = ibgpPreference;
+    }
+
+    public String getLocalPreference() {
+        return localPreference;
+    }
+
+    public void setLocalPreference(String localPreference) {
+        this.localPreference = localPreference;
     }
 
     public String getNote() {
