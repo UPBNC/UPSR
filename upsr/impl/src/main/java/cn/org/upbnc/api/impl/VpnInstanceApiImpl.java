@@ -63,7 +63,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , vpnName or rd is null.");
             return resultMap;
         }
-        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+        if (null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)) {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;
         }
@@ -99,11 +99,6 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
         if (null == this.vpnService) {
             return resultMap;
         }
-
-        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
-            return resultMap;
-        }
         return this.vpnService.delVpnInstance(routerId, vpnName);
     }
 
@@ -116,7 +111,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             return resultMap;
         }
 
-        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
+        if (null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)) {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;
         }
