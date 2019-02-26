@@ -280,7 +280,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     UpdateVpnInstance updateVpnInstance = new UpdateVpnInstance(vpnName, routerId, businessArea,
                             vpnRd, vpnRT, vpnRT, peerAs, peerIP_Address, null, importDirect,
                             deviceInterfaceList, networkSegList);
-                    updateVpnInstance.setNote(notes);
+                    updateVpnInstance.setNote(bindDevice.getNotes());
                     ret = (boolean) this.getVpnInstanceApi().updateVpnInstance(updateVpnInstance
                     ).get(ResponseEnum.BODY.getName());
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
@@ -342,6 +342,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             bindDevice.setVpnExport(vpnInstance.getExportRT());
                             bindDevice.setVpnImport(vpnInstance.getImportRT());
                             bindDevice.setVpnRd(vpnInstance.getRd());
+                            bindDevice.setNotes(vpnInstance.getNote());
                             if (null != vpnInstance.getDeviceInterfaceList()) {
                                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.
                                         rev181119.binddevices.devicebind.BindIfNet> bindIfs = new LinkedList<>();
@@ -384,6 +385,11 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             if (null != vpnInstance.getPeerIP()) {
                                 eBgp.setPeerIP(vpnInstance.getPeerIP().getAddress());
                             }
+                            eBgp.setRouterImportPolicy(vpnInstance.getImportRoutePolicyName());
+                            eBgp.setRouterExportPolicy(vpnInstance.getExportRoutePolicyName());
+                            eBgp.setEbgpPreference(vpnInstance.getEbgpPreference());
+                            eBgp.setIbgpPreference(vpnInstance.getIbgpPreference());
+                            eBgp.setLocalPreference(vpnInstance.getLocalPreference());
                             bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());
                         }

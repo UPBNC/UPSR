@@ -120,13 +120,18 @@ public class EbgpXml {
                         ImportRoutes = new ArrayList<>();
                         bgpVrfAFs = new ArrayList<>();
                         bgpVrf.setVrfName(child.elementText("vrfName"));
-                        peerAFs=new ArrayList<>();
-                        bgpVrfAF=new SBgpVrfAF();
-                        for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("peerAFs").get(0).elements()) {
-                            peerAF=new SPeerAF();
-                            peerAF.setImportRtPolicyName(child1.elementText("importRtPolicyName"));
-                            peerAFs.add(peerAF);
-                            LOG.info("importRtPolicyName : " + child1.elementText("importRtPolicyName"));
+                        peerAFs = new ArrayList<>();
+                        bgpVrfAF = new SBgpVrfAF();
+                        for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements()) {
+                            bgpVrfAF.setPreferenceExternal(child1.elementText("preferenceExternal"));
+                            bgpVrfAF.setPreferenceInternal(child1.elementText("preferenceInternal"));
+                            bgpVrfAF.setPreferenceLocal(child1.elementText("preferenceLocal"));
+                            for (org.dom4j.Element child2 : child1.elements("peerAFs").get(0).elements()) {
+                                peerAF = new SPeerAF();
+                                peerAF.setImportRtPolicyName(child2.elementText("importRtPolicyName"));
+                                peerAF.setExportRtPolicyName(child2.elementText("exportRtPolicyName"));
+                                peerAFs.add(peerAF);
+                            }
                         }
                         bgpVrfAF.setPeerAFs(peerAFs);
                         bgpVrfAFs.add(bgpVrfAF);
