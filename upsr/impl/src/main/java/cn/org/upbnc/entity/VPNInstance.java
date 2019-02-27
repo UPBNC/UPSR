@@ -180,8 +180,7 @@ public class VPNInstance {
     }
 
     public void setDeviceInterfaceList(List<DeviceInterface> deviceInterfaceList) {
-        this.deviceInterfaceList.clear();
-        this.deviceInterfaceList.addAll(deviceInterfaceList);
+        this.deviceInterfaceList = deviceInterfaceList;
     }
 
     public void setVpnName(String vpnName) {
