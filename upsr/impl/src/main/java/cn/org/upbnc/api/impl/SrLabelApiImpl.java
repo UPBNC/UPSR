@@ -90,6 +90,8 @@ public class SrLabelApiImpl implements SrLabelApi {
 
     @Override
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
+
+
         Map<String, Object> resultMap = new HashMap<>();
         if ((ifAddress == null) || (labelVal == null) ||
                 ifAddress.equals("") || labelVal.equals("")) {

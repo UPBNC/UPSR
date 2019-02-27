@@ -368,28 +368,30 @@ public class VPNServiceImpl implements VPNService {
                 if (null != vpnInsntance) {
                     if (null != bgpVrfList) {
                         for (BgpVrf bgpVrf : bgpVrfList) {
-                            String importRoutePolicyName = null;
-                            for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
-                                for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
-                                    LOG.info("sPeerAF.getImportRtPolicyName() :" + sPeerAF.getImportRtPolicyName());
-                                    importRoutePolicyName = sPeerAF.getImportRtPolicyName();
-                                    vpnInsntance.setImportRoutePolicyName(importRoutePolicyName);
-                                    vpnInsntance.setExportRoutePolicyName(sPeerAF.getExportRtPolicyName());
+                            if(bgpVrf.getVrfName().equals(vpnInsntance.getVpnName())){
+                                String importRoutePolicyName = null;
+                                for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
+                                    for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
+                                        LOG.info("sPeerAF.getImportRtPolicyName() :" + sPeerAF.getImportRtPolicyName());
+                                        importRoutePolicyName = sPeerAF.getImportRtPolicyName();
+                                        vpnInsntance.setImportRoutePolicyName(importRoutePolicyName);
+                                        vpnInsntance.setExportRoutePolicyName(sPeerAF.getExportRtPolicyName());
+                                    }
                                 }
-                            }
-                            if (null != importRoutePolicyName) {
-                                sendMsg = RoutePolicyXml.getRoutePolicyXml(importRoutePolicyName);
-                                LOG.info("getRoutePolicyXml sendMsg={}", new Object[]{sendMsg});
-                                result = netconfController.sendMessage(netconfClient, sendMsg);
-                                LOG.info("getRoutePolicyXml result={}", new Object[]{result});
+                                if (null != importRoutePolicyName) {
+                                    sendMsg = RoutePolicyXml.getRoutePolicyXml(importRoutePolicyName);
+                                    LOG.info("getRoutePolicyXml sendMsg={}", new Object[]{sendMsg});
+                                    result = netconfController.sendMessage(netconfClient, sendMsg);
+                                    LOG.info("getRoutePolicyXml result={}", new Object[]{result});
 
-                                List<SRoutePolicy> sRoutePolicies = RoutePolicyXml.getRoutePolicyFromXml(result);
-                                for (SRoutePolicy routePolicy : sRoutePolicies) {
-                                    routePolicy.toString();
+                                    List<SRoutePolicy> sRoutePolicies = RoutePolicyXml.getRoutePolicyFromXml(result);
+                                    for (SRoutePolicy routePolicy : sRoutePolicies) {
+                                        routePolicy.toString();
+                                    }
                                 }
-                            }
-                            if (vpnInsntance.getVpnName().equals(bgpVrf.getVrfName())) {
-                                mapBgpVrfToVPNInstance(vpnInsntance, bgpVrf);
+                                if (vpnInsntance.getVpnName().equals(bgpVrf.getVrfName())) {
+                                    mapBgpVrfToVPNInstance(vpnInsntance, bgpVrf);
+                                }
                             }
                         }
                     }
@@ -489,7 +491,7 @@ public class VPNServiceImpl implements VPNService {
         vpnInstance.setIbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceInternal());
         vpnInstance.setLocalPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceLocal());
         vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
-        vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
+        vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
         if (bgpVrf.getNetworkRoutes() != null && bgpVrf.getNetworkRoutes().size() != 0) {
             List<NetworkSeg> networkSegList = new ArrayList<NetworkSeg>();
             for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
