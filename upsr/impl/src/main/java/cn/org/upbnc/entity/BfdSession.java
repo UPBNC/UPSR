@@ -12,7 +12,7 @@ public class BfdSession {
     private Integer id;
     private Device device;
     private Integer type;
-    private String bfdId;
+    private String bfdName;
     private String minRecvTime;
     private String minSendTime;
     private String multiplier;
@@ -86,12 +86,12 @@ public class BfdSession {
         this.discriminatorRemote = discriminatorRemote;
     }
 
-    public void setBfdId(String bfdId) {
-        this.bfdId = bfdId;
+    public String getBfdName() {
+        return bfdName;
     }
 
-    public String getBfdId() {
-        return bfdId;
+    public void setBfdName(String bfdName) {
+        this.bfdName = bfdName;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class BfdSession {
                 "id=" + id +
                 ", device=" + device +
                 ", type=" + type +
-                ", bfdId=" + bfdId +
+                ", bfdName=" + bfdName +
                 ", minRecvTime='" + minRecvTime + '\'' +
                 ", minSendTime='" + minSendTime + '\'' +
                 ", multiplier='" + multiplier + '\'' +

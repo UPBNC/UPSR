@@ -2,6 +2,7 @@ package cn.org.upbnc.util.netconf;
 
 public class SBfdCfgSession {
     private String sessName;
+    private String multiplier;
     private String minTxInt;
     private String minRxInt;
     private String linkType;
@@ -9,6 +10,7 @@ public class SBfdCfgSession {
     private String createType;
     private String localDiscr;
     private String remoteDiscr;
+
 
     public String getSessName() {
         return sessName;
@@ -72,5 +74,13 @@ public class SBfdCfgSession {
 
     public void setRemoteDiscr(String remoteDiscr) {
         this.remoteDiscr = remoteDiscr;
+    }
+
+    public String getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(String multiplier) {
+        this.multiplier = multiplier;
     }
 }

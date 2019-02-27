@@ -2,7 +2,7 @@ package cn.org.upbnc.service.entity;
 
 public class BfdServiceEntity {
     private Integer type;
-    private String bfdId;
+    private String bfdName;
     private String minRecvTime;
     private String minSendTime;
     private String multiplier;
@@ -25,12 +25,12 @@ public class BfdServiceEntity {
         this.multiplier = multiplier;
     }
 
-    public String getBfdId() {
-        return bfdId;
+    public String getBfdName() {
+        return bfdName;
     }
 
-    public void setBfdId(String bfdId) {
-        this.bfdId = bfdId;
+    public void setBfdName(String bfdName) {
+        this.bfdName = bfdName;
     }
 
     public String getMinRecvTime() {
