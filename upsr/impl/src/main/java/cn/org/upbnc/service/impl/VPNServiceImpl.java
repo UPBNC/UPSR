@@ -477,6 +477,22 @@ public class VPNServiceImpl implements VPNService {
                 LOG.info("get ifname={} ip={} mask={}", new Object[]{l3vpnIf.getIfName(), l3vpnIf.getIpv4Addr(), l3vpnIf.getSubnetMask()});
                 deviceInterfaces.add(deviceInterface);
             }
+
+            for(DeviceInterface deviceInterface1:vpnInstance.getDeviceInterfaceList()){
+                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                        deviceInterface2.setVpn(null);
+                    }
+                }
+            }
+            for(DeviceInterface deviceInterface1:deviceInterfaces){
+                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                        deviceInterface2.setVpn(vpnInstance);
+                    }
+                }
+            }
+
             vpnInstance.setDeviceInterfaceList(deviceInterfaces);
         }
         return vpnInstance;

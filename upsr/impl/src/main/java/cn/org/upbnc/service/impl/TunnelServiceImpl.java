@@ -680,13 +680,13 @@ public class TunnelServiceImpl implements TunnelService {
     @Override
     public Map<String, Object> generateTunnelName(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
-        long tunnelId = TUNNELID_MAX;
-        while (tunnelId > 0) {
+        long tunnelId = 1;
+        while (tunnelId <= TUNNELID_MAX) {
             List<Tunnel> tunnelList = tunnelManager.getTunnel(routerId, "Tunnel" + tunnelId);
             if (tunnelList.isEmpty()) {
                 break;
             }
-            tunnelId = tunnelId - 1;
+            tunnelId = tunnelId + 1;
         }
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), tunnelId);

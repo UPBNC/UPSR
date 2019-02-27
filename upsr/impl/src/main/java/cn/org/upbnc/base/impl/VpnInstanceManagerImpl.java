@@ -79,6 +79,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
             if (true == vpnInstance.getVpnName().equals(vpnName)) {
                 if ((null != vpnInstance.getDevice()) &&
                         (true == routerId.equals(vpnInstance.getDevice().getRouterId()))) {
+                    for(DeviceInterface deviceInterface1:vpnInstance.getDeviceInterfaceList()){
+                        for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                            if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                                deviceInterface2.setVpn(null);
+                            }
+                        }
+                    }
                     iter.remove();
                     return true;
                 }
@@ -142,6 +149,22 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
             vpnInstance.setPeerIP(peerIP);
             vpnInstance.setRouteSelectDelay(routeSelectDelay);
             vpnInstance.setImportDirectRouteEnable(importDirectRouteEnable);
+
+            for(DeviceInterface deviceInterface1:vpnInstance.getDeviceInterfaceList()){
+                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                        deviceInterface2.setVpn(null);
+                    }
+                }
+            }
+            for(DeviceInterface deviceInterface1:deviceInterfaceList){
+                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                        deviceInterface2.setVpn(vpnInstance);
+                    }
+                }
+            }
+
             vpnInstance.setDeviceInterfaceList(deviceInterfaceList);
             vpnInstance.setNetworkSegList(networkSegList);
             vpnInstance.setNote(note);
@@ -150,6 +173,13 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
             Integer id = 0;
             vpnInstance = new VPNInstance(id, device, deviceInterfaceList, vpnName, routerId, businessRegion, rd,
                     importRT, exportRT, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
+            for(DeviceInterface deviceInterface1:deviceInterfaceList){
+                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
+                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+                        deviceInterface2.setVpn(vpnInstance);
+                    }
+                }
+            }
             vpnInstance.setNote(note);
             vpnInstance.setRefreshFlag(true);
             if (null != vpnInstance) {

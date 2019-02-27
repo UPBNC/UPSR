@@ -43,6 +43,7 @@ module upsrVpnInstance {
             leaf peerAS { type string; }
             leaf routerImportPolicy { type string; }
             leaf routerExportPolicy { type string; }
+            leaf routerPolicy { type string; }
             leaf ebgpPreference { type string; }
             leaf ibgpPreference { type string; }
             leaf localPreference { type string; }

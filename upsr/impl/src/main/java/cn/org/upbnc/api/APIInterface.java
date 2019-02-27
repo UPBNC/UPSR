@@ -8,6 +8,7 @@
 package cn.org.upbnc.api;
 
 import cn.org.upbnc.api.impl.*;
+import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.util.UtilInterface;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ public class APIInterface {
     private ConfSyncApi  confSyncApi;
     private SrLabelApi srLabelApi;
     private TunnelApi tunnelApi;
+    private TunnelPolicyApi tunnelPolicyApi;
 
     public APIInterface(){
         // Service Interface
@@ -40,6 +42,7 @@ public class APIInterface {
 		this.confSyncApi = null;
 		this.srLabelApi = null;
 		this.tunnelApi = null;
+		this.tunnelPolicyApi=null;
     }
 
     public void init(){
@@ -53,6 +56,7 @@ public class APIInterface {
             this.netconfSessionApi = NetconfSessionApiImpl.getInstance();
             this.srLabelApi = SrLabelApiImpl.getInstance();
             this.tunnelApi = TunnelApiImpl.getInstance();
+            this.tunnelPolicyApi=TunnelPolicyApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         }catch (Exception e){
             LOG.info("APIInterface init Failure!" + e.getMessage());
@@ -72,6 +76,7 @@ public class APIInterface {
             ret = ((true == ret )? this.netconfSessionApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.interfaceApi.setServiceInterface(this.serviceInterface):false);
             ret = ((true == ret )? this.confSyncApi.setServiceInterface(this.serviceInterface):false);
+            ret = ((true == ret )? this.tunnelPolicyApi.setServiceInterface(this.serviceInterface):false);
         }catch (Exception e){
             ret = false;
             LOG.info(e.getMessage());
@@ -114,4 +119,5 @@ public class APIInterface {
     }
     public InterfaceApi getInterfaceApi() {return  interfaceApi; }
     public ConfSyncApi  getConfSyncApi() {return confSyncApi;}
+    public TunnelPolicyApi  getTunnelPolicyApi() {return tunnelPolicyApi;}
 }
