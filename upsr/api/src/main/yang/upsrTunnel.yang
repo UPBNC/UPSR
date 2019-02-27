@@ -42,9 +42,9 @@ module upsrTunnel {
         leaf bfdType { type string; }
         container tunnelBfd { uses tunnelBfd; }
         container mainLspBfd { uses tunnelBfd; }
+        container tunnelStaticBfd {uses tunnelBfd; }
         list mainPath { uses tunnelHop; }
         list backPath { uses tunnelHop; }
-        list staticBfd { uses staticBfdInfo; }
     }
 
     rpc getTunnelInstances {

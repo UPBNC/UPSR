@@ -5,9 +5,9 @@ public class BfdServiceEntity {
     private String bfdId;
     private String minRecvTime;
     private String minSendTime;
-    private Integer timeout;
-    private Integer discriminatorLocal;
-    private Integer discriminatorRemote;
+    private String multiplier;
+    private String discriminatorLocal;
+    private String discriminatorRemote;
 
     public Integer getType() {
         return type;
@@ -17,12 +17,12 @@ public class BfdServiceEntity {
         this.type = type;
     }
 
-    public Integer getTimeout() {
-        return timeout;
+    public String getMultiplier() {
+        return multiplier;
     }
 
-    public void setTimeout(Integer timeout) {
-        this.timeout = timeout;
+    public void setMultiplier(String multiplier) {
+        this.multiplier = multiplier;
     }
 
     public String getBfdId() {
@@ -49,19 +49,20 @@ public class BfdServiceEntity {
         this.minSendTime = minSendTime;
     }
 
-    public void setDiscriminatorRemote(Integer discriminatorRemote) {
+    public void setDiscriminatorRemote(String discriminatorRemote) {
         this.discriminatorRemote = discriminatorRemote;
     }
 
-    public Integer getDiscriminatorRemote() {
+    public String getDiscriminatorRemote() {
         return discriminatorRemote;
     }
 
-    public Integer getDiscriminatorLocal() {
+    public String getDiscriminatorLocal() {
         return discriminatorLocal;
     }
 
-    public void setDiscriminatorLocal(Integer discriminatorLocal) {
+    public void setDiscriminatorLocal(String discriminatorLocal) {
         this.discriminatorLocal = discriminatorLocal;
     }
+
 }

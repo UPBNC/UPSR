@@ -24,7 +24,10 @@ public class Tunnel {
     private Boolean bfdEnable;
     private BfdSession bfdSession;
     private boolean RefreshFlag;
-    private List<BfdSession> staticBfds;
+    private Integer bfdType;
+    private BfdSession dynamicBfd;
+    private BfdSession masterBfd;
+    private BfdSession tunnelBfd;
 
     public Tunnel() {
     }
@@ -133,12 +136,36 @@ public class Tunnel {
         this.bfdSession = bfdSession;
     }
 
-    public List<BfdSession> getStaticBfds() {
-        return staticBfds;
+    public BfdSession getDynamicBfd() {
+        return dynamicBfd;
     }
 
-    public void setStaticBfds(List<BfdSession> staticBfds) {
-        this.staticBfds = staticBfds;
+    public void setDynamicBfd(BfdSession dynamicBfd) {
+        this.dynamicBfd = dynamicBfd;
+    }
+
+    public BfdSession getMasterBfd() {
+        return masterBfd;
+    }
+
+    public void setMasterBfd(BfdSession masterBfd) {
+        this.masterBfd = masterBfd;
+    }
+
+    public BfdSession getTunnelBfd() {
+        return tunnelBfd;
+    }
+
+    public void setTunnelBfd(BfdSession tunnelBfd) {
+        this.tunnelBfd = tunnelBfd;
+    }
+
+    public void setBfdType(Integer bfdType) {
+        this.bfdType = bfdType;
+    }
+
+    public Integer getBfdType() {
+        return bfdType;
     }
 
     @Override

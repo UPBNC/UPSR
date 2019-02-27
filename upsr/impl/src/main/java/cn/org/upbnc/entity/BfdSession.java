@@ -16,9 +16,8 @@ public class BfdSession {
     private String minRecvTime;
     private String minSendTime;
     private String multiplier;
-    private Integer timeout;
-    private Integer discriminatorLocal;
-    private Integer discriminatorRemote;
+    private String discriminatorLocal;
+    private String discriminatorRemote;
 
     public BfdSession() {
     }
@@ -71,27 +70,19 @@ public class BfdSession {
         this.type = type;
     }
 
-    public Integer getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Integer timeout) {
-        this.timeout = timeout;
-    }
-
-    public Integer getDiscriminatorLocal() {
+    public String getDiscriminatorLocal() {
         return discriminatorLocal;
     }
 
-    public void setDiscriminatorLocal(Integer discriminatorLocal) {
+    public void setDiscriminatorLocal(String discriminatorLocal) {
         this.discriminatorLocal = discriminatorLocal;
     }
 
-    public Integer getDiscriminatorRemote() {
+    public String getDiscriminatorRemote() {
         return discriminatorRemote;
     }
 
-    public void setDiscriminatorRemote(Integer discriminatorRemote) {
+    public void setDiscriminatorRemote(String discriminatorRemote) {
         this.discriminatorRemote = discriminatorRemote;
     }
 
