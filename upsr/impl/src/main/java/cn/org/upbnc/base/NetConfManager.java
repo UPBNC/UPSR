@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.entity.NetConf;
 
@@ -21,11 +22,13 @@ public interface NetConfManager {
 
     List<NetconfClient> getNetconClients();
 
-    NetconfClient getNetconClient(String routerID);
+    NetconfClient getNetconClient(String routerId);
 
-    NetConf getDevice(String routerID);
+    NetConf getDevice(String routerId);
 
-    void deleteDevice(NetConf netConf);
+    boolean setDevice(String routerId, NetConfStatusEnum netConfStatusEnum);
+
+    boolean deleteDevice(NetConf netConf);
 
     void close();
 

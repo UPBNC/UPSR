@@ -9,24 +9,36 @@ module upsrTunnelPolicy {
 
     grouping tunnelPolicy {
         leaf policyName { type string; }
-        list policyDest {
+        leaf routerId{type string;}
+        leaf description{type string;}
+        leaf tnlPolicyType{type string;}
+        list tpNexthops {
             leaf destAddr { type string; }
             leaf ignoreDestCheck { type string; }
             leaf includeLdp { type string; }
+            leaf downSwitch { type string; }
             list bindTunnel {
-                leaf tunnelName { type string ; }
+                leaf tunnelName { type string; }
             }
+        }
+        list tnlSelSeqs{
+            leaf loadBalanceNum { type string; }
+            leaf selTnlType1{type string;}
+            leaf selTnlType2{type string;}
+            leaf selTnlType3{type string;}
+            leaf selTnlType4{type string;}
+            leaf selTnlType5{type string;}
+            leaf unmix{type string;}
         }
     }
 
     rpc getTunnelPolicys {
         input {
             leaf routerId { type string; }
-            leaf policyName { type string; }
         }
         output {
             leaf result { type string; }
-            list tunnelPolicy {
+            list tunnelPolicys {
                 uses tunnelPolicy;
             }
         }

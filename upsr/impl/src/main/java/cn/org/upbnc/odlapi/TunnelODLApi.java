@@ -4,11 +4,14 @@ import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.AdjLabel;
+import cn.org.upbnc.entity.BfdSession;
 import cn.org.upbnc.entity.ExplicitPath;
 import cn.org.upbnc.entity.Tunnel;
+import cn.org.upbnc.enumtype.BfdTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.service.entity.BfdServiceEntity;
 import cn.org.upbnc.service.entity.DetectTunnelServiceEntity;
 import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
@@ -57,6 +60,12 @@ public class TunnelODLApi implements UpsrTunnelService {
         MainPathBuilder mainPathBuilder;
         BackPathBuilder backPathBuilder;
         Map<String, AdjLabel> map;
+        // get bfd static start
+        MainLspBfdBuilder mainLspBfdBuilder;
+        TunnelBfdBuilder tunnelStaticBfdBuilder;
+        //TunnelStaticBfdBuilder tunnelStaticBfdBuilder;
+
+        // get bfd end
         TunnelInstancesBuilder tunnelInstancesBuilder;
         for (Tunnel tunnel : tunnels) {
             mainPathList = new ArrayList<>();
@@ -69,11 +78,59 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelInstancesBuilder.setDestDevice(tunnel.getDestDeviceName());
             tunnelInstancesBuilder.setDestRouterId(tunnel.getDestRouterId());
             tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
-            tunnelBfdBuilder = new TunnelBfdBuilder();
-            tunnelBfdBuilder.setBfdMultiplier(tunnel.getBfdSession().getMultiplier());
-            tunnelBfdBuilder.setBfdrxInterval(tunnel.getBfdSession().getMinRecvTime());
-            tunnelBfdBuilder.setBfdtxInterval(tunnel.getBfdSession().getMinSendTime());
-            tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
+
+            // get bfd
+            // set bfd type
+            tunnelInstancesBuilder.setBfdType(tunnel.getBfdType().toString());
+
+            // set dynamic bfd
+            if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+                tunnelBfdBuilder = new TunnelBfdBuilder();
+                tunnelBfdBuilder.setBfdMultiplier(tunnel.getBfdSession().getMultiplier());
+                tunnelBfdBuilder.setBfdrxInterval(tunnel.getBfdSession().getMinRecvTime());
+                tunnelBfdBuilder.setBfdtxInterval(tunnel.getBfdSession().getMinSendTime());
+                tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
+
+            }else if(tunnel.getBfdType() == BfdTypeEnum.Static.getCode()) {// set static bfd
+                // set tunnel bfd
+                if(tunnel.getTunnelBfd() != null){
+                    BfdSession bfdSession = tunnel.getTunnelBfd();
+//                    tunnelStaticBfdBuilder = new TunnelStaticBfdBuilder();
+//                    tunnelStaticBfdBuilder.setBfdMultiplier(bfdSession.getMultiplier());
+//                    tunnelStaticBfdBuilder.setBfdrxInterval(bfdSession.getMinRecvTime());
+//                    tunnelStaticBfdBuilder.setBfdtxInterval(bfdSession.getMinSendTime());
+//                    tunnelStaticBfdBuilder.setLocalDiscriminator(bfdSession.getDiscriminatorLocal());
+//                    tunnelStaticBfdBuilder.setRemoteDiscriminator(bfdSession.getDiscriminatorRemote());
+//
+//                    tunnelInstancesBuilder.setTunnelStaticBfd(tunnelStaticBfdBuilder.build());
+
+                    tunnelStaticBfdBuilder = new TunnelBfdBuilder();
+                    tunnelStaticBfdBuilder.setBfdMultiplier(bfdSession.getMultiplier());
+                    tunnelStaticBfdBuilder.setBfdrxInterval(bfdSession.getMinRecvTime());
+                    tunnelStaticBfdBuilder.setBfdtxInterval(bfdSession.getMinSendTime());
+                    tunnelStaticBfdBuilder.setLocalDiscriminator(bfdSession.getDiscriminatorLocal());
+                    tunnelStaticBfdBuilder.setRemoteDiscriminator(bfdSession.getDiscriminatorRemote());
+
+                    tunnelInstancesBuilder.setTunnelBfd(tunnelStaticBfdBuilder.build());
+                }
+
+
+                // set master bfd
+                if(tunnel.getMasterBfd() != null) {
+                    BfdSession bfdSession = tunnel.getMasterBfd();
+                    mainLspBfdBuilder = new MainLspBfdBuilder();
+                    mainLspBfdBuilder.setBfdMultiplier(bfdSession.getMultiplier());
+                    mainLspBfdBuilder.setBfdrxInterval(bfdSession.getMinRecvTime());
+                    mainLspBfdBuilder.setBfdtxInterval(bfdSession.getMinSendTime());
+                    mainLspBfdBuilder.setLocalDiscriminator(bfdSession.getDiscriminatorLocal());
+                    mainLspBfdBuilder.setRemoteDiscriminator(bfdSession.getDiscriminatorRemote());
+
+                    tunnelInstancesBuilder.setMainLspBfd(mainLspBfdBuilder.build());
+                }
+            }
+
+
+            //
             ExplicitPath mainPath = tunnel.getMasterPath();
             if (mainPath != null) {
                 map = mainPath.getLabelMap();
@@ -162,6 +219,15 @@ public class TunnelODLApi implements UpsrTunnelService {
         tunnelServiceEntity.setTunnelName(tunnelName);
         tunnelServiceEntity.setEgressLSRId(input.getDestRouterId());
         tunnelServiceEntity.setBandwidth(input.getBandWidth());
+
+        //add tunnel bfd and master bfd
+        tunnelServiceEntity.setTunnelBfd(this.getTunnelBfdByInput(input,tunnelServiceEntity.getTunnelName()));
+        tunnelServiceEntity.setMasterBfd(this.getMasterBfdByInput(input,tunnelServiceEntity.getTunnelName()));
+        tunnelServiceEntity.setDynamicBfd(this.getDynamicBfdByInput(input,tunnelServiceEntity.getTunnelName()));
+        tunnelServiceEntity.setBfdType(Integer.parseInt(input.getBfdType()));
+        //end
+
+
         this.tunnelBfdBuild(tunnelServiceEntity, input);
         this.tunnelPathBuild(tunnelServiceEntity, input);
         LOG.info(tunnelServiceEntity.toString());
@@ -332,6 +398,60 @@ public class TunnelODLApi implements UpsrTunnelService {
         return;
     }
 
+    private BfdServiceEntity getTunnelBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
+        BfdServiceEntity ret = null;
+
+        //TunnelStaticBfd tunnelBfd = input.getTunnelStaticBfd();
+        TunnelBfd tunnelBfd = input.getTunnelBfd();
+        if(tunnelBfd != null) {
+            ret = new BfdServiceEntity();
+            ret.setType(BfdTypeEnum.Tunnel.getCode());
+            ret.setDiscriminatorLocal(tunnelBfd.getLocalDiscriminator());
+            ret.setDiscriminatorRemote(tunnelBfd.getRemoteDiscriminator());
+            ret.setMinRecvTime(tunnelBfd.getBfdrxInterval());
+            ret.setMinSendTime(tunnelBfd.getBfdtxInterval());
+            ret.setMultiplier(tunnelBfd.getBfdMultiplier());
+            ret.setBfdName(tunnelName+"_"+BfdTypeEnum.Tunnel.getName());
+        }
+        return ret;
+    }
+
+    private BfdServiceEntity getMasterBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
+        BfdServiceEntity ret = null;
+
+        MainLspBfd mainLspBfd = input.getMainLspBfd();
+        if(mainLspBfd != null) {
+            ret = new BfdServiceEntity();
+            ret.setType(BfdTypeEnum.Master.getCode());
+            ret.setDiscriminatorLocal(mainLspBfd.getLocalDiscriminator());
+            ret.setDiscriminatorRemote(mainLspBfd.getRemoteDiscriminator());
+            ret.setMinRecvTime(mainLspBfd.getBfdrxInterval());
+            ret.setMinSendTime(mainLspBfd.getBfdtxInterval());
+            ret.setMultiplier(mainLspBfd.getBfdMultiplier());
+            ret.setBfdName(tunnelName+"_"+BfdTypeEnum.Master.getName());
+        }
+        return ret;
+    }
+
+
+    private BfdServiceEntity getDynamicBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
+        BfdServiceEntity ret = null;
+
+        TunnelBfd tunnelBfd = input.getTunnelBfd();
+        if(tunnelBfd != null) {
+            ret = new BfdServiceEntity();
+            ret.setType(BfdTypeEnum.Dynamic.getCode());
+            ret.setDiscriminatorLocal(tunnelBfd.getLocalDiscriminator());
+            ret.setDiscriminatorRemote(tunnelBfd.getRemoteDiscriminator());
+            ret.setMinRecvTime(tunnelBfd.getBfdrxInterval());
+            ret.setMinSendTime(tunnelBfd.getBfdtxInterval());
+            ret.setMultiplier(tunnelBfd.getBfdMultiplier());
+            ret.setBfdName(tunnelName+"_"+BfdTypeEnum.Dynamic.getName());
+        }
+        return ret;
+    }
+
+
     private void tunnelPathBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {
         LOG.info("tunnelPathBuild begin");
         List<MainPath> mainPathList = input.getMainPath();
@@ -364,4 +484,6 @@ public class TunnelODLApi implements UpsrTunnelService {
         }
         LOG.info("tunnelPathBuild end");
     }
+
+
 }

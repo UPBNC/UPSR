@@ -149,34 +149,38 @@ public class EbgpXml {
                         bgpVrf.setVrfName(child.elementText("vrfName"));
                         peerAFs = new ArrayList<>();
                         bgpVrfAF = new SBgpVrfAF();
-                        for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements()) {
-                            bgpVrfAF.setPreferenceExternal(child1.elementText("preferenceExternal"));
-                            bgpVrfAF.setPreferenceInternal(child1.elementText("preferenceInternal"));
-                            bgpVrfAF.setPreferenceLocal(child1.elementText("preferenceLocal"));
-                            for (org.dom4j.Element child2 : child1.elements("peerAFs").get(0).elements()) {
-                                peerAF = new SPeerAF();
-                                peerAF.setImportRtPolicyName(child2.elementText("importRtPolicyName"));
-                                peerAF.setExportRtPolicyName(child2.elementText("exportRtPolicyName"));
-                                peerAF.setAdvertiseCommunity(child2.elementText("advertiseCommunity"));
-                                peerAF.setRemoteAddress(child2.elementText("remoteAddress"));
-                                peerAFs.add(peerAF);
-                            }
-                        }
-                        bgpVrfAF.setPeerAFs(peerAFs);
-                        bgpVrfAFs.add(bgpVrfAF);
-                        bgpVrf.setBgpVrfAFs(bgpVrfAFs);
-                        if (child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").size() > 0) {
-                            for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").get(0).elements()) {
-                                networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
-                                NetworkRoutes.add(networkRoute);
-                            }
-                        } else {
-                            LOG.info("networkRoutes is null.");
-                        }
                         try {
-                            for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
-                                importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
-                                ImportRoutes.add(importRoute);
+                            if (child.elements("bgpVrfAFs").size() > 0) {
+                                for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements()) {
+                                    bgpVrfAF.setPreferenceExternal(child1.elementText("preferenceExternal"));
+                                    bgpVrfAF.setPreferenceInternal(child1.elementText("preferenceInternal"));
+                                    bgpVrfAF.setPreferenceLocal(child1.elementText("preferenceLocal"));
+                                    if (child1.elements("peerAFs").size() > 0) {
+                                        for (org.dom4j.Element child2 : child1.elements("peerAFs").get(0).elements()) {
+                                            peerAF = new SPeerAF();
+                                            peerAF.setImportRtPolicyName(child2.elementText("importRtPolicyName"));
+                                            peerAF.setExportRtPolicyName(child2.elementText("exportRtPolicyName"));
+                                            peerAF.setAdvertiseCommunity(child2.elementText("advertiseCommunity"));
+                                            peerAF.setRemoteAddress(child2.elementText("remoteAddress"));
+                                            peerAFs.add(peerAF);
+                                        }
+                                    }
+                                }
+                                bgpVrfAF.setPeerAFs(peerAFs);
+                                bgpVrfAFs.add(bgpVrfAF);
+                                bgpVrf.setBgpVrfAFs(bgpVrfAFs);
+                                if (child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").size() > 0) {
+                                    for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").get(0).elements()) {
+                                        networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
+                                        NetworkRoutes.add(networkRoute);
+                                    }
+                                } else {
+                                    LOG.info("networkRoutes is null.");
+                                }
+                                for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
+                                    importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
+                                    ImportRoutes.add(importRoute);
+                                }
                             }
                         } catch (Exception e) {
                             continue;

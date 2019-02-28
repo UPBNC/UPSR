@@ -38,15 +38,26 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
     }
 
     @Override
-    public List<String> getAllTunnelPolicyName() {
-        List<String> tunnelPolicyNameList=new ArrayList<String>();
+    public List<TunnelPolicy> getAllTunnelPolicys(String routerID) {
+        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
         if(null==this.tunnelPolicyList){
-            return tunnelPolicyNameList;
+            return tunnelPolicyList;
         }
         for(TunnelPolicy t :this.tunnelPolicyList){
-            tunnelPolicyNameList.add(t.getTnlPolicyName());
+            if(t.getRouterID().equals(routerID)){
+                tunnelPolicyList.add(t);
+            }
         }
-        return tunnelPolicyNameList;
+        return tunnelPolicyList;
+    }
+
+    public List<TunnelPolicy> getAllTunnelPolicys() {
+        List<TunnelPolicy> tunnelPolicyList=new ArrayList<TunnelPolicy>();
+        if(null==this.tunnelPolicyList){
+            return tunnelPolicyList;
+        }
+        return this.tunnelPolicyList;
+
     }
 
     public boolean syncTunnelPolicyConf(NetconfClient netconfClient,String routerID) {

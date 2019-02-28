@@ -1,10 +1,11 @@
 package cn.org.upbnc.enumtype;
 
 public enum BfdTypeEnum {
-    Dynamic(0,"Dynamic"),
-    Tunnel(1,"Tunnel"),
-    Master(2,"Master"),
-    Backup(3,"Backup");
+    Dynamic(1,"Dynamic"),
+    Static(2,"Static"),
+    Tunnel(3,"Tunnel"),
+    Master(4,"Master"),
+    Backup(5,"Backup");
 
     private int code;
     private String name;

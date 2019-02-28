@@ -1,61 +1,126 @@
 package cn.org.upbnc.odlapi;
 
+import cn.org.upbnc.api.APIInterface;
+import cn.org.upbnc.api.TunnelPolicyApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
 import cn.org.upbnc.enumtype.CodeEnum;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.PolicyDest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.PolicyDestBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.policydest.BindTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.policydest.BindTunnelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicy;
+import cn.org.upbnc.enumtype.ResponseEnum;
+import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.service.entity.TunnelPolicy.TnlSelSeqEntity;
+import cn.org.upbnc.service.entity.TunnelPolicy.TpNexthopEntity;
+import cn.org.upbnc.service.entity.TunnelPolicy.TunnelPolicyEntity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.GetTunnelPolicysOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.UpsrTunnelPolicyService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicys;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.gettunnelpolicys.output.TunnelPolicysBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.TnlSelSeqs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.TnlSelSeqsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.TpNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.TpNexthopsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.tpnexthops.BindTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnelpolicy.rev120222.tunnelpolicy.tpnexthops.BindTunnelBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Future;
 
 public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelPolicyODLApi.class);
     Session session;
+    TunnelPolicyApi tunnelPolicyApi;
 
     public TunnelPolicyODLApi(Session session) {
         this.session = session;
     }
 
+    private TunnelPolicyApi getTunnelPolicyApi() {
+        if (this.tunnelPolicyApi == null) {
+            APIInterface apiInterface = session.getApiInterface();
+            if (apiInterface != null) {
+                tunnelPolicyApi = apiInterface.getTunnelPolicyApi();
+            }
+        }
+        return this.tunnelPolicyApi;
+    }
+
     @Override
     public Future<RpcResult<GetTunnelPolicysOutput>> getTunnelPolicys(GetTunnelPolicysInput input) {
         GetTunnelPolicysOutputBuilder getTunnelPolicysOutputBuilder = new GetTunnelPolicysOutputBuilder();
-        LOG.info("getTunnelPolicys input : " + input);
-        getTunnelPolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
 
-        List<TunnelPolicy> tunnelPolicyList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
-            TunnelPolicyBuilder tunnelPolicyBuilder = new TunnelPolicyBuilder();
-            tunnelPolicyBuilder.setPolicyName("policy_" + i);
-            List<PolicyDest> policyDestList = new ArrayList<>();
-            for (int j = 1; j < 3; j++) {
-                PolicyDestBuilder policyDestBuilder = new PolicyDestBuilder();
-                policyDestBuilder.setDestAddr("2.2.2." + j);
-                policyDestBuilder.setIgnoreDestCheck("1");
-                policyDestBuilder.setIncludeLdp("1");
-
-                List<BindTunnel> bindTunnelList = new ArrayList<>();
-                for (int k = 1; k < 3; k++) {
-                    BindTunnelBuilder bindTunnelBuilder = new BindTunnelBuilder();
-                    bindTunnelBuilder.setTunnelName("tunnel_12" + k);
-                    bindTunnelList.add(bindTunnelBuilder.build());
-                }
-                policyDestBuilder.setBindTunnel(bindTunnelList);
-                policyDestList.add(policyDestBuilder.build());
-            }
-            tunnelPolicyBuilder.setPolicyDest(policyDestList);
-            tunnelPolicyList.add(tunnelPolicyBuilder.build());
+        Map<String, Object> resultMap = new HashMap<>();
+        // 判断系统是否准备完毕：
+        // 系统状态，未准备完毕返回失败
+        // 系统状态，准备成功调用API
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            getTunnelPolicysOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(getTunnelPolicysOutputBuilder.build()).buildFuture();
         }
-        getTunnelPolicysOutputBuilder.setTunnelPolicy(tunnelPolicyList);
+        resultMap = getTunnelPolicyApi().getTunnelPolicyMap(input.getRouterId());
+        List<TunnelPolicyEntity> tunnelPolicyEntityList =
+                (List<TunnelPolicyEntity>) resultMap.get(ResponseEnum.BODY.getName());
+        if (null == tunnelPolicyEntityList) {
+            getTunnelPolicysOutputBuilder.setResult("Failed:" + resultMap.get(ResponseEnum.MESSAGE.getName()));
+            return RpcResultBuilder.success(getTunnelPolicysOutputBuilder.build()).buildFuture();
+        }
+        List<TunnelPolicys> tunnelPolicysList = new ArrayList<>();
+        for (TunnelPolicyEntity tunnelPolicyEntity : tunnelPolicyEntityList) {
+            TunnelPolicysBuilder tunnelPolicysBuilder = new TunnelPolicysBuilder();
+            tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
+            tunnelPolicysBuilder.setPolicyName(tunnelPolicyEntity.getTnlPolicyName());
+            tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
+            tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
+            if(tunnelPolicysBuilder.getTnlPolicyType().equals("invalid")){
+                tunnelPolicysList.add(tunnelPolicysBuilder.build());
+                break;
+            }
+            if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlBinding")){
+                //TpNexthops list解析
+                List<TpNexthops> tpNexthopsList = new ArrayList<>();
+
+                for(TpNexthopEntity tpNexthopEntity:tunnelPolicyEntity.getTpNexthopEntities()){
+                    TpNexthopsBuilder tpNexthopsBuilder=new TpNexthopsBuilder();
+                    tpNexthopsBuilder.setDestAddr(tpNexthopEntity.getNexthopIPaddr());
+                    tpNexthopsBuilder.setDownSwitch(tpNexthopEntity.isDownSwitch()?"true":"false");
+                    tpNexthopsBuilder.setIgnoreDestCheck(tpNexthopEntity.isIgnoreDestCheck()?"true":"false");
+                    tpNexthopsBuilder.setIncludeLdp(tpNexthopEntity.isIncludeLdp()?"true":"false");
+                    //绑定隧道名称list解析
+                    List<BindTunnel> bindTunnelList=new ArrayList<BindTunnel>();
+
+                    for(String bindTunnelName:tpNexthopEntity.getTpTunnels()){
+                        BindTunnelBuilder bindTunnelBuilder=new BindTunnelBuilder();
+                        bindTunnelBuilder.setTunnelName(bindTunnelName);
+                        bindTunnelList.add(bindTunnelBuilder.build());
+                    }
+                    tpNexthopsBuilder.setBindTunnel(bindTunnelList);
+                    tpNexthopsList.add(tpNexthopsBuilder.build());
+                }
+                tunnelPolicysBuilder.setTpNexthops(tpNexthopsList);
+            }
+            if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlSelectSeq")){
+                List<TnlSelSeqs> tnlSelSeqsList = new ArrayList<>();
+
+                for(TnlSelSeqEntity tnlSelSeqEntity:tunnelPolicyEntity.getTnlSelSeqlEntities()){
+                    TnlSelSeqsBuilder tnlSelSeqsBuilder=new TnlSelSeqsBuilder();
+                    tnlSelSeqsBuilder.setLoadBalanceNum(String.valueOf(tnlSelSeqEntity.getLoadBalanceNum()));
+                    tnlSelSeqsBuilder.setSelTnlType1(tnlSelSeqEntity.getSelTnlType1());
+                    tnlSelSeqsBuilder.setSelTnlType2(tnlSelSeqEntity.getSelTnlType2());
+                    tnlSelSeqsBuilder.setSelTnlType3(tnlSelSeqEntity.getSelTnlType3());
+                    tnlSelSeqsBuilder.setSelTnlType4(tnlSelSeqEntity.getSelTnlType4());
+                    tnlSelSeqsBuilder.setSelTnlType5(tnlSelSeqEntity.getSelTnlType5());
+                    tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix()?"true":"false");
+                }
+                tunnelPolicysBuilder.setTnlSelSeqs(tnlSelSeqsList);
+            }
+            tunnelPolicysList.add(tunnelPolicysBuilder.build());
+        }
+        getTunnelPolicysOutputBuilder.setTunnelPolicys(tunnelPolicysList);
         return RpcResultBuilder.success(getTunnelPolicysOutputBuilder.build()).buildFuture();
     }
+
 }

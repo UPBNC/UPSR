@@ -30,6 +30,9 @@ public interface NetconfSessionService {
 
     boolean recoverNetconfSession();
 
+    boolean reconnectNetconfSession(String routerId);
+
     void close();
+
     NetconfClient getNetconfClient(String routeId);
 }

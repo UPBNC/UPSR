@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TunnelServiceEntity {
+    Integer bfdType;
     String tunnelId;
     String tunnelName;
     String bfdMultiplier;
@@ -16,9 +17,22 @@ public class TunnelServiceEntity {
     List<TunnelHopServiceEntity> mainPath;
     List<TunnelHopServiceEntity> backPath;
 
+    BfdServiceEntity dynamicBfd;
+    BfdServiceEntity masterBfd;
+    BfdServiceEntity tunnelBfd;
+
+
     public TunnelServiceEntity() {
         this.mainPath = new ArrayList<>();
         this.backPath = new ArrayList<>();
+    }
+
+    public Integer getBfdType() {
+        return bfdType;
+    }
+
+    public void setBfdType(Integer bfdType) {
+        this.bfdType = bfdType;
     }
 
     public String getUnNumIfName() {
@@ -115,6 +129,30 @@ public class TunnelServiceEntity {
 
     public void addBackPathHop(TunnelHopServiceEntity tunnelHopServiceEntity) {
         this.backPath.add(tunnelHopServiceEntity);
+    }
+
+    public BfdServiceEntity getMasterBfd() {
+        return masterBfd;
+    }
+
+    public void setMasterBfd(BfdServiceEntity masterBfd) {
+        this.masterBfd = masterBfd;
+    }
+
+    public BfdServiceEntity getTunnelBfd() {
+        return tunnelBfd;
+    }
+
+    public void setTunnelBfd(BfdServiceEntity tunnelBfd) {
+        this.tunnelBfd = tunnelBfd;
+    }
+
+    public BfdServiceEntity getDynamicBfd() {
+        return dynamicBfd;
+    }
+
+    public void setDynamicBfd(BfdServiceEntity dynamicBfd) {
+        this.dynamicBfd = dynamicBfd;
     }
 
     @Override

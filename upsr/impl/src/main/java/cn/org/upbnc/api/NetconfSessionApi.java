@@ -24,5 +24,7 @@ public interface NetconfSessionApi {
 
     Map<String, Object> getNetconfSessionList();
 
+    boolean reconnectNetconfSession(String routerId);
+
     void close();
 }
