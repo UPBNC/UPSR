@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TunnelPolicyEntity {
+
+    private String routerID;
     private String tnlPolicyName;//length 1..39  case-sensitive characters, spaces not supported
 
     private String description;//length 1..80
@@ -19,6 +21,7 @@ public class TunnelPolicyEntity {
 
 
     public TunnelPolicyEntity() {
+        this.routerID=null;
         this.tnlPolicyName = null;
         this.description = null;
         this.tnlPolicyType = null;
@@ -26,13 +29,23 @@ public class TunnelPolicyEntity {
         this.tnlSelSeqlEntities = new ArrayList<TnlSelSeqEntity>();
     }
 
-    public TunnelPolicyEntity(String tnlPolicyName, String description, String tnlPolicyType, List<TpNexthopEntity> tpNexthopEntities,
+    public TunnelPolicyEntity(String routerID,String tnlPolicyName, String description, String tnlPolicyType,
+                              List<TpNexthopEntity> tpNexthopEntities,
                               List<TnlSelSeqEntity> tnlSelSeqlEntities) {
+        this.routerID=routerID;
         this.tnlPolicyName = tnlPolicyName;
         this.description = description;
         this.tnlPolicyType = tnlPolicyType;
         this.tpNexthopEntities = tpNexthopEntities;
         this.tnlSelSeqlEntities = tnlSelSeqlEntities;
+    }
+
+    public String getRouterID() {
+        return routerID;
+    }
+
+    public void setRouterID(String routerID) {
+        this.routerID = routerID;
     }
 
     public String getTnlPolicyName() {

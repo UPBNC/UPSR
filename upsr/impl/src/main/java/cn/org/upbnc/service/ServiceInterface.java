@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.service;
 
+import cn.org.upbnc.api.TunnelPolicyApi;
 import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.service.impl.*;
 import cn.org.upbnc.util.UtilInterface;
@@ -151,5 +152,12 @@ public class ServiceInterface {
             this.tunnelService = TunnelServiceImpl.getInstance();
         }
         return tunnelService;
+    }
+
+    public TunnelPolicyService getTunnelPolicyService() {
+        if (this.tunnelPolicyService == null) {
+            this.tunnelPolicyService = TunnelPolicyServiceImpl.getInstance();
+        }
+        return tunnelPolicyService;
     }
 }

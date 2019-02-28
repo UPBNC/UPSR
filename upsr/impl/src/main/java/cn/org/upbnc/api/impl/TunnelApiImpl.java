@@ -1,11 +1,13 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.TunnelApi;
+import cn.org.upbnc.enumtype.BfdTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.TunnelErrorCodeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.TunnelService;
+import cn.org.upbnc.service.entity.BfdServiceEntity;
 import cn.org.upbnc.service.entity.TunnelServiceEntity;
 import cn.org.upbnc.util.xml.TunnelDetectXml;
 import org.slf4j.Logger;
@@ -45,10 +47,26 @@ public class TunnelApiImpl implements TunnelApi {
             map.put(ResponseEnum.MESSAGE.getName(), "tunnel name ,id or routerId is null");
             return map;
         }
-        if(null == serviceInterface.getNetconfSessionService().getNetconfClient(tunnelServiceEntity.getRouterId())){
+        if (null == serviceInterface.getNetconfSessionService().getNetconfClient(tunnelServiceEntity.getRouterId())) {
             map.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return map;
         }
+
+        // check static bfd params
+        if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()){
+            if ( !this.checkStaticBfdParams(tunnelServiceEntity.getTunnelBfd())){
+                tunnelServiceEntity.setTunnelBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Tunnel Bfd is null");
+                return map;
+            }
+
+            if (!this.checkStaticBfdParams(tunnelServiceEntity.getMasterBfd())) {
+                tunnelServiceEntity.setMasterBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Master Bfd is null");
+                return map;
+            }
+        }
+
         return tunnelService.createTunnel(tunnelServiceEntity);
     }
 
@@ -143,5 +161,17 @@ public class TunnelApiImpl implements TunnelApi {
             return resultMap;
         }
         return tunnelService.generateTunnelName(routerId);
+    }
+
+    private boolean checkStaticBfdParams(BfdServiceEntity bfdServiceEntity){
+        if(bfdServiceEntity.getDiscriminatorLocal() == null || bfdServiceEntity.getDiscriminatorRemote() == null ||
+                bfdServiceEntity.getMinRecvTime() == null || bfdServiceEntity.getMinSendTime() == null || bfdServiceEntity.getMultiplier() == null ||
+                "".equals(bfdServiceEntity.getDiscriminatorLocal()) || "".equals(bfdServiceEntity.getDiscriminatorRemote()) ||
+                "".equals(bfdServiceEntity.getMinRecvTime()) || "".equals(bfdServiceEntity.getMinSendTime()) || "".equals(bfdServiceEntity.getMultiplier()) )
+        {
+            return false;
+        }
+
+        return true;
     }
 }

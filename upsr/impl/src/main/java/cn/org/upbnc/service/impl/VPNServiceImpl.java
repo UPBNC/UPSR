@@ -16,9 +16,6 @@ import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.NetConfStatusEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.VpnEnum.VpnApplyLabelEnum;
-import cn.org.upbnc.enumtype.VpnEnum.VpnFrrStatusEnum;
-import cn.org.upbnc.enumtype.VpnEnum.VpnTtlModeEnum;
 import cn.org.upbnc.service.VPNService;
 import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import cn.org.upbnc.util.netconf.*;
@@ -120,16 +117,11 @@ public class VPNServiceImpl implements VPNService {
             return resultMap;
         }
 
-        L3vpnInstance l3vpnInstance = new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIfList,
-                updateVpnInstance.getTunnelPolicy(),updateVpnInstance.getVpnFrr(),updateVpnInstance.getApplyLabel(),
-                updateVpnInstance.getTtlMode());
+        L3vpnInstance l3vpnInstance = new L3vpnInstance(vpnName, businessRegion, rd, exportRT, l3vpnIfList);
         if (null != updateVpnInstance.getNote()) {
             l3vpnInstance.setVrfDescription(updateVpnInstance.getNote());
         }
-        BgpVrf bgpVrf = mapEbgpInfoToBgpVfr(vpnName, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable,
-                networkSegList,updateVpnInstance.getEbgpPreference(),updateVpnInstance.getIbgpPreference(),
-                updateVpnInstance.getLocalPreference(),updateVpnInstance.getRouterImportPolicy(),
-                updateVpnInstance.getRouterExportPolicy(),updateVpnInstance.getAdvertiseCommunity());
+        BgpVrf bgpVrf = mapEbgpInfoToBgpVfr(vpnName, peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, networkSegList);
 
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
 
@@ -223,25 +215,11 @@ public class VPNServiceImpl implements VPNService {
                     //往接口添加vpn
                 }
             }
-            if (true == ret) {
-                sendMsg = VpnUpdateXml.vpnApplyLabelUpdateXml(l3vpnInstance);
-                LOG.info("vpnApplyLabelUpdateXml sendMsg = \n" + sendMsg);
-                result = netconfController.sendMessage(netconfClient, sendMsg);
-                LOG.info("vpnApplyLabelUpdateXml result = \n" + result);
-                sendMsg = VpnUpdateXml.vpnApplyEbgpXml(bgpVrf);
-                LOG.info("vpnApplyEbgpXml sendMsg = \n" + sendMsg);
-                result = netconfController.sendMessage(netconfClient, sendMsg);
-                LOG.info("vpnApplyEbgpXml result = \n" + result);
-            }
         }
         //vpn info update in vpnManager
         if (true == ret) {
             this.vpnInstanceManager.updateVpnInstance(vpnName, routerId, device, businessRegion, rd, importRT, exportRT,
-                    peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, deviceInterfaceList, networkSegList, updateVpnInstance.getNote(),
-                    updateVpnInstance.getTunnelPolicy(),updateVpnInstance.getVpnFrr(),updateVpnInstance.getApplyLabel(),
-                    updateVpnInstance.getTtlMode(),updateVpnInstance.getEbgpPreference(),updateVpnInstance.getIbgpPreference(),
-                    updateVpnInstance.getLocalPreference(),updateVpnInstance.getRouterImportPolicy(),
-                    updateVpnInstance.getRouterExportPolicy(),updateVpnInstance.getAdvertiseCommunity());
+                    peerAS, peerIP, routeSelectDelay, importDirectRouteEnable, deviceInterfaceList, networkSegList, updateVpnInstance.getNote());
         }
         resultMap.put(ResponseEnum.BODY.getName(), true);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
@@ -390,7 +368,7 @@ public class VPNServiceImpl implements VPNService {
                 if (null != vpnInsntance) {
                     if (null != bgpVrfList) {
                         for (BgpVrf bgpVrf : bgpVrfList) {
-                            if(bgpVrf.getVrfName().equals(vpnInsntance.getVpnName())){
+                            if (bgpVrf.getVrfName().equals(vpnInsntance.getVpnName())) {
                                 String importRoutePolicyName = null;
                                 for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
                                     for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
@@ -484,10 +462,6 @@ public class VPNServiceImpl implements VPNService {
         VPNInstance vpnInstance = new VPNInstance(routerId, l3vpnInstance.getVrfName());
         vpnInstance.setDevice(device);
         vpnInstance.setRd(l3vpnInstance.getVrfRD());
-        vpnInstance.setImportTunnelPolicyName(l3vpnInstance.getTunnelPolicy());
-        vpnInstance.setVpnFrr(l3vpnInstance.getVpnFrr());
-        vpnInstance.setApplyLabel(l3vpnInstance.getApplyLabel());
-        vpnInstance.setTtlMode(l3vpnInstance.getTtlMode());
         vpnInstance.setExportRT(l3vpnInstance.getVrfRTValue());
         vpnInstance.setImportRT(l3vpnInstance.getVrfRTValue());
         vpnInstance.setNote(l3vpnInstance.getVrfDescription());
@@ -504,16 +478,16 @@ public class VPNServiceImpl implements VPNService {
                 deviceInterfaces.add(deviceInterface);
             }
 
-            for(DeviceInterface deviceInterface1:vpnInstance.getDeviceInterfaceList()){
-                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
-                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+            for (DeviceInterface deviceInterface1 : vpnInstance.getDeviceInterfaceList()) {
+                for (DeviceInterface deviceInterface2 : vpnInstance.getDevice().getDeviceInterfaceList()) {
+                    if (deviceInterface1.getName().equals(deviceInterface2.getName())) {
                         deviceInterface2.setVpn(null);
                     }
                 }
             }
-            for(DeviceInterface deviceInterface1:deviceInterfaces){
-                for(DeviceInterface deviceInterface2:vpnInstance.getDevice().getDeviceInterfaceList()){
-                    if(deviceInterface1.getName().equals(deviceInterface2.getName())){
+            for (DeviceInterface deviceInterface1 : deviceInterfaces) {
+                for (DeviceInterface deviceInterface2 : vpnInstance.getDevice().getDeviceInterfaceList()) {
+                    if (deviceInterface1.getName().equals(deviceInterface2.getName())) {
                         deviceInterface2.setVpn(vpnInstance);
                     }
                 }
@@ -529,13 +503,16 @@ public class VPNServiceImpl implements VPNService {
             vpnInstance.setPeerAS(Integer.parseInt(bgpVrf.getBgpPeers().get(0).getRemoteAs()));
             vpnInstance.setPeerIP(new Address(bgpVrf.getBgpPeers().get(0).getPeerAddr(), AddressTypeEnum.V4));
         }
-        vpnInstance.setEbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceExternal());
-        vpnInstance.setIbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceInternal());
-        vpnInstance.setLocalPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceLocal());
-
-        vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
-        vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
-        vpnInstance.setAdvertiseCommunity(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity());
+        if (bgpVrf.getBgpVrfAFs().size() > 0) {
+            vpnInstance.setEbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceExternal());
+            vpnInstance.setIbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceInternal());
+            vpnInstance.setLocalPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceLocal());
+            if (bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().size() > 0) {
+                vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
+                vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
+                vpnInstance.setAdvertiseCommunity(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity());
+			}
+		}
 
         if (bgpVrf.getNetworkRoutes() != null && bgpVrf.getNetworkRoutes().size() != 0) {
             List<NetworkSeg> networkSegList = new ArrayList<NetworkSeg>();
@@ -558,8 +535,7 @@ public class VPNServiceImpl implements VPNService {
     }
 
     private BgpVrf mapEbgpInfoToBgpVfr(String vfrName, Integer peerAS, Address peerIP, Integer routeSelectDelay, Integer importDirectRouteEnable,
-                                       List<NetworkSeg> networkSegList,String ebgpPreference, String ibgpPreference, String localPreference,
-                                       String routerImportPolicy, String routerExportPolicy, String advertiseCommunity) {
+                                       List<NetworkSeg> networkSegList) {
 
         if ((null == peerAS || 0 == peerAS) && (null == peerIP || peerIP.getAddress().equals("")) &&
                 (null == importDirectRouteEnable || 0 == importDirectRouteEnable) && (null == networkSegList || networkSegList.size() == 0)) {
@@ -570,7 +546,6 @@ public class VPNServiceImpl implements VPNService {
         List<BgpPeer> bgpPeerList = new ArrayList<BgpPeer>();
         List<ImportRoute> importRouteList = new ArrayList<ImportRoute>();
         List<NetworkRoute> networkRouteList = new ArrayList<NetworkRoute>();
-        List<SBgpVrfAF> bgpVrfAFList = new ArrayList<>();
         BgpPeer bgpPeer = null;
 
         if ((null != peerIP) && (null != peerAS)) {
@@ -592,21 +567,6 @@ public class VPNServiceImpl implements VPNService {
             }
             bgpVrf.setNetworkRoutes(networkRouteList);
         }
-        SBgpVrfAF sBgpVrfAF = new SBgpVrfAF();
-        sBgpVrfAF.setPreferenceExternal(ebgpPreference);
-        sBgpVrfAF.setPreferenceInternal(ibgpPreference);
-        sBgpVrfAF.setPreferenceLocal(localPreference);
-        bgpVrfAFList.add(sBgpVrfAF);
-        List<SPeerAF> sPeerAFList = new ArrayList<>();
-        SPeerAF sPeerAF = new SPeerAF();
-        sPeerAF.setRemoteAddress(peerIP.getAddress());
-        sPeerAF.setImportRtPolicyName(routerImportPolicy);
-        sPeerAF.setExportRtPolicyName(routerExportPolicy);
-        sPeerAF.setAdvertiseCommunity(advertiseCommunity);
-        sPeerAFList.add(sPeerAF);
-        sBgpVrfAF.setPeerAFs(sPeerAFList);
-        bgpVrf.setBgpVrfAFs(bgpVrfAFList);
-
         return bgpVrf;
     }
 
