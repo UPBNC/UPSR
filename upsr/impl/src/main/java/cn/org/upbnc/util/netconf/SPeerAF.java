@@ -32,7 +32,8 @@ public class SPeerAF {
     }
 
     public void setAdvertiseCommunity(String advertiseCommunity) {
-        this.advertiseCommunity = VpnAdvertiseCommunityEnum.ENABLED.getName().equals(advertiseCommunity)?"true":"false";
+        this.advertiseCommunity = (VpnAdvertiseCommunityEnum.ENABLED.getName().equals(advertiseCommunity) ||
+                "true".equals(advertiseCommunity))?"true":"false";
     }
 
     public String getRemoteAddress() {
