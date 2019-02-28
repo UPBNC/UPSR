@@ -19,6 +19,16 @@ public class UpdateVpnInstance {
     private Integer importDirectRouteEnable;
     private List<DeviceInterface> deviceInterfaceList;
     private List<NetworkSeg> networkSegList;
+    private String tunnelPolicy;
+    private String vpnFrr;
+    private String applyLabel;
+    private String ttlMode;
+    private String routerImportPolicy;
+    private String routerExportPolicy;
+    private String ebgpPreference;
+    private String ibgpPreference;
+    private String localPreference;
+    private String advertiseCommunity;
     private String note;
 
 
@@ -36,7 +46,18 @@ public class UpdateVpnInstance {
                              Integer routeSelectDelay,
                              Integer importDirectRouteEnable,
                              List<DeviceInterface> deviceInterfaceList,
-                             List<NetworkSeg> networkSegList) {
+                             List<NetworkSeg> networkSegList,
+                             String tunnelPolicy,
+                             String vpnFrr,
+                             String applyLabel,
+                             String ttlMode,
+                             String routerImportPolicy,
+                             String routerExportPolicy,
+                             String ebgpPreference,
+                             String ibgpPreference,
+                             String localPreference,
+                             String advertiseCommunity,
+                             String note) {
         this.vpnName = vpnName;
         this.routerId = routerId;
         this.businessRegion = businessRegion;
@@ -49,6 +70,17 @@ public class UpdateVpnInstance {
         this.importDirectRouteEnable = importDirectRouteEnable;
         this.deviceInterfaceList = deviceInterfaceList;
         this.networkSegList = networkSegList;
+        this.tunnelPolicy=tunnelPolicy;
+        this.vpnFrr = vpnFrr;
+        this.applyLabel = applyLabel;
+        this.ttlMode = ttlMode;
+        this.routerImportPolicy = routerImportPolicy;
+        this.routerExportPolicy = routerExportPolicy;
+        this.ebgpPreference = ebgpPreference;
+        this.ibgpPreference = ibgpPreference;
+        this.localPreference = localPreference;
+        this.advertiseCommunity = advertiseCommunity;
+        this.note = note;
     }
 
     public String getNote() {
@@ -153,5 +185,85 @@ public class UpdateVpnInstance {
 
     public void setNetworkSegList(List<NetworkSeg> networkSegList) {
         this.networkSegList = networkSegList;
+    }
+
+    public String getTunnelPolicy() {
+        return tunnelPolicy;
+    }
+
+    public void setTunnelPolicy(String tunnelPolicy) {
+        this.tunnelPolicy = tunnelPolicy;
+    }
+
+    public String getVpnFrr() {
+        return vpnFrr;
+    }
+
+    public void setVpnFrr(String vpnFrr) {
+        this.vpnFrr = vpnFrr;
+    }
+
+    public String getApplyLabel() {
+        return applyLabel;
+    }
+
+    public void setApplyLabel(String applyLabel) {
+        this.applyLabel = applyLabel;
+    }
+
+    public String getTtlMode() {
+        return ttlMode;
+    }
+
+    public void setTtlMode(String ttlMode) {
+        this.ttlMode = ttlMode;
+    }
+
+    public String getRouterImportPolicy() {
+        return routerImportPolicy;
+    }
+
+    public void setRouterImportPolicy(String routerImportPolicy) {
+        this.routerImportPolicy = routerImportPolicy;
+    }
+
+    public String getRouterExportPolicy() {
+        return routerExportPolicy;
+    }
+
+    public void setRouterExportPolicy(String routerExportPolicy) {
+        this.routerExportPolicy = routerExportPolicy;
+    }
+
+    public String getEbgpPreference() {
+        return ebgpPreference;
+    }
+
+    public void setEbgpPreference(String ebgpPreference) {
+        this.ebgpPreference = ebgpPreference;
+    }
+
+    public String getIbgpPreference() {
+        return ibgpPreference;
+    }
+
+    public void setIbgpPreference(String ibgpPreference) {
+        this.ibgpPreference = ibgpPreference;
+    }
+
+    public String getLocalPreference() {
+        return localPreference;
+    }
+
+    public void setLocalPreference(String localPreference) {
+        this.localPreference = localPreference;
+    }
+
+    public String getAdvertiseCommunity() {
+        return advertiseCommunity;
+    }
+
+    public void setAdvertiseCommunity(String advertiseCommunity) {
+        this.advertiseCommunity = advertiseCommunity;
     }
 }

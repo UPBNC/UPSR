@@ -52,6 +52,18 @@ public class VpnXml {
                         "                <vpnInstAF>\n" +
                         "                  <afType>ipv4uni</afType>\n" +
                         "                  <vrfRD>" + vrfRD + "</vrfRD>\n" +
+                        "                  <vpnFrr>" + l3vpnInstance.getVpnFrr() + "</vpnFrr>\n";
+                        if (l3vpnInstance.getApplyLabel() == null) {
+                            start2 = start2 + "<vrfLabelMode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+                        } else {
+                            start2 = start2 + "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>\n";
+                        }
+                        if (l3vpnInstance.getApplyLabel() == null) {
+                            start2 = start2 + "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+                        } else {
+                            start2 = start2 + "                  <tnlPolicyName>" + l3vpnInstance.getTunnelPolicy() + "</tnlPolicyName>\n";
+                        }
+                        start2 = start2 + "                  <l3vpnTtlMode> <ttlMode>" + l3vpnInstance.getTtlMode() + "</ttlMode> </l3vpnTtlMode>\n" +
                         "                  <vpnTargets>\n" +
                         "                    <vpnTarget>\n" +
                         "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
@@ -115,6 +127,12 @@ public class VpnXml {
                 "              <vpnInstAF xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "                <afType>ipv4uni</afType>\n" +
                 "                <vrfRD/>\n" +
+                "                <vpnFrr/>\n" +
+                "                <vrfLabelMode/>\n" +
+                "                <tnlPolicyName/>\n" +
+                "                <l3vpnTtlMode>\n" +
+                "                   <ttlMode/>\n" +
+                "                </l3vpnTtlMode>\n" +
                 "                <vpnTargets/>\n" +
                 "              </vpnInstAF>\n" +
                 "            </vpnInstAFs>\n" +
@@ -150,16 +168,28 @@ public class VpnXml {
                         l3vpnInstance.setVrfName(child.elementText("vrfName"));
                         l3vpnInstance.setVrfDescription(child.elementText("vrfDescription"));
                         String vrfRD = null;
+                        String vrfLabelMode = null;
+                        String tnlPolicyName = null;
+                        String ttlMode = null;
+                        String vpnFrr = null;
                         String vrfRTValue = null;
                         try {
                             for (org.dom4j.Element children : child.element("vpnInstAFs").elements()) {
                                 vrfRD = children.elementText("vrfRD");
+                                vrfLabelMode = children.elementText("vrfLabelMode");
+                                tnlPolicyName = children.elementText("tnlPolicyName");
+                                ttlMode = children.element("l3vpnTtlMode").elementText("ttlMode");
+                                vpnFrr = children.elementText("vpnFrr");
                                 vrfRTValue = children.element("vpnTargets").elements().get(0).elementText("vrfRTValue");
                             }
                         } catch (Exception e) {
                             continue;
                         } finally {
                             l3vpnInstance.setVrfRD(vrfRD);
+                            l3vpnInstance.setApplyLabel(vrfLabelMode);
+                            l3vpnInstance.setTunnelPolicy(tnlPolicyName);
+                            l3vpnInstance.setTtlMode(ttlMode);
+                            l3vpnInstance.setVpnFrr(vpnFrr);
                             l3vpnInstance.setVrfRTValue(vrfRTValue);
                             try {
                                 for (org.dom4j.Element children : child.element("l3vpnIfs").elements()) {

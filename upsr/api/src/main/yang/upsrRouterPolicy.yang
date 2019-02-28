@@ -8,6 +8,7 @@ module upsrRouterPolicy {
     }
 
     grouping routePolicy {
+        leaf routerId { type string; }
         leaf policyName { type string; }
         list routePolicyNode {
             leaf nodeSequence { type string; }

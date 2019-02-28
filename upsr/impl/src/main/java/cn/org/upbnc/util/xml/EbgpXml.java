@@ -35,7 +35,7 @@ public class EbgpXml {
                 "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
                 "        <bgpcomm>\n" +
                 "          <bgpVrfs>\n" +
-                "            <bgpVrf nc:operation=\"create\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "            <bgpVrf  xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n" +
                 "                    <bgpPeers>\n";
         String bgpPeers = "";
@@ -46,24 +46,51 @@ public class EbgpXml {
                         "                         <remoteAs>" + bgpPeer.getRemoteAs() + "</remoteAs>\n" +
                         "                           </bgpPeer>\n";
             }
+            bgpPeers = bgpPeers + "                      </bgpPeers>\n";
         }
-        String middle = "                      </bgpPeers>\n" +
-                "              <bgpVrfAFs>\n" +
-                "                <bgpVrfAF>\n" +
-                "                  <afType>ipv4uni</afType>\n" +
-                "                  <importRoutes>\n";
+        String bgpVrfAFs = "";
+        if (bgpVrf.getBgpVrfAFs() != null) {
+            bgpVrfAFs = bgpVrfAFs + "              <bgpVrfAFs>\n" +
+                    "                <bgpVrfAF>\n" +
+                    "                  <afType>ipv4uni</afType>\n";
+            for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
+                bgpVrfAFs = bgpVrfAFs + "                  <preferenceExternal>" + sBgpVrfAF.getPreferenceExternal() + "</preferenceExternal>\n" +
+                        "                  <preferenceInternal>" + sBgpVrfAF.getPreferenceInternal() + "</preferenceInternal>\n" +
+                        "                  <preferenceLocal>" + sBgpVrfAF.getPreferenceLocal() + "</preferenceLocal>\n";
+                if (sBgpVrfAF.getPeerAFs() != null) {
+                    bgpVrfAFs = bgpVrfAFs + "                <peerAFs>\n" +
+                            "                <peerAF>\n";
+                    for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
+                        bgpVrfAFs = bgpVrfAFs + "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity()  + "</advertiseCommunity>\n" +
+                                "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n" ;
+                        if (sPeerAF.getImportRtPolicyName() == null) {
+                            bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName nc:operation=\"delete\"/>\n";
+                        } else {
+                            bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName>" + sPeerAF.getImportRtPolicyName() + "</importRtPolicyName>\n";
+                        }
+                        if (sPeerAF.getExportRtPolicyName() == null) {
+                            bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName nc:operation=\"delete\"/>\n";
+                        }else{
+                            bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName>" + sPeerAF.getExportRtPolicyName() + "</exportRtPolicyName>\n";
+                        }
+                    }
+                }
+                bgpVrfAFs = bgpVrfAFs + "                </peerAF>\n" +
+                        "                </peerAFs>\n";
+            }
+        }
         String importRoutes = "";
         if (null != bgpVrf.getImportRoutes()) {
+            importRoutes = importRoutes + "                  <importRoutes>\n";
             for (ImportRoute importRoute : bgpVrf.getImportRoutes()) {
                 importRoutes = importRoutes + "                    <importRoute>\n" +
                         "                      <importProtocol>" + importRoute.getImportProtocol() + "</importProtocol>\n" +
                         "                      <importProcessId>" + importRoute.getImportProcessId() + "</importProcessId>\n" +
                         "                    </importRoute>\n";
             }
+            importRoutes = importRoutes + "                  </importRoutes>\n";
         }
-        String middle1 =
-                "                  </importRoutes>\n" +
-                        "                  <networkRoutes>\n";
+        String middle1 = "                  <networkRoutes>\n";
         String networkRoutes = "";
         if (null != bgpVrf.getNetworkRoutes()) {
             for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
@@ -87,7 +114,7 @@ public class EbgpXml {
                         "    </config>\n" +
                         "  </edit-config>\n" +
                         "</rpc>";
-        return start + bgpPeers + middle + importRoutes + middle1 + networkRoutes + end;
+        return start + bgpPeers + bgpVrfAFs + importRoutes + middle1 + networkRoutes + end;
     }
 
 
@@ -130,6 +157,8 @@ public class EbgpXml {
                                 peerAF = new SPeerAF();
                                 peerAF.setImportRtPolicyName(child2.elementText("importRtPolicyName"));
                                 peerAF.setExportRtPolicyName(child2.elementText("exportRtPolicyName"));
+                                peerAF.setAdvertiseCommunity(child2.elementText("advertiseCommunity"));
+                                peerAF.setRemoteAddress(child2.elementText("remoteAddress"));
                                 peerAFs.add(peerAF);
                             }
                         }

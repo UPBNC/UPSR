@@ -39,8 +39,11 @@ public class TunnelPolicyXml {
         try {
             document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
+            if (root.element("data").element("tnlm") == null) {
+                return sTunnelPolicyList;
+            }
             List<Element> tunnelPolicyElements = root.element("data").element("tnlm").element("tunnelPolicys").elements("tunnelPolicy");
-            if(null==tunnelPolicyElements&&tunnelPolicyElements.size()==0){
+            if ((tunnelPolicyElements == null) || (tunnelPolicyElements.size() == 0)){
                 return sTunnelPolicyList;
             }
             for(org.dom4j.Element tunnelPolicyElement :tunnelPolicyElements){

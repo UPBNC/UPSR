@@ -30,11 +30,15 @@ public class VPNInstance {
     private boolean RefreshFlag;
     private String note;
     private String importRoutePolicyName;
-    private String importTunnelPolicyName;
     private String exportRoutePolicyName;
+    private String advertiseCommunity;
     private String ebgpPreference;
     private String ibgpPreference;
     private String localPreference;
+    private String importTunnelPolicyName;
+    private String vpnFrr;
+    private String applyLabel;
+    private String ttlMode;
 
 
     public VPNInstance() {
@@ -149,6 +153,38 @@ public class VPNInstance {
 
     public void setLocalPreference(String localPreference) {
         this.localPreference = localPreference;
+    }
+
+    public String getAdvertiseCommunity() {
+        return advertiseCommunity;
+    }
+
+    public void setAdvertiseCommunity(String advertiseCommunity) {
+        this.advertiseCommunity = advertiseCommunity;
+    }
+
+    public String getVpnFrr() {
+        return vpnFrr;
+    }
+
+    public void setVpnFrr(String vpnFrr) {
+        this.vpnFrr = vpnFrr;
+    }
+
+    public String getApplyLabel() {
+        return applyLabel;
+    }
+
+    public void setApplyLabel(String applyLabel) {
+        this.applyLabel = applyLabel;
+    }
+
+    public String getTtlMode() {
+        return ttlMode;
+    }
+
+    public void setTtlMode(String ttlMode) {
+        this.ttlMode = ttlMode;
     }
 
     public String getNote() {
@@ -337,6 +373,7 @@ public class VPNInstance {
         compMap.put("isRtChanged", isRtChanged);
         compMap.put("isIfmChanged", isIfmChanged);
         compMap.put("isEbgpChanged", isEbgpChanged);
+        compMap.put("isApplyLabelChanged", true);
         return compMap;
     }
 
