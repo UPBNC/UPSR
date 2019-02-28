@@ -35,7 +35,7 @@ public class EbgpXml {
                 "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
                 "        <bgpcomm>\n" +
                 "          <bgpVrfs>\n" +
-                "            <bgpVrf nc:operation=\"create\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "            <bgpVrf  xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n" +
                 "                    <bgpPeers>\n";
         String bgpPeers = "";
