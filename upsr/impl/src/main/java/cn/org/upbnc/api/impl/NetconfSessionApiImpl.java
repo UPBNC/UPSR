@@ -46,11 +46,11 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         String routerId = netconfSession.getRouterId();
         String deviceIP = netconfSession.getDeviceIP();
         Integer devicePort = netconfSession.getDevicePort();
-        String password=netconfSession.getUserPassword();
+        String password = netconfSession.getUserPassword();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
-        if ((null == routerId) || routerId.isEmpty()||(null == password) || password.isEmpty()
+        if ((null == routerId) || routerId.isEmpty() || (null == password) || password.isEmpty()
                 || (null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceIP or devicePort is null");
             return resultMap;
@@ -61,28 +61,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         if (ret) {
             if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
                 if (isSyn) {
-                    String tmpRet = null;
-                    result = "sync device configure start......";
-                    tmpRet = this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
-                    result += tmpRet;
-                    result += "\n";
-                    result += "sync vpnInstance configure....";
-                    tmpRet = this.serviceInterface.getVpnService().syncVpnInstanceConf(routerId) ? " success" : "failed";
-                    result += tmpRet;
-                    result += "\n";
-                    result += "sync IntfLabel configure....";
-                    tmpRet = this.serviceInterface.getSrLabelService().syncIntfLabel(routerId) ? " success" : "failed";
-                    result += tmpRet;
-                    result += "\n";
-                    result += "sync NodeLabel configure....";
-                    tmpRet = this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success" : "failed";
-                    result += tmpRet;
-                    result += "\n";
-                    tmpRet = this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
-                    result += tmpRet;
-                    result += "\n";
-                    result += "sync tunnel configure....";
-                    result += "sync device configure end.";
+                    result = sync(routerId);
                 }
             }
         }
@@ -91,6 +70,27 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         resultMap.put(ResponseEnum.BODY.getName(), true);
         return resultMap;
     }
+
+    private String sync(String routerId) {
+        String tmpRet = "sync device configure start......";
+        tmpRet += this.serviceInterface.getInterfaceService().syncInterfaceConf(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+        tmpRet += "sync vpnInstance configure....";
+        tmpRet += this.serviceInterface.getVpnService().syncVpnInstanceConf(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+        tmpRet += "sync IntfLabel configure....";
+        tmpRet += this.serviceInterface.getSrLabelService().syncIntfLabel(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+        tmpRet += "sync NodeLabel configure....";
+        tmpRet += this.serviceInterface.getSrLabelService().syncNodeLabel(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+        tmpRet += this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+        tmpRet += "sync tunnel configure....";
+        tmpRet += "sync device configure end.";
+        return tmpRet;
+    }
+
 
     @Override
     public Map<String, Object> delNetconfSession(String routerId) {
@@ -101,8 +101,6 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             resultMap.put(ResponseEnum.BODY.getName(), false);
             return resultMap;
         }
-
-
         return this.netconfSessionService.delNetconfSession(routerId);
     }
 
@@ -111,7 +109,6 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         if (null == routerId) {
             return null;
         }
-
         return this.netconfSessionService.getNetconfSession(routerId);
     }
 
@@ -119,6 +116,16 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
     @Override
     public Map<String, Object> getNetconfSessionList() {
         return this.netconfSessionService.getNetconfSession();
+    }
+
+    @Override
+    public boolean reconnectNetconfSession(String routerId) {
+        boolean flag = this.netconfSessionService.reconnectNetconfSession(routerId);
+        if (flag) {
+            String result = sync(routerId);
+            LOG.info("syn result:" + result);
+        }
+        return flag;
     }
 
     @Override

@@ -55,7 +55,7 @@ public class NetConfManagerImpl implements NetConfManager {
     @Override
     public synchronized NetConf addDevice(NetConf netConf) {
         boolean flag = false;
-        NetConf netconf = new NetConf();
+        boolean normal = true;
         String key = netConf.getRouterID();
         if (netconfClientMap.containsKey(key)) {
             if (netconfClientMap.get(key).isFlag()) {
@@ -69,6 +69,7 @@ public class NetConfManagerImpl implements NetConfManager {
         try {
             netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
         } catch (Exception e) {
+            normal = false;
             LOG.info(" e.getCause :" + e.getCause());
             String cause = String.valueOf(e.getCause());
             if (cause.contains("Unable to create")) {
@@ -82,25 +83,26 @@ public class NetConfManagerImpl implements NetConfManager {
             if (netconfClient == null) {
                 LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
             } else {
-                flag = checkRouterId(netConf.getDevice().getRouterId(), netconfClient);
-                if (flag) {
-                    if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
-                        netconfClient.setFlag(true);
-                        netConf.setStatus(NetConfStatusEnum.Connected);
-                        netconf.setStatus(NetConfStatusEnum.Connected);
+                if (normal) {
+                    flag = checkRouterId(key, netconfClient);
+                    if (flag) {
+                        if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
+                            netconfClient.setFlag(true);
+                            netConf.setStatus(NetConfStatusEnum.Connected);
+                        }
+                        netconfClientMap.put(key, netconfClient);
+                    } else {
+                        netConf.setStatus(NetConfStatusEnum.RouterIdNotMatchIp);
+                        netconfClient.clientSession.close();
                     }
-                    netconfClientMap.put(key, netconfClient);
-                } else {
-                    netConf.setStatus(NetConfStatusEnum.RouterIdNotMatchIp);
-                    netconfClient.clientSession.close();
                 }
             }
         }
-            if (flag) {
+        if (flag) {
             netConfMap.put(key, netConf);
         }
         netconfMap.put(netConf.getRouterID(), netConf);
-        return netconf;
+        return netConf;
     }
 
     private boolean checkRouterId(String routerId, NetconfClient netconfClient) {
@@ -129,8 +131,10 @@ public class NetConfManagerImpl implements NetConfManager {
     @Override
     public synchronized List<NetConf> getDevices() {
         for (String key : netConfMap.keySet()) {
-            if (!(NetConfStatusEnum.Connected.equals(netConfMap.get(key).getStatus()))) {
-                reconnect(key);
+            if ((NetConfStatusEnum.Connected.equals(netConfMap.get(key).getStatus()))) {
+                if (!netconfClientMap.get(key).isFlag()) {
+                    reconnect(key);
+                }
             }
         }
         return (List<NetConf>) netConfMap.values();
@@ -161,64 +165,94 @@ public class NetConfManagerImpl implements NetConfManager {
     private synchronized void reconnect(String routerID) {
         NetConf netConf;
         boolean flag = false;
+        boolean normal = true;
         if (netConfMap.containsKey(routerID) && netconfClientMap.containsKey(routerID)) {
             netConf = netConfMap.get(routerID);
             try {
                 netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
             } catch (Exception e) {
-                e.printStackTrace();
-                ///
+                netconfClientMap.remove(routerID);
+                LOG.info(" e.getCause :" + e.getCause());
+                String cause = String.valueOf(e.getCause());
+                if (cause.contains("Unable to create")) {
+                    netConf.setStatus(NetConfStatusEnum.IporPortError);
+                }
+                if (cause.contains("Timeout")) {
+                    netConf.setStatus(NetConfStatusEnum.UserNameOrPasswordError);
+                }
+                normal = false;
             }
             if (netconfClient == null) {
                 LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
             } else {
-                flag = checkRouterId(netConf.getDevice().getRouterId(), netconfClient);
-                if (flag) {
-                    if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
-                        netconfClient.setFlag(true);
-                        netConf.setStatus(NetConfStatusEnum.Connected);
-                        netConfMap.put(routerID, netConf);
+                if (normal) {
+                    flag = checkRouterId(routerID, netconfClient);
+                    if (flag) {
+                        if (SessionListener.sessionList.contains(netconfClient.getSessionId())) {
+                            netconfClient.setFlag(true);
+                            netConf.setStatus(NetConfStatusEnum.Connected);
+                            netConfMap.put(routerID, netConf);
+                        }
+                        netconfClientMap.put(routerID, netconfClient);
+                    } else {
+                        netconfClient.clientSession.close();
                     }
-                    netconfClientMap.put(routerID, netconfClient);
-                } else {
-                    netconfClient.clientSession.close();
                 }
-
             }
         }
     }
 
     @Override
     public synchronized NetConf getDevice(String routerID) {
-        NetConf netConf = new NetConf();
+        NetConf netConf = null;
         if (netconfMap.containsKey(routerID)) {
+            netConf = new NetConf();
             if (netConfMap.containsKey(routerID) && netconfClientMap.containsKey(routerID)) {
-                if (!(NetConfStatusEnum.Connected.equals(netConfMap.get(routerID).getStatus()))) {
-                    reconnect(routerID);
+                if ((NetConfStatusEnum.Connected.equals(netConfMap.get(routerID).getStatus()))) {
+                    if (!netconfClientMap.get(routerID).isFlag()) {
+                        reconnect(routerID);
+                    }
                 }
                 netConf = netConfMap.get(routerID);
             } else {
                 netConf = netconfMap.get(routerID);
-            }
-            if (netConfMap.containsKey(routerID)) {
-                if (NetConfStatusEnum.Disconnected.equals(netConfMap.get(routerID).getStatus())) {
-                    reconnect(routerID);
-                }
-                netConf = netConfMap.get(routerID);
             }
         }
         return netConf;
     }
 
     @Override
-    public synchronized void deleteDevice(NetConf netConf) {
-        if (netconfClientMap.containsKey(netConf.getRouterID())) {
-            netconfClientMap.get(netConf.getRouterID()).clientSession.close();
-            netconfClientMap.remove(netConf.getRouterID());
+    public boolean setDevice(String routerId, NetConfStatusEnum netConfStatusEnum) {
+        boolean result = false;
+        if (netConfMap.get(routerId).getDevice().getRouterId().equals(routerId)) {
+            netConfMap.get(routerId).setStatus(netConfStatusEnum);
+            if (netconfClientMap.containsKey(routerId)) {
+                netconfClientMap.get(routerId).setFlag(false);
+                if (netconfClientMap.get(routerId).clientSession.isUp()) {
+                    netconfClientMap.get(routerId).clientSession.close();
+                }
+            }
+            result = true;
         }
-        if (netConfMap.containsKey(netConf.getRouterID())) {
-            netConfMap.remove(netConf.getRouterID());
+        return result;
+    }
+
+    @Override
+    public synchronized boolean deleteDevice(NetConf netConf) {
+        boolean result = false;
+        String routerId = netConf.getRouterID();
+        if (netconfClientMap.containsKey(routerId)) {
+            if (netconfClientMap.get(routerId).clientSession.isUp()) {
+                netconfClientMap.get(routerId).clientSession.close();
+                netconfClientMap.remove(routerId);
+            }
+            result = true;
         }
+        if (netConfMap.containsKey(routerId)) {
+            netConfMap.get(routerId).setStatus(NetConfStatusEnum.Disconnected);
+            result = true;
+        }
+        return result;
     }
 
     @Override
@@ -232,18 +266,9 @@ public class NetConfManagerImpl implements NetConfManager {
     public void closeNetconfByRouterId(String routerId) {
         for (String key : netConfMap.keySet()) {
             if (null == netConfMap.get(key).getDevice()) {
-//                netConfMap.get(key).setStatus(NetConfStatusEnum.Disconnected);
-//                netconfClientMap.get(key).setFlag(false);
-//                LOG.info("netConfMap(before) size is : " + netConfMap.size());
-//                LOG.info("netConfMap(after) size is : " + netConfMap.size());
-//                if (netconfClientMap.get(key).clientSession.isUp()) {
-//                    LOG.info("clientSession is up ");
-//                    netconfClientMap.get(key).clientSession.close();
-//                }
                 return;
             } else {
-                if (netConfMap.get(key).getDevice().getRouterId().equals(routerId)) {
-//                    netConfMap.get(key).setStatus(NetConfStatusEnum.Disconnected);
+                if (key.equals(routerId)) {
                     if (netconfClientMap.containsKey(key)) {
                         netconfClientMap.get(key).setFlag(false);
                         if (netconfClientMap.get(key).clientSession.isUp()) {

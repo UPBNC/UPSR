@@ -79,18 +79,11 @@ public class SessionListener implements NetconfClientSessionListener {
     @SuppressWarnings("checkstyle:hiddenField")
     public final void onSessionDown(NetconfClientSession clientSession, Exception exception) {
         tearDown(exception);
-        String clientSessionKey = null;
         for (String key : NetConfManagerImpl.netconfClientMap.keySet()) {
-            clientSessionKey = key;
             if (clientSession.getSessionId() == NetConfManagerImpl.netconfClientMap.get(key).getSessionId()) {
                 NetConfManagerImpl.netconfClientMap.get(key).setFlag(false);
                 sessionList.remove(clientSession.getSessionId());
                 break;
-            }
-        }
-        if (null != clientSessionKey) {
-            if (NetConfManagerImpl.netConfMap.containsKey(clientSessionKey)) {
-                NetConfManagerImpl.netConfMap.get(clientSessionKey).setStatus(NetConfStatusEnum.Disconnected);
             }
         }
     }
