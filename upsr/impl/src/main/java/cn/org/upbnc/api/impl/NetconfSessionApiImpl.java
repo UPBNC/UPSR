@@ -56,7 +56,9 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             return resultMap;
         }
         boolean isSyn = this.netconfSessionService.isSyn(netconfSession);
-        boolean ret = (boolean) this.netconfSessionService.updateNetconfSession(netconfSession).get(ResponseEnum.BODY.getName());
+        Map<String, Object> map = this.netconfSessionService.updateNetconfSession(netconfSession);
+        boolean ret = (boolean) map.get(ResponseEnum.BODY.getName());
+        String msg = (String) map.get(ResponseEnum.MESSAGE.getName());
         String result = null;
         if (ret) {
             if (((NetconfSession) netconfSessionService.getNetconfSession(routerId).get(ResponseEnum.BODY.getName())).getStatus().equals(connected)) {
@@ -64,10 +66,15 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
                     result = sync(routerId);
                 }
             }
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "success");
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), true);
+        } else {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), msg);
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), false);
         }
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.MESSAGE.getName(), result);
-        resultMap.put(ResponseEnum.BODY.getName(), true);
+
         return resultMap;
     }
 

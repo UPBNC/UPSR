@@ -24,6 +24,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
@@ -124,6 +125,7 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
 
     public Future<RpcResult<UpdateNetconfOutput>> updateNetconf(UpdateNetconfInput input) {
         boolean ret = false;
+        String msg;
         UpdateNetconfOutputBuilder netconfOutputBuilder = new UpdateNetconfOutputBuilder();
 
         // 判断系统是否准备完毕：
@@ -137,7 +139,9 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
             NetconfSession netconfSession = new NetconfSession(input.getRouterId(), input.getDeviceName(),
                     input.getCenterName(), input.getDeviceType(), input.getSshIp(), input.getSshPort(),
                     input.getUserName(), input.getPassword());
-            ret = (boolean) this.getNetconfSessionApi().updateNetconfSession(netconfSession).get(ResponseEnum.BODY.getName());
+            Map<String, Object> map = this.getNetconfSessionApi().updateNetconfSession(netconfSession);
+            ret = (boolean) map.get(ResponseEnum.BODY.getName());
+            msg = (String) map.get(ResponseEnum.MESSAGE.getName());
             if (true == ret) {
                 netconfOutputBuilder.setResult("success");
                 return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
@@ -145,7 +149,7 @@ public class NetconfSessionODLApi implements UpsrNetconfSessionService {
         }
         LOG.info("enter update netconf###");
         //以下是业务代码
-        netconfOutputBuilder.setResult("failed");
+        netconfOutputBuilder.setResult(msg);
         return RpcResultBuilder.success(netconfOutputBuilder.build()).buildFuture();
     }
 
