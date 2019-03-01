@@ -5,6 +5,7 @@ import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.TunnelPolicy.TnlSelSeq;
 import cn.org.upbnc.entity.TunnelPolicy.TpNexthop;
 import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
+import cn.org.upbnc.enumtype.TnlPolicyTypeEnum;
 import cn.org.upbnc.service.TunnelPolicyService;
 import cn.org.upbnc.service.VPNService;
 import cn.org.upbnc.service.entity.TunnelPolicy.TnlSelSeqEntity;
@@ -71,7 +72,7 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
         if(null==netconfClient){
             return  false;
         }
-        return tunnelPolicyManager.syncTunnelPolicyConf(netconfClient,routerID);
+        return tunnelPolicyManager.syncTunnelPolicyConf(routerID,netconfClient);
     }
 
     public  List<TunnelPolicyEntity> getTunnelPolicys(String routerId){
@@ -109,10 +110,10 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
         tunnelPolicyEntity.setTnlPolicyName(tunnelPolicy.getTnlPolicyName());
         tunnelPolicyEntity.setDescription(tunnelPolicy.getDescription());
         tunnelPolicyEntity.setTnlPolicyType(tunnelPolicy.getTnlPolicyType());
-        if(tunnelPolicyEntity.getTnlPolicyType().equals("invalid")){
+        if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()){
             return tunnelPolicyEntity;
         }
-        if(tunnelPolicyEntity.getTnlPolicyType().equals("tnlBinding")){//解析tpNexthops
+        if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()){//解析tpNexthops
             for(TpNexthop tpNexthop:tunnelPolicy.getTpNexthops()){
                 TpNexthopEntity tpNexthopEntity=tpNexthopToTpNexthopEntity(tpNexthop);
                 if(null==tpNexthopEntity){
@@ -122,7 +123,7 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
             }
             return tunnelPolicyEntity;
         }
-        if(tunnelPolicyEntity.getTnlPolicyType().equals("tnlSelectSeq")){//解析tnlSelSeqs
+        if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()){//解析tnlSelSeqs
             for(TnlSelSeq tnlSelSeq:tunnelPolicy.getTnlSelSeqls()){
                 TnlSelSeqEntity tnlSelSeqEntity=tnlSelSeqToTnlSelSeqEntity(tnlSelSeq);
                 tunnelPolicyEntity.getTnlSelSeqlEntities().add(tnlSelSeqEntity);

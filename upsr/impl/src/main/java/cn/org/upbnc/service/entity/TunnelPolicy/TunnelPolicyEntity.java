@@ -10,7 +10,7 @@ public class TunnelPolicyEntity {
 
     private String description;//length 1..80
 
-    private String tnlPolicyType;//"Tunnel policy type. The available options are sel-seq, binding, and invalid. A
+    private Integer tnlPolicyType;//"Tunnel policy type. The available options are sel-seq, binding, and invalid. A
     // tunnel policy can be configured with only one policy type."
 
     private List<TpNexthopEntity> tpNexthopEntities;//List of tunnel binding configurations;tnlPolicyType='tnlBinding' and count
@@ -29,7 +29,7 @@ public class TunnelPolicyEntity {
         this.tnlSelSeqlEntities = new ArrayList<TnlSelSeqEntity>();
     }
 
-    public TunnelPolicyEntity(String routerID,String tnlPolicyName, String description, String tnlPolicyType,
+    public TunnelPolicyEntity(String routerID,String tnlPolicyName, String description, Integer tnlPolicyType,
                               List<TpNexthopEntity> tpNexthopEntities,
                               List<TnlSelSeqEntity> tnlSelSeqlEntities) {
         this.routerID=routerID;
@@ -64,11 +64,11 @@ public class TunnelPolicyEntity {
         this.description = description;
     }
 
-    public String getTnlPolicyType() {
+    public Integer getTnlPolicyType() {
         return tnlPolicyType;
     }
 
-    public void setTnlPolicyType(String tnlPolicyType) {
+    public void setTnlPolicyType(Integer tnlPolicyType) {
         this.tnlPolicyType = tnlPolicyType;
     }
 

@@ -13,15 +13,15 @@ public interface TunnelPolicyManager {
 
     TunnelPolicy getTunnelPolicy(String name);
 
-    boolean createTunnelPolicy(TunnelPolicy tunnelPolicy);
+    boolean createTunnelPolicy(TunnelPolicy tunnelPolicy,NetconfClient netconfClient);
 
-    boolean createTunnelPolicyList(List<TunnelPolicy> tunnelPolicies);
+    boolean createTunnelPolicyList(List<TunnelPolicy> tunnelPolicies,NetconfClient netconfClient);
 
-    boolean deleteTunnelPolicyByName(String name);
+    boolean deleteTunnelPolicyByName(String name,NetconfClient netconfClient);
 
-    boolean deleteTunnelPolicyByNameList(List<String> names);
+    boolean deleteTunnelPolicyByNameList(List<String> names,NetconfClient netconfClient);
 
-    boolean deleteTunnelPolicy(TunnelPolicy tunnelPolicy);
+    boolean syncTunnelPolicyConf(String routerID,NetconfClient netconfClient);
 
-    boolean syncTunnelPolicyConf(NetconfClient netconfClient, String routerID);
+    boolean isNameDuplicate(String name);
 }

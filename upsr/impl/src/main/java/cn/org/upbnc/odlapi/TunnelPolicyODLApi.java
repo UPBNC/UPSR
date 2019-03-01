@@ -7,6 +7,7 @@ import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.enumtype.TnlPolicyTypeEnum;
 import cn.org.upbnc.service.entity.TunnelPolicy.TnlSelSeqEntity;
 import cn.org.upbnc.service.entity.TunnelPolicy.TpNexthopEntity;
 import cn.org.upbnc.service.entity.TunnelPolicy.TunnelPolicyEntity;
@@ -74,12 +75,10 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
             tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
             tunnelPolicysBuilder.setPolicyName(tunnelPolicyEntity.getTnlPolicyName());
             tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
-            tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
-            if(tunnelPolicysBuilder.getTnlPolicyType().equals("invalid")){
-                tunnelPolicysList.add(tunnelPolicysBuilder.build());
-                break;
-            }
-            if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlBinding")){
+            //tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
+
+            if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()){
+                tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getName());
                 //TpNexthops list解析
                 List<TpNexthops> tpNexthopsList = new ArrayList<>();
 
@@ -101,8 +100,9 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
                     tpNexthopsList.add(tpNexthopsBuilder.build());
                 }
                 tunnelPolicysBuilder.setTpNexthops(tpNexthopsList);
-            }
-            if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlSelectSeq")){
+
+            }else if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()){
+                tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.TnlSelectSeq.getName());
                 List<TnlSelSeqs> tnlSelSeqsList = new ArrayList<>();
 
                 for(TnlSelSeqEntity tnlSelSeqEntity:tunnelPolicyEntity.getTnlSelSeqlEntities()){
@@ -116,7 +116,52 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
                     tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix()?"true":"false");
                 }
                 tunnelPolicysBuilder.setTnlSelSeqs(tnlSelSeqsList);
+            }else if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()){
+                tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getName());
             }
+
+
+//            if(tunnelPolicysBuilder.getTnlPolicyType().equals("invalid")){
+//                tunnelPolicysList.add(tunnelPolicysBuilder.build());
+//                break;
+//            }else if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlBinding")){
+//                //TpNexthops list解析
+//                List<TpNexthops> tpNexthopsList = new ArrayList<>();
+//
+//                for(TpNexthopEntity tpNexthopEntity:tunnelPolicyEntity.getTpNexthopEntities()){
+//                    TpNexthopsBuilder tpNexthopsBuilder=new TpNexthopsBuilder();
+//                    tpNexthopsBuilder.setDestAddr(tpNexthopEntity.getNexthopIPaddr());
+//                    tpNexthopsBuilder.setDownSwitch(tpNexthopEntity.isDownSwitch()?"true":"false");
+//                    tpNexthopsBuilder.setIgnoreDestCheck(tpNexthopEntity.isIgnoreDestCheck()?"true":"false");
+//                    tpNexthopsBuilder.setIncludeLdp(tpNexthopEntity.isIncludeLdp()?"true":"false");
+//                    //绑定隧道名称list解析
+//                    List<BindTunnel> bindTunnelList=new ArrayList<BindTunnel>();
+//
+//                    for(String bindTunnelName:tpNexthopEntity.getTpTunnels()){
+//                        BindTunnelBuilder bindTunnelBuilder=new BindTunnelBuilder();
+//                        bindTunnelBuilder.setTunnelName(bindTunnelName);
+//                        bindTunnelList.add(bindTunnelBuilder.build());
+//                    }
+//                    tpNexthopsBuilder.setBindTunnel(bindTunnelList);
+//                    tpNexthopsList.add(tpNexthopsBuilder.build());
+//                }
+//                tunnelPolicysBuilder.setTpNexthops(tpNexthopsList);
+//            }else if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlSelectSeq")){
+//                List<TnlSelSeqs> tnlSelSeqsList = new ArrayList<>();
+//
+//                for(TnlSelSeqEntity tnlSelSeqEntity:tunnelPolicyEntity.getTnlSelSeqlEntities()){
+//                    TnlSelSeqsBuilder tnlSelSeqsBuilder=new TnlSelSeqsBuilder();
+//                    tnlSelSeqsBuilder.setLoadBalanceNum(String.valueOf(tnlSelSeqEntity.getLoadBalanceNum()));
+//                    tnlSelSeqsBuilder.setSelTnlType1(tnlSelSeqEntity.getSelTnlType1());
+//                    tnlSelSeqsBuilder.setSelTnlType2(tnlSelSeqEntity.getSelTnlType2());
+//                    tnlSelSeqsBuilder.setSelTnlType3(tnlSelSeqEntity.getSelTnlType3());
+//                    tnlSelSeqsBuilder.setSelTnlType4(tnlSelSeqEntity.getSelTnlType4());
+//                    tnlSelSeqsBuilder.setSelTnlType5(tnlSelSeqEntity.getSelTnlType5());
+//                    tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix()?"true":"false");
+//                }
+//                tunnelPolicysBuilder.setTnlSelSeqs(tnlSelSeqsList);
+//            }
+
             tunnelPolicysList.add(tunnelPolicysBuilder.build());
         }
         getTunnelPolicysOutputBuilder.setTunnelPolicys(tunnelPolicysList);
