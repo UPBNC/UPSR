@@ -15,7 +15,11 @@ public interface TunnelPolicyManager {
 
     boolean createTunnelPolicy(TunnelPolicy tunnelPolicy);
 
+    boolean createTunnelPolicyList(List<TunnelPolicy> tunnelPolicies);
+
     boolean deleteTunnelPolicyByName(String name);
+
+    boolean deleteTunnelPolicyByNameList(List<String> names);
 
     boolean deleteTunnelPolicy(TunnelPolicy tunnelPolicy);
 
