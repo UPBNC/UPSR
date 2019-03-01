@@ -30,9 +30,95 @@ public class TunnelPolicyXml {
     }
 
     public static String deleteTunnelPolicyXml(List<String> tnl) {
-        return null;
+        String head =
+                "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                \n" +
+                "  <target>                                                                     \n" +
+                "    <running/>                                                                 \n" +
+                "  </target>                                                                    \n" +
+                "  <error-option>rollback-on-error</error-option>                               \n" +
+                "  <config>                                                                     \n" +
+                "    <tnlm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-tnlm\">             \n" +
+                "      <tunnelPolicys xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">     \n";
+        String tunnelPolicys = "";
+        for (String policyName : tnl) {
+            tunnelPolicys = tunnelPolicys + getTunnelPolicysDeleteXml(policyName);
+        }
+         String end =
+                "      </tunnelPolicys>                                                         \n" +
+                "    </tnlm>                                                                    \n" +
+                "  </config>                                                                    \n" +
+                "</edit-config>                                                                 \n" +
+                "</rpc>";
+        return head + tunnelPolicys +end;
     }
+    private static String getTunnelPolicysDeleteXml(String tnlPolicyName) {
+        String tunnelPolicy =
+                "        <tunnelPolicy nc:operation=\"delete\">                                 \n" +
+                "          <tnlPolicyName>" + tnlPolicyName + "</tnlPolicyName>                   \n" +
+                "        </tunnelPolicy>                                                        \n";
+        return tunnelPolicy;
+    }
+    public static String createTunnelPolicyXml(List<STunnelPolicy> sTunnelPolicyList) {
+        String head =
+                "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                \n" +
+                "  <target>                                                                     \n" +
+                "    <running/>                                                                 \n" +
+                "  </target>                                                                    \n" +
+                "  <error-option>rollback-on-error</error-option>                               \n" +
+                "  <config>                                                                     \n" +
+                "    <tnlm xmlns=\"http://www.huawei.com/netconf/vrp/huawei-tnlm\">             \n" +
+                "      <tunnelPolicys xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">     \n";
+        String tunnelPolicys = "";
+        for (STunnelPolicy sTunnelPolicy : sTunnelPolicyList) {
+            tunnelPolicys = tunnelPolicys + getTunnelPolicysCreateXml(sTunnelPolicy);
+        }
+        String end =
+                "      </tunnelPolicys>                                                         \n" +
+                "    </tnlm>                                                                    \n" +
+                "  </config>                                                                    \n" +
+                "</edit-config>                                                                 \n" +
+                "</rpc>";
+        return head + tunnelPolicys +end;
+    }
+    private static String getTunnelPolicysCreateXml(STunnelPolicy sTunnelPolicy) {
+        String tunnelPolicy =
+                "        <tunnelPolicy>                                                                      \n" +
+                "          <tnlPolicyName>" + sTunnelPolicy.getTnlPolicyName() + "</tnlPolicyName>               \n" +
+                "          <tnlPolicyType>" + sTunnelPolicy.getTnlPolicyType() + "</tnlPolicyType>               \n";
 
+        String tpNexthop = "";
+        if (sTunnelPolicy.getSTpNexthops() != null) {
+            tpNexthop = tpNexthop +
+                "          <tpNexthops>                                                                      \n";
+            for (STpNexthop sTpNexthop : sTunnelPolicy.getSTpNexthops()) {
+                tpNexthop = tpNexthop +
+                "            <tpNexthop>                                                                     \n" +
+                "              <nexthopIPaddr>" + sTpNexthop.getNexthopIPaddr() + "</nexthopIPaddr>              \n" +
+                "              <ignoreDestCheck>" + "true" + "</ignoreDestCheck>                              \n" +
+                "              <isIncludeLdp>" + "true" + "</isIncludeLdp>                                    \n";
+                String tpTunnels = "";
+                if (sTpNexthop.getTpTunnels() != null) {
+                tpTunnels = tpTunnels +
+                "              <tpTunnels>                                                                   \n";
+                    for (String tunnelName : sTpNexthop.getTpTunnels()) {
+                tpTunnels = tpTunnels +
+                "                <tpTunnel><tunnelName>" + tunnelName + "</tunnelName></tpTunnel>              \n";
+                    }
+                tpTunnels = tpTunnels +
+                "              </tpTunnels>                                                                  \n";
+                }
+                tpNexthop = tpNexthop + tpTunnels +
+                "            </tpNexthop>                                                                    \n";
+            }
+            tpNexthop = tpNexthop +
+                "          </tpNexthops>                                                                     \n";
+        }
+        String tunnelPolicyEnd =
+                "        </tunnelPolicy>                                                        \n";
+        return tunnelPolicy + tpNexthop + tunnelPolicyEnd;
+    }
 
     public static List<STunnelPolicy> getSTunnelPolicyFromXml(String xml){
         List<STunnelPolicy> sTunnelPolicyList = new ArrayList<>();
