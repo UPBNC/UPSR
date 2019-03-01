@@ -634,6 +634,7 @@ public class VPNServiceImpl implements VPNService {
         return true;
     }
 
+    @Override
     public boolean syncVpnInstanceConf(String routerId) {
         if (null == routerId || routerId.equals("")) {
             LOG.info("syncVpnInstanceConf failed,routerId is null or empty ");
@@ -785,5 +786,9 @@ public class VPNServiceImpl implements VPNService {
         resultMap.put(ResponseEnum.MESSAGE.getName(), "success.");
         return resultMap;
     }
+
+    /******************************************************************/
+
+
 
 }

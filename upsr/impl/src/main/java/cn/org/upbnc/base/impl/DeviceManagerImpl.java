@@ -200,6 +200,24 @@ public class DeviceManagerImpl implements DeviceManager {
         return null;
     }
 
+    @Override
+    public Map<String,List<Device>> getAreaDeviceList(){
+        Map<String,List<Device>> ret = new HashMap<String, List<Device>>();
+        for(Device d : this.deviceList){
+            String area = this.getAreaBySystem(d.getSysName());
+
+            List<Device> list = ret.get(area);
+            if(null == list){
+                list = new ArrayList<Device>();
+                list.add(d);
+                ret.put(area,list);
+            }else{
+                list.add(d);
+            }
+        }
+        return ret;
+    }
+
     // 更新Device
     private Device updateDevice(Device device, BgpDevice bgpDevice) {
         Device ret = null;
@@ -286,5 +304,13 @@ public class DeviceManagerImpl implements DeviceManager {
         ret.setBgpDeviceName(bgpDeviceInterface.getBgpDeviceName());
         ret.setBgpStatus(1);
         return ret;
+    }
+
+    private String getAreaBySystem(String name){
+        String area = null;
+        if(name != null){
+            area = name.substring(0,2);
+        }
+        return area;
     }
 }

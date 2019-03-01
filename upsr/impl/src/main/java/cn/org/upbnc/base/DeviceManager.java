@@ -11,6 +11,7 @@ import cn.org.upbnc.entity.BgpDevice;
 import cn.org.upbnc.entity.Device;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DeviceManager {
     // Add device fucntions
@@ -31,5 +32,7 @@ public interface DeviceManager {
 
     // Update device functions
     List<Device> updateDeviceListByBgpDeviceList(List<BgpDevice> bgpDeviceList);
+
+    Map<String,List<Device>> getAreaDeviceList();
 
 }
