@@ -22,7 +22,7 @@ module upsrRouterPolicy {
         }
         output {
             leaf result { type string; }
-            list routePolicy {
+            list routePolicys {
                 uses routePolicy;
             }
         }

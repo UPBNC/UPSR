@@ -36,6 +36,69 @@ public class RoutePolicyXml {
         return start + middle + end;
     }
 
+    public static String getCreateRoutePolicyXml(List<SRoutePolicy> sRoutePolicies) {
+        String start = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "  <edit-config>\n" +
+                "    <target>\n" +
+                "      <running/>\n" +
+                "    </target>\n" +
+                "    <config>\n" +
+                "      <rtp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-rtp\">\n" +
+                "        <routePolicys>\n";
+        String middle = "";
+        for (SRoutePolicy routePolicy : sRoutePolicies) {
+            middle = middle +
+                    "          <routePolicy>\n" +
+                    "            <name>" + routePolicy.getName() + "</name>\n" +
+                    "            <routePolicyNodes>\n";
+            for (SRoutePolicyNode routePolicyNode : routePolicy.getRoutePolicyNodes()) {
+                middle = middle +
+                        "              <routePolicyNode>\n" +
+                        "                <nodeSequence>" + routePolicyNode.getNodeSequence() + "</nodeSequence>\n" +
+                        "                <matchMode>permit</matchMode>\n" +
+                        "                <nextNodeChoice>\n" +
+                        "                  <isGotoNextNode>false</isGotoNextNode>\n" +
+                        "                </nextNodeChoice>\n" +
+                        "              </routePolicyNode>\n";
+            }
+            middle = middle +
+                    "            </routePolicyNodes>\n" +
+                    "          </routePolicy>\n";
+        }
+        String end =
+                "        </routePolicys>\n" +
+                        "      </rtp>\n" +
+                        "    </config>\n" +
+                        "  </edit-config>\n" +
+                        "</rpc>";
+        return start + middle + end;
+    }
+
+    public static String getDeleteRoutePolicyXml(List<SRoutePolicy> sRoutePolicies) {
+        String start = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <target>\n" +
+                "    <running/>\n" +
+                "  </target>\n" +
+                "  <config>\n" +
+                "    <rtp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-rtp\">\n" +
+                "      <routePolicys>\n";
+        String middle = "";
+        for (SRoutePolicy routePolicy : sRoutePolicies) {
+            middle = middle +
+                    "        <routePolicy xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                    "          <name>" + routePolicy.getName() + "</name>\n" +
+                    "        </routePolicy>\n";
+        }
+        String end =
+                "      </routePolicys>\n" +
+                        "    </rtp>\n" +
+                        "  </config>\n" +
+                        "</edit-config>" +
+                        "</rpc>";
+        return start + middle + end;
+    }
+
     public static List<SRoutePolicy> getRoutePolicyFromXml(String xml) {
         List<SRoutePolicy> routePolicies = new ArrayList<>();
         SRoutePolicy routePolicy;

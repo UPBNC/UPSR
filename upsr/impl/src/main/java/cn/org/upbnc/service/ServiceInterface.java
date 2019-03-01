@@ -27,6 +27,8 @@ public class ServiceInterface {
     private SrLabelService srLabelService;
     private TunnelService tunnelService;
     private TunnelPolicyService tunnelPolicyService;
+    private RoutePolicyService routePolicyService;
+
 
     public ServiceInterface() {
         // Base Interface
@@ -39,7 +41,8 @@ public class ServiceInterface {
         this.interfaceService = null;
         this.srLabelService = null;
         this.tunnelService = null;
-        this.tunnelPolicyService=null;
+        this.tunnelPolicyService = null;
+        this.routePolicyService = null;
     }
 
     public void init() {
@@ -51,7 +54,8 @@ public class ServiceInterface {
             this.interfaceService = InterfaceServiceImpl.getInstance();
             this.srLabelService = SrLabelServiceImpl.getInstance();
             this.tunnelService = TunnelServiceImpl.getInstance();
-            this.tunnelPolicyService=TunnelPolicyServiceImpl.getInstance();
+            this.tunnelPolicyService = TunnelPolicyServiceImpl.getInstance();
+            this.routePolicyService = RoutePolicyServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -73,6 +77,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.interfaceService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.tunnelService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.tunnelPolicyService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.routePolicyService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -107,6 +112,7 @@ public class ServiceInterface {
         this.srLabelService.syncAllNodeLabel();
         this.tunnelService.syncTunnelInstanceConf();
         this.tunnelPolicyService.syncTunnelPolicyConf();
+        this.routePolicyService.syncRoutePolicyConf();
         // Start topology service at last
         this.topoService.startService();
 
@@ -159,5 +165,12 @@ public class ServiceInterface {
             this.tunnelPolicyService = TunnelPolicyServiceImpl.getInstance();
         }
         return tunnelPolicyService;
+    }
+
+    public RoutePolicyService getRoutePolicyService() {
+        if (this.routePolicyService == null) {
+            this.routePolicyService = RoutePolicyServiceImpl.getInstance();
+        }
+        return routePolicyService;
     }
 }
