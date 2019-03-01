@@ -28,6 +28,7 @@ public class Tunnel {
     private BfdSession dynamicBfd;
     private BfdSession masterBfd;
     private BfdSession tunnelBfd;
+    private Integer serviceClass;
 
     public Tunnel() {
     }
@@ -166,6 +167,14 @@ public class Tunnel {
 
     public Integer getBfdType() {
         return bfdType;
+    }
+
+    public Integer getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(Integer serviceClass) {
+        this.serviceClass = serviceClass;
     }
 
     @Override

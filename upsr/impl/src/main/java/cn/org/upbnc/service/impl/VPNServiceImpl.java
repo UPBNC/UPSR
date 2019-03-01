@@ -7,15 +7,11 @@
  */
 package cn.org.upbnc.service.impl;
 
-import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.base.DeviceManager;
-import cn.org.upbnc.base.NetConfManager;
-import cn.org.upbnc.base.VpnInstanceManager;
+import cn.org.upbnc.base.*;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.AddressTypeEnum;
-import cn.org.upbnc.enumtype.CodeEnum;
-import cn.org.upbnc.enumtype.NetConfStatusEnum;
-import cn.org.upbnc.enumtype.ResponseEnum;
+import cn.org.upbnc.entity.TunnelPolicy.TpNexthop;
+import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
+import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.enumtype.VpnEnum.VpnApplyLabelEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnFrrStatusEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnTtlModeEnum;
@@ -41,6 +37,13 @@ public class VPNServiceImpl implements VPNService {
     private VpnInstanceManager vpnInstanceManager = null;
     private NetConfManager netConfManager = null;
     private DeviceManager deviceManager = null;
+    private TunnelManager tunnelManager = null;
+
+    private static long TUNNELID_MAX = 4294967295l;
+    private static int BFDID_MAX = 65535;
+
+    private Map<String, List<String>> tunnelMapTemp;
+    private Map<String, List<Integer>> bfdDiscriminatorTemp;
 
     public static VPNService getInstance() {
         if (null == ourInstance) {
@@ -62,6 +65,7 @@ public class VPNServiceImpl implements VPNService {
             vpnInstanceManager = this.baseInterface.getVpnInstanceManager();
             netConfManager = this.baseInterface.getNetConfManager();
             deviceManager = this.baseInterface.getDeviceManager();
+            tunnelManager = baseInterface.getTunnelManager();
         }
         return true;
     }
@@ -787,8 +791,249 @@ public class VPNServiceImpl implements VPNService {
         return resultMap;
     }
 
-    /******************************************************************/
+    /*********************************************
+     *
+     * Create Tunnels TunnelPolicys Bfds from topo
+     *
+     *********************************************/
 
+    public void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies){
+
+        this.tunnelMapTemp = new HashMap<>();
+        this.bfdDiscriminatorTemp = new HashMap<>();
+
+        Map<String,List<Device>> area =this.deviceManager.getAreaDeviceList();
+//        Map<String,List<Tunnel>> tunnels = new HashMap<String, List<Tunnel>>();
+//        List<TunnelPolicy> tunnelPolicies = new ArrayList<TunnelPolicy>();
+
+        Set<Map.Entry<String,List<Device>>> areaSet = area.entrySet();
+        Iterator<Map.Entry<String,List<Device>>> iterator = areaSet.iterator();
+        while(iterator.hasNext()){
+            Map.Entry<String,List<Device>> entry = iterator.next();
+            this.createByArea(entry,area,tunnelPolicies,tunnels);
+        }
+
+
+        return;
+    }
+
+    private void createByArea(Map.Entry<String,List<Device>> entry,
+                              Map<String,List<Device>> area,
+                              List<TunnelPolicy> tunnelPolicies,
+                              Map<String,List<Tunnel>> tunnels){
+
+        String currentArea = entry.getKey();
+        List<Device> currentDevice = entry.getValue();
+        Set<String> allArea = new HashSet<>(area.keySet());
+        // remove current area
+        allArea.remove(currentArea);
+
+        for(Device device:currentDevice){
+            for(String other : allArea){
+                List<Device> list = area.get(other);
+                this.createByDeviceToOtherArea(device,list,tunnelPolicies,tunnels);
+            }
+        }
+
+        return;
+    }
+
+    private void createByDeviceToOtherArea(Device device,
+                                           List<Device> list,
+                                           List<TunnelPolicy> tunnelPolicies,
+                                           Map<String,List<Tunnel>> tunnels){
+        for(Device t : list){
+            this.createTPByDeviceSrcToDeviceDest(device,t,tunnelPolicies,tunnels);
+        }
+        return;
+    }
+
+    private void createTPByDeviceSrcToDeviceDest(Device s,Device d,
+                                                 List<TunnelPolicy> tunnelPolicies,
+                                                 Map<String,List<Tunnel>> tunnels){
+        String keySD = s.getSysName() + "_" + d.getSysName();
+        String keyDS = d.getSysName() + "_" + s.getSysName();
+
+        List<Tunnel> listSD = new ArrayList<Tunnel>();
+        List<Tunnel> listDS = new ArrayList<Tunnel>();
+        tunnels.put(keySD,listSD);
+        tunnels.put(keyDS,listDS);
+
+        TunnelPolicy tpS = this.getTunnelPolicy(s.getRouterId(),tunnelPolicies);
+        TunnelPolicy tpD = this.getTunnelPolicy(d.getRouterId(),tunnelPolicies);
+        List<TpNexthop> tpNexthopsS = tpS.getTpNexthops();
+        List<TpNexthop> tpNexthopsD = tpD.getTpNexthops();
+
+        TpNexthop tpNexthopS = this.getTpNextHopFromDest(d.getRouterId(),tpNexthopsS);
+        TpNexthop tpNexthopD = this.getTpNextHopFromDest(s.getRouterId(),tpNexthopsD);
+
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD, TunnelServiceClassEnum.AF1.getCode());
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,TunnelServiceClassEnum.AF3.getCode());
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,TunnelServiceClassEnum.EF.getCode());
+
+        return;
+    }
+
+    private void createTunnelByDeviceSrcToDeviceDest(Device s,
+                                                     Device d,
+                                                     List<Tunnel> listSD,
+                                                     List<Tunnel> listDS,
+                                                     TpNexthop tpNexthopS,
+                                                     TpNexthop tpNexthopD,
+                                                     Integer serviceClassType){
+
+        Tunnel tunnelSD = new Tunnel();
+        Tunnel tunnelDS = new Tunnel();
+
+        tunnelSD.setDevice(s);
+        tunnelSD.setBfdType(BfdTypeEnum.Static.getCode());
+        tunnelSD.setBfdEnable(true);
+        tunnelSD.setDestRouterId(d.getRouterId());
+        tunnelSD.setServiceClass(serviceClassType);
+        tunnelSD.setTunnelName(this.getTunnelName(s.getRouterId()));
+        tpNexthopS.addTpTunnels(tunnelSD.getTunnelName());
+
+        tunnelDS.setDevice(d);
+        tunnelDS.setBfdType(BfdTypeEnum.Static.getCode());
+        tunnelDS.setBfdEnable(true);
+        tunnelDS.setDestRouterId(s.getRouterId());
+        tunnelDS.setServiceClass(serviceClassType);
+        tunnelDS.setTunnelName(this.getTunnelName(s.getRouterId()));
+        tpNexthopD.addTpTunnels(tunnelDS.getTunnelName());
+
+        this.createBfdByDeviceSrcToDeviceDest(tunnelSD,tunnelDS);
+
+        return;
+    }
+
+    private void createBfdByDeviceSrcToDeviceDest(Tunnel tunnelSD,Tunnel tunnelDS){
+        BfdSession bfdSDTunnel = new BfdSession();
+        BfdSession bfdSDLSP = new BfdSession();
+        BfdSession bfdDSTunnel = new BfdSession();
+        BfdSession bfdDSLSP = new BfdSession();
+
+        String bfdSDTunnelLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+        String bfdDSTunnelLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+        String bfdSDLSPLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+        String bfdDSLSPLocal = this.getBfdDiscriminator(tunnelSD.getDevice().getRouterId());
+
+        bfdSDTunnel.setBfdName(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName());
+        bfdSDTunnel.setType(BfdTypeEnum.Tunnel.getCode());
+        bfdSDTunnel.setMinSendTime(BfdMinIntervalEnum.TunnelMinTX.getName());
+        bfdSDTunnel.setMinRecvTime(BfdMinIntervalEnum.TunnelMinRX.getName());
+        bfdSDTunnel.setDiscriminatorLocal(bfdSDTunnelLocal);
+        bfdSDTunnel.setDiscriminatorRemote(bfdDSTunnelLocal);
+        tunnelSD.setTunnelBfd(bfdSDTunnel);
+
+        bfdDSTunnel.setBfdName(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Tunnel.getName());
+        bfdDSTunnel.setType(BfdTypeEnum.Tunnel.getCode());
+        bfdDSTunnel.setMinSendTime(BfdMinIntervalEnum.TunnelMinTX.getName());
+        bfdDSTunnel.setMinRecvTime(BfdMinIntervalEnum.TunnelMinRX.getName());
+        bfdDSTunnel.setDiscriminatorLocal(bfdDSTunnelLocal);
+        bfdDSTunnel.setDiscriminatorRemote(bfdSDTunnelLocal);
+        tunnelDS.setTunnelBfd(bfdDSTunnel);
+
+        bfdSDLSP.setBfdName(tunnelSD.getTunnelName()+"_"+BfdTypeEnum.Master.getName());
+        bfdSDLSP.setType(BfdTypeEnum.Master.getCode());
+        bfdSDLSP.setMinSendTime(BfdMinIntervalEnum.LSPMinTX.getName());
+        bfdSDLSP.setMinRecvTime(BfdMinIntervalEnum.LSPMinRX.getName());
+        bfdSDLSP.setDiscriminatorLocal(bfdSDLSPLocal);
+        bfdSDLSP.setDiscriminatorRemote(bfdDSLSPLocal);
+        tunnelSD.setMasterBfd(bfdSDLSP);
+
+        bfdDSLSP.setBfdName(tunnelDS.getTunnelName()+"_"+BfdTypeEnum.Master.getName());
+        bfdDSLSP.setType(BfdTypeEnum.Master.getCode());
+        bfdDSLSP.setMinSendTime(BfdMinIntervalEnum.LSPMinTX.getName());
+        bfdDSLSP.setMinRecvTime(BfdMinIntervalEnum.LSPMinRX.getName());
+        bfdDSLSP.setDiscriminatorLocal(bfdDSLSPLocal);
+        bfdDSLSP.setDiscriminatorRemote(bfdSDLSPLocal);
+        tunnelDS.setMasterBfd(bfdDSLSP);
+
+        return;
+    }
+
+
+    private TunnelPolicy getTunnelPolicy(String routerId,List<TunnelPolicy> tunnelPolicies){
+        TunnelPolicy tunnelPolicy = null;
+        for(TunnelPolicy tp : tunnelPolicies){
+            if(tp.getRouterID().equals(routerId)){
+                return tp;
+            }
+        }
+        tunnelPolicy = new TunnelPolicy();
+        tunnelPolicy.setRouterID(routerId);
+        tunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getCode());
+        List<TpNexthop> tpNexthops = new ArrayList<TpNexthop>();
+        tunnelPolicy.setTpNexthops(tpNexthops);
+
+        tunnelPolicies.add(tunnelPolicy);
+
+        return tunnelPolicy;
+    }
+
+    private TpNexthop getTpNextHopFromDest(String routerId, List<TpNexthop> tpNexthops){
+        TpNexthop tpNexthop = null;
+        for(TpNexthop tp : tpNexthops){
+            if(tp.getNexthopIPaddr().equals(routerId)){
+                return tp;
+            }
+        }
+        tpNexthop = new TpNexthop();
+        tpNexthop.setNexthopIPaddr(routerId);
+
+        tpNexthops.add(tpNexthop);
+
+        return tpNexthop;
+    }
+
+    private String getTunnelName(String routerId) {
+        int index = 1;
+        while (index <= this.TUNNELID_MAX) {
+            String tunnelName = "Tunnel" + index;
+            List<String> tunnelNameList = this.tunnelMapTemp.get(routerId);
+            if (tunnelNameList == null) {
+                tunnelNameList = new ArrayList<>();
+                tunnelNameList.add(tunnelName);
+                this.tunnelMapTemp.put(routerId,tunnelNameList);
+                return tunnelName;
+            }
+
+            if (!(tunnelManager.checkTunnelNameAndId(routerId, tunnelName, index +"")) &&
+                    !tunnelNameList.contains(tunnelName)) {
+                tunnelNameList.add(tunnelName);
+                return tunnelName;
+            }
+            index = index + 1;
+        }
+        return null;
+    }
+
+    private String getBfdDiscriminator(String routerId) {
+        int index = 1;
+        while (index < this.BFDID_MAX) {
+            String tunnelName = "Tunnel" + index;
+            List<Integer> bfdIdList = this.bfdDiscriminatorTemp.get(routerId);
+            if (bfdIdList == null) {
+                bfdIdList = new ArrayList<>();
+                bfdIdList.add(new Integer(index));
+                this.bfdDiscriminatorTemp.put(routerId,bfdIdList);
+                return index + "";
+            }
+            if (!tunnelManager.isBfdDiscriminatorLocalUsed(index) &&
+                    !bfdIdList.contains(new Integer(index))) {
+                bfdIdList.add(new Integer(index));
+                return index + "";
+            }
+            index = index + 1;
+        }
+        return null;
+    }
+
+
+    private void getVPNS(){
+        Map<String,List<Tunnel>> tunnels = new HashMap<String, List<Tunnel>>();
+        List<TunnelPolicy> tunnelPolicies = new ArrayList<TunnelPolicy>();
+    }
 
 
 }

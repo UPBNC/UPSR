@@ -7,6 +7,7 @@
  */
 package cn.org.upbnc.base;
 
+import cn.org.upbnc.entity.BfdSession;
 import cn.org.upbnc.entity.Tunnel;
 
 import java.util.List;
@@ -25,4 +26,15 @@ public interface TunnelManager {
     boolean deleteTunnel(String routerId, String name);
 
     boolean checkTunnelNameAndId(String routerId, String tunnelName, String tunnelId);
+
+    boolean addBfdSession(BfdSession bfdSession);
+
+    boolean deleteBfdSession(String name);
+
+    boolean isBfdDiscriminatorLocal(Integer local);
+
+    Integer getBfdDiscriminatorLocal();
+
+    boolean isBfdDiscriminatorLocalUsed(int i);
+
 }

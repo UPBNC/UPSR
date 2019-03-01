@@ -8,6 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.TunnelManager;
+import cn.org.upbnc.entity.BfdSession;
 import cn.org.upbnc.entity.Tunnel;
 
 import java.util.*;
@@ -15,9 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TunnelManagerImpl implements TunnelManager {
     private static TunnelManager instance = null;
-    private static Map<String, Map<String, Tunnel>> tunnelMap = new ConcurrentHashMap<>();
+    private Map<String, Map<String, Tunnel>> tunnelMap;
+    private Map<Integer, BfdSession> bfdSessionMap;
+    private final int MAX_LOCAL= 65535;
 
     private TunnelManagerImpl() {
+        this.tunnelMap = new ConcurrentHashMap<>();
+        this.bfdSessionMap = new HashMap<Integer, BfdSession>();
     }
 
     public static TunnelManager getInstance() {
@@ -111,5 +116,49 @@ public class TunnelManagerImpl implements TunnelManager {
             }
         }
         return flag;
+    }
+
+    @Override
+    public boolean addBfdSession(BfdSession bfdSession){
+        this.bfdSessionMap.put(Integer.parseInt(bfdSession.getDiscriminatorLocal()),bfdSession);
+        return true;
+    }
+
+    @Override
+    public boolean deleteBfdSession(String name){
+        Iterator<BfdSession> iterator = this.bfdSessionMap.values().iterator();
+        while (iterator.hasNext()){
+            BfdSession bfdSession = iterator.next();
+            if(bfdSession.getBfdName().equals(name)){
+                this.bfdSessionMap.remove(Integer.parseInt(bfdSession.getDiscriminatorLocal()));
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isBfdDiscriminatorLocal(Integer local){
+        return this.bfdSessionMap.containsKey(local);
+    }
+
+    @Override
+    public Integer getBfdDiscriminatorLocal(){
+        Integer i = 1;
+        while(i<MAX_LOCAL){
+            if(!this.bfdSessionMap.containsKey(i)){
+                return i;
+            }
+            i = i + 1;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isBfdDiscriminatorLocalUsed(int i){
+        if(this.bfdSessionMap.containsKey(i)){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

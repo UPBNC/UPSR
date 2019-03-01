@@ -89,4 +89,6 @@ public class TpNexthop {//Rule for binding a TE tunnel to a destination address,
         this.tpTunnels = tpTunnels;
     }
 
+    public void addTpTunnels(String tpTunnels){this.tpTunnels.add(tpTunnels);}
+
 }
