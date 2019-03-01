@@ -24,6 +24,7 @@ public class BaseInterface {
     private IniSectionManager iniSectionManager;
     private TunnelManager tunnelManager;
     private TunnelPolicyManager tunnelPolicyManager;
+    private RoutePolicyManager routePolicyManager;
 
     public BaseInterface() {
     }
@@ -40,7 +41,8 @@ public class BaseInterface {
             this.vpnInstanceManager = VpnInstanceManagerImpl.getInstance();
             this.iniSectionManager = IniSectionManagerImpl.getInstance();
             this.tunnelManager = TunnelManagerImpl.getInstance();
-            this.tunnelPolicyManager=TunnelPolicyManagerImpl.getInstance();
+            this.tunnelPolicyManager = TunnelPolicyManagerImpl.getInstance();
+            this.routePolicyManager = RoutePolicyManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         } catch (Exception e) {
             LOG.info("BaseInterface init failure! " + e.getMessage());
@@ -112,11 +114,18 @@ public class BaseInterface {
         return this.iniSectionManager;
     }
 
-    public TunnelPolicyManager getTunnelPolicyManager(){
-        if(null==this.tunnelPolicyManager){
-            this.tunnelPolicyManager=TunnelPolicyManagerImpl.getInstance();
+    public TunnelPolicyManager getTunnelPolicyManager() {
+        if (null == this.tunnelPolicyManager) {
+            this.tunnelPolicyManager = TunnelPolicyManagerImpl.getInstance();
         }
         return this.tunnelPolicyManager;
+    }
+
+    public RoutePolicyManager getRoutePolicyManager() {
+        if (null == this.routePolicyManager) {
+            this.routePolicyManager = RoutePolicyManagerImpl.getInstance();
+        }
+        return this.routePolicyManager;
     }
 
     ///....

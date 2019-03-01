@@ -46,6 +46,7 @@ public class ConfSyncApiImpl implements ConfSyncApi {
         result += this.serviceInterface.getSrLabelService().syncAllIntfLabel();
         result += this.serviceInterface.getSrLabelService().syncAllNodeLabel();
         result += this.serviceInterface.getTunnelService().syncTunnelInstanceConf();
+        result += this.serviceInterface.getRoutePolicyService().syncRoutePolicyConf();
         result += "\n";
         result += "sync device configure end.";
         LOG.info("sync ret : " + result);
