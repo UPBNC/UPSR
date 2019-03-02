@@ -30,7 +30,7 @@ import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 public class TunnelManagerImpl implements TunnelManager {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelManager.class);
     private static TunnelManager instance = null;
-    private Map<String, Map<String, Tunnel>> tunnelMap;
+    private Map<String,Map<String, Tunnel>> tunnelMap;
     private Map<String,Map<Integer, BfdSession>> bfdSessionMap;
     private final int MAX_LOCAL= 65535;
     private final String Link = "Link";
@@ -165,10 +165,10 @@ public class TunnelManagerImpl implements TunnelManager {
 
 
     @Override
-    public boolean createTunnels(List<Tunnel> tunnels, NetconfClient netconfClient,String routerId){
+    public boolean createTunnels(List<Tunnel> tunnels, String routerId, NetconfClient netconfClient){
         boolean isCreate = false;
 
-        if(null != tunnels && !tunnels.isEmpty()){
+        if(null != tunnels && !tunnels.isEmpty() && null != routerId){
             isCreate = this.createTunnelListTotalToDevice(tunnels,netconfClient);
 
             if(isCreate){
@@ -205,14 +205,23 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean deleteTunnels(List<String> tunnels, NetconfClient netconfClient,String routerId){
+    public boolean deleteTunnels(List<String> tunnels, String routerId, NetconfClient netconfClient){
         boolean isDelete = false;
 
-        if(null != tunnels && !tunnels.isEmpty()){
-            isDelete = this.deleteTunnelsFromDeviceByNameList(tunnels, netconfClient, routerId);
+        if(null != tunnels && !tunnels.isEmpty() && null != routerId ){
+            isDelete = this.deleteTunnelsFromDeviceByNameList(tunnels, routerId, netconfClient);
         }
 
         return isDelete;
+    }
+
+    @Override
+    public boolean syncTunnelsConf(String routerId,NetconfClient netconfClient){
+        boolean isSync = false;
+        if(null != routerId){
+            Map<String,Tunnel> tempTunnelMap = this.getTunnelListFromDeviceByRouterId(routerId,netconfClient);
+        }
+        return isSync;
     }
 
     private boolean createTunnelListTotalToDevice(List<Tunnel> tunnels, NetconfClient netconfClient){
@@ -427,7 +436,7 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
 
-    private boolean deleteTunnelsFromDeviceByNameList(List<String> tunnels, NetconfClient netconfClient,String routerId){
+    private boolean deleteTunnelsFromDeviceByNameList(List<String> tunnels, String routerId, NetconfClient netconfClient){
 
         List<String> pathNames = new ArrayList<String>();
         List<String> bfdNames = new ArrayList<String>();
@@ -531,8 +540,6 @@ public class TunnelManagerImpl implements TunnelManager {
         return pathName;
     }
 
-
-
     private void deleteBfdSessionsFromBase(List<String> names,String routerId){
         Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
         if(null != map) {
@@ -561,6 +568,10 @@ public class TunnelManagerImpl implements TunnelManager {
         return;
     }
 
+    private Map<String,Tunnel> getTunnelListFromDeviceByRouterId(String routerId,NetconfClient netconfClient){
+        Map<String,Tunnel> ret = new ConcurrentHashMap<>();
+        return ret;
+    }
 
     private boolean addBfdSessionToBase(BfdSession bfdSession,String routerId){
         Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
