@@ -3,10 +3,7 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
-import cn.org.upbnc.entity.AdjLabel;
-import cn.org.upbnc.entity.BfdSession;
-import cn.org.upbnc.entity.ExplicitPath;
-import cn.org.upbnc.entity.Tunnel;
+import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.BfdTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
@@ -59,7 +56,7 @@ public class TunnelODLApi implements UpsrTunnelService {
         TunnelBfdBuilder tunnelBfdBuilder;
         MainPathBuilder mainPathBuilder;
         BackPathBuilder backPathBuilder;
-        Map<String, AdjLabel> map;
+        Map<String, Label> map;
         // get bfd static start
         MainLspBfdBuilder mainLspBfdBuilder;
         TunnelBfdBuilder tunnelStaticBfdBuilder;
@@ -219,14 +216,14 @@ public class TunnelODLApi implements UpsrTunnelService {
         tunnelServiceEntity.setTunnelName(tunnelName);
         tunnelServiceEntity.setEgressLSRId(input.getDestRouterId());
         tunnelServiceEntity.setBandwidth(input.getBandWidth());
+        tunnelServiceEntity.setServiceClass(input.getServiceClass());
 
         //add tunnel bfd and master bfd
         tunnelServiceEntity.setTunnelBfd(this.getTunnelBfdByInput(input,tunnelServiceEntity.getTunnelName()));
         tunnelServiceEntity.setMasterBfd(this.getMasterBfdByInput(input,tunnelServiceEntity.getTunnelName()));
         tunnelServiceEntity.setDynamicBfd(this.getDynamicBfdByInput(input,tunnelServiceEntity.getTunnelName()));
-        tunnelServiceEntity.setBfdType(Integer.parseInt(input.getBfdType()));
+        tunnelServiceEntity.setBfdType(this.getBfdTypeByInput(input));
         //end
-
 
         //this.tunnelBfdBuild(tunnelServiceEntity, input);
         this.tunnelPathBuild(tunnelServiceEntity, input);
@@ -397,7 +394,15 @@ public class TunnelODLApi implements UpsrTunnelService {
 //        LOG.info("tunnelBfdBuild end");
 //        return;
 //    }
-
+    private Integer getBfdTypeByInput(UpdateTunnelInstanceInput input){
+        if (BfdTypeEnum.Dynamic.getName().equals(input.getBfdType())) {
+            return new Integer(BfdTypeEnum.Dynamic.getCode());
+        } else if (BfdTypeEnum.Static.getName().equals(input.getBfdType())) {
+            return new Integer(BfdTypeEnum.Static.getCode());
+        } else {
+            return new Integer(BfdTypeEnum.Empty.getCode());
+        }
+    }
     private BfdServiceEntity getTunnelBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
         BfdServiceEntity ret = null;
 
@@ -432,7 +437,6 @@ public class TunnelODLApi implements UpsrTunnelService {
         }
         return ret;
     }
-
 
     private BfdServiceEntity getDynamicBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
         BfdServiceEntity ret = null;

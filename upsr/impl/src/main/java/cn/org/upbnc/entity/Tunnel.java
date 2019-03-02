@@ -104,7 +104,11 @@ public class Tunnel {
     }
 
     public void setBandWidth(String bandWidth) {
-        this.bandWidth = bandWidth;
+        if ("".equals(bandWidth)) {
+            this.bandWidth = "0";
+        } else {
+            this.bandWidth = bandWidth;
+        }
     }
 
     public ExplicitPath getMasterPath() {

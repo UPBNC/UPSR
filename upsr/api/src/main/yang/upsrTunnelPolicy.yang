@@ -35,6 +35,7 @@ module upsrTunnelPolicy {
     rpc getTunnelPolicys {
         input {
             leaf routerId { type string; }
+            leaf policyName { type string; }
         }
         output {
             leaf result { type string; }

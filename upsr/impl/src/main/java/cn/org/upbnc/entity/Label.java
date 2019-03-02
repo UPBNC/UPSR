@@ -15,6 +15,11 @@ public class Label {
     private Integer type;
     private Integer value;
 
+    private Address addressLocal;
+    private Address addressRemote;
+
+    private String routerId;
+
     public Label() {
         this.id = 0;
         this.device = null;
@@ -60,5 +65,29 @@ public class Label {
 
     public void setValue(Integer value) {
         this.value = value;
+    }
+
+    public Address getAddressLocal() {
+        return addressLocal;
+    }
+
+    public void setAddressLocal(Address addressLocal) {
+        this.addressLocal = addressLocal;
+    }
+
+    public Address getAddressRemote() {
+        return addressRemote;
+    }
+
+    public void setAddressRemote(Address addressRemote) {
+        this.addressRemote = addressRemote;
+    }
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
     }
 }

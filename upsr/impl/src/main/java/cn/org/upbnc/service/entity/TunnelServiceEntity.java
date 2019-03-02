@@ -11,6 +11,7 @@ public class TunnelServiceEntity {
     String egressLSRId;
     String bandwidth;
     String unNumIfName;
+    String serviceClass;
 
     List<TunnelHopServiceEntity> mainPath;
     List<TunnelHopServiceEntity> backPath;
@@ -130,6 +131,14 @@ public class TunnelServiceEntity {
         this.dynamicBfd = dynamicBfd;
     }
 
+    public String getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(String serviceClass) {
+        this.serviceClass = serviceClass;
+    }
+
     @Override
     public String toString() {
         return "TunnelServiceEntity{" +
@@ -139,6 +148,7 @@ public class TunnelServiceEntity {
                 ", egressLSRId='" + egressLSRId + '\'' +
                 ", bandwidth='" + bandwidth + '\'' +
                 ", unNumIfName='" + unNumIfName + '\'' +
+                ", serviceClass='" + serviceClass + '\'' +
                 ", mainPath=" + mainPath +
                 ", backPath=" + backPath +
                 '}';

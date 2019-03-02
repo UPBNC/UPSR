@@ -164,6 +164,7 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
 
             tunnelPolicysList.add(tunnelPolicysBuilder.build());
         }
+        getTunnelPolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         getTunnelPolicysOutputBuilder.setTunnelPolicys(tunnelPolicysList);
         return RpcResultBuilder.success(getTunnelPolicysOutputBuilder.build()).buildFuture();
     }

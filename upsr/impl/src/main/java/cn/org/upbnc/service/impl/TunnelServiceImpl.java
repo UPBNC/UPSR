@@ -81,26 +81,76 @@ public class TunnelServiceImpl implements TunnelService {
             tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
         }
         LOG.info("device.getLoopBack() :" + device.getLoopBack());
-        //String deviceIp = device.getNetConf().getIp().getAddress();
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        boolean createExplicitPathFlag = createExplicitPath(netconfClient, tunnelServiceEntity);
-        if (createExplicitPathFlag) {
-            boolean createTunnelFlag = createTunnel(netconfClient, tunnelServiceEntity);
-            if (createTunnelFlag) {
-                boolean createBfdFlg = this.createBfdSessions(netconfClient, tunnelServiceEntity);
-                if(!createBfdFlg){
-                    map.put(ResponseEnum.MESSAGE.getName(), "create bfd error,which name is : " + tunnelServiceEntity.getTunnelName());
-                }else {
-                    addTunnel(tunnelServiceEntity);
-                    map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-                }
-            } else {
-                if(!createTunnelFlag) {
-                    map.put(ResponseEnum.MESSAGE.getName(), "create tunnel error,which name is : " + tunnelServiceEntity.getTunnelName());
-                }
-            }
+        if (createSrTunnel(tunnelServiceEntity)) {
+            map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "Create tunnel fail");
         }
         return map;
+    }
+
+    public boolean createSrTunnel(TunnelServiceEntity tunnelServiceEntity) {
+        Tunnel tunnel = new Tunnel();
+        tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
+        tunnel.setServiceClass(TunnelServiceClassEnum.nameToCode(tunnelServiceEntity.getServiceClass()));
+        tunnel.setDestRouterId(tunnelServiceEntity.getEgressLSRId());
+        tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
+        tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
+        Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
+        tunnel.setDevice(device);
+        Device destDevice = deviceManager.getDevice(tunnelServiceEntity.getEgressLSRId());
+        tunnel.setDestDeviceName(destDevice.getDeviceName());
+        tunnel.setBfdType(tunnelServiceEntity.getBfdType());
+        if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            BfdSession bfdSession = new BfdSession();
+            bfdSession.setDevice(device);
+            bfdSession.setMinRecvTime(tunnelServiceEntity.getDynamicBfd().getMinRecvTime());
+            bfdSession.setMinSendTime(tunnelServiceEntity.getDynamicBfd().getMinSendTime());
+            bfdSession.setMultiplier(tunnelServiceEntity.getDynamicBfd().getMultiplier());
+            bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
+            tunnel.setDynamicBfd(bfdSession);
+        }else if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()) {
+            BfdSession bfdTunnel = this.getBfdSessionByType(tunnelServiceEntity.getTunnelBfd(), BfdTypeEnum.Tunnel, device);
+            tunnel.setTunnelBfd(bfdTunnel);
+            BfdSession bfdMaster = this.getBfdSessionByType(tunnelServiceEntity.getMasterBfd(), BfdTypeEnum.Master, device);
+            tunnel.setMasterBfd(bfdMaster);
+        }
+        tunnel.setMasterPath(this.buildTunnelPath(tunnel,tunnelServiceEntity.getMainPath(),link));
+        tunnel.setSlavePath(this.buildTunnelPath(tunnel,tunnelServiceEntity.getMainPath(),linkback));
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        List<Tunnel> tunnelList = new ArrayList<>();
+        tunnelList.add(tunnel);
+        if (tunnelManager.createTunnels(tunnelList,tunnelServiceEntity.getRouterId(),netconfClient)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public ExplicitPath buildTunnelPath(Tunnel tunnel, List<TunnelHopServiceEntity> tunnelHopList, String expType) {
+        Label label;
+        if (tunnelHopList.size() > 0) {
+            ExplicitPath explicitPath = new ExplicitPath();
+            explicitPath.setDevice(tunnel.getDevice());
+            explicitPath.setPathName(tunnel.getTunnelName() + expType);
+            Map<String, Label> slaveLabelMap = new LinkedHashMap<>();
+            for (TunnelHopServiceEntity entity : tunnelHopList) {
+                label = new Label();
+                if (entity.getIfAddress().equals(entity.getRouterId())) {
+                    label.setType(LabelTypeEnum.PREFIX.getCode());
+                } else {
+                    label.setAddressLocal(new Address(entity.getIfAddress(),AddressTypeEnum.V4));
+                    label.setType(LabelTypeEnum.ADJACENCY.getCode());
+                }
+                Device entityDevice = deviceManager.getDevice(entity.getRouterId());
+                label.setDevice(entityDevice);
+                label.setValue(Integer.valueOf(entity.getAdjlabel()));
+                slaveLabelMap.put(entity.getIndex(), label);
+            }
+            explicitPath.setLabelMap(slaveLabelMap);
+            return explicitPath;
+        }
+        return null;
     }
 
     public void addTunnel(TunnelServiceEntity tunnelServiceEntity) {
@@ -146,14 +196,14 @@ public class TunnelServiceImpl implements TunnelService {
         }
 
 
-        AdjLabel label;
+        Label label;
         if (tunnelServiceEntity.getMainPath().size() > 0) {
             ExplicitPath masterPath = new ExplicitPath();
             masterPath.setDevice(device);
             masterPath.setPathName(mainPathExplicitPathName);
-            Map<String, AdjLabel> masterLabelMap = new LinkedHashMap<>();
+            Map<String, Label> masterLabelMap = new LinkedHashMap<>();
             for (TunnelHopServiceEntity entity : tunnelServiceEntity.getMainPath()) {
-                label = new AdjLabel();
+                label = new Label();
                 Device entityDevice = deviceManager.getDevice(entity.getRouterId());
                 label.setDevice(entityDevice);
                 label.setValue(Integer.valueOf(entity.getAdjlabel()));
@@ -169,9 +219,9 @@ public class TunnelServiceImpl implements TunnelService {
             ExplicitPath slavePath = new ExplicitPath();
             slavePath.setDevice(device);
             slavePath.setPathName(backPathExplicitPathName);
-            Map<String, AdjLabel> slaveLabelMap = new LinkedHashMap<>();
+            Map<String, Label> slaveLabelMap = new LinkedHashMap<>();
             for (TunnelHopServiceEntity entity : tunnelServiceEntity.getBackPath()) {
-                label = new AdjLabel();
+                label = new Label();
                 Device entityDevice = deviceManager.getDevice(entity.getRouterId());
                 label.setDevice(entityDevice);
                 label.setValue(Integer.valueOf(entity.getAdjlabel()));
@@ -284,88 +334,17 @@ public class TunnelServiceImpl implements TunnelService {
     public Map<String, Object> deleteTunnel(String routerId, String tunnelName) {
         LOG.info("deleteTunnel : routerId " + routerId + " tunnelName " + tunnelName);
         Map<String, Object> map = new HashMap<>();
-        Tunnel tunnel = null;
-        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         List<Tunnel> tunnelList = tunnelManager.getTunnel(routerId, tunnelName);
-        ExplicitPath masterPath;
-        String mainPathExplicitPathName = null;
-        String backPathExplicitPathName = null;
-        if (tunnelList.size() > 0) {
-            tunnel = tunnelList.get(0);
-            LOG.info("masterPath :" + tunnel.getMasterPath());
-            masterPath = tunnel.getMasterPath();
-            if (null != masterPath) {
-                LOG.info("masterPath.getPathName() :" + masterPath.getPathName());
-                mainPathExplicitPathName = masterPath.getPathName();
-            }
-            LOG.info("slvePath :" + tunnel.getSlavePath());
-            if (null != tunnel.getSlavePath()) {
-                backPathExplicitPathName = tunnel.getSlavePath().getPathName();
-            }
-        }
-        boolean flag = false;
-        Device device = deviceManager.getDevice(routerId);
-        if (device != null) {
-            LOG.info(device.getNetConf().getIp().getAddress());
-        } else {
-            LOG.info("get device is null,which routerId is " + routerId);
-            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + routerId);
+        if (tunnelList == null) {
             return map;
         }
-        //String deviceIp = device.getNetConf().getIp().getAddress();
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        LOG.info(SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
-        String result = netconfController.sendMessage(netconfClient, SrTeTunnelXml.getDeleteSrTeTunnelXml(tunnelName));
-
-        if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
-
-            //delete static bfd start
-            this.deleteBfdSessions(netconfClient,tunnel);
-            //delete static bfd end
-
-            flag = true;
-        } else {
-            map.put(ResponseEnum.MESSAGE.getName(), "delete tunnel error: " + result + " .");
-            return map;
-        }
-        if (flag) {
-            List<SExplicitPath> explicitPaths = new ArrayList<>();
-            if (null != mainPathExplicitPathName) {
-                String mainPath = tunnelName + link;
-                if (mainPath.equals(mainPathExplicitPathName)) {
-                    SExplicitPath mainExplicitPath = new SExplicitPath();
-                    mainExplicitPath.setExplicitPathName(mainPathExplicitPathName);
-                    explicitPaths.add(mainExplicitPath);
-                }
-            }
-            if (null != backPathExplicitPathName) {
-                String backPath = tunnelName + linkback;
-                if (backPath.equals(backPathExplicitPathName)) {
-                    SExplicitPath backExplicitPath = new SExplicitPath();
-                    backExplicitPath.setExplicitPathName(backPathExplicitPathName);
-                    explicitPaths.add(backExplicitPath);
-                }
-            }
-            if (explicitPaths.size() > 0) {
-                LOG.info(ExplicitPathXml.getDeleteExplicitPathXml(explicitPaths));
-                result = netconfController.sendMessage(netconfClient, ExplicitPathXml.getDeleteExplicitPathXml(explicitPaths));
-                if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
-                    device.getTunnelList().removeAll(tunnelManager.getTunnel(routerId, tunnelName));
-                    LOG.info("deleteTunnel routerId :" + routerId);
-                    boolean deleteFlag = tunnelManager.deleteTunnel(routerId, tunnelName);
-                    LOG.info("tunnel（" + tunnelName + "）deleteFlag :" + deleteFlag);
-                    map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-                } else {
-                    map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-                    map.put(ResponseEnum.MESSAGE.getName(), "delete explicit path error: " + result);
-                }
-            } else {
-                device.getTunnelList().removeAll(tunnelManager.getTunnel(routerId, tunnelName));
-                LOG.info("deleteTunnel routerId :" + routerId);
-                boolean deleteFlag = tunnelManager.deleteTunnel(routerId, tunnelName);
-                LOG.info("tunnel（" + tunnelName + "）deleteFlag :" + deleteFlag);
-                map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            }
+        NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+        List<String> tunnelNames = new ArrayList<>();
+        tunnelNames.add(tunnelName);
+        if (!tunnelManager.deleteTunnels(tunnelNames,routerId,netconfClient)) {
+            map.put(ResponseEnum.MESSAGE.getName(), "Delete tunnel fail");
+            map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         }
         return map;
     }
@@ -448,11 +427,10 @@ public class TunnelServiceImpl implements TunnelService {
         SExplicitPath explicitPath;
         BfdSession bfdSession;
         ExplicitPath path;
-        Map<String, AdjLabel> labelMap;
+        Map<String, Label> labelMap;
         String masterPath = null;
         String slavePath;
-        AdjLabel adjLabel;
-        AdjLabel adjLabelTemp;
+
         for (SSrTeTunnel srTeTunnel : srTeTunnels) {
             tunnel = new Tunnel();
             Device destDevice = this.deviceManager.getDevice(srTeTunnel.getMplsTunnelEgressLSRId());
@@ -515,8 +493,8 @@ public class TunnelServiceImpl implements TunnelService {
                     labelMap = new LinkedHashMap<>();
                     List<SExplicitPathHop> sExplicitPathHops = sExplicitPath.getExplicitPathHops();
                     for (SExplicitPathHop hop : sExplicitPathHops) {
-                        adjLabel = new AdjLabel();
                         if (hop.getMplsTunnelHopSidLabelType().equals(SExplicitPathHop.SIDLABEL_TYPE_ADJACENCY)) {
+                            Label adjLabel = new Label();
                             if (flag) {
                                 adjLabel.setDevice(deviceTemp);
                                 for (AdjLabel label : deviceTemp.getAdjLabelList()) {
@@ -536,14 +514,17 @@ public class TunnelServiceImpl implements TunnelService {
                                 flag = false;
                             }
                             adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                            adjLabel.setType(LabelTypeEnum.ADJACENCY.getCode());
                             labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
                         } else {
                             deviceTemp = deviceManager.getDeviceByNodeLabelValue(Integer.parseInt(hop.getMplsTunnelHopSidLabel()));
                             if (deviceTemp != null) {
-                                adjLabel.setDevice(deviceTemp);
-                                adjLabel.setAddressLocal(new Address(deviceTemp.getRouterId(), AddressTypeEnum.V4));
-                                adjLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
-                                labelMap.put(hop.getMplsTunnelHopIndex(), adjLabel);
+                                Label nodeLabel = new Label();
+                                nodeLabel.setType(LabelTypeEnum.PREFIX.getCode());
+                                nodeLabel.setAddressLocal(new Address(deviceTemp.getRouterId(), AddressTypeEnum.V4));
+                                nodeLabel.setDevice(deviceTemp);
+                                nodeLabel.setValue(Integer.valueOf(hop.getMplsTunnelHopSidLabel()));
+                                labelMap.put(hop.getMplsTunnelHopIndex(), nodeLabel);
                             }
                         }
                     }
