@@ -45,6 +45,7 @@ public class SrTeTunnelXml {
                     "              <lsp_tpEnable>true</lsp_tpEnable>" +
                     "              <statEnable>true</statEnable>\n" +
                     "            </tunnelInterface>\n";
+
             if ("".equals(srTeTunnel.getMplsTeTunnelBfdMinTx()) || "".equals(srTeTunnel.getMplsTeTunnelBfdMinnRx())
                     || "".equals(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier())) {
                 LOG.info("bfd is not set.");
@@ -57,6 +58,7 @@ public class SrTeTunnelXml {
                         "              <mplsTeTunnelBfdDetectMultiplier>" + srTeTunnel.getMplsTeTunnelBfdDetectMultiplier() + "</mplsTeTunnelBfdDetectMultiplier>\n" +
                         "            </mplsTeTunnelBfd>\n";
             }
+
             String pathsStart = "";
             if (srTeTunnel.getSrTeTunnelPaths() != null && srTeTunnel.getSrTeTunnelPaths().size() > 0) {
                 pathsStart = "            <srTeTunnelPaths>\n";
@@ -192,5 +194,34 @@ public class SrTeTunnelXml {
                 "</edit-config>\n" +
                 "</rpc>";
         return start;
+    }
+
+
+    public static String getDeleteSrTeTunnelsXml(List<String> tunnelNames) {
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <target>\n" +
+                "    <running/>\n" +
+                "  </target>\n" +
+                "  <config>\n" +
+                "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                "      <mpls:mplsTe>\n" +
+                "        <mpls:srTeTunnels>\n";
+
+        String middle = "";
+        for (String tunnelName : tunnelNames) {
+            middle = middle +
+                    "          <mpls:srTeTunnel xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                    "            <mpls:tunnelName>" + tunnelName + "</mpls:tunnelName>\n" +
+                    "          </mpls:srTeTunnel>\n";
+        }
+
+        String end ="        </mpls:srTeTunnels>\n" +
+                "      </mpls:mplsTe>\n" +
+                "    </mpls:mpls>\n" +
+                "  </config>\n" +
+                "</edit-config>\n" +
+                "</rpc>";
+        return start + middle + end;
     }
 }

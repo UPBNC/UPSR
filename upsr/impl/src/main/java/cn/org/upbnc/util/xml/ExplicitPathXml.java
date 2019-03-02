@@ -112,6 +112,34 @@ public class ExplicitPathXml {
         return start + middle + end;
     }
 
+    public static String getDeleteExplicitPathByNamesXml(List<String> explicitPaths){
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <target>\n" +
+                "    <running/>\n" +
+                "  </target>\n" +
+                "  <config>\n" +
+                "    <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                "      <mplsTe>\n" +
+                "        <explicitPaths>\n";
+        String middle = "";
+        for (String explicitPath : explicitPaths) {
+            middle = middle +
+
+                    "          <explicitPath xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                    "            <explicitPathName>" + explicitPath + "</explicitPathName>\n" +
+                    "          </explicitPath>\n";
+        }
+        String end =
+                "        </explicitPaths>\n" +
+                        "      </mplsTe>\n" +
+                        "    </mpls>\n" +
+                        "  </config>\n" +
+                        "</edit-config>" +
+                        "</rpc>";
+        return start + middle + end;
+    }
+
     public static List<SExplicitPath> getExplicitPathFromXml(String xml) {
         List<SExplicitPath> explicitPaths = new ArrayList<>();
         SExplicitPath explicitPath;

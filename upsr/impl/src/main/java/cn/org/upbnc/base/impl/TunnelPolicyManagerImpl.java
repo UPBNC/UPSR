@@ -320,10 +320,10 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
         List<STunnelPolicy> sTunnelPolicies = this.tunnelPolicyListToSTunnelPolicyList(tunnelPolicies);
 
         String commandCreateTunnelPolicyXml = TunnelPolicyXml.createTunnelPolicyXml(sTunnelPolicies);
-        LOG.info("commandCreateTunnelPolicyXml: " + commandCreateTunnelPolicyXml);
+        LOG.info("CommandCreateTunnelPolicyXml: " + commandCreateTunnelPolicyXml);
 
         String outPutTunnelPolicyXml = netconfController.sendMessage(netconfClient, commandCreateTunnelPolicyXml);
-        LOG.info("outPutSrNodeLabelXml: " + outPutTunnelPolicyXml);
+        LOG.info("OutPutTunnelPolicyXml: " + outPutTunnelPolicyXml);
 
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutTunnelPolicyXml));
     }
@@ -332,11 +332,11 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
     private boolean deleteTunnelPolicyFromDeviceByNameList(List<String> names,NetconfClient netconfClient){
 
         String commandDeleteTunnelPolicyXml = TunnelPolicyXml.deleteTunnelPolicyXml(names);
-        LOG.info("commandCreateTunnelPolicyXml: " + commandDeleteTunnelPolicyXml);
+        LOG.info("CommandDeleteTunnelPolicyXml: " + commandDeleteTunnelPolicyXml);
 
-        String outPutTunnelPolicyXml = netconfController.sendMessage(netconfClient, commandDeleteTunnelPolicyXml);
-        LOG.info("outPutSrNodeLabelXml: " + outPutTunnelPolicyXml);
+        String outPutDeleteTunnelPolicyXml = netconfController.sendMessage(netconfClient, commandDeleteTunnelPolicyXml);
+        LOG.info("OutPutDeleteTunnelPolicyXml: " + outPutDeleteTunnelPolicyXml);
 
-        return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutTunnelPolicyXml));
+        return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutDeleteTunnelPolicyXml));
     }
 }

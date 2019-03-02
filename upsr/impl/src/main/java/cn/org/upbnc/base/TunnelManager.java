@@ -38,6 +38,8 @@ public interface TunnelManager {
 
     boolean isBfdDiscriminatorLocalUsed(int i);
 
-    boolean createTunnels(List<Tunnel> tunnels, NetconfClient netconfClient);
+    boolean createTunnels(List<Tunnel> tunnels, NetconfClient netconfClient,String routerId);
+
+    boolean deleteTunnels(List<String> tunnels, NetconfClient netconfClient,String routerId);
 
 }
