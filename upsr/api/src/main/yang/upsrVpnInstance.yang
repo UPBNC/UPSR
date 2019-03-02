@@ -132,6 +132,7 @@ module upsrVpnInstance {
                 leaf vpnRt { type string; }
                 leaf businessArea { type string; }
                 leaf notes { type string; }
+                leaf useTemplate { type string; }
                 uses updateBindDevices;
             }
         }

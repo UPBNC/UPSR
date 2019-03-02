@@ -14,7 +14,7 @@ public class ExplicitPath {
     private Integer id;
     private Device device;
     private String pathName;
-    private Map<String, AdjLabel> labelMap;
+    private Map<String, Label> labelMap;
 
     public ExplicitPath() {
     }
@@ -43,11 +43,11 @@ public class ExplicitPath {
         this.pathName = pathName;
     }
 
-    public Map<String, AdjLabel> getLabelMap() {
+    public Map<String, Label> getLabelMap() {
         return labelMap;
     }
 
-    public void setLabelMap(Map<String, AdjLabel> labelMap) {
+    public void setLabelMap(Map<String, Label> labelMap) {
         this.labelMap = labelMap;
     }
 

@@ -1,6 +1,7 @@
 package cn.org.upbnc.enumtype;
 
 public enum TunnelServiceClassEnum {
+    Empty(0,""),
     AF1(1, "af1"),
     AF2(2, "af2"),
     AF3(3, "af3"),
@@ -21,5 +22,19 @@ public enum TunnelServiceClassEnum {
 
     public String getName() {
         return name;
+    }
+
+    public static Integer nameToCode(String name) {
+        if (AF1.name.equals(name)) {
+            return AF1.code;
+        } else if (AF2.name.equals(name)) {
+            return AF2.code;
+        } else if (AF3.name.equals(name)){
+            return AF3.code;
+        } else if (EF.name.equals(name)) {
+            return EF.code;
+        } else {
+            return Empty.code;
+        }
     }
 }

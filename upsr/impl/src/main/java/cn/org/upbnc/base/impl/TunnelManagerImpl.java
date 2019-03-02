@@ -8,10 +8,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.TunnelManager;
-import cn.org.upbnc.entity.AdjLabel;
-import cn.org.upbnc.entity.BfdSession;
-import cn.org.upbnc.entity.ExplicitPath;
-import cn.org.upbnc.entity.Tunnel;
+import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.BfdTypeEnum;
 import cn.org.upbnc.enumtype.LabelTypeEnum;
 import cn.org.upbnc.util.netconf.*;
@@ -396,12 +393,12 @@ public class TunnelManagerImpl implements TunnelManager {
 
         ret.setExplicitPathName(explicitPath.getPathName());
         List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
-        Set<Map.Entry<String, AdjLabel>> set = explicitPath.getLabelMap().entrySet();
+        Set<Map.Entry<String, Label>> set = explicitPath.getLabelMap().entrySet();
 
-        for( Map.Entry<String,AdjLabel> entry: set ){
+        for( Map.Entry<String,Label> entry: set ){
             SExplicitPathHop explicitPathHop = new SExplicitPathHop();
-            AdjLabel adjLabel = entry.getValue();
-            if(adjLabel.getType() == LabelTypeEnum.PREFIX.getCode()){
+            Label label = entry.getValue();
+            if(label.getType() == LabelTypeEnum.PREFIX.getCode()){
                 explicitPathHop.setMplsTunnelHopSidLabelType(LabelTypeEnum.PREFIX.getName());
             }
             explicitPathHop.setMplsTunnelHopIndex(entry.getKey());
