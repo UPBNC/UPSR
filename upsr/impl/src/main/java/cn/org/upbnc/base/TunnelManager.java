@@ -28,9 +28,9 @@ public interface TunnelManager {
 
     boolean checkTunnelNameAndId(String routerId, String tunnelName, String tunnelId);
 
-    boolean addBfdSession(BfdSession bfdSession);
-
-    boolean deleteBfdSession(String name);
+//    boolean addBfdSession(BfdSession bfdSession,String routerId);
+//
+//    boolean deleteBfdSession(String name,String routerId);
 
     boolean isBfdDiscriminatorLocal(Integer local);
 

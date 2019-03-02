@@ -31,7 +31,7 @@ public class TunnelManagerImpl implements TunnelManager {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelManager.class);
     private static TunnelManager instance = null;
     private Map<String, Map<String, Tunnel>> tunnelMap;
-    private Map<Integer, BfdSession> bfdSessionMap;
+    private Map<String,Map<Integer, BfdSession>> bfdSessionMap;
     private final int MAX_LOCAL= 65535;
     private final String Link = "Link";
     private final String Linkback = "Linkback";
@@ -39,7 +39,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
     private TunnelManagerImpl() {
         this.tunnelMap = new ConcurrentHashMap<>();
-        this.bfdSessionMap = new HashMap<Integer, BfdSession>();
+        this.bfdSessionMap = new ConcurrentHashMap<String, Map<Integer, BfdSession>>();
     }
 
     public static TunnelManager getInstance() {
@@ -135,23 +135,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return flag;
     }
 
-    @Override
-    public boolean addBfdSession(BfdSession bfdSession){
-        this.bfdSessionMap.put(Integer.parseInt(bfdSession.getDiscriminatorLocal()),bfdSession);
-        return true;
-    }
 
-    @Override
-    public boolean deleteBfdSession(String name){
-        Iterator<BfdSession> iterator = this.bfdSessionMap.values().iterator();
-        while (iterator.hasNext()){
-            BfdSession bfdSession = iterator.next();
-            if(bfdSession.getBfdName().equals(name)){
-                this.bfdSessionMap.remove(Integer.parseInt(bfdSession.getDiscriminatorLocal()));
-            }
-        }
-        return true;
-    }
 
     @Override
     public boolean isBfdDiscriminatorLocal(Integer local){
@@ -189,10 +173,16 @@ public class TunnelManagerImpl implements TunnelManager {
 
             if(isCreate){
                 Map<String, Tunnel> map = this.tunnelMap.get(routerId);
+                Map<Integer, BfdSession> bfdMap = this.bfdSessionMap.get(routerId);
 
                 if (null == map) {
                     map = new ConcurrentHashMap<>();
                     this.tunnelMap.put(routerId,map);
+                }
+
+                if(null == bfdMap){
+                    bfdMap = new ConcurrentHashMap<>();
+                    this.bfdSessionMap.put(routerId,bfdMap);
                 }
 
                 for(Tunnel t : tunnels) {
@@ -201,11 +191,11 @@ public class TunnelManagerImpl implements TunnelManager {
 
                     // add bfd to map
                     if(null != t.getTunnelBfd()){
-                        this.bfdSessionMap.put(Integer.parseInt(t.getTunnelBfd().getDiscriminatorLocal()), t.getTunnelBfd());
+                        bfdMap.put(Integer.parseInt(t.getTunnelBfd().getDiscriminatorLocal()), t.getTunnelBfd());
                     }
 
                     if (null != t.getMasterBfd()){
-                        this.bfdSessionMap.put(Integer.parseInt(t.getMasterBfd().getDiscriminatorLocal()), t.getMasterBfd());
+                        bfdMap.put(Integer.parseInt(t.getMasterBfd().getDiscriminatorLocal()), t.getMasterBfd());
                     }
                 }
             }
@@ -250,6 +240,11 @@ public class TunnelManagerImpl implements TunnelManager {
         boolean isCreateTunnels = this.createTunnelListToDevice(srTeTunnels,netconfClient);
         if(!isCreateTunnels){
             //delete paths
+            List<String> list = new ArrayList<>();
+            for(SExplicitPath s : explicitPaths){
+                list.add(s.getExplicitPathName());
+            }
+            this.deleteExplicitPathsFromDeviceByNameList(list,netconfClient);
 
             return false;
         }
@@ -257,7 +252,19 @@ public class TunnelManagerImpl implements TunnelManager {
         boolean isCreateBfds = this.createBfdSessionsToDevice(sBfdCfgSessions,netconfClient);
         if(!isCreateBfds){
             //delete paths
+            List<String> pathList = new ArrayList<>();
+            for(SExplicitPath s : explicitPaths){
+                pathList.add(s.getExplicitPathName());
+            }
+            this.deleteExplicitPathsFromDeviceByNameList(pathList,netconfClient);
+
+
             //delete tunnels
+            List<String> tunnelList = new ArrayList<>();
+            for(SSrTeTunnel sr : srTeTunnels){
+                tunnelList.add(sr.getTunnelName());
+            }
+            this.deleteTunnelListFromDeviceByNameList(tunnelList,netconfClient);
             return false;
         }
 
@@ -452,12 +459,16 @@ public class TunnelManagerImpl implements TunnelManager {
         //delete bfds from device
         boolean isDeleteBfdSessions = this.deleteBfdSessionsFromDeviceByNameList(bfdNames,netconfClient);
         //delete bfds from map
-        // ...
+        if(isDeleteBfdSessions){
+            this.deleteBfdSessionsFromBase(bfdNames,routerId);
+        }
 
         //delete tunnels from device
         boolean isDeleteTunnels = this.deleteTunnelListFromDeviceByNameList(tunnels,netconfClient);
         //delete from map
-        // ...
+        if(isDeleteTunnels){
+            this.deleteTunnelsFromBase(tunnels,routerId);
+        }
 
         //delete paths from device
         boolean isDeleteExplicitPaths = this.deleteExplicitPathsFromDeviceByNameList(pathNames,netconfClient);
@@ -518,6 +529,61 @@ public class TunnelManagerImpl implements TunnelManager {
         }
 
         return pathName;
+    }
+
+
+
+    private void deleteBfdSessionsFromBase(List<String> names,String routerId){
+        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
+        if(null != map) {
+            Map<Integer,BfdSession> newMap = new ConcurrentHashMap<>(map);
+
+            Iterator<BfdSession> iterator = newMap.values().iterator();
+            while (iterator.hasNext()) {
+                BfdSession bfdSession = iterator.next();
+                for(String name : names) {
+                    if (bfdSession.getBfdName().equals(name)) {
+                        map.remove(Integer.parseInt(bfdSession.getDiscriminatorLocal()));
+                    }
+                }
+            }
+        }
+        return;
+    }
+
+    private void deleteTunnelsFromBase(List<String> names,String routerId){
+        Map<String,Tunnel> map = this.tunnelMap.get(routerId);
+        if(null != map) {
+            for(String name : names){
+                map.remove(name);
+            }
+        }
+        return;
+    }
+
+
+    private boolean addBfdSessionToBase(BfdSession bfdSession,String routerId){
+        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
+        if(null == map){
+            map = new ConcurrentHashMap<Integer, BfdSession>();
+            this.bfdSessionMap.put(bfdSession.getDevice().getRouterId(),map);
+        }
+        map.put(Integer.parseInt(bfdSession.getDiscriminatorLocal()),bfdSession);
+        return true;
+    }
+
+    private boolean deleteBfdSessionFromBase(String name,String routerId){
+        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
+        if(null != map) {
+            Iterator<BfdSession> iterator = map.values().iterator();
+            while (iterator.hasNext()) {
+                BfdSession bfdSession = iterator.next();
+                if (bfdSession.getBfdName().equals(name)) {
+                    map.remove(Integer.parseInt(bfdSession.getDiscriminatorLocal()));
+                }
+            }
+        }
+        return true;
     }
 
 }
