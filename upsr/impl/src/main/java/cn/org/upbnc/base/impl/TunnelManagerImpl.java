@@ -216,12 +216,22 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean syncTunnelsConf(String routerId,NetconfClient netconfClient){
-        boolean isSync = false;
+    public Map<String,Tunnel> syncTunnelsConf(String routerId,NetconfClient netconfClient){
+        Map<String,Tunnel> ret = null;
         if(null != routerId){
-            Map<String,Tunnel> tempTunnelMap = this.getTunnelListFromDeviceByRouterId(routerId,netconfClient);
+            // get bfds from device
+            List<SBfdCfgSession> sBfdCfgSessions = this.getBfdSessionsFromDeviceByRouterId(netconfClient);
+
+            // get tunnels from device
+            List<SSrTeTunnel> sSrTeTunnels = this.getTunnelListFromDeviceByRouterId(netconfClient);
+
+            // get explicit paths from device
+            List<SExplicitPath> sExplicitPaths =  this.getExplicitPathsFromDeviceByRouterId(netconfClient);
+
+            //
+
         }
-        return isSync;
+        return ret;
     }
 
     private boolean createTunnelListTotalToDevice(List<Tunnel> tunnels, NetconfClient netconfClient){
@@ -568,8 +578,82 @@ public class TunnelManagerImpl implements TunnelManager {
         return;
     }
 
-    private Map<String,Tunnel> getTunnelListFromDeviceByRouterId(String routerId,NetconfClient netconfClient){
-        Map<String,Tunnel> ret = new ConcurrentHashMap<>();
+    private List<SBfdCfgSession> getBfdSessionsFromDeviceByRouterId(NetconfClient netconfClient){
+
+        String commandGetBfdSessionsXml = BfdCfgSessionXml.getBfdCfgSessionsXml();
+        LOG.info("CommandGetBfdSessionsXml: " + commandGetBfdSessionsXml);
+
+        String outPutGetBfdSessionsXml = netconfController.sendMessage(netconfClient, commandGetBfdSessionsXml);
+        LOG.info("OutPutGetTunnelsXml: " + outPutGetBfdSessionsXml);
+        List<SBfdCfgSession> ret = BfdCfgSessionXml.getBfdCfgSessionsFromXml(outPutGetBfdSessionsXml);
+
+        return ret;
+    }
+
+    private List<SSrTeTunnel> getTunnelListFromDeviceByRouterId(NetconfClient netconfClient){
+
+        String commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml("");
+        LOG.info("CommandGetTunnelsXml: " + commandGetTunnelsXml);
+
+        String outPutGetTunnelsXml = netconfController.sendMessage(netconfClient, commandGetTunnelsXml);
+        LOG.info("OutPutGetTunnelsXml: " + outPutGetTunnelsXml);
+
+        List<SSrTeTunnel> ret = SrTeTunnelXml.getSrTeTunnelFromXml(outPutGetTunnelsXml);
+
+        return ret;
+    }
+
+    private List<SExplicitPath> getExplicitPathsFromDeviceByRouterId(NetconfClient netconfClient){
+
+        List<SExplicitPath> ret = null;
+        return ret;
+    }
+
+    private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath explicitPath){
+        ExplicitPath ret = null;
+        return ret;
+    }
+
+    private Tunnel sSrTeTunnelToTunnel(SSrTeTunnel sSrTeTunnel){
+        Tunnel ret = new Tunnel();
+
+//        ret.setTunnelName(sSrTeTunnel.getTunnelName());
+//        ret.setEgressLSRId(sSrTeTunnel.getMplsTunnelEgressLSRId());
+//        ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
+//        ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
+//
+//        if(sSrTeTunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+//            ret.setMplsTeTunnelBfdMinTx(tunnel.getDynamicBfd().getMinSendTime());
+//            ret.setMplsTeTunnelBfdMinnRx(tunnel.getDynamicBfd().getMinRecvTime());
+//            ret.setMplsTeTunnelBfdDetectMultiplier(tunnel.getDynamicBfd().getMultiplier());
+//        }else{
+//            ret.setMplsTeTunnelBfdMinTx("");
+//            ret.setMplsTeTunnelBfdMinnRx("");
+//            ret.setMplsTeTunnelBfdDetectMultiplier("");
+//        }
+//
+//        sSrTeTunnel.getMplsTeTunnelBfdMinTx();
+//        sSrTeTunnel.getMplsTeTunnelBfdMinnRx();
+//        sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier();
+//
+//        List<SSrTeTunnelPath> srTeTunnelPaths = new ArrayList<>();
+//        if(null != tunnel.getMasterPath()){
+//            SSrTeTunnelPath masterPath = new SSrTeTunnelPath();
+//            masterPath.setExplicitPathName(tunnel.getMasterPath().getPathName());
+//            masterPath.setPathType("primary");
+//            srTeTunnelPaths.add(masterPath);
+//
+//        }
+//
+//        if(null != tunnel.getSlavePath()){
+//            SSrTeTunnelPath slavePath = new SSrTeTunnelPath();
+//            slavePath.setExplicitPathName(tunnel.getSlavePath().getPathName());
+//            slavePath.setPathType("hotStandby");
+//            srTeTunnelPaths.add(slavePath);
+//        }
+//
+//        ret.setSrTeTunnelPaths(srTeTunnelPaths);
+
         return ret;
     }
 

@@ -12,6 +12,7 @@ import cn.org.upbnc.entity.Tunnel;
 import cn.org.upbnc.util.netconf.NetconfClient;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TunnelManager {
     Tunnel createTunnel(Tunnel tunnel);
@@ -42,6 +43,6 @@ public interface TunnelManager {
 
     boolean deleteTunnels(List<String> tunnels,String routerId, NetconfClient netconfClient);
 
-    boolean syncTunnelsConf(String routerId,NetconfClient netconfClient);
+    Map<String,Tunnel> syncTunnelsConf(String routerId, NetconfClient netconfClient);
 
 }
