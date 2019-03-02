@@ -19,11 +19,13 @@ public class Tunnel {
     private String destRouterId;
     private String destDeviceName;
     private String bandWidth = "0";
+    private String egressLSRId;
+
     private ExplicitPath masterPath;
     private ExplicitPath slavePath;
-    private Boolean bfdEnable;
-    private BfdSession bfdSession;
+
     private boolean RefreshFlag;
+
     private Integer bfdType;
     private BfdSession dynamicBfd;
     private BfdSession masterBfd;
@@ -121,21 +123,6 @@ public class Tunnel {
         this.slavePath = slavePath;
     }
 
-    public BfdSession getBfdSession() {
-        return bfdSession;
-    }
-
-    public Boolean getBfdEnable() {
-        return bfdEnable;
-    }
-
-    public void setBfdEnable(Boolean bfdEnable) {
-        this.bfdEnable = bfdEnable;
-    }
-
-    public void setBfdSession(BfdSession bfdSession) {
-        this.bfdSession = bfdSession;
-    }
 
     public BfdSession getDynamicBfd() {
         return dynamicBfd;
@@ -177,6 +164,14 @@ public class Tunnel {
         this.serviceClass = serviceClass;
     }
 
+    public String getEgressLSRId() {
+        return egressLSRId;
+    }
+
+    public void setEgressLSRId(String egressLSRId) {
+        this.egressLSRId = egressLSRId;
+    }
+
     @Override
     public String toString() {
         return "Tunnel{" +
@@ -190,8 +185,6 @@ public class Tunnel {
                 ", bandWidth='" + bandWidth + '\'' +
                 ", masterPath=" + masterPath +
                 ", slavePath=" + slavePath +
-                ", bfdEnable=" + bfdEnable +
-                ", bfdSession=" + bfdSession +
                 ", RefreshFlag=" + RefreshFlag +
                 '}';
     }

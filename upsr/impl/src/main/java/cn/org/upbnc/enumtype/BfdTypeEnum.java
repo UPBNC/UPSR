@@ -1,6 +1,7 @@
 package cn.org.upbnc.enumtype;
 
 public enum BfdTypeEnum {
+    Empty(0,"Empty"),
     Dynamic(1,"Dynamic"),
     Static(2,"Static"),
     Tunnel(3,"Tunnel"),

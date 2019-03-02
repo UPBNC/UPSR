@@ -10,6 +10,9 @@ package cn.org.upbnc.base.impl;
 import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.BfdSession;
 import cn.org.upbnc.entity.Tunnel;
+import cn.org.upbnc.enumtype.BfdTypeEnum;
+import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.netconf.SSrTeTunnel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,5 +163,56 @@ public class TunnelManagerImpl implements TunnelManager {
         } else {
             return false;
         }
+    }
+
+
+    @Override
+    public boolean createTunnels(List<Tunnel> tunnels, NetconfClient netconfClient){
+        boolean isCreate = false;
+
+        if(null != tunnels && !tunnels.isEmpty()){
+            isCreate = this.createTunnelListToDevice(tunnels,netconfClient);
+
+            if(isCreate){
+                for(Tunnel t : tunnels){
+                    Map<String, Tunnel> map = this.tunnelMap.get(t.getDevice().getRouterId());
+                    if( null == map) {
+                        map = new ConcurrentHashMap<>();
+                        this.tunnelMap.put(t.getDevice().getRouterId(),map);
+                    }
+                    map.put(t.getTunnelName(), t);
+                }
+            }
+        }
+
+        return isCreate;
+    }
+
+    private boolean createTunnelListToDevice(List<Tunnel> tunnels, NetconfClient netconfClient){
+        List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
+        for(Tunnel t : tunnels){
+            srTeTunnels.add(this.tunnelToSSrTeTunnel(t));
+        }
+
+        return true;
+    }
+
+    private SSrTeTunnel tunnelToSSrTeTunnel(Tunnel tunnel){
+        SSrTeTunnel ret = new SSrTeTunnel();
+
+        ret.setTunnelName(tunnel.getTunnelName());
+        ret.setMplsTunnelEgressLSRId(tunnel.getEgressLSRId());
+        ret.setMplsTunnelIndex(tunnel.getTunnelId());
+        ret.setMplsTunnelBandwidth(tunnel.getBandWidth());
+
+        if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+
+            ret.setMplsTeTunnelBfdMinTx(tunnel.getDynamicBfd().getMinSendTime());
+            ret.setMplsTeTunnelBfdMinnRx(tunnel.getDynamicBfd().getMinRecvTime());
+            ret.setMplsTeTunnelBfdDetectMultiplier(tunnel.getDynamicBfd().getMultiplier());
+        }
+
+
+        return ret;
     }
 }

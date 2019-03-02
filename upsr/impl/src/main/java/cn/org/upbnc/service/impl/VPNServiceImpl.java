@@ -887,7 +887,6 @@ public class VPNServiceImpl implements VPNService {
 
         tunnelSD.setDevice(s);
         tunnelSD.setBfdType(BfdTypeEnum.Static.getCode());
-        tunnelSD.setBfdEnable(true);
         tunnelSD.setDestRouterId(d.getRouterId());
         tunnelSD.setServiceClass(serviceClassType);
         tunnelSD.setTunnelName(this.getTunnelName(s.getRouterId()));
@@ -895,7 +894,6 @@ public class VPNServiceImpl implements VPNService {
 
         tunnelDS.setDevice(d);
         tunnelDS.setBfdType(BfdTypeEnum.Static.getCode());
-        tunnelDS.setBfdEnable(true);
         tunnelDS.setDestRouterId(s.getRouterId());
         tunnelDS.setServiceClass(serviceClassType);
         tunnelDS.setTunnelName(this.getTunnelName(s.getRouterId()));

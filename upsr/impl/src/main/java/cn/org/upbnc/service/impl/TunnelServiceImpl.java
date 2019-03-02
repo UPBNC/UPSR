@@ -113,7 +113,6 @@ public class TunnelServiceImpl implements TunnelService {
         } else {
             tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
         }
-        tunnel.setBfdEnable(true);
         tunnel.setDestRouterId(tunnelServiceEntity.getEgressLSRId());
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
         tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
@@ -131,11 +130,10 @@ public class TunnelServiceImpl implements TunnelService {
             // Bfd dynamic
             BfdSession bfdSession = new BfdSession();
             bfdSession.setDevice(device);
-            bfdSession.setMinRecvTime(tunnelServiceEntity.getBfdrxInterval());
-            bfdSession.setMinSendTime(tunnelServiceEntity.getBfdtxInterval());
-            bfdSession.setMultiplier(tunnelServiceEntity.getBfdMultiplier());
+            bfdSession.setMinRecvTime(tunnelServiceEntity.getDynamicBfd().getMinRecvTime());
+            bfdSession.setMinSendTime(tunnelServiceEntity.getDynamicBfd().getMinSendTime());
+            bfdSession.setMultiplier(tunnelServiceEntity.getDynamicBfd().getMultiplier());
             bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
-            tunnel.setBfdSession(bfdSession);
             tunnel.setDynamicBfd(bfdSession);
         }else if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()) {
             // Bfd static
@@ -196,9 +194,9 @@ public class TunnelServiceImpl implements TunnelService {
         String egressLSRId = tunnelServiceEntity.getEgressLSRId();
         String tunnelId = tunnelServiceEntity.getTunnelId();
         String bandwidth = tunnelServiceEntity.getBandwidth();
-        String bfdMinRx = tunnelServiceEntity.getBfdrxInterval();
-        String bfdMinTx = tunnelServiceEntity.getBfdtxInterval();
-        String multiplier = tunnelServiceEntity.getBfdMultiplier();
+        String bfdMinRx = tunnelServiceEntity.getDynamicBfd().getMinRecvTime();
+        String bfdMinTx = tunnelServiceEntity.getDynamicBfd().getMinSendTime();
+        String multiplier = tunnelServiceEntity.getDynamicBfd().getMultiplier();
         List<TunnelHopServiceEntity> mainPath = tunnelServiceEntity.getMainPath();
         List<TunnelHopServiceEntity> backPath = tunnelServiceEntity.getBackPath();
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
@@ -464,12 +462,10 @@ public class TunnelServiceImpl implements TunnelService {
             bfdSession.setMinSendTime(srTeTunnel.getMplsTeTunnelBfdMinTx());
             bfdSession.setMinRecvTime(srTeTunnel.getMplsTeTunnelBfdMinnRx());
             bfdSession.setType(BfdTypeEnum.Dynamic.getCode());
-            tunnel.setBfdSession(bfdSession);
             tunnel.setDynamicBfd(bfdSession);
             // sync dynamic bfd end
 
             tunnel.setDevice(device);
-            tunnel.setBfdEnable(true);
             tunnel.setTunnelName(srTeTunnel.getTunnelName());
             tunnel.setTunnelId(srTeTunnel.getMplsTunnelIndex());
             tunnel.setDestRouterId(srTeTunnel.getMplsTunnelEgressLSRId());

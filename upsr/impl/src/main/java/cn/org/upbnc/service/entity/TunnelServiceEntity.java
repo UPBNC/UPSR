@@ -7,13 +7,11 @@ public class TunnelServiceEntity {
     Integer bfdType;
     String tunnelId;
     String tunnelName;
-    String bfdMultiplier;
-    String bfdrxInterval;
-    String bfdtxInterval;
     String routerId;
     String egressLSRId;
     String bandwidth;
     String unNumIfName;
+
     List<TunnelHopServiceEntity> mainPath;
     List<TunnelHopServiceEntity> backPath;
 
@@ -83,29 +81,6 @@ public class TunnelServiceEntity {
         this.tunnelId = tunnelId;
     }
 
-    public String getBfdMultiplier() {
-        return bfdMultiplier;
-    }
-
-    public void setBfdMultiplier(String bfdMultiplier) {
-        this.bfdMultiplier = bfdMultiplier;
-    }
-
-    public String getBfdrxInterval() {
-        return bfdrxInterval;
-    }
-
-    public void setBfdrxInterval(String bfdrxInterval) {
-        this.bfdrxInterval = bfdrxInterval;
-    }
-
-    public String getBfdtxInterval() {
-        return bfdtxInterval;
-    }
-
-    public void setBfdtxInterval(String bfdtxInterval) {
-        this.bfdtxInterval = bfdtxInterval;
-    }
 
     public List<TunnelHopServiceEntity> getMainPath() {
         return mainPath;
@@ -160,9 +135,6 @@ public class TunnelServiceEntity {
         return "TunnelServiceEntity{" +
                 "tunnelId='" + tunnelId + '\'' +
                 ", tunnelName='" + tunnelName + '\'' +
-                ", bfdMultiplier='" + bfdMultiplier + '\'' +
-                ", bfdrxInterval='" + bfdrxInterval + '\'' +
-                ", bfdtxInterval='" + bfdtxInterval + '\'' +
                 ", routerId='" + routerId + '\'' +
                 ", egressLSRId='" + egressLSRId + '\'' +
                 ", bandwidth='" + bandwidth + '\'' +

@@ -86,9 +86,9 @@ public class TunnelODLApi implements UpsrTunnelService {
             // set dynamic bfd
             if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
                 tunnelBfdBuilder = new TunnelBfdBuilder();
-                tunnelBfdBuilder.setBfdMultiplier(tunnel.getBfdSession().getMultiplier());
-                tunnelBfdBuilder.setBfdrxInterval(tunnel.getBfdSession().getMinRecvTime());
-                tunnelBfdBuilder.setBfdtxInterval(tunnel.getBfdSession().getMinSendTime());
+                tunnelBfdBuilder.setBfdMultiplier(tunnel.getDynamicBfd().getMultiplier());
+                tunnelBfdBuilder.setBfdrxInterval(tunnel.getDynamicBfd().getMinRecvTime());
+                tunnelBfdBuilder.setBfdtxInterval(tunnel.getDynamicBfd().getMinSendTime());
                 tunnelInstancesBuilder.setTunnelBfd(tunnelBfdBuilder.build());
 
             }else if(tunnel.getBfdType() == BfdTypeEnum.Static.getCode()) {// set static bfd
@@ -228,7 +228,7 @@ public class TunnelODLApi implements UpsrTunnelService {
         //end
 
 
-        this.tunnelBfdBuild(tunnelServiceEntity, input);
+        //this.tunnelBfdBuild(tunnelServiceEntity, input);
         this.tunnelPathBuild(tunnelServiceEntity, input);
         LOG.info(tunnelServiceEntity.toString());
         tunnelServiceEntity.setRouterId(input.getSrcRouterId());
@@ -386,17 +386,17 @@ public class TunnelODLApi implements UpsrTunnelService {
         return traceResultBuilder;
     }
 
-    private void tunnelBfdBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {
-        LOG.info("tunnelBfdBuild begin");
-        TunnelBfd tunnelBfd = input.getTunnelBfd();
-        if (tunnelBfd != null) {
-            tunnelServiceEntity.setBfdMultiplier(tunnelBfd.getBfdMultiplier());
-            tunnelServiceEntity.setBfdrxInterval(tunnelBfd.getBfdrxInterval());
-            tunnelServiceEntity.setBfdtxInterval(tunnelBfd.getBfdtxInterval());
-        }
-        LOG.info("tunnelBfdBuild end");
-        return;
-    }
+//    private void tunnelBfdBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {
+//        LOG.info("tunnelBfdBuild begin");
+//        TunnelBfd tunnelBfd = input.getTunnelBfd();
+//        if (tunnelBfd != null) {
+//            tunnelServiceEntity.setBfdMultiplier(tunnelBfd.getBfdMultiplier());
+//            tunnelServiceEntity.setBfdrxInterval(tunnelBfd.getBfdrxInterval());
+//            tunnelServiceEntity.setBfdtxInterval(tunnelBfd.getBfdtxInterval());
+//        }
+//        LOG.info("tunnelBfdBuild end");
+//        return;
+//    }
 
     private BfdServiceEntity getTunnelBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
         BfdServiceEntity ret = null;

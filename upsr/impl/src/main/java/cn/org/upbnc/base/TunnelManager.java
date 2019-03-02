@@ -9,6 +9,7 @@ package cn.org.upbnc.base;
 
 import cn.org.upbnc.entity.BfdSession;
 import cn.org.upbnc.entity.Tunnel;
+import cn.org.upbnc.util.netconf.NetconfClient;
 
 import java.util.List;
 
@@ -36,5 +37,7 @@ public interface TunnelManager {
     Integer getBfdDiscriminatorLocal();
 
     boolean isBfdDiscriminatorLocalUsed(int i);
+
+    boolean createTunnels(List<Tunnel> tunnels, NetconfClient netconfClient);
 
 }
