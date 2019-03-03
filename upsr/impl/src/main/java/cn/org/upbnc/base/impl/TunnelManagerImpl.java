@@ -11,6 +11,8 @@ import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.BfdTypeEnum;
 import cn.org.upbnc.enumtype.LabelTypeEnum;
+import cn.org.upbnc.enumtype.SBfdCfgSessionLinkTypeEnum;
+import cn.org.upbnc.enumtype.STunnelPathTypeEnum;
 import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.xml.BfdCfgSessionXml;
 import cn.org.upbnc.util.xml.CheckXml;
@@ -216,17 +218,29 @@ public class TunnelManagerImpl implements TunnelManager {
     public Map<String,Tunnel> syncTunnelsConf(String routerId,NetconfClient netconfClient){
         Map<String,Tunnel> ret = null;
         if(null != routerId){
-            // get bfds from device
+            // get s bfds from device
             List<SBfdCfgSession> sBfdCfgSessions = this.getBfdSessionsFromDeviceByRouterId(netconfClient);
 
-            // get tunnels from device
+            // get s tunnels from device
             List<SSrTeTunnel> sSrTeTunnels = this.getTunnelListFromDeviceByRouterId(netconfClient);
 
-            // get explicit paths from device
+            // get s explicit paths from device
             List<SExplicitPath> sExplicitPaths =  this.getExplicitPathsFromDeviceByRouterId(netconfClient);
 
-            //
+            // get bfds from s bfds
+            Map<Integer,BfdSession> bfdSessionMap = this.getBfdSessionFromSBfdCfgSessions(sBfdCfgSessions);
+            this.bfdSessionMap.put(routerId,bfdSessionMap);
 
+            // get explicit paths from s explicit paths
+            List<ExplicitPath> explicitPaths = this.getExplicitPathsFromSExplicitPaths(sExplicitPaths);
+
+            // tunnels
+            List<BfdSession> bfdSessions = new ArrayList<>(bfdSessionMap.values());
+            ret = new ConcurrentHashMap<String, Tunnel>();
+            for(SSrTeTunnel st: sSrTeTunnels){
+                Tunnel t = this.sSrTeTunnelToTunnel(st,bfdSessions,explicitPaths);
+                ret.put(t.getTunnelName(),t);
+            }
         }
         return ret;
     }
@@ -606,52 +620,128 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath explicitPath){
+    private Map<String,Tunnel> getTunnelsMap(List<SBfdCfgSession> sBfdCfgSessions ,List<SSrTeTunnel> sSrTeTunnels,List<SExplicitPath> sExplicitPaths ){
+        Map<String,Tunnel> ret = new ConcurrentHashMap<>();
+
+        return ret;
+    }
+
+    private Map<Integer,BfdSession> getBfdSessionFromSBfdCfgSessions(List<SBfdCfgSession> sBfdCfgSessions){
+        Map<Integer,BfdSession> ret = new ConcurrentHashMap<>();
+        for(SBfdCfgSession s : sBfdCfgSessions){
+            BfdSession b = this.sBfdCfgSessionToBfdSession(s);
+            if(null != b) {
+                ret.put(Integer.parseInt(b.getDiscriminatorLocal()), b);
+            }
+        }
+        return ret;
+    }
+
+    private BfdSession sBfdCfgSessionToBfdSession(SBfdCfgSession sBfdCfgSession){
+        BfdSession ret = null;
+        if(null != sBfdCfgSession){
+            ret = new BfdSession();
+            ret.setTunnelName(sBfdCfgSession.getTunnelName());
+            ret.setBfdName(sBfdCfgSession.getSessName());
+            ret.setMultiplier(sBfdCfgSession.getMultiplier());
+            ret.setMinRecvTime(sBfdCfgSession.getMinRxInt());
+            ret.setMinSendTime(sBfdCfgSession.getMinTxInt());
+            ret.setDiscriminatorLocal(sBfdCfgSession.getLocalDiscr());
+            ret.setDiscriminatorRemote(sBfdCfgSession.getRemoteDiscr());
+            if(sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Tunnel.getName())){
+                ret.setType(BfdTypeEnum.Tunnel.getCode());
+            }else if(sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Master.getName())){
+                ret.setType(BfdTypeEnum.Master.getCode());
+            }
+        }
+        return ret;
+    }
+
+    private List<ExplicitPath> getExplicitPathsFromSExplicitPaths(List<SExplicitPath> sExplicitPaths){
+        List<ExplicitPath> ret= new ArrayList<ExplicitPath>();
+
+        for(SExplicitPath s : sExplicitPaths){
+            ret.add(this.sExplicitPathToExplicitPath(s));
+        }
+
+        return ret;
+    }
+
+    private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath sExplicitPath){
         ExplicitPath ret = null;
         return ret;
     }
 
-    private Tunnel sSrTeTunnelToTunnel(SSrTeTunnel sSrTeTunnel){
+    private Tunnel sSrTeTunnelToTunnel(SSrTeTunnel sSrTeTunnel,List<BfdSession> bfdCfgSessions,List<ExplicitPath> explicitPaths){
         Tunnel ret = new Tunnel();
 
-//        ret.setTunnelName(sSrTeTunnel.getTunnelName());
-//        ret.setEgressLSRId(sSrTeTunnel.getMplsTunnelEgressLSRId());
-//        ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
-//        ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
-//
-//        if(sSrTeTunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
-//            ret.setMplsTeTunnelBfdMinTx(tunnel.getDynamicBfd().getMinSendTime());
-//            ret.setMplsTeTunnelBfdMinnRx(tunnel.getDynamicBfd().getMinRecvTime());
-//            ret.setMplsTeTunnelBfdDetectMultiplier(tunnel.getDynamicBfd().getMultiplier());
-//        }else{
-//            ret.setMplsTeTunnelBfdMinTx("");
-//            ret.setMplsTeTunnelBfdMinnRx("");
-//            ret.setMplsTeTunnelBfdDetectMultiplier("");
-//        }
-//
-//        sSrTeTunnel.getMplsTeTunnelBfdMinTx();
-//        sSrTeTunnel.getMplsTeTunnelBfdMinnRx();
-//        sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier();
-//
-//        List<SSrTeTunnelPath> srTeTunnelPaths = new ArrayList<>();
-//        if(null != tunnel.getMasterPath()){
-//            SSrTeTunnelPath masterPath = new SSrTeTunnelPath();
-//            masterPath.setExplicitPathName(tunnel.getMasterPath().getPathName());
-//            masterPath.setPathType("primary");
-//            srTeTunnelPaths.add(masterPath);
-//
-//        }
-//
-//        if(null != tunnel.getSlavePath()){
-//            SSrTeTunnelPath slavePath = new SSrTeTunnelPath();
-//            slavePath.setExplicitPathName(tunnel.getSlavePath().getPathName());
-//            slavePath.setPathType("hotStandby");
-//            srTeTunnelPaths.add(slavePath);
-//        }
-//
-//        ret.setSrTeTunnelPaths(srTeTunnelPaths);
+        // set tunnel values
+        ret.setTunnelName(sSrTeTunnel.getTunnelName());
+        ret.setEgressLSRId(sSrTeTunnel.getMplsTunnelEgressLSRId());
+        ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
+        ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
+
+        // set bfd values
+        BfdSession tunnelBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Tunnel.getCode(),bfdCfgSessions);
+        BfdSession masterBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Master.getCode(),bfdCfgSessions);
+
+        ret.setMasterBfd(masterBfd);
+        ret.setTunnelBfd(tunnelBfd);
+
+        if( null == masterBfd && null == tunnelBfd) {
+            // set dynamicBfd
+            BfdSession dynamicBfd = new BfdSession();
+            dynamicBfd.setMinSendTime(sSrTeTunnel.getMplsTeTunnelBfdMinTx());
+            dynamicBfd.setMinRecvTime(sSrTeTunnel.getMplsTeTunnelBfdMinnRx());
+            dynamicBfd.setMultiplier(sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
+            ret.setDynamicBfd(dynamicBfd);
+            ret.setBfdType(BfdTypeEnum.Dynamic.getCode());
+        }else{
+            ret.setBfdType(BfdTypeEnum.Static.getCode());
+        }
+
+        // set explicit paths
+        List<SSrTeTunnelPath>  sSrTeTunnelPaths = sSrTeTunnel.getSrTeTunnelPaths();
+        if(null != sSrTeTunnelPaths && !sSrTeTunnelPaths.isEmpty() ){
+            for(SSrTeTunnelPath srtp : sSrTeTunnelPaths){
+                ExplicitPath ep = this.getExplictPathFromListByName(srtp.getExplicitPathName(),explicitPaths);
+                if(null != ep){
+                    if(srtp.getPathType().equals(STunnelPathTypeEnum.Primary.getName())){
+                        ret.setMasterPath(ep);
+                    }else if(srtp.getPathType().equals(STunnelPathTypeEnum.HotStandby.getName())){
+                        ret.setSlavePath(ep);
+                    }
+                }
+            }
+        }
 
         return ret;
+    }
+
+    private ExplicitPath getExplictPathFromListByName(String name,List<ExplicitPath> explicitPaths){
+        if(null == name || null == explicitPaths || explicitPaths.isEmpty()){
+            return null;
+        }
+
+        for(ExplicitPath e : explicitPaths){
+            if(e.getPathName().equals(name)){
+                return e;
+            }
+        }
+        return null;
+    }
+
+    private BfdSession getBfdSessionFromListByTunnelNameAndType(String tunnelName,Integer type,List<BfdSession> bfdSessions){
+
+        if( null == bfdSessions || bfdSessions.isEmpty() || null == tunnelName || null == type){
+            return null;
+        }
+        for(BfdSession b : bfdSessions){
+            if(b.getTunnelName().equals(tunnelName) && b.getType() == type){
+                return b;
+            }
+        }
+        return null;
     }
 
     private boolean addBfdSessionToBase(BfdSession bfdSession,String routerId){

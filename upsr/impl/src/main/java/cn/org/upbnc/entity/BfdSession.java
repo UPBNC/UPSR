@@ -11,6 +11,7 @@ public class BfdSession {
     // Local
     private Integer id;
     private Device device;
+    private String tunnelName;
     private Integer type;
     private String bfdName;
     private String minRecvTime;
@@ -92,6 +93,14 @@ public class BfdSession {
 
     public void setBfdName(String bfdName) {
         this.bfdName = bfdName;
+    }
+
+    public String getTunnelName() {
+        return tunnelName;
+    }
+
+    public void setTunnelName(String tunnelName) {
+        this.tunnelName = tunnelName;
     }
 
     @Override
