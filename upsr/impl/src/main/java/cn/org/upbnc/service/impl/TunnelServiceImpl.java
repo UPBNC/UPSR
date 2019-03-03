@@ -9,10 +9,7 @@ import cn.org.upbnc.entity.TunnelPolicy.TpNexthop;
 import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
 import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.service.TunnelService;
-import cn.org.upbnc.service.entity.BfdServiceEntity;
-import cn.org.upbnc.service.entity.DetectTunnelServiceEntity;
-import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
-import cn.org.upbnc.service.entity.TunnelServiceEntity;
+import cn.org.upbnc.service.entity.*;
 import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.xml.*;
 import com.google.common.primitives.UnsignedInteger;
@@ -64,11 +61,13 @@ public class TunnelServiceImpl implements TunnelService {
         String routerId = tunnelServiceEntity.getRouterId();
         String tunnelId = tunnelServiceEntity.getTunnelId();
         String tunnelName = tunnelServiceEntity.getTunnelName();
-        if (tunnelManager.isTunnelNameAndIdUsed(routerId, tunnelName, tunnelId)) {
+
+        if (this.tunnelManager.isTunnelNameAndIdUsed(routerId, tunnelName, tunnelId)) {
             map.put(ResponseEnum.MESSAGE.getName(), "tunnel's id or name has been exist.");
             return map;
         }
-        Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
+
+        Device device = this.deviceManager.getDevice(tunnelServiceEntity.getRouterId());
         if (device != null) {
             LOG.info(device.getNetConf().getIp().getAddress());
         } else {
@@ -76,12 +75,13 @@ public class TunnelServiceImpl implements TunnelService {
             LOG.info("get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
             return map;
         }
+
         if (!("".equals(device.getOspfProcess().getIntfName())) || null != device.getOspfProcess().getIntfName()) {
             LOG.info("device.getOspfProcess().getIntfName() :" + device.getOspfProcess().getIntfName());
             tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
         }
         LOG.info("device.getLoopBack() :" + device.getLoopBack());
-        if (createSrTunnel(tunnelServiceEntity)) {
+        if (this.createSrTunnel(tunnelServiceEntity)) {
             map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         } else {
             map.put(ResponseEnum.MESSAGE.getName(), "Create tunnel fail");
@@ -91,16 +91,35 @@ public class TunnelServiceImpl implements TunnelService {
 
     public boolean createSrTunnel(TunnelServiceEntity tunnelServiceEntity) {
         Tunnel tunnel = new Tunnel();
+
         tunnel.setBandWidth(tunnelServiceEntity.getBandwidth());
-        tunnel.setServiceClass(TunnelServiceClassEnum.nameToCode(tunnelServiceEntity.getServiceClass()));
         tunnel.setDestRouterId(tunnelServiceEntity.getEgressLSRId());
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
         tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
-        Device device = deviceManager.getDevice(tunnelServiceEntity.getRouterId());
+
+        if( null != tunnelServiceEntity.getTunnelServiceClassEntity()) {
+            TunnelServiceClassEntity tsce = tunnelServiceEntity.getTunnelServiceClassEntity();
+            TunnelServiceClass tsc = new TunnelServiceClass();
+            tsc.setDef(tsce.isDef());
+            tsc.setAf1(tsce.isAf1());
+            tsc.setAf2(tsce.isAf1());
+            tsc.setAf3(tsce.isAf3());
+            tsc.setAf4(tsce.isAf4());
+            tsc.setBe(tsce.isBe());
+            tsc.setEf(tsce.isEf());
+            tsc.setCs6(tsce.isCs6());
+            tsc.setCs7(tsce.isCs7());
+
+            tunnel.setServiceClass(tsc);
+        }
+
+        Device device = this.deviceManager.getDevice(tunnelServiceEntity.getRouterId());
         tunnel.setDevice(device);
-        Device destDevice = deviceManager.getDevice(tunnelServiceEntity.getEgressLSRId());
+
+        Device destDevice = this.deviceManager.getDevice(tunnelServiceEntity.getEgressLSRId());
         tunnel.setDestDeviceName(destDevice.getDeviceName());
         tunnel.setBfdType(tunnelServiceEntity.getBfdType());
+
         if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
             BfdSession bfdSession = new BfdSession();
             bfdSession.setDevice(device);
@@ -115,12 +134,15 @@ public class TunnelServiceImpl implements TunnelService {
             BfdSession bfdMaster = this.getBfdSessionByType(tunnelServiceEntity.getMasterBfd(), BfdTypeEnum.Master, device);
             tunnel.setMasterBfd(bfdMaster);
         }
+
         tunnel.setMasterPath(this.buildTunnelPath(tunnel,tunnelServiceEntity.getMainPath(),link));
         tunnel.setSlavePath(this.buildTunnelPath(tunnel,tunnelServiceEntity.getMainPath(),linkback));
+
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         List<Tunnel> tunnelList = new ArrayList<>();
         tunnelList.add(tunnel);
-        if (tunnelManager.createTunnels(tunnelList,tunnelServiceEntity.getRouterId(),netconfClient)) {
+
+        if (this.tunnelManager.createTunnels(tunnelList,tunnelServiceEntity.getRouterId(),netconfClient)) {
             return true;
         } else {
             return false;
@@ -350,6 +372,7 @@ public class TunnelServiceImpl implements TunnelService {
     }
 
     @Override
+    // modify
     public Map<String, Object> getAllTunnel(String routerId, String tunnelName) {
         LOG.info("getAllTunnel : routerId " + routerId + " tunnelName " + tunnelName);
         Map<String, Object> map = new HashMap<>();
@@ -385,15 +408,42 @@ public class TunnelServiceImpl implements TunnelService {
         Device device = deviceManager.getDevice(routerId);
         tunnelManager.emptyTunnelsByRouterId(routerId);
         if ((null != device.getNetConf()) && (device.getNetConf().getStatus() == NetConfStatusEnum.Connected)) {
-            List<Tunnel> tunnels = getTunnelInstanceListFromDevice(routerId);
-            if (tunnels.size() > 0) {
-                for (Tunnel tunnel : tunnels) {
-                    tunnelManager.updateTunnel(tunnel);
+
+            NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
+            Map<String,Tunnel> map = this.tunnelManager.syncTunnelsConf(routerId,netconfClient);
+            for(Tunnel t: map.values()){
+                t.setDevice(device);
+                if(null != t.getMasterPath()) {
+                    t.getMasterPath().setDevice(device);
                 }
-            } else {
-                LOG.info("Can not get device's tunnel info which device routerId=" + device.getRouterId());
-                return false;
+
+                if(null != t.getSlavePath()){
+                    t.getSlavePath().setDevice(device);
+                }
+
+                if(null != t.getMasterBfd()){
+                    t.getMasterBfd().setDevice(device);
+                }
+
+                if(null != t.getTunnelBfd()){
+                    t.getTunnelBfd().setDevice(device);
+                }
+
+                if(null != t.getDynamicBfd()){
+                    t.getDynamicBfd().setDevice(device);
+                }
             }
+
+
+//            List<Tunnel> tunnels = getTunnelInstanceListFromDevice(routerId);
+//            if (tunnels.size() > 0) {
+//                for (Tunnel tunnel : tunnels) {
+//                    tunnelManager.updateTunnel(tunnel);
+//                }
+//            } else {
+//                LOG.info("Can not get device's tunnel info which device routerId=" + device.getRouterId());
+//                return false;
+//            }
         } else {
             LOG.info("Can not connect device by Netconf , status is Disconnected,which device routerId=" + device.getRouterId());
             return false;

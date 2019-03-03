@@ -4,14 +4,8 @@ import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.BfdTypeEnum;
-import cn.org.upbnc.enumtype.CodeEnum;
-import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.enumtype.SystemStatusEnum;
-import cn.org.upbnc.service.entity.BfdServiceEntity;
-import cn.org.upbnc.service.entity.DetectTunnelServiceEntity;
-import cn.org.upbnc.service.entity.TunnelHopServiceEntity;
-import cn.org.upbnc.service.entity.TunnelServiceEntity;
+import cn.org.upbnc.enumtype.*;
+import cn.org.upbnc.service.entity.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.PingResultBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.TraceResultBuilder;
@@ -75,6 +69,10 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelInstancesBuilder.setDestDevice(tunnel.getDestDeviceName());
             tunnelInstancesBuilder.setDestRouterId(tunnel.getDestRouterId());
             tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
+
+            if(tunnel.getServiceClass() != null) {
+                tunnelInstancesBuilder.setServiceClass(tunnel.getServiceClass().getString());
+            }
 
             // get bfd
             // set bfd type
@@ -216,13 +214,19 @@ public class TunnelODLApi implements UpsrTunnelService {
         tunnelServiceEntity.setTunnelName(tunnelName);
         tunnelServiceEntity.setEgressLSRId(input.getDestRouterId());
         tunnelServiceEntity.setBandwidth(input.getBandWidth());
-        tunnelServiceEntity.setServiceClass(input.getServiceClass());
+
+        // set service class
+        tunnelServiceEntity.setTunnelServiceClassEntity(this.getTSCEByODL(input.getServiceClass()));
 
         //add tunnel bfd and master bfd
-        tunnelServiceEntity.setTunnelBfd(this.getTunnelBfdByInput(input,tunnelServiceEntity.getTunnelName()));
-        tunnelServiceEntity.setMasterBfd(this.getMasterBfdByInput(input,tunnelServiceEntity.getTunnelName()));
-        tunnelServiceEntity.setDynamicBfd(this.getDynamicBfdByInput(input,tunnelServiceEntity.getTunnelName()));
         tunnelServiceEntity.setBfdType(this.getBfdTypeByInput(input));
+
+        if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()) {
+            tunnelServiceEntity.setTunnelBfd(this.getTunnelBfdByInput(input, tunnelServiceEntity.getTunnelName()));
+            tunnelServiceEntity.setMasterBfd(this.getMasterBfdByInput(input, tunnelServiceEntity.getTunnelName()));
+        }else if(tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            tunnelServiceEntity.setDynamicBfd(this.getDynamicBfdByInput(input, tunnelServiceEntity.getTunnelName()));
+        }
         //end
 
         //this.tunnelBfdBuild(tunnelServiceEntity, input);
@@ -489,5 +493,23 @@ public class TunnelODLApi implements UpsrTunnelService {
         LOG.info("tunnelPathBuild end");
     }
 
+    private TunnelServiceClassEntity getTSCEByODL(String odlTsce){
+        TunnelServiceClassEntity ret = null;
+
+        if(null != odlTsce && !odlTsce.equals("")){
+            ret = new TunnelServiceClassEntity();
+            ret.setDef(odlTsce.contains(TunnelServiceClassEnum.DEF.getName()));
+            ret.setAf1(odlTsce.contains(TunnelServiceClassEnum.AF1.getName()));
+            ret.setAf2(odlTsce.contains(TunnelServiceClassEnum.AF2.getName()));
+            ret.setAf3(odlTsce.contains(TunnelServiceClassEnum.AF3.getName()));
+            ret.setAf4(odlTsce.contains(TunnelServiceClassEnum.AF4.getName()));
+            ret.setEf(odlTsce.contains(TunnelServiceClassEnum.EF.getName()));
+            ret.setBe(odlTsce.contains(TunnelServiceClassEnum.BE.getName()));
+            ret.setCs6(odlTsce.contains(TunnelServiceClassEnum.CS6.getName()));
+            ret.setCs6(odlTsce.contains(TunnelServiceClassEnum.CS7.getName()));
+        }
+
+        return ret;
+    }
 
 }

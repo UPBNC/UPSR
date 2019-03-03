@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TunnelServiceEntity {
-    Integer bfdType;
-    String tunnelId;
-    String tunnelName;
-    String routerId;
-    String egressLSRId;
-    String bandwidth;
-    String unNumIfName;
-    String serviceClass;
+    private Integer bfdType;
+    private String tunnelId;
+    private String tunnelName;
+    private String routerId;
+    private String egressLSRId;
+    private String bandwidth;
+    private String unNumIfName;
 
-    List<TunnelHopServiceEntity> mainPath;
-    List<TunnelHopServiceEntity> backPath;
+    private List<TunnelHopServiceEntity> mainPath;
+    private List<TunnelHopServiceEntity> backPath;
 
-    BfdServiceEntity dynamicBfd;
-    BfdServiceEntity masterBfd;
-    BfdServiceEntity tunnelBfd;
+    private BfdServiceEntity dynamicBfd;
+    private BfdServiceEntity masterBfd;
+    private BfdServiceEntity tunnelBfd;
+
+    private TunnelServiceClassEntity tunnelServiceClassEntity;
 
 
     public TunnelServiceEntity() {
@@ -131,12 +132,12 @@ public class TunnelServiceEntity {
         this.dynamicBfd = dynamicBfd;
     }
 
-    public String getServiceClass() {
-        return serviceClass;
+    public TunnelServiceClassEntity getTunnelServiceClassEntity() {
+        return tunnelServiceClassEntity;
     }
 
-    public void setServiceClass(String serviceClass) {
-        this.serviceClass = serviceClass;
+    public void setTunnelServiceClassEntity(TunnelServiceClassEntity tunnelServiceClassEntity) {
+        this.tunnelServiceClassEntity = tunnelServiceClassEntity;
     }
 
     @Override
@@ -148,7 +149,6 @@ public class TunnelServiceEntity {
                 ", egressLSRId='" + egressLSRId + '\'' +
                 ", bandwidth='" + bandwidth + '\'' +
                 ", unNumIfName='" + unNumIfName + '\'' +
-                ", serviceClass='" + serviceClass + '\'' +
                 ", mainPath=" + mainPath +
                 ", backPath=" + backPath +
                 '}';

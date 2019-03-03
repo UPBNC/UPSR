@@ -2,6 +2,8 @@ package cn.org.upbnc.util.xml;
 
 import cn.org.upbnc.util.netconf.SSrTeTunnel;
 import cn.org.upbnc.util.netconf.SSrTeTunnelPath;
+import cn.org.upbnc.util.netconf.STunnelServiceClass;
+import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +45,23 @@ public class SrTeTunnelXml {
                     "            <tunnelInterface>\n" +
                     "              <interfaceName>" + srTeTunnel.getTunnelName() + "</interfaceName>\n" +
                     "              <lsp_tpEnable>true</lsp_tpEnable>" +
-                    "              <statEnable>true</statEnable>\n" +
+                    "              <statEnable>true</statEnable>\n";
+            if (srTeTunnel.getMplsteServiceClass() != null) {
+                STunnelServiceClass sc = srTeTunnel.getMplsteServiceClass();
+                middle = middle +
+                        "             <mplsteServiceClass>\n" +
+                        "                 <defaultServiceClassEnable>" + String.valueOf(sc.isDefaultServiceClassEnable()) + "</defaultServiceClassEnable>\n" +
+                        "                 <beServiceClassEnable>     " + String.valueOf(sc.isBeServiceClassEnable()) + "</beServiceClassEnable>\n" +
+                        "                 <af1ServiceClassEnable>    " + String.valueOf(sc.isAf1ServiceClassEnable()) + "</af1ServiceClassEnable>\n" +
+                        "                 <af2ServiceClassEnable>    " + String.valueOf(sc.isAf2ServiceClassEnable()) + "</af2ServiceClassEnable>\n" +
+                        "                 <af3ServiceClassEnable>    " + String.valueOf(sc.isAf3ServiceClassEnable()) + "</af3ServiceClassEnable>\n" +
+                        "                 <af4ServiceClassEnable>    " + String.valueOf(sc.isAf4ServiceClassEnable()) + "</af4ServiceClassEnable>\n" +
+                        "                 <efServiceClassEnable>     " + String.valueOf(sc.isEfServiceClassEnable()) + "</efServiceClassEnable>\n" +
+                        "                 <cs6ServiceClassEnable>    " + String.valueOf(sc.isCs6ServiceClassEnable()) + "</cs6ServiceClassEnable>\n" +
+                        "                 <cs7ServiceClassEnable>    " + String.valueOf(sc.isCs7ServiceClassEnable()) + "</cs7ServiceClassEnable>\n" +
+                        "             </mplsteServiceClass>\n";
+            }
+            middle = middle +
                     "            </tunnelInterface>\n";
 
             if ("".equals(srTeTunnel.getMplsTeTunnelBfdMinTx()) || "".equals(srTeTunnel.getMplsTeTunnelBfdMinnRx())
@@ -164,6 +182,22 @@ public class SrTeTunnelXml {
                             srTeTunnelPaths.add(srTeTunnelPath);
                         }
                     }
+                    //get service class
+                    if (element.element("mplsteServiceClass") != null) {
+                        Element elementSc = element.element("mplsteServiceClass");
+                        STunnelServiceClass sc = new STunnelServiceClass();
+                        sc.setDefaultServiceClassEnable(Boolean.valueOf(elementSc.elementText("defaultServiceClassEnable")));
+                        sc.setBeServiceClassEnable(Boolean.valueOf(elementSc.elementText("beServiceClassEnable")));
+                        sc.setAf1ServiceClassEnable(Boolean.valueOf(elementSc.elementText("af1ServiceClassEnable")));
+                        sc.setAf2ServiceClassEnable(Boolean.valueOf(elementSc.elementText("af2ServiceClassEnable")));
+                        sc.setAf3ServiceClassEnable(Boolean.valueOf(elementSc.elementText("af3ServiceClassEnable")));
+                        sc.setAf4ServiceClassEnable(Boolean.valueOf(elementSc.elementText("af4ServiceClassEnable")));
+                        sc.setEfServiceClassEnable(Boolean.valueOf(elementSc.elementText("efServiceClassEnable")));
+                        sc.setCs6ServiceClassEnable(Boolean.valueOf(elementSc.elementText("cs6ServiceClassEnable")));
+                        sc.setCs7ServiceClassEnable(Boolean.valueOf(elementSc.elementText("cs7ServiceClassEnable")));
+                        srTeTunnel.setMplsteServiceClass(sc);
+                    }
+
                     srTeTunnel.setSrTeTunnelPaths(srTeTunnelPaths);
                     srTeTunnels.add(srTeTunnel);
                 }

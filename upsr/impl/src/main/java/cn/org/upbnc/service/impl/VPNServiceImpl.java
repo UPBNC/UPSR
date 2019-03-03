@@ -867,9 +867,16 @@ public class VPNServiceImpl implements VPNService {
         TpNexthop tpNexthopS = this.getTpNextHopFromDest(d.getRouterId(),tpNexthopsS);
         TpNexthop tpNexthopD = this.getTpNextHopFromDest(s.getRouterId(),tpNexthopsD);
 
-        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD, TunnelServiceClassEnum.AF1.getCode());
-        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,TunnelServiceClassEnum.AF3.getCode());
-        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,TunnelServiceClassEnum.EF.getCode());
+        TunnelServiceClass tscAF1 = new TunnelServiceClass();
+        tscAF1.setAf1(true);
+        TunnelServiceClass tscAF3 = new TunnelServiceClass();
+        tscAF3.setAf3(true);
+        TunnelServiceClass tscEF = new TunnelServiceClass();
+        tscEF.setEf(true);
+
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscAF1);
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscAF3);
+        this.createTunnelByDeviceSrcToDeviceDest(s,d,listSD,listDS,tpNexthopS,tpNexthopD,tscEF);
 
         return;
     }
@@ -880,7 +887,7 @@ public class VPNServiceImpl implements VPNService {
                                                      List<Tunnel> listDS,
                                                      TpNexthop tpNexthopS,
                                                      TpNexthop tpNexthopD,
-                                                     Integer serviceClassType){
+                                                     TunnelServiceClass tsc){
 
         Tunnel tunnelSD = new Tunnel();
         Tunnel tunnelDS = new Tunnel();
@@ -888,14 +895,14 @@ public class VPNServiceImpl implements VPNService {
         tunnelSD.setDevice(s);
         tunnelSD.setBfdType(BfdTypeEnum.Static.getCode());
         tunnelSD.setDestRouterId(d.getRouterId());
-        tunnelSD.setServiceClass(serviceClassType);
+        tunnelSD.setServiceClass(tsc);
         tunnelSD.setTunnelName(this.getTunnelName(s.getRouterId()));
         tpNexthopS.addTpTunnels(tunnelSD.getTunnelName());
 
         tunnelDS.setDevice(d);
         tunnelDS.setBfdType(BfdTypeEnum.Static.getCode());
         tunnelDS.setDestRouterId(s.getRouterId());
-        tunnelDS.setServiceClass(serviceClassType);
+        tunnelDS.setServiceClass(tsc);
         tunnelDS.setTunnelName(this.getTunnelName(s.getRouterId()));
         tpNexthopD.addTpTunnels(tunnelDS.getTunnelName());
 

@@ -244,6 +244,8 @@ public class TunnelManagerImpl implements TunnelManager {
                 Tunnel t = this.sSrTeTunnelToTunnel(st,bfdSessions,explicitPaths);
                 ret.put(t.getTunnelName(),t);
             }
+
+            this.tunnelMap.put(routerId,ret);
         }
         return ret;
     }
@@ -354,6 +356,22 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setMplsTunnelEgressLSRId(tunnel.getEgressLSRId());
         ret.setMplsTunnelIndex(tunnel.getTunnelId());
         ret.setMplsTunnelBandwidth(tunnel.getBandWidth());
+
+        TunnelServiceClass tsc = tunnel.getServiceClass();
+        if(null != tsc){
+            STunnelServiceClass stsc = new STunnelServiceClass();
+            stsc.setAf1ServiceClassEnable(tsc.isAf1());
+            stsc.setAf2ServiceClassEnable(tsc.isAf2());
+            stsc.setAf3ServiceClassEnable(tsc.isAf3());
+            stsc.setAf4ServiceClassEnable(tsc.isAf4());
+            stsc.setEfServiceClassEnable(tsc.isEf());
+            stsc.setBeServiceClassEnable(tsc.isBe());
+            stsc.setCs6ServiceClassEnable(tsc.isCs6());
+            stsc.setCs7ServiceClassEnable(tsc.isCs7());
+            stsc.setDefaultServiceClassEnable(tsc.isDef());
+
+            ret.setMplsteServiceClass(stsc);
+        }
 
         if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
             ret.setMplsTeTunnelBfdMinTx(tunnel.getDynamicBfd().getMinSendTime());
@@ -700,6 +718,23 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setEgressLSRId(sSrTeTunnel.getMplsTunnelEgressLSRId());
         ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
         ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
+
+        if(null != sSrTeTunnel.getMplsteServiceClass()){
+            TunnelServiceClass tsc = new TunnelServiceClass();
+            STunnelServiceClass stsc = sSrTeTunnel.getMplsteServiceClass();
+            tsc.setAf1(stsc.isAf1ServiceClassEnable());
+            tsc.setAf2(stsc.isAf2ServiceClassEnable());
+            tsc.setAf3(stsc.isAf3ServiceClassEnable());
+            tsc.setAf4(stsc.isAf4ServiceClassEnable());
+            tsc.setBe(stsc.isBeServiceClassEnable());
+            tsc.setEf(stsc.isEfServiceClassEnable());
+            tsc.setCs6(stsc.isCs6ServiceClassEnable());
+            tsc.setCs7(stsc.isCs7ServiceClassEnable());
+            tsc.setDef(stsc.isDefaultServiceClassEnable());
+
+            ret.setServiceClass(tsc);
+        }
+
 
         // set bfd values
         BfdSession tunnelBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Tunnel.getCode(),bfdCfgSessions);

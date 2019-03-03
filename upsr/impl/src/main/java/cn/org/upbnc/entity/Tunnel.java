@@ -30,7 +30,7 @@ public class Tunnel {
     private BfdSession dynamicBfd;
     private BfdSession masterBfd;
     private BfdSession tunnelBfd;
-    private Integer serviceClass;
+    private TunnelServiceClass serviceClass;
 
     public Tunnel() {
     }
@@ -160,11 +160,11 @@ public class Tunnel {
         return bfdType;
     }
 
-    public Integer getServiceClass() {
+    public TunnelServiceClass getServiceClass() {
         return serviceClass;
     }
 
-    public void setServiceClass(Integer serviceClass) {
+    public void setServiceClass(TunnelServiceClass serviceClass) {
         this.serviceClass = serviceClass;
     }
 
