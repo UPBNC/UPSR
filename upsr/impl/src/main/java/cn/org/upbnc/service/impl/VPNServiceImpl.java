@@ -996,7 +996,7 @@ public class VPNServiceImpl implements VPNService {
                 return tunnelName;
             }
 
-            if (!(tunnelManager.checkTunnelNameAndId(routerId, tunnelName, index +"")) &&
+            if (!(tunnelManager.isTunnelNameAndIdUsed(routerId, tunnelName, index +"")) &&
                     !tunnelNameList.contains(tunnelName)) {
                 tunnelNameList.add(tunnelName);
                 return tunnelName;
@@ -1007,7 +1007,7 @@ public class VPNServiceImpl implements VPNService {
     }
 
     private String getBfdDiscriminator(String routerId) {
-        int index = 1;
+        Integer index = 1;
         while (index < this.BFDID_MAX) {
             String tunnelName = "Tunnel" + index;
             List<Integer> bfdIdList = this.bfdDiscriminatorTemp.get(routerId);
@@ -1017,7 +1017,7 @@ public class VPNServiceImpl implements VPNService {
                 this.bfdDiscriminatorTemp.put(routerId,bfdIdList);
                 return index + "";
             }
-            if (!tunnelManager.isBfdDiscriminatorLocalUsed(index) &&
+            if (!tunnelManager.isBfdDiscriminatorLocalUsed(routerId,index) &&
                     !bfdIdList.contains(new Integer(index))) {
                 bfdIdList.add(new Integer(index));
                 return index + "";

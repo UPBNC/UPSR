@@ -84,6 +84,23 @@ public class ExplicitPathXml {
         return start + middle + end;
     }
 
+    public static String getExplicitPathXml() {
+        return
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">  \n" +
+                "<get>                                                                          \n" +
+                "  <filter type=\"subtree\">                                                    \n" +
+                "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">   \n" +
+                "      <mpls:mplsTe>                                                            \n" +
+                "        <mpls:explicitPaths>                                                   \n" +
+                "          <mpls:explicitPath/>                                                 \n" +
+                "        </mpls:explicitPaths>                                                  \n" +
+                "      </mpls:mplsTe>                                                           \n" +
+                "    </mpls:mpls>                                                               \n" +
+                "  </filter>                                                                    \n" +
+                "</get>                                                                         \n" +
+                "</rpc>";
+    }
+
     public static String getDeleteExplicitPathXml(List<SExplicitPath> explicitPaths) {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
@@ -150,7 +167,8 @@ public class ExplicitPathXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 org.dom4j.Element root = document.getRootElement();
-                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                List<org.dom4j.Element> childElements = root.element("date").element("mpls").element("mplsTe")
+                        .element("explicitPaths").elements("explicitPath");
                 for (org.dom4j.Element element : childElements) {
                     explicitPath = new SExplicitPath();
                     explicitPathHops = new ArrayList<>();

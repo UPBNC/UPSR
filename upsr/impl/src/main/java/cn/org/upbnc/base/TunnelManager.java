@@ -27,7 +27,7 @@ public interface TunnelManager {
 
     boolean deleteTunnel(String routerId, String name);
 
-    boolean checkTunnelNameAndId(String routerId, String tunnelName, String tunnelId);
+    boolean isTunnelNameAndIdUsed(String routerId, String tunnelName, String tunnelId);
 
 //    boolean addBfdSession(BfdSession bfdSession,String routerId);
 //
@@ -37,7 +37,7 @@ public interface TunnelManager {
 
     Integer getBfdDiscriminatorLocal();
 
-    boolean isBfdDiscriminatorLocalUsed(int i);
+    boolean isBfdDiscriminatorLocalUsed(String routerId, Integer i);
 
     boolean createTunnels(List<Tunnel> tunnels,String routerId, NetconfClient netconfClient);
 

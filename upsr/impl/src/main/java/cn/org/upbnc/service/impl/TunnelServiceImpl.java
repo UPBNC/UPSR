@@ -64,7 +64,7 @@ public class TunnelServiceImpl implements TunnelService {
         String routerId = tunnelServiceEntity.getRouterId();
         String tunnelId = tunnelServiceEntity.getTunnelId();
         String tunnelName = tunnelServiceEntity.getTunnelName();
-        if (tunnelManager.checkTunnelNameAndId(routerId, tunnelName, tunnelId)) {
+        if (tunnelManager.isTunnelNameAndIdUsed(routerId, tunnelName, tunnelId)) {
             map.put(ResponseEnum.MESSAGE.getName(), "tunnel's id or name has been exist.");
             return map;
         }
@@ -670,8 +670,8 @@ public class TunnelServiceImpl implements TunnelService {
         Map<String, Object> resultMap = new HashMap<>();
         long tunnelId = 1;
         while (tunnelId <= TUNNELID_MAX) {
-            List<Tunnel> tunnelList = tunnelManager.getTunnel(routerId, "Tunnel" + tunnelId);
-            if (tunnelList.isEmpty()) {
+            if (!tunnelManager.isTunnelNameAndIdUsed(routerId,
+                    "Tunnel" + tunnelId,tunnelId + "")){
                 break;
             }
             tunnelId = tunnelId + 1;

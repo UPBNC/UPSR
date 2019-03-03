@@ -31,7 +31,7 @@ public class TunnelManagerImpl implements TunnelManager {
     private static TunnelManager instance = null;
     private Map<String,Map<String, Tunnel>> tunnelMap;
     private Map<String,Map<Integer, BfdSession>> bfdSessionMap;
-    private final int MAX_LOCAL= 65535;
+    private final int MAX_BFD_LOCAL= 65535;
     private final String Link = "Link";
     private final String Linkback = "Linkback";
 
@@ -122,7 +122,7 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean checkTunnelNameAndId(String routerId, String tunnelName, String tunnelId) {
+    public boolean isTunnelNameAndIdUsed(String routerId, String tunnelName, String tunnelId) {
         boolean flag = false;
         if (tunnelMap.containsKey(routerId)) {
             for (String tunnelKey : tunnelMap.get(routerId).keySet()) {
@@ -144,7 +144,7 @@ public class TunnelManagerImpl implements TunnelManager {
     @Override
     public Integer getBfdDiscriminatorLocal(){
         Integer i = 1;
-        while(i<MAX_LOCAL){
+        while(i < MAX_BFD_LOCAL){
             if(!this.bfdSessionMap.containsKey(i)){
                 return i;
             }
@@ -154,12 +154,15 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean isBfdDiscriminatorLocalUsed(int i){
-        if(this.bfdSessionMap.containsKey(i)){
-            return true;
-        } else {
-            return false;
+    public boolean isBfdDiscriminatorLocalUsed(String routerId, Integer i){
+        if (this.bfdSessionMap.containsKey(routerId)) {
+            Map<Integer, BfdSession> integerBfdSessionMap = this.bfdSessionMap.get(routerId);
+            if (integerBfdSessionMap != null &&
+                    integerBfdSessionMap.containsKey(i)) {
+                return true;
+            }
         }
+        return false;
     }
 
 
@@ -615,8 +618,14 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     private List<SExplicitPath> getExplicitPathsFromDeviceByRouterId(NetconfClient netconfClient){
-
         List<SExplicitPath> ret = null;
+        String getExplicitPathXml = ExplicitPathXml.getExplicitPathXml();
+        LOG.info("command getExplicitPathXml: " + getExplicitPathXml);
+        String outExplicitPathXml = netconfController.sendMessage(netconfClient, getExplicitPathXml);
+        LOG.info("command outExplicitPathXml: " + outExplicitPathXml);
+        if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(outExplicitPathXml))){
+            ret = ExplicitPathXml.getExplicitPathFromXml(getExplicitPathXml);
+        }
         return ret;
     }
 
@@ -668,7 +677,18 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath sExplicitPath){
-        ExplicitPath ret = null;
+        ExplicitPath ret = new ExplicitPath();
+        ret.setPathName(sExplicitPath.getExplicitPathName());
+        if (sExplicitPath.getExplicitPathHops() != null) {
+            Map<String, Label> labelMap = new HashMap<>();
+            for (SExplicitPathHop sExplicitPathHop : sExplicitPath.getExplicitPathHops()) {
+                Label label = new Label();
+                label.setValue(Integer.valueOf(sExplicitPathHop.getMplsTunnelHopSidLabel()));
+                label.setType(LabelTypeEnum.nameToCode(sExplicitPathHop.getMplsTunnelHopSidLabelType()));
+                labelMap.put(sExplicitPathHop.getMplsTunnelHopIndex(),label);
+            }
+            ret.setLabelMap(labelMap);
+        }
         return ret;
     }
 
