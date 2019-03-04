@@ -68,7 +68,10 @@ public class TunnelODLApi implements UpsrTunnelService {
             tunnelInstancesBuilder.setTunnelName(tunnel.getTunnelName());
             tunnelInstancesBuilder.setDestDevice(tunnel.getDestDeviceName());
             tunnelInstancesBuilder.setDestRouterId(tunnel.getDestRouterId());
-            tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
+
+            if(!tunnel.getBandWidth().equals("0")) {
+                tunnelInstancesBuilder.setBandWidth(tunnel.getBandWidth());
+            }
 
             if(tunnel.getServiceClass() != null) {
                 tunnelInstancesBuilder.setServiceClass(tunnel.getServiceClass().getString());
@@ -76,7 +79,8 @@ public class TunnelODLApi implements UpsrTunnelService {
 
             // get bfd
             // set bfd type
-            tunnelInstancesBuilder.setBfdType(tunnel.getBfdType().toString());
+            String bfdType = BfdTypeEnum.valueOf(tunnel.getBfdType()).getUi();
+            tunnelInstancesBuilder.setBfdType(bfdType);
 
             // set dynamic bfd
             if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
@@ -212,7 +216,7 @@ public class TunnelODLApi implements UpsrTunnelService {
         String partTwo = tunnelName.substring(1);
         tunnelName = partOne + partTwo;
         tunnelServiceEntity.setTunnelName(tunnelName);
-        tunnelServiceEntity.setEgressLSRId(input.getDestRouterId());
+        tunnelServiceEntity.setDestRouterId(input.getDestRouterId());
         tunnelServiceEntity.setBandwidth(input.getBandWidth());
 
         // set service class
@@ -399,9 +403,9 @@ public class TunnelODLApi implements UpsrTunnelService {
 //        return;
 //    }
     private Integer getBfdTypeByInput(UpdateTunnelInstanceInput input){
-        if (BfdTypeEnum.Dynamic.getName().equals(input.getBfdType())) {
+        if (BfdTypeEnum.Dynamic.getUi().equals(input.getBfdType())) {
             return new Integer(BfdTypeEnum.Dynamic.getCode());
-        } else if (BfdTypeEnum.Static.getName().equals(input.getBfdType())) {
+        } else if (BfdTypeEnum.Static.getUi().equals(input.getBfdType())) {
             return new Integer(BfdTypeEnum.Static.getCode());
         } else {
             return new Integer(BfdTypeEnum.Empty.getCode());
@@ -409,9 +413,17 @@ public class TunnelODLApi implements UpsrTunnelService {
     }
     private BfdServiceEntity getTunnelBfdByInput(UpdateTunnelInstanceInput input,String tunnelName){
         BfdServiceEntity ret = null;
-
         //TunnelStaticBfd tunnelBfd = input.getTunnelStaticBfd();
         TunnelBfd tunnelBfd = input.getTunnelBfd();
+
+        if("".equals(tunnelBfd.getBfdMultiplier())
+                && "".equals(tunnelBfd.getBfdrxInterval())
+                && "".equals(tunnelBfd.getBfdtxInterval())
+                && "".equals(tunnelBfd.getLocalDiscriminator())
+                && "".equals(tunnelBfd.getRemoteDiscriminator())){
+            return null;
+        }
+
         if(tunnelBfd != null) {
             ret = new BfdServiceEntity();
             ret.setType(BfdTypeEnum.Tunnel.getCode());
@@ -429,6 +441,15 @@ public class TunnelODLApi implements UpsrTunnelService {
         BfdServiceEntity ret = null;
 
         MainLspBfd mainLspBfd = input.getMainLspBfd();
+
+        if("".equals(mainLspBfd.getBfdMultiplier())
+                && "".equals(mainLspBfd.getBfdrxInterval())
+                && "".equals(mainLspBfd.getBfdtxInterval())
+                && "".equals(mainLspBfd.getLocalDiscriminator())
+                && "".equals(mainLspBfd.getRemoteDiscriminator())){
+            return null;
+        }
+
         if(mainLspBfd != null) {
             ret = new BfdServiceEntity();
             ret.setType(BfdTypeEnum.Master.getCode());

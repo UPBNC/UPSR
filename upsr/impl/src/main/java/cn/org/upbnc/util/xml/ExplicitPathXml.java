@@ -167,7 +167,7 @@ public class ExplicitPathXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 org.dom4j.Element root = document.getRootElement();
-                List<org.dom4j.Element> childElements = root.element("date").element("mpls").element("mplsTe")
+                List<org.dom4j.Element> childElements = root.element("data").element("mpls").element("mplsTe")
                         .element("explicitPaths").elements("explicitPath");
                 for (org.dom4j.Element element : childElements) {
                     explicitPath = new SExplicitPath();

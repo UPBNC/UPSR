@@ -8,7 +8,7 @@ public class TunnelServiceEntity {
     private String tunnelId;
     private String tunnelName;
     private String routerId;
-    private String egressLSRId;
+    private String destRouterId;
     private String bandwidth;
     private String unNumIfName;
 
@@ -51,12 +51,12 @@ public class TunnelServiceEntity {
         this.bandwidth = bandwidth;
     }
 
-    public String getEgressLSRId() {
-        return egressLSRId;
+    public String getDestRouterId() {
+        return destRouterId;
     }
 
-    public void setEgressLSRId(String egressLSRId) {
-        this.egressLSRId = egressLSRId;
+    public void setDestRouterId(String destRouterId) {
+        this.destRouterId = destRouterId;
     }
 
     public String getTunnelName() {
@@ -146,7 +146,6 @@ public class TunnelServiceEntity {
                 "tunnelId='" + tunnelId + '\'' +
                 ", tunnelName='" + tunnelName + '\'' +
                 ", routerId='" + routerId + '\'' +
-                ", egressLSRId='" + egressLSRId + '\'' +
                 ", bandwidth='" + bandwidth + '\'' +
                 ", unNumIfName='" + unNumIfName + '\'' +
                 ", mainPath=" + mainPath +

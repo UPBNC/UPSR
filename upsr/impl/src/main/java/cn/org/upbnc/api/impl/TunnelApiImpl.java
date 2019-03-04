@@ -54,13 +54,17 @@ public class TunnelApiImpl implements TunnelApi {
 
         // check static bfd params
         if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()){
-            if ( !this.checkStaticBfdParams(tunnelServiceEntity.getTunnelBfd())){
+            if(null == tunnelServiceEntity.getTunnelBfd() && null == tunnelServiceEntity.getMasterBfd()){
+                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : None Bfd");
+                return map;
+            }
+            if ( null !=tunnelServiceEntity.getTunnelBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getTunnelBfd())){
                 tunnelServiceEntity.setTunnelBfd(null);
                 map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Tunnel Bfd is null");
                 return map;
             }
 
-            if (!this.checkStaticBfdParams(tunnelServiceEntity.getMasterBfd())) {
+            if (null != tunnelServiceEntity.getMasterBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getMasterBfd())) {
                 tunnelServiceEntity.setMasterBfd(null);
                 map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Master Bfd is null");
                 return map;

@@ -286,13 +286,6 @@ public class TunnelManagerImpl implements TunnelManager {
 
         boolean isCreateBfds = this.createBfdSessionsToDevice(sBfdCfgSessions,netconfClient);
         if(!isCreateBfds){
-            //delete paths
-            List<String> pathList = new ArrayList<>();
-            for(SExplicitPath s : explicitPaths){
-                pathList.add(s.getExplicitPathName());
-            }
-            this.deleteExplicitPathsFromDeviceByNameList(pathList,netconfClient);
-
 
             //delete tunnels
             List<String> tunnelList = new ArrayList<>();
@@ -300,6 +293,13 @@ public class TunnelManagerImpl implements TunnelManager {
                 tunnelList.add(sr.getTunnelName());
             }
             this.deleteTunnelListFromDeviceByNameList(tunnelList,netconfClient);
+
+            //delete paths
+            List<String> pathList = new ArrayList<>();
+            for(SExplicitPath s : explicitPaths){
+                pathList.add(s.getExplicitPathName());
+            }
+            this.deleteExplicitPathsFromDeviceByNameList(pathList,netconfClient);
             return false;
         }
 
@@ -353,7 +353,7 @@ public class TunnelManagerImpl implements TunnelManager {
         SSrTeTunnel ret = new SSrTeTunnel();
 
         ret.setTunnelName(tunnel.getTunnelName());
-        ret.setMplsTunnelEgressLSRId(tunnel.getEgressLSRId());
+        ret.setMplsTunnelEgressLSRId(tunnel.getDestRouterId());
         ret.setMplsTunnelIndex(tunnel.getTunnelId());
         ret.setMplsTunnelBandwidth(tunnel.getBandWidth());
 
@@ -641,9 +641,7 @@ public class TunnelManagerImpl implements TunnelManager {
         LOG.info("command getExplicitPathXml: " + getExplicitPathXml);
         String outExplicitPathXml = netconfController.sendMessage(netconfClient, getExplicitPathXml);
         LOG.info("command outExplicitPathXml: " + outExplicitPathXml);
-        if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(outExplicitPathXml))){
-            ret = ExplicitPathXml.getExplicitPathFromXml(getExplicitPathXml);
-        }
+        ret = ExplicitPathXml.getExplicitPathFromXml(outExplicitPathXml);
         return ret;
     }
 
@@ -685,10 +683,13 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     private List<ExplicitPath> getExplicitPathsFromSExplicitPaths(List<SExplicitPath> sExplicitPaths){
-        List<ExplicitPath> ret= new ArrayList<ExplicitPath>();
+        List<ExplicitPath> ret= null;
 
-        for(SExplicitPath s : sExplicitPaths){
-            ret.add(this.sExplicitPathToExplicitPath(s));
+        if(null != sExplicitPaths && !sExplicitPaths.isEmpty()) {
+            ret= new ArrayList<ExplicitPath>();
+            for (SExplicitPath s : sExplicitPaths) {
+                ret.add(this.sExplicitPathToExplicitPath(s));
+            }
         }
 
         return ret;
@@ -715,7 +716,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
         // set tunnel values
         ret.setTunnelName(sSrTeTunnel.getTunnelName());
-        ret.setEgressLSRId(sSrTeTunnel.getMplsTunnelEgressLSRId());
+        ret.setDestRouterId(sSrTeTunnel.getMplsTunnelEgressLSRId());
         ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
         ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
 
@@ -735,7 +736,6 @@ public class TunnelManagerImpl implements TunnelManager {
             ret.setServiceClass(tsc);
         }
 
-
         // set bfd values
         BfdSession tunnelBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Tunnel.getCode(),bfdCfgSessions);
         BfdSession masterBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Master.getCode(),bfdCfgSessions);
@@ -744,13 +744,17 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setTunnelBfd(tunnelBfd);
 
         if( null == masterBfd && null == tunnelBfd) {
-            // set dynamicBfd
-            BfdSession dynamicBfd = new BfdSession();
-            dynamicBfd.setMinSendTime(sSrTeTunnel.getMplsTeTunnelBfdMinTx());
-            dynamicBfd.setMinRecvTime(sSrTeTunnel.getMplsTeTunnelBfdMinnRx());
-            dynamicBfd.setMultiplier(sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
-            ret.setDynamicBfd(dynamicBfd);
-            ret.setBfdType(BfdTypeEnum.Dynamic.getCode());
+            if(Boolean.valueOf(sSrTeTunnel.getMplsTeTunnelBfdEnable())){
+                // set dynamicBfd
+                BfdSession dynamicBfd = new BfdSession();
+                dynamicBfd.setMinSendTime(sSrTeTunnel.getMplsTeTunnelBfdMinTx());
+                dynamicBfd.setMinRecvTime(sSrTeTunnel.getMplsTeTunnelBfdMinnRx());
+                dynamicBfd.setMultiplier(sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
+                ret.setDynamicBfd(dynamicBfd);
+                ret.setBfdType(BfdTypeEnum.Dynamic.getCode());
+            }else {
+                ret.setBfdType(BfdTypeEnum.Empty.getCode());
+            }
         }else{
             ret.setBfdType(BfdTypeEnum.Static.getCode());
         }

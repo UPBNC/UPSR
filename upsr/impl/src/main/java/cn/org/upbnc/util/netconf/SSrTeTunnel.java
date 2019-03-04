@@ -12,6 +12,7 @@ public class SSrTeTunnel {
     private String mplsTeTunnelBfdMinTx;
     private String mplsTeTunnelBfdMinnRx;
     private String mplsTeTunnelBfdDetectMultiplier;
+    private String mplsTeTunnelBfdEnable;
     private List<SSrTeTunnelPath> srTeTunnelPaths;
     private STunnelServiceClass mplsteServiceClass;
     private String unNumIfName = "LoopBack0";
@@ -119,6 +120,14 @@ public class SSrTeTunnel {
 
     public void setMplsteServiceClass(STunnelServiceClass mplsteServiceClass) {
         this.mplsteServiceClass = mplsteServiceClass;
+    }
+
+    public String getMplsTeTunnelBfdEnable() {
+        return mplsTeTunnelBfdEnable;
+    }
+
+    public void setMplsTeTunnelBfdEnable(String mplsTeTunnelBfdEnable) {
+        this.mplsTeTunnelBfdEnable = mplsTeTunnelBfdEnable;
     }
 
     @Override

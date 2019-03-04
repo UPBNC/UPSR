@@ -165,6 +165,8 @@ public class SrTeTunnelXml {
                     srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));
                     srTeTunnel.setMplsTunnelIndex(element.elementText("mplsTunnelIndex"));
                     srTeTunnel.setMplsTunnelBandwidth(element.elementText("mplsTunnelBandwidth"));
+                    srTeTunnel.setMplsTeTunnelBfdEnable(
+                            element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdEnable"));
                     srTeTunnel.setMplsTeTunnelBfdMinTx(
                             element.elements("mplsTeTunnelBfd").get(0).elementText("mplsTeTunnelBfdMinTx"));
                     srTeTunnel.setMplsTeTunnelBfdMinnRx(
@@ -183,8 +185,8 @@ public class SrTeTunnelXml {
                         }
                     }
                     //get service class
-                    if (element.element("mplsteServiceClass") != null) {
-                        Element elementSc = element.element("mplsteServiceClass");
+                    Element elementSc = element.element("tunnelInterface").element("mplsteServiceClass");
+                    if (elementSc != null) {
                         STunnelServiceClass sc = new STunnelServiceClass();
                         sc.setDefaultServiceClassEnable(Boolean.valueOf(elementSc.elementText("defaultServiceClassEnable")));
                         sc.setBeServiceClassEnable(Boolean.valueOf(elementSc.elementText("beServiceClassEnable")));

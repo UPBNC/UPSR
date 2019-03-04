@@ -183,9 +183,9 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
         tunnelPolicy.setTnlPolicyName(sTunnelPolicy.getTnlPolicyName());
         tunnelPolicy.setDescription(sTunnelPolicy.getDescription());
         //tunnelPolicy.setTnlPolicyType(sTunnelPolicy.getTnlPolicyType());
-        if(tunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.Invalid.getName())){
+        if(sTunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.Invalid.getName())){
             tunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getCode());
-        }else if(tunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.TnlBinding.getName())){//解析tpNexthops
+        }else if(sTunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.TnlBinding.getName())){//解析tpNexthops
             tunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getCode());
             for(STpNexthop sTpNexthop:sTunnelPolicy.getSTpNexthops()){
                 TpNexthop tpNexthop=sTpNexthopToTpNexthop(sTpNexthop,tunnelPolicy.getTnlPolicyName());
@@ -194,7 +194,7 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
                 }
                 tunnelPolicy.getTpNexthops().add(tpNexthop);
             }
-        }else if(tunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.TnlSelectSeq.getName())){//解析tnlSelSeqs
+        }else if(sTunnelPolicy.getTnlPolicyType().equals(TnlPolicyTypeEnum.TnlSelectSeq.getName())){//解析tnlSelSeqs
             tunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlSelectSeq.getCode());
             for(STnlSelSeq sTnlSelSeq:sTunnelPolicy.getSTnlSelSeqls()){
                 TnlSelSeq tnlSelSeq1=sTnlSelSeqToTnlSelSeq(sTnlSelSeq,tunnelPolicy.getTnlPolicyName());

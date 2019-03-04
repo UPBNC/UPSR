@@ -19,7 +19,6 @@ public class Tunnel {
     private String destRouterId;
     private String destDeviceName;
     private String bandWidth = "0";
-    private String egressLSRId;
 
     private ExplicitPath masterPath;
     private ExplicitPath slavePath;
@@ -168,13 +167,6 @@ public class Tunnel {
         this.serviceClass = serviceClass;
     }
 
-    public String getEgressLSRId() {
-        return egressLSRId;
-    }
-
-    public void setEgressLSRId(String egressLSRId) {
-        this.egressLSRId = egressLSRId;
-    }
 
     @Override
     public String toString() {

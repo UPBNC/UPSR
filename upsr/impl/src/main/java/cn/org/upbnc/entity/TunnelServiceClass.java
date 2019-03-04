@@ -111,8 +111,6 @@ public class TunnelServiceClass {
         ret += this.cs6? TunnelServiceClassEnum.CS6.getName()+this.splitChar:"";
         ret += this.cs7? TunnelServiceClassEnum.CS7.getName()+this.splitChar:"";
 
-        ret.trim();
-
-        return ret;
+        return ret.trim();
     }
 }
