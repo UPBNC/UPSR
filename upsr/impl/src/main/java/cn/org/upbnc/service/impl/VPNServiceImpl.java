@@ -22,6 +22,8 @@ import cn.org.upbnc.util.netconf.bgp.BgpPeer;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 import cn.org.upbnc.util.netconf.bgp.ImportRoute;
 import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
+import cn.org.upbnc.util.path.CaculaterPaths;
+import cn.org.upbnc.util.path.PathUtil;
 import cn.org.upbnc.util.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -814,7 +816,7 @@ public class VPNServiceImpl implements VPNService {
         this.createTunnelsFromTopo(tunnelsMap, tunnelPolicyList,area);
 
         Map<String,List<Tunnel>> tunnelsRouterKeyMap = new HashMap<>();
-
+        List<PathUtil> pathUtils = CaculaterPaths.caculatePathsByDevicesLinks(area,linkManager.getLinkList());
         for (List<Tunnel> list: tunnelsMap.values()) {
             for(Tunnel t : list){
                 String routerId = t.getDevice().getRouterId();
@@ -823,7 +825,7 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId,tunnels);
                 }
-                this.createExplicitByTunnel(t,area);
+                this.createExplicitByTunnel(t,pathUtils);
                 tunnels.add(t);
             }
         }
@@ -836,25 +838,43 @@ public class VPNServiceImpl implements VPNService {
         return resultMap;
     }
 
-    private boolean createExplicitByTunnel(Tunnel tunnel, Map<String,List<Device>> area) {
-//        private ExplicitPath explicitPath1 = new ExplicitPath();
-//        private Map<String, Label> labelMap1 = new HashMap<>();
-//        private ExplicitPath explicitPath2 = new ExplicitPath();
-//        private Map<String, Label> labelMap2 = new HashMap<>();
-//        Device deviceSrc = tunnel.getDevice();
-//
-//        for(Link link : linkManager.getLinkList()) {
-//            if (link.getDeviceInterface1().getDevice() == deviceSrc) {
-//                Device deviceDst = link.getDeviceInterface2().getDevice();
-//                Label label = new Label();
-//                label.setType(LabelTypeEnum.PREFIX.getCode());
-//                label.setRouterId(deviceDst.getRouterId());
-//                label.setValue(deviceDst.getNodeLabel().getValue());
-//                labelMap1.put("1",label);
-//            }
-//        }
-//        Device deviceDst = this.deviceManager.getDevice(tunnel.getDestRouterId());
+    private boolean createExplicitByTunnel(Tunnel tunnel, List<PathUtil> pathUtils) {
+        List<PathUtil> expPathUtils = new ArrayList<>();
+        for (PathUtil pathUtil : pathUtils) {
+            if (pathUtil.getSrc().equals(tunnel.getDevice().getRouterId()) &&
+                    pathUtil.getDst().equals(tunnel.getDestRouterId())) {
+                expPathUtils.add(pathUtil);
+            }
+        }
+        if (expPathUtils.size() != 2) {
+            return false;
+        }
+
+        if (expPathUtils.get(0).getFirstWeight() > expPathUtils.get(1).getFirstWeight()) {
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(1)));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(0)));
+        } else if (expPathUtils.get(0).getFirstWeight() < expPathUtils.get(1).getFirstWeight()){
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(0)));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(1)));
+        } else {
+            return false;
+        }
         return true;
+    }
+
+    private ExplicitPath createExplicitByPathUtil(PathUtil pathUtil) {
+        ExplicitPath explicitPath = new ExplicitPath();
+        Map<String, Label> labelMap = new HashMap<>();
+        int index = 1;
+        for (String routerId : pathUtil.getPath()) {
+            Label label = new Label();
+            Device device = deviceManager.getDevice(routerId);
+            label.setType(LabelTypeEnum.PREFIX.getCode());
+            label.setValue(device.getNodeLabel().getValue());
+            labelMap.put(index + "",label);
+        }
+        explicitPath.setLabelMap(labelMap);
+        return explicitPath;
     }
 
     private void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies,
