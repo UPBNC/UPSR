@@ -20,6 +20,7 @@ import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnAdvertiseCommunityEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnApplyLabelEnum;
 import cn.org.upbnc.enumtype.VpnEnum.VpnFrrStatusEnum;
+import cn.org.upbnc.enumtype.VpnEnum.VpnUseTemplateEnum;
 import cn.org.upbnc.service.entity.UpdateVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.binddevices.DeviceBindBuilder;
@@ -283,10 +284,10 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                         String ifNetmask = bindInterface.getIfNetMask();
                         DeviceInterface deviceInterface = new DeviceInterface();
                         deviceInterface.setName(ifName);
-                        if (null != ifnetIp) {
+                        if ((null != ifnetIp) && (true != "".equals(ifnetIp))) {
                             deviceInterface.setIp(new Address(ifnetIp, AddressTypeEnum.V4));
                         }
-                        if (null != ifNetmask) {
+                        if ((null != ifNetmask) && (true != "".equals(ifNetmask))) {
                             deviceInterface.setMask(new Address(ifNetmask, AddressTypeEnum.V4));
                         }
                         deviceInterfaceList.add(deviceInterface);
@@ -297,21 +298,22 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             deviceInterfaceList, networkSegList,bindDevice.getTunnelPolicy(),bindDevice.getVpnFrr(),bindDevice.getApplyLabel(),
                             bindDevice.getTtlMode(),routerImportPolicy,routerExportPolicy,ebgpPreference,ibgpPreference,
                             localPreference,advertiseCommunity,bindDevice.getNotes());
-
-                    ret = (boolean) this.getVpnInstanceApi().updateVpnInstance(updateVpnInstance
-                    ).get(ResponseEnum.BODY.getName());
+                    Map<String, Object> retMap = this.getVpnInstanceApi().updateVpnInstance(updateVpnInstance);
+                    ret = (boolean) retMap.get(ResponseEnum.BODY.getName());
                     LOG.info("enter vpnInstanceUpdate ret={}", new Object[]{ret});
                     if (true == ret) {
                         message += "routerId " + routerId + "is success!\\n";
                         vpnInstanceUpdateOutputBuilder.setResult("success");
                     } else {
-                        message += " routerId " + routerId + "is failed!\\n";
+                        message += "Configure " + routerId + "failed: " + retMap.get(ResponseEnum.MESSAGE.getName());
                         vpnInstanceUpdateOutputBuilder.setResult("failed");
                     }
                 }
                 //vpnInstanceUpdateOutputBuilder.setResult("success");
                 vpnInstanceUpdateOutputBuilder.setMessage(message);
-                vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
+                if (VpnUseTemplateEnum.ENABLE.getName().equals(vpnInstance_input.getUseTemplate())) {
+                    vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
+                }
                 return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
             }
         }

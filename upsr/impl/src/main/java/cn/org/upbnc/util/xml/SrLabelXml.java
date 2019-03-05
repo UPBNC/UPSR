@@ -71,7 +71,8 @@ public class SrLabelXml {
     }
     //action:add/del/update
     public static String setSrAdjLabelXml(String operation,String localIpAddress, String remoteIpAddress, String segmentId) {
-        return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+        String ret =
+                "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                              \n" +
                 "  <target>                                                                                                   \n" +
                 "    <running/>                                                                                               \n" +
@@ -81,14 +82,19 @@ public class SrLabelXml {
                 "      <staticIpv4Adjs>                                                                                       \n" +
                 "        <staticIpv4Adj xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\""+ operation +"\">  \n" +
                 "          <localIpAddress>" + localIpAddress + "</localIpAddress>                                               \n" +
-                "          <remoteIpAddress>" + remoteIpAddress + "</remoteIpAddress>                                            \n" +
-                "          <segmentId>" + segmentId + "</segmentId>                                                             \n" +
+                "          <remoteIpAddress>" + remoteIpAddress + "</remoteIpAddress>                                            \n";
+        if (ncOperationDelete.equals(operation) != true) {
+            ret = ret +
+                "          <segmentId>" + segmentId + "</segmentId>                                                             \n";
+        }
+        ret = ret +
                 "        </staticIpv4Adj>                                                                                     \n" +
                 "      </staticIpv4Adjs>                                                                                      \n" +
                 "    </segr>                                                                                                  \n" +
                 "  </config>                                                                                                  \n" +
                 "</edit-config>                                                                                               \n" +
                 "</rpc>";
+        return  ret;
     }
     public static String getSrAdjLabelRangeXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +

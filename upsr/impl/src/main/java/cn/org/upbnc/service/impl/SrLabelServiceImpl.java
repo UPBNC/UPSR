@@ -32,6 +32,7 @@ public class SrLabelServiceImpl implements SrLabelService {
     public static final String PREFIX_SID_TYPE_ABSOLUTE = "absolute";
     public static final String PREFIX_SID_TYPE_INDEX = "index";
     public static final int ADJACENCY_LABEL_IS_DUPLICATED = 25783;
+    public static final int ADJACENCY_LABEL_IS_NOT_EXIST = 651;
     private static final Logger LOG = LoggerFactory.getLogger(SrLabelServiceImpl.class);
     private static SrLabelService ourInstance = null;
     private BaseInterface baseInterface;
@@ -306,10 +307,13 @@ public class SrLabelServiceImpl implements SrLabelService {
         if (remoteDeviceInterface == null) {
             return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
         }
+        if ((SrLabelXml.ncOperationDelete.equals(action) == false) && "".equals(labelVal)) {
+            return buildResult(SrLabelErrorCodeEnum.INPUT_INVALID);
+        }
         String remoteAddress = remoteDeviceInterface.getIp().getAddress();
         if ((localDeviceInterface != null) && (localDeviceInterface.getAdjLabel() != null) &&
                 (localDeviceInterface.getAdjLabel().getValue() == Integer.parseInt(labelVal)) &&
-                (true == action.equals(SrLabelXml.ncOperationMerge))) {
+                SrLabelXml.ncOperationMerge.equals(action)) {
             LOG.info("adjlabel is not changed" + localDeviceInterface.getIp().getAddress() + " -> " + remoteAddress + " : " + labelVal);
             return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
         }
@@ -364,7 +368,9 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("updateIntfLabel failed");
             if (CheckXml.getErrorInfoCode(outPutUpdateXml) == this.ADJACENCY_LABEL_IS_DUPLICATED) {
                 return buildResult(SrLabelErrorCodeEnum.LABEL_DUPLICATED);
-            } else {
+            } else if (CheckXml.getErrorInfoCode(outPutUpdateXml) == this.ADJACENCY_LABEL_IS_NOT_EXIST) {
+                LOG.info("the label is not exist");
+            } else{
                 return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
             }
         }

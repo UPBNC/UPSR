@@ -90,15 +90,7 @@ public class SrLabelApiImpl implements SrLabelApi {
 
     @Override
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
-
-
         Map<String, Object> resultMap = new HashMap<>();
-        if ((ifAddress == null) || (labelVal == null) ||
-                ifAddress.equals("") || labelVal.equals("")) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
-            return resultMap;
-        }
         if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
             resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
             return resultMap;

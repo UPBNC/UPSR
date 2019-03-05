@@ -58,8 +58,7 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             return resultMap;
         }
         if ((null == routerId) || (routerId.isEmpty()) || (null == vpnName) || (vpnName.isEmpty())
-                || (null == rd) || (rd.isEmpty())
-                ) {
+                || (null == rd) || (rd.isEmpty())) {
             resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , vpnName or rd is null.");
             return resultMap;
         }
@@ -68,17 +67,13 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             return resultMap;
         }
         for (DeviceInterface deviceInterface : deviceInterfaceList) {
-            if ((null == deviceInterface.getIp().getAddress()) || (deviceInterface.getIp().getAddress().isEmpty())) {
-                if ((null != deviceInterface.getMask().getAddress()) && !(deviceInterface.getMask().getAddress().isEmpty())) {
-                    resultMap.put(ResponseEnum.MESSAGE.getName(), "ip is null,but mask is not.");
-                    return resultMap;
-                }
+            if ((null == deviceInterface.getIp()) && (null != deviceInterface.getMask())) {
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "ip is null,but mask is not.");
+                return resultMap;
             }
-            if ((null == deviceInterface.getMask().getAddress()) || (deviceInterface.getMask().getAddress().isEmpty())) {
-                if ((null != deviceInterface.getIp().getAddress()) && !(deviceInterface.getIp().getAddress().isEmpty())) {
-                    resultMap.put(ResponseEnum.MESSAGE.getName(), "mask is null,but ip is not.");
-                    return resultMap;
-                }
+            if ((null == deviceInterface.getMask()) && (null != deviceInterface.getIp())) {
+                resultMap.put(ResponseEnum.MESSAGE.getName(), "mask is null,but ip is not.");
+                return resultMap;
             }
         }
         return this.vpnService.updateVpnInstance(updateVpnInstance);
