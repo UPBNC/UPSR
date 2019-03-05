@@ -38,6 +38,7 @@ public class VPNServiceImpl implements VPNService {
     private NetConfManager netConfManager = null;
     private DeviceManager deviceManager = null;
     private TunnelManager tunnelManager = null;
+    private LinkManager linkManager = null;
 
     private static long TUNNELID_MAX = 4294967295l;
     private static int BFDID_MAX = 65535;
@@ -60,6 +61,7 @@ public class VPNServiceImpl implements VPNService {
         this.vpnInstanceManager = null;
         this.netConfManager = null;
         this.deviceManager = null;
+        this.linkManager = null;
     }
 
     public boolean setBaseInterface(BaseInterface baseInterface) {
@@ -68,7 +70,8 @@ public class VPNServiceImpl implements VPNService {
             vpnInstanceManager = this.baseInterface.getVpnInstanceManager();
             netConfManager = this.baseInterface.getNetConfManager();
             deviceManager = this.baseInterface.getDeviceManager();
-            tunnelManager = baseInterface.getTunnelManager();
+            tunnelManager = this.baseInterface.getTunnelManager();
+            linkManager = this.baseInterface.getLinkManager();
         }
         return true;
     }
@@ -805,7 +808,10 @@ public class VPNServiceImpl implements VPNService {
 
         Map<String,List<Tunnel>> tunnelsMap = new HashMap<>();
         List<TunnelPolicy> tunnelPolicyList = new ArrayList<>();
-        this.createTunnelsFromTopo(tunnelsMap, tunnelPolicyList);
+
+        //建立区域：上海、北京等
+        Map<String,List<Device>> area =this.deviceManager.getAreaDeviceList();
+        this.createTunnelsFromTopo(tunnelsMap, tunnelPolicyList,area);
 
         Map<String,List<Tunnel>> tunnelsRouterKeyMap = new HashMap<>();
 
@@ -817,6 +823,7 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId,tunnels);
                 }
+                this.createExplicitByTunnel(t,area);
                 tunnels.add(t);
             }
         }
@@ -829,7 +836,29 @@ public class VPNServiceImpl implements VPNService {
         return resultMap;
     }
 
-    private void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies){
+    private boolean createExplicitByTunnel(Tunnel tunnel, Map<String,List<Device>> area) {
+//        private ExplicitPath explicitPath1 = new ExplicitPath();
+//        private Map<String, Label> labelMap1 = new HashMap<>();
+//        private ExplicitPath explicitPath2 = new ExplicitPath();
+//        private Map<String, Label> labelMap2 = new HashMap<>();
+//        Device deviceSrc = tunnel.getDevice();
+//
+//        for(Link link : linkManager.getLinkList()) {
+//            if (link.getDeviceInterface1().getDevice() == deviceSrc) {
+//                Device deviceDst = link.getDeviceInterface2().getDevice();
+//                Label label = new Label();
+//                label.setType(LabelTypeEnum.PREFIX.getCode());
+//                label.setRouterId(deviceDst.getRouterId());
+//                label.setValue(deviceDst.getNodeLabel().getValue());
+//                labelMap1.put("1",label);
+//            }
+//        }
+//        Device deviceDst = this.deviceManager.getDevice(tunnel.getDestRouterId());
+        return true;
+    }
+
+    private void createTunnelsFromTopo(Map<String,List<Tunnel>> tunnels ,List<TunnelPolicy> tunnelPolicies,
+                                       Map<String,List<Device>> area){
 
         // Tunnel id & bfd local id map
         // Attention: create ids
@@ -837,8 +866,6 @@ public class VPNServiceImpl implements VPNService {
         this.bfdDiscriminatorTemp = new HashMap<>();
         this.getCurrentTunnelData(this.tunnelMapTemp,this.bfdDiscriminatorTemp);
 
-        //建立区域：上海、北京等
-        Map<String,List<Device>> area =this.deviceManager.getAreaDeviceList();
 //        Map<String,List<Tunnel>> tunnels = new HashMap<String, List<Tunnel>>();
 //        List<TunnelPolicy> tunnelPolicies = new ArrayList<TunnelPolicy>();
 
