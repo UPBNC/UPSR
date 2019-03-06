@@ -244,10 +244,12 @@ public class VPNServiceImpl implements VPNService {
                 LOG.info("vpnApplyLabelUpdateXml sendMsg = \n" + sendMsg);
                 result = netconfController.sendMessage(netconfClient, sendMsg);
                 LOG.info("vpnApplyLabelUpdateXml result = \n" + result);
-                sendMsg = VpnUpdateXml.vpnApplyEbgpXml(bgpVrf);
-                LOG.info("vpnApplyEbgpXml sendMsg = \n" + sendMsg);
-                result = netconfController.sendMessage(netconfClient, sendMsg);
-                LOG.info("vpnApplyEbgpXml result = \n" + result);
+                if (null != bgpVrf) {
+                    sendMsg = VpnUpdateXml.vpnApplyEbgpXml(bgpVrf);
+                    LOG.info("vpnApplyEbgpXml sendMsg = \n" + sendMsg);
+                    result = netconfController.sendMessage(netconfClient, sendMsg);
+                    LOG.info("vpnApplyEbgpXml result = \n" + result);
+                }
             }
         }
         //vpn info update in vpnManager
