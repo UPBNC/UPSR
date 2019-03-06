@@ -241,17 +241,24 @@ public class SrLabelServiceImpl implements SrLabelService {
         ospfProcess.setAreaId(netconfSrLabelInfo.getOspfAreaId());
         NodeLabel nodeLabel = new NodeLabel();
         if ((null != netconfSrLabelInfo.getPrefixLabel()) && (Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) != 0)) {
-            if (netconfSrLabelInfo.getPrefixType().equals(this.PREFIX_SID_TYPE_INDEX)) {
-                nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) + device.getMinNodeSID().intValue());
-            } else {
+            if (netconfSrLabelInfo.getPrefixType().equals(this.PREFIX_SID_TYPE_ABSOLUTE)) {
                 nodeLabel.setValue(Integer.valueOf(netconfSrLabelInfo.getPrefixLabel()));
+                nodeLabel.setPrefixType(netconfSrLabelInfo.getPrefixType());
+                device.setSrStatus(SrStatusEnum.ENABLED.getName());
+                device.setNodeLabel(nodeLabel);
+            } else if (netconfSrLabelInfo.getPrefixType().equals(this.PREFIX_SID_TYPE_INDEX)){
+                if (device.getMinNodeSID() != null) {
+                    nodeLabel.setValue(Integer.parseInt(netconfSrLabelInfo.getPrefixLabel()) + device.getMinNodeSID().intValue());
+                    nodeLabel.setPrefixType(netconfSrLabelInfo.getPrefixType());
+                    device.setSrStatus(SrStatusEnum.ENABLED.getName());
+                    device.setNodeLabel(nodeLabel);
+                } else {
+                    device.setSrStatus(SrStatusEnum.DISENABLED.getName());
+                }
             }
-            nodeLabel.setPrefixType(netconfSrLabelInfo.getPrefixType());
-            device.setSrStatus(SrStatusEnum.ENABLED.getName());
         } else {
             device.setSrStatus(SrStatusEnum.DISENABLED.getName());
         }
-        device.setNodeLabel(nodeLabel);
         return null;
     }
 
@@ -264,11 +271,9 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("can not find device or netconf");
             return false;
         }
-        boolean syncOspfRet = this.syncDeviceOspfProcess(device);
-        boolean syncRangeRet = this.syncDeviceNodeLabelRange(device);
-        if (syncOspfRet && syncRangeRet) {
-            this.syncDeviceNodeLabel(device);
-        }
+        this.syncDeviceOspfProcess(device);
+        this.syncDeviceNodeLabelRange(device);
+        this.syncDeviceNodeLabel(device);
         LOG.info("syncNodeLabel end ");
         return true;
     }
