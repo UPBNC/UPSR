@@ -52,7 +52,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         resultMap.put(ResponseEnum.BODY.getName(), false);
         if ((null == routerId) || routerId.isEmpty() || (null == password) || password.isEmpty()
                 || (null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceIP or devicePort is null");
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceIp , devicePort or password is null.");
             return resultMap;
         }
         boolean isSyn = this.netconfSessionService.isSyn(netconfSession);
