@@ -56,7 +56,8 @@ public class SrLabelApiImpl implements SrLabelApi {
             return resultMap;
         }
         if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.NETCONF_INVALID.getMessage());
             return resultMap;
         }
         if (Integer.parseInt(labelValAbs) <= Integer.parseInt(labelBegin)) {
@@ -77,7 +78,8 @@ public class SrLabelApiImpl implements SrLabelApi {
             return resultMap;
         }
         if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.NETCONF_INVALID.getMessage());
             return resultMap;
         }
         if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MAX_NODE_LABEL_RANGE) {
@@ -92,7 +94,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     public Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action) {
         Map<String, Object> resultMap = new HashMap<>();
         if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.NETCONF_INVALID.getMessage());
             return resultMap;
         }
         return srLabelService.updateIntfLabel(routerId, ifAddress, labelVal, action);

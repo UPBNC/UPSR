@@ -173,6 +173,7 @@ public class SrLabelXml {
                                 netconfSrLabelInfo.setPrefixIfName(interfaceElement.elementText("ifName"));
                                 netconfSrLabelInfo.setPrefixLabel(interfaceElement.element("srInterface").elementText("prefixLabel"));
                                 netconfSrLabelInfo.setPrefixType(interfaceElement.element("srInterface").elementText("prefixSidType"));
+                                return netconfSrLabelInfo;
                             }
                         }
                         break;
@@ -182,7 +183,7 @@ public class SrLabelXml {
                 LOG.info(e.toString());
             }
         }
-        return netconfSrLabelInfo;
+        return null;
     }
     public static String getSrNodeLabelRangeXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
@@ -219,6 +220,7 @@ public class SrLabelXml {
                                 netconfSrLabelInfo.setOspfProcessId(ospfSiteElement.elementText("processId"));
                                 netconfSrLabelInfo.setSrgbBegin(ospfSrgbElement.elementText("srgbBegin"));
                                 netconfSrLabelInfo.setSrgbEnd(ospfSrgbElement.elementText("srgbEnd"));
+                                return netconfSrLabelInfo;
                             }
                         }
                     }
@@ -227,7 +229,7 @@ public class SrLabelXml {
                 LOG.info(e.toString());
             }
         }
-        return netconfSrLabelInfo;
+        return null;
     }
     public static String setSrNodeLabelXml(String processId,String areaId,String ifName,String prefixSidType,String prefixLabel,String operation) {
         if (operation.equals(SrLabelXml.ncOperationDelete)) {

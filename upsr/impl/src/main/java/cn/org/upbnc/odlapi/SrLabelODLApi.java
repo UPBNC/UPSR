@@ -148,6 +148,9 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             }
         }
         LOG.info(resultString);
+        if(resultString.equals("") != true) {
+            return resultString;
+        }
         return CodeEnum.SUCCESS.getMessage();
     }
     private String enableSrLabel(UpdateSrLabelInput input) {
@@ -166,7 +169,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         Iterator<IntfLabel> intfLabelIterator = intfLabelList.iterator();
         while (intfLabelIterator.hasNext()) {
             IntfLabel intfLabel = intfLabelIterator.next();
-            Map<String, Object> updateIntfLabelRet = null;
+            Map<String, Object> updateIntfLabelRet;
             if (intfLabel.getSrEnabled().equals(SrStatusEnum.DISENABLED.getName())) {
                 updateIntfLabelRet = srLabelApi.updateIntfLabel(input.getRouterId(), intfLabel.getIfAddress(),
                         intfLabel.getAdjlabel(), SrLabelXml.ncOperationDelete);

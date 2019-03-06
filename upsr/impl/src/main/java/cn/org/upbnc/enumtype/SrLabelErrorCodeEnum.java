@@ -6,7 +6,8 @@ public enum SrLabelErrorCodeEnum {
     LABEL_INVALID(2, "Label invalid"),
     DEVICE_INVALID(3, "Device invalid"),
     CONFIG_FAILED(4, "Config failed"),
-    LABEL_DUPLICATED(5, "Adjacency label is duplicated");
+    LABEL_DUPLICATED(5, "Adjacency label is duplicated"),
+    NETCONF_INVALID(6, "Netconf client is null");
 
     private int code;
     private String message;

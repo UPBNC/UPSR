@@ -149,8 +149,8 @@ public class TopoInfoODLApi implements UpsrTopoService {
         if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatusEnum.ENABLED.getName()) &&
                 device.getNodeLabel() != null) {
             srgbPrefixSidBuilder.setPrefixId(device.getNodeLabel().getValue().toString());
-            srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID().toString());
-            srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID().toString());
+            srgbPrefixSidBuilder.setSrgbBegin(device.getMinNodeSID() == null ? null:device.getMinNodeSID().toString());
+            srgbPrefixSidBuilder.setSrgbEnd(device.getMaxNodeSID() == null ? null:device.getMaxNodeSID().toString());
         }
         if (device.getMinAdjSID() != null) {
             srgbPrefixSidBuilder.setAdjBegin(device.getMinAdjSID().toString());

@@ -97,10 +97,10 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("do not need update");
             return buildResult(SrLabelErrorCodeEnum.EXECUTE_SUCCESS);
         }
-        if ((device.getOspfProcess() == null) || (device.getNetConf() == null)) {
+        if (device.getOspfProcess() == null) {
             return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
         }
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getRouterId());
         String commandSetSrNodeLabelXml = SrLabelXml.setSrNodeLabelXml(device.getOspfProcess().getProcessId().toString(),
                 device.getOspfProcess().getAreaId(), device.getOspfProcess().getIntfName(), this.PREFIX_SID_TYPE_ABSOLUTE, labelVal, action);
         LOG.info("commandSetSrNodeLabelXml : " + commandSetSrNodeLabelXml);
@@ -123,17 +123,14 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     public Map<String, Object> deleteSrNodeLabelRange(Device device) {
-        if (((device.getMinNodeSID() != null) && (device.getMinNodeSID().intValue() != 0)) ||
-                ((device.getMaxNodeSID() != null) && (device.getMaxNodeSID().intValue() != 0))) {
-            NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-            String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
-                    device.getMinNodeSID().toString(), device.getMaxNodeSID().toString(), SrLabelXml.ncOperationDelete);
-            LOG.info("commandDeleteSrNodeLabelRangeXml: " + commandDeleteSrNodeLabelRangeXml);
-            String outPutdeleteXml = netconfController.sendMessage(netconfClient, commandDeleteSrNodeLabelRangeXml);
-            LOG.info("outPutdeleteXml: " + outPutdeleteXml);
-            device.setMinNodeSID(null);
-            device.setMaxNodeSID(null);
-        }
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        String commandDeleteSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
+                null, null, SrLabelXml.ncOperationDelete);
+        LOG.info("commandDeleteSrNodeLabelRangeXml: " + commandDeleteSrNodeLabelRangeXml);
+        String outPutdeleteXml = netconfController.sendMessage(netconfClient, commandDeleteSrNodeLabelRangeXml);
+        LOG.info("outPutdeleteXml: " + outPutdeleteXml);
+        device.setMinNodeSID(null);
+        device.setMaxNodeSID(null);
         return null;
     }
 
@@ -164,7 +161,7 @@ public class SrLabelServiceImpl implements SrLabelService {
             return delLabelRangeRet;
         }
         //配置新的标签范围
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        NetconfClient netconfClient = netConfManager.getNetconClient(device.getRouterId());
         if (action.equals(SrLabelXml.ncOperationDelete) != true) {
             String commandCreateSrNodeLabelRangeXml = SrLabelXml.setSrNodeLabelRangeXml(device.getOspfProcess().getProcessId().toString(),
                     labelBegin, labelEnd, SrLabelXml.ncOperationCreate);
@@ -182,35 +179,33 @@ public class SrLabelServiceImpl implements SrLabelService {
     }
 
     //节点标签范围同步
-    public String syncDeviceNodeLabelRange(Device device) {
+    public boolean syncDeviceNodeLabelRange(Device device) {
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         String commandGetSrNodeLabelRangeXml = SrLabelXml.getSrNodeLabelRangeXml();
         LOG.info("commandGetSrNodeLabelRangeXml: " + commandGetSrNodeLabelRangeXml);
         String outPutLabelRangeXml = netconfController.sendMessage(netconfClient, commandGetSrNodeLabelRangeXml);
         LOG.info("outPutLabelRangeXml: " + outPutLabelRangeXml);
+        //假设只有一个ospf配置了sr范围
         NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getSrNodeLabelRangeFromNodeLabelRangeXml(outPutLabelRangeXml);
         if (netconfSrLabelInfo == null) {
             LOG.info("can not get netconfSrLabelInfo");
-            return null;
+            return false;
         }
-        if (netconfSrLabelInfo.getSrgbBegin() != null) {
-            device.setMinNodeSID(Integer.valueOf(netconfSrLabelInfo.getSrgbBegin()));
-        }
-        if (netconfSrLabelInfo.getSrgbEnd() != null) {
-            device.setMaxNodeSID(Integer.valueOf(netconfSrLabelInfo.getSrgbEnd()));
-        }
-        return null;
+        device.setMinNodeSID(Integer.valueOf(netconfSrLabelInfo.getSrgbBegin()));
+        device.setMaxNodeSID(Integer.valueOf(netconfSrLabelInfo.getSrgbEnd()));
+        return true;
     }
 
     //routerid所在接口、ospf进程号同步
-    public String syncDeviceOspfProcess(Device device) {
+    public boolean syncDeviceOspfProcess(Device device) {
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
+        //查找routerId所在的接口
         String commandGetOspfProcessXml = SrLabelXml.getOspfProcessXml();
         LOG.info("commandGetOspfProcessXml: " + commandGetOspfProcessXml);
         String outPutOspfProcessXml = netconfController.sendMessage(netconfClient, commandGetOspfProcessXml);
         LOG.info("outPutOspfProcessXml: " + outPutOspfProcessXml);
         NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getOspfProcessFromOspfProcessXml(outPutOspfProcessXml, device.getRouterId());
-
+        //ospf的routerI等于设备routerId的ospf进程
         String commandGetLoopBackXml = SrLabelXml.getLoopBackXml();
         LOG.info("commandGetLoopBackXml: " + commandGetLoopBackXml);
         String outPutLoopBackXml = netconfController.sendMessage(netconfClient, commandGetLoopBackXml);
@@ -222,8 +217,11 @@ public class SrLabelServiceImpl implements SrLabelService {
         if (netconfSrLabelInfo.getOspfProcessId() != null) {
             ospfProcess.setProcessId(Integer.valueOf(netconfSrLabelInfo.getOspfProcessId()));
         }
+        if ((ospfProcess.getProcessId() == null) || (ospfProcess.getIntfName() == null)) {
+            return false;
+        }
         device.setOspfProcess(ospfProcess);
-        return null;
+        return true;
     }
 
     //同步节点标签
@@ -266,9 +264,11 @@ public class SrLabelServiceImpl implements SrLabelService {
             LOG.info("can not find device or netconf");
             return false;
         }
-        this.syncDeviceOspfProcess(device);
-        this.syncDeviceNodeLabelRange(device);
-        this.syncDeviceNodeLabel(device);
+        boolean syncOspfRet = this.syncDeviceOspfProcess(device);
+        boolean syncRangeRet = this.syncDeviceNodeLabelRange(device);
+        if (syncOspfRet && syncRangeRet) {
+            this.syncDeviceNodeLabel(device);
+        }
         LOG.info("syncNodeLabel end ");
         return true;
     }
@@ -307,7 +307,7 @@ public class SrLabelServiceImpl implements SrLabelService {
         if (remoteDeviceInterface == null) {
             return buildResult(SrLabelErrorCodeEnum.CONFIG_FAILED);
         }
-        if ((SrLabelXml.ncOperationDelete.equals(action) == false) && "".equals(labelVal)) {
+        if ((SrLabelXml.ncOperationDelete.equals(action) != true) && "".equals(labelVal)) {
             return buildResult(SrLabelErrorCodeEnum.INPUT_INVALID);
         }
         String remoteAddress = remoteDeviceInterface.getIp().getAddress();

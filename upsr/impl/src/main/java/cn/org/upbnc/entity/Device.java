@@ -63,8 +63,8 @@ public class Device {
         this.dataCenter = null;
         this.address = null;
         this.netConf = null;
-        this.minNodeSID = 0;
-        this.maxNodeSID = 0;
+        this.minNodeSID = null;
+        this.maxNodeSID = null;
 //        this.srStatus = 0;
         this.srStatus = null;
         this.bgpAS = 0;
