@@ -75,10 +75,10 @@ public class UpsrProvider implements AutoCloseable {
     }
 
     private void registerServices() {
-        netconfSessionODLApi = new NetconfSessionODLApi(this.upsr);
         this.topoInfoServiceReg = this.rpcRegistry.addRpcImplementation(UpsrTopoService.class, new TopoInfoODLApi(this.upsr));
         this.upsrBgplsSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrBgplsSessionService.class, new BgplsSessionODLApi(this.upsr));
         this.vpnInstanceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrVpnInstanceService.class, new VpnInstanceODLApi(this.upsr));
+        netconfSessionODLApi = new NetconfSessionODLApi(this.upsr);
         this.upsrNetconfSessionServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrNetconfSessionService.class, netconfSessionODLApi);
         this.upsrSrLabelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrSrLabelService.class, new SrLabelODLApi(this.upsr));
         this.upsrInterfaceServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrInterfaceService.class, new InterfaceODLApi(this.upsr));

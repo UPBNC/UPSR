@@ -177,7 +177,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setRouterId(routerId);
             netconfSession.setDeviceDesc(device.getDataCenter());
             netconfSession.setDeviceType(device.getDeviceType());
-            netconfSession.setDeviceIP(device.getAddress().getAddress());
+            netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
             netconfSession.setDevicePort(device.getNetConf().getPort());
             netconfSession.setUserName(device.getNetConf().getUser());
             netconfSession.setUserPassword(device.getNetConf().getPassword());
@@ -199,7 +199,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             if (null != device.getNetConf()) {
                 boolean result = this.netConfManager.deleteDevice(device.getNetConf());
                 if (result) {
-                    saveNetconfSession(routerId, device.getDataCenter(), device.getDeviceType(), device.getAddress().getAddress(),
+                    saveNetconfSession(routerId, device.getDataCenter(), device.getDeviceType(), device.getNetConf().getIp().getAddress(),
                             device.getNetConf().getPort(), device.getNetConf().getUser(), device.getNetConf().getPassword(),
                             NetConfStatusEnum.Disconnected.name());
                     netConfManager.closeNetconfByRouterId(routerId);
