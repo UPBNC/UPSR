@@ -96,6 +96,8 @@ public class TunnelServiceImpl implements TunnelService {
         tunnel.setDestRouterId(tunnelServiceEntity.getDestRouterId());
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
         tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
+        // Create tunnel description
+        tunnel.setTunnelDesc(tunnel.getTunnelName()+"_"+TunnelDescEnum.TunnelBegin.getName()+"_"+TunnelDescEnum.End.getName());
 
         if( null != tunnelServiceEntity.getTunnelServiceClassEntity()) {
             TunnelServiceClassEntity tsce = tunnelServiceEntity.getTunnelServiceClassEntity();

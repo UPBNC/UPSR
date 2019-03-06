@@ -35,7 +35,6 @@ public class TunnelManagerImpl implements TunnelManager {
     private final String Link = "Link";
     private final String Linkback = "Linkback";
 
-
     private TunnelManagerImpl() {
         this.tunnelMap = new ConcurrentHashMap<>();
         this.bfdSessionMap = new ConcurrentHashMap<String, Map<Integer, BfdSession>>();
@@ -366,6 +365,7 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setMplsTunnelEgressLSRId(tunnel.getDestRouterId());
         ret.setMplsTunnelIndex(tunnel.getTunnelId());
         ret.setMplsTunnelBandwidth(tunnel.getBandWidth());
+        ret.setTunnelDesc(tunnel.getTunnelDesc());
 
         TunnelServiceClass tsc = tunnel.getServiceClass();
         if(null != tsc){
@@ -642,6 +642,24 @@ public class TunnelManagerImpl implements TunnelManager {
 
         List<SSrTeTunnel> ret = SrTeTunnelXml.getSrTeTunnelFromXml(outPutGetTunnelsXml);
 
+        // Get Interfaces
+        String commadGetTunnelInterfacesXml = SrTeTunnelXml.getSrTeTunnelInterfacesXml();
+        LOG.info("CommadGetTunnelInterfacesXml: " + commadGetTunnelInterfacesXml);
+
+        String outPutGetTunnelInterfacesXml = netconfController.sendMessage(netconfClient, commadGetTunnelInterfacesXml);
+        LOG.info("OutPutGetTunnelInterfacesXml: " + outPutGetTunnelInterfacesXml);
+
+        List<SSrTeTunnelInterface> list = SrTeTunnelXml.getSrTeTunnelInterfacesFromXml(outPutGetTunnelInterfacesXml);
+
+        for(SSrTeTunnel t: ret){
+            for(SSrTeTunnelInterface i : list){
+                if(t.getTunnelName().equals(i.getIfName())){
+                    t.setTunnelDesc(i.getIfDescr());
+                    break;
+                }
+            }
+        }
+
         return ret;
     }
 
@@ -729,6 +747,8 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setDestRouterId(sSrTeTunnel.getMplsTunnelEgressLSRId());
         ret.setTunnelId(sSrTeTunnel.getMplsTunnelIndex());
         ret.setBandWidth(sSrTeTunnel.getMplsTunnelBandwidth());
+
+        ret.setTunnelDesc(sSrTeTunnel.getTunnelDesc());
 
         if(null != sSrTeTunnel.getMplsteServiceClass()){
             TunnelServiceClass tsc = new TunnelServiceClass();

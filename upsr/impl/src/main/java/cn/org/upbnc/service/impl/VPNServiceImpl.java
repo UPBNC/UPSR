@@ -826,6 +826,7 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId,tunnels);
                 }
+                t.setTunnelDesc(t.getTunnelName()+"_"+TunnelDescEnum.VPNBegin.getName()+"_"+vpnName+"_"+TunnelDescEnum.End.getName());
                 this.createExplicitByTunnel(t,pathUtils);
                 tunnels.add(t);
             }
