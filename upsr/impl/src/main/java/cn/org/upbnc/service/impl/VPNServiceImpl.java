@@ -323,6 +323,8 @@ public class VPNServiceImpl implements VPNService {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }
+        boolean tunnelDel = this.deleteTunnelsByVpnName(routerId,vpnName,netconfClient);
+        LOG.info("dele vpn tunnel " + String.valueOf(tunnelDel));
         resultMap.put(ResponseEnum.BODY.getName(), ret);
         return resultMap;
     }
@@ -828,7 +830,7 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId, tunnels);
                 }
-                t.setTunnelDesc(t.getTunnelName() + "_" + TunnelDescEnum.VPNBegin.getName() + "_" + vpnName + "_" + TunnelDescEnum.End.getName());
+                t.setTunnelDesc(TunnelDescEnum.createTunnelDescription(t.getTunnelName(),vpnName,TunnelDescEnum.VPNBegin,TunnelDescEnum.End));
                 this.createExplicitByTunnel(t, pathUtils);
                 tunnels.add(t);
             }
@@ -1191,6 +1193,22 @@ public class VPNServiceImpl implements VPNService {
             bfdDiscriminatorTemp.put(routerId, bfdLocalList);
         }
         return;
+    }
+
+    private boolean deleteTunnelsByVpnName(String routerId, String vpnName, NetconfClient netconfClient) {
+        List<Tunnel> tunnelList = this.tunnelManager.getTunnel(routerId,null);
+        if (tunnelList != null) {
+            List<String> tunnelName = new ArrayList<>();
+            for (Tunnel tunnel : tunnelList) {
+                String vpnDesc = TunnelDescEnum.getVpnDescription(tunnel.getDescription());
+                if (vpnName.equals(vpnDesc)) {
+                    tunnelName.add(tunnel.getTunnelName());
+                }
+            }
+            this.tunnelManager.deleteTunnels(tunnelName,routerId,netconfClient);
+        }
+
+        return true;
     }
 
 //    private void cloneCurrentData(Map<String, List> destMap,Map<String, Map> sourceMap){

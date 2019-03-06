@@ -320,7 +320,7 @@ public class SrTeTunnelXml {
         if(desc == null || desc == ""){
             return "";
         }else {
-            return "          <ifDescr> " + desc + "</ifName>\n";
+            return "          <ifDescr> " + desc + "</ifDescr>\n";
         }
     }
 }
