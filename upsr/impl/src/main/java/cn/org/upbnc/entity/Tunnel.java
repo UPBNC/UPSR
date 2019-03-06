@@ -31,6 +31,8 @@ public class Tunnel {
     private BfdSession tunnelBfd;
     private TunnelServiceClass serviceClass;
 
+    private String tunnelDesc;
+
     public Tunnel() {
     }
 
@@ -167,6 +169,13 @@ public class Tunnel {
         this.serviceClass = serviceClass;
     }
 
+    public String getTunnelDesc() {
+        return tunnelDesc;
+    }
+
+    public void setTunnelDesc(String tunnelDesc) {
+        this.tunnelDesc = tunnelDesc;
+    }
 
     @Override
     public String toString() {

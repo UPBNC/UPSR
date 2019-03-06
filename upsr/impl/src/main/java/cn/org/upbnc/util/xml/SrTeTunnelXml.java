@@ -1,6 +1,7 @@
 package cn.org.upbnc.util.xml;
 
 import cn.org.upbnc.util.netconf.SSrTeTunnel;
+import cn.org.upbnc.util.netconf.SSrTeTunnelInterface;
 import cn.org.upbnc.util.netconf.SSrTeTunnelPath;
 import cn.org.upbnc.util.netconf.STunnelServiceClass;
 import org.dom4j.Element;
@@ -25,6 +26,9 @@ public class SrTeTunnelXml {
                 "  <config>\n";
         String middle = "";
         for (SSrTeTunnel srTeTunnel : srTeTunnels) {
+
+            String tunnelDesc = getTunnelDescXml(srTeTunnel.getTunnelDesc());
+
             middle = middle +
                     "    <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                     "      <mplsTe>\n" +
@@ -102,6 +106,7 @@ public class SrTeTunnelXml {
                             "      <interfaces>\n" +
                             "        <interface>\n" +
                             "          <ifName>" + srTeTunnel.getTunnelName() + "</ifName>\n" +
+                            tunnelDesc +
                             "          <ipv4Config>\n" +
                             "            <unNumIfName>" + srTeTunnel.getUnNumIfName() + "</unNumIfName>\n" +
                             "            <addrCfgType>" + srTeTunnel.getAddrCfgType() + "</addrCfgType>\n" +
@@ -141,6 +146,7 @@ public class SrTeTunnelXml {
 //                "      <interfaces>\n" +
 //                "        <interface>\n" +
 //                "          <ifName>" + tunnelName + "</ifName>\n" +
+
 //                "        </interface>\n" +
 //                "      </interfaces>\n" +
 //                "    </ifm>\n" +
@@ -149,6 +155,8 @@ public class SrTeTunnelXml {
                 "</rpc>";
         return start + middle + end;
     }
+
+
 
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
@@ -259,5 +267,60 @@ public class SrTeTunnelXml {
                 "</edit-config>\n" +
                 "</rpc>";
         return start + middle + end;
+    }
+
+    public static String  getSrTeTunnelInterfacesXml(){
+        String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <target>\n" +
+                "    <running/>\n" +
+                "  </target>\n" +
+                "  <filter type=\"subtree\">\n" +
+                "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "      <ifm:interfaces>\n" +
+                "        <ifm:interface>\n" +
+                "          <ifm:ifName/>\n"+
+                "          <ifm:ifDescr/>\n"+
+                "          <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n"+
+                "        </ifm:interface>\n" +
+                "      </ifm:interfaces>\n" +
+                "    </ifm:ifm>\n" +
+                "  </filter>\n" +
+                "</get-config>\n" +
+                "</rpc>";
+
+        return start;
+    }
+
+    public static List<SSrTeTunnelInterface> getSrTeTunnelInterfacesFromXml(String xml) {
+        List<SSrTeTunnelInterface> ret = new ArrayList<>();
+        SSrTeTunnelInterface sSrTeTunnelInterface;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                for (org.dom4j.Element element : childElements) {
+                    sSrTeTunnelInterface = new SSrTeTunnelInterface();
+                    sSrTeTunnelInterface.setIfName(element.elementText("ifName"));
+                    sSrTeTunnelInterface.setIfDescr(element.elementText("ifDescr"));
+                    sSrTeTunnelInterface.setIfPhyType(element.elementText("ifPhyType"));
+                    ret.add(sSrTeTunnelInterface);
+                }
+            }catch (Exception e) {
+
+            }
+        }
+        return ret;
+    }
+
+
+    private static String getTunnelDescXml(String desc){
+        if(desc == null || desc == ""){
+            return "";
+        }else {
+            return "          <ifDescr> " + desc + "</ifName>\n";
+        }
     }
 }

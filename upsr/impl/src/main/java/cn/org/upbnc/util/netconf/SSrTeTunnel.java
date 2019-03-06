@@ -4,6 +4,7 @@ import java.util.List;
 
 public class SSrTeTunnel {
     private String tunnelName;
+    private String tunnelDesc;
     private String mplsTunnelEgressLSRId;
     private String mplsTunnelIndex;
     private String mplsTeTunnelSetupPriority = "7";
@@ -128,6 +129,14 @@ public class SSrTeTunnel {
 
     public void setMplsTeTunnelBfdEnable(String mplsTeTunnelBfdEnable) {
         this.mplsTeTunnelBfdEnable = mplsTeTunnelBfdEnable;
+    }
+
+    public String getTunnelDesc() {
+        return tunnelDesc;
+    }
+
+    public void setTunnelDesc(String tunnelDesc) {
+        this.tunnelDesc = tunnelDesc;
     }
 
     @Override
