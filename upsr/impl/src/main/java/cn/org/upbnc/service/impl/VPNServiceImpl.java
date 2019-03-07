@@ -282,10 +282,9 @@ public class VPNServiceImpl implements VPNService {
                 continue;
             }
             List<VPNInstance> vpnInstanceList = this.vpnInstanceManager.getVpnInstanceListByRouterId(device.getRouterId());
+            NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getRouterId());
             for (VPNInstance vpnInstance : vpnInstanceList) {
-
                 if (true == vpnName.equals(vpnInstance.getVpnName())) {
-                    NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
                     String sendMsg = VpnXml.getDeleteL3vpnXml(vpnName);
                     LOG.info("get sendMsg={}", new Object[]{sendMsg});
                     String result = netconfController.sendMessage(netconfClient, sendMsg);
@@ -297,9 +296,11 @@ public class VPNServiceImpl implements VPNService {
                     }
                     this.vpnInstanceManager.delVpnInstance(device.getRouterId(), vpnName);
                 }
-
             }
-
+            if (netconfClient != null) {
+                boolean tunnelDel = this.deleteTunnelsByVpnName(device.getRouterId(), vpnName, netconfClient);
+                LOG.info("dele vpn tunnel " + String.valueOf(tunnelDel));
+            }
         }
         resultMap.put(ResponseEnum.BODY.getName(), true);
         return resultMap;
@@ -328,8 +329,7 @@ public class VPNServiceImpl implements VPNService {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             this.vpnInstanceManager.delVpnInstance(routerId, vpnName);
         }
-        boolean tunnelDel = this.deleteTunnelsByVpnName(routerId, vpnName, netconfClient);
-        LOG.info("dele vpn tunnel " + String.valueOf(tunnelDel));
+
         resultMap.put(ResponseEnum.BODY.getName(), ret);
         return resultMap;
     }
@@ -835,17 +835,17 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId, tunnels);
                 }
-                t.setTunnelDesc(TunnelDescEnum.createTunnelDescription(t.getTunnelName(), vpnName, TunnelDescEnum.VPNBegin, TunnelDescEnum.End));
+                t.setTunnelDesc(TunnelDescEnum.createTunnelDescription(t.getTunnelName(),vpnName,TunnelDescEnum.VPNBegin,TunnelDescEnum.End));
                 this.createExplicitByTunnel(t, pathUtils);
                 tunnels.add(t);
             }
         }
 
-//        for(String routerId : tunnelsRouterKeyMap.keySet()) {
-//            List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
-//            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
-//            this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
-//        }
+        for(String routerId : tunnelsRouterKeyMap.keySet()) {
+            List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
+            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+            this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
+        }
         return resultMap;
     }
 
@@ -862,18 +862,18 @@ public class VPNServiceImpl implements VPNService {
         }
 
         if (expPathUtils.get(0).getFirstWeight() > expPathUtils.get(1).getFirstWeight()) {
-            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(1)));
-            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(0)));
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(1),tunnel.getTunnelName() + "Link",tunnel.getDevice()));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(0),tunnel.getTunnelName() + "Linkback",tunnel.getDevice()));
         } else if (expPathUtils.get(0).getFirstWeight() < expPathUtils.get(1).getFirstWeight()) {
-            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(0)));
-            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(1)));
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(0),tunnel.getTunnelName() + "Link",tunnel.getDevice()));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(1),tunnel.getTunnelName() + "Linkback",tunnel.getDevice()));
         } else {
             return false;
         }
         return true;
     }
 
-    private ExplicitPath createExplicitByPathUtil(PathUtil pathUtil) {
+    private ExplicitPath createExplicitByPathUtil(PathUtil pathUtil, String expName, Device expDevice) {
         ExplicitPath explicitPath = new ExplicitPath();
         Map<String, Label> labelMap = new HashMap<>();
         int index = 1;
@@ -890,8 +890,13 @@ public class VPNServiceImpl implements VPNService {
             Label label = new Label();
             label.setType(LabelTypeEnum.PREFIX.getCode());
             label.setValue(device.getNodeLabel().getValue());
+            label.setDevice(device);
+            label.setAddressLocal(new Address(device.getRouterId(),AddressTypeEnum.V4));
             labelMap.put(index + "", label);
+            index = index + 1;
         }
+        explicitPath.setDevice(expDevice);
+        explicitPath.setPathName(expName);
         explicitPath.setLabelMap(labelMap);
         return explicitPath;
     }
@@ -1046,6 +1051,7 @@ public class VPNServiceImpl implements VPNService {
         tunnel.setDevice(s);
         tunnel.setBfdType(BfdTypeEnum.Static.getCode());
         tunnel.setDestRouterId(d.getRouterId());
+        tunnel.setDestDeviceName(d.getDeviceName());
         tunnel.setServiceClass(tsc);
         tunnel.setTunnelName(this.getTunnelName(s.getRouterId()));
         tunnel.setTunnelId(this.getTunelIdByTunnelName(tunnel.getTunnelName()));
@@ -1201,16 +1207,16 @@ public class VPNServiceImpl implements VPNService {
     }
 
     private boolean deleteTunnelsByVpnName(String routerId, String vpnName, NetconfClient netconfClient) {
-        List<Tunnel> tunnelList = this.tunnelManager.getTunnel(routerId, null);
+        List<Tunnel> tunnelList = this.tunnelManager.getTunnel(routerId,null);
         if (tunnelList != null) {
             List<String> tunnelName = new ArrayList<>();
             for (Tunnel tunnel : tunnelList) {
-                String vpnDesc = TunnelDescEnum.getVpnDescription(tunnel.getDescription());
+                String vpnDesc = TunnelDescEnum.getVpnDescription(tunnel.getTunnelDesc());
                 if (vpnName.equals(vpnDesc)) {
                     tunnelName.add(tunnel.getTunnelName());
                 }
             }
-            this.tunnelManager.deleteTunnels(tunnelName, routerId, netconfClient);
+            this.tunnelManager.deleteTunnels(tunnelName,routerId,netconfClient);
         }
 
         return true;

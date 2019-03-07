@@ -248,34 +248,6 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
             List<DeviceBind> bindDeviceList = vpnInstance_input.getDeviceBind();
             if (null != bindDeviceList) {
                 if (bindDeviceList.size() > 0) {
-                    boolean flag = false;
-                    String errorMsg = "";
-                    for (DeviceBind bindDevice : bindDeviceList) {
-                        String peerAS = bindDevice.getEbgp().getPeerAS();
-                        if ("".equals(peerAS)) {
-                            peerAS = null;
-                        }
-                        if (("".equals(bindDevice.getEbgp().getPeerIP()) && (null != peerAS)) ||
-                                ((!("".equals(bindDevice.getEbgp().getPeerIP()))) && null == peerAS)) {
-                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp or peerAS is null.";
-                            flag = true;
-                            LOG.info("bindDevice.getEbgp().getPeerIP() :" + bindDevice.getEbgp().getPeerIP());
-                            LOG.info("bindDevice.getEbgp().getPeerAS() :" + bindDevice.getEbgp().getPeerAS());
-                        }
-//                        if ((boolean) getVpnInstanceApi().isContainRd(bindDevice.getRouterId(), bindDevice.getVpnRd()).get(ResponseEnum.BODY.getName())) {
-//                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD has been used.";
-//                            flag = true;
-//                        }
-                    }
-                    if (!checkRT(vpnRT)) {
-                        errorMsg += "Configure failed: RT format is not right .the right example is xx:xx";
-                        flag = true;
-                    }
-                    if (flag) {
-                        vpnInstanceUpdateOutputBuilder.setResult("failed");
-                        vpnInstanceUpdateOutputBuilder.setMessage(errorMsg);
-                        return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
-                    }
                     for (DeviceBind bindDevice : bindDeviceList) {
                         List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
                         List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
@@ -352,9 +324,9 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     }
                     //vpnInstanceUpdateOutputBuilder.setResult("success");
                     vpnInstanceUpdateOutputBuilder.setMessage(message);
-                    // if (VpnUseTemplateEnum.ENABLE.getName().equals(vpnInstance_input.getUseTemplate())) {
-                    vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
-                    //  }
+                    if (VpnUseTemplateEnum.ENABLE.getName().equals(vpnInstance_input.getUseTemplate())) {
+                        vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
+                    }
                     return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
                 } else {
                     vpnInstanceUpdateOutputBuilder.setMessage("please select devices for vpn( " + vpnName + " ).");
