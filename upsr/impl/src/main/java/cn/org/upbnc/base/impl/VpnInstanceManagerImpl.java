@@ -265,9 +265,11 @@ public class VpnInstanceManagerImpl implements VpnInstanceManager {
     public boolean isContainRd(String routerId, String rd) {
         boolean isContain = false;
         for (VPNInstance vpnInstance : getVpnInstanceListByRouterId(routerId)) {
-            if (vpnInstance.getRd().equals(rd)) {
-                isContain = true;
-                return isContain;
+            if(null!=vpnInstance.getRd()){
+                if (vpnInstance.getRd().equals(rd)) {
+                    isContain = true;
+                    return isContain;
+                }
             }
         }
         return isContain;

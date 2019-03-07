@@ -77,6 +77,8 @@ public class VpnInstanceApiImpl implements VpnInstanceApi {
             }
         }
         return this.vpnService.updateVpnInstance(updateVpnInstance);
+
+
     }
 
     public boolean delVpnInstance(Integer id) {

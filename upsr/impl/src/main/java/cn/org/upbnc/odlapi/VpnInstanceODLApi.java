@@ -43,6 +43,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -246,8 +247,57 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
             String businessArea = vpnInstance_input.getBusinessArea();
             String notes = vpnInstance_input.getNotes();
             List<DeviceBind> bindDeviceList = vpnInstance_input.getDeviceBind();
+            List<String> routerIdList = new ArrayList<>();
             if (null != bindDeviceList) {
+                for (DeviceBind bindDevice : bindDeviceList) {
+                    routerIdList.add(bindDevice.getRouterId());
+                }
                 if (bindDeviceList.size() > 0) {
+                    Map<String, List<VPNInstance>> vpnInstanceMap = (Map<String, List<VPNInstance>>) this.getVpnInstanceApi().
+                            getVpnInstanceMap(vpnName).get(ResponseEnum.BODY.getName());
+                    if (null != vpnInstanceMap) {
+                        for (VPNInstance vpnInstance : vpnInstanceMap.get(vpnName)) {
+                            if (!routerIdList.contains(vpnInstance.getRouterId())) {
+                                ret = (boolean) this.getVpnInstanceApi().delVpnInstance(vpnInstance.getRouterId(), vpnName).get(ResponseEnum.BODY.getName());
+                                LOG.info("delete vpn ret :" + ret);
+                            }
+                        }
+                    }
+
+                    boolean flag = false;
+                    String errorMsg = "";
+                    for (DeviceBind bindDevice : bindDeviceList) {
+                        String peerAS = bindDevice.getEbgp().getPeerAS();
+                        String peerIp = bindDevice.getEbgp().getPeerIP();
+                        String Rd = bindDevice.getVpnRd();
+                        if ("".equals(peerAS)) {
+                            peerAS = null;
+                        }
+                        if (null == peerIp) {
+                            peerAS = "";
+                        }
+                        if (("".equals(peerIp) && (null != peerAS)) ||
+                                ((!("".equals(peerIp))) && null == peerAS)) {
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp or peerAS is null.";
+                            flag = true;
+                            LOG.info("bindDevice.getEbgp().getPeerIP() :" + bindDevice.getEbgp().getPeerIP());
+                            LOG.info("bindDevice.getEbgp().getPeerAS() :" + bindDevice.getEbgp().getPeerAS());
+                        }
+                        if (!checkRT(Rd)) {
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is xx:xx.";
+                            flag = true;
+                        }
+                    }
+                    if (!checkRT(vpnRT)) {
+                        errorMsg += "Configure failed: RT format is not right .the right example is xx:xx";
+                        flag = true;
+                    }
+                    if (flag) {
+                        vpnInstanceUpdateOutputBuilder.setResult("failed");
+                        vpnInstanceUpdateOutputBuilder.setMessage(errorMsg);
+                        return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
+                    }
+
                     for (DeviceBind bindDevice : bindDeviceList) {
                         List<DeviceInterface> deviceInterfaceList = new LinkedList<DeviceInterface>();
                         List<NetworkSeg> networkSegList = new LinkedList<NetworkSeg>();
@@ -331,6 +381,12 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                 } else {
                     vpnInstanceUpdateOutputBuilder.setMessage("please select devices for vpn( " + vpnName + " ).");
                     vpnInstanceUpdateOutputBuilder.setResult("failed.");
+                }
+            } else {
+                ret = (boolean) this.getVpnInstanceApi().delVpnInstance("", vpnName).get(ResponseEnum.BODY.getName());
+                if (true == ret) {
+                    vpnInstanceUpdateOutputBuilder.setResult("success");
+                    return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
                 }
             }
         }
