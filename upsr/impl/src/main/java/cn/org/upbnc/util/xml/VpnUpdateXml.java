@@ -33,15 +33,18 @@ public class VpnUpdateXml {
                 "  </target>\n" +
                 "  <error-option>rollback-on-error</error-option>\n" +
                 "  <config>\n";
-        String ebgp = "    <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
-                "      <bgpcomm>\n" +
-                "        <bgpVrfs>\n" +
-                "          <bgpVrf xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
-                "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>\n" +
-                "          </bgpVrf>\n" +
-                "        </bgpVrfs>\n" +
-                "      </bgpcomm>\n" +
-                "    </bgp>";
+        String ebgp = "";
+        if (null != bgpVrf) {
+            ebgp = "    <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
+                    "      <bgpcomm>\n" +
+                    "        <bgpVrfs>\n" +
+                    "          <bgpVrf xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                    "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>\n" +
+                    "          </bgpVrf>\n" +
+                    "        </bgpVrfs>\n" +
+                    "      </bgpcomm>\n" +
+                    "    </bgp>";
+        }
         String vpn =
                 "    <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
                         "      <l3vpncomm>\n" +
@@ -254,40 +257,42 @@ public class VpnUpdateXml {
         return result + end;
     }
 
-    public static String vpnApplyLabelUpdateXml(L3vpnInstance l3vpnInstance){
+    public static String vpnApplyLabelUpdateXml(L3vpnInstance l3vpnInstance) {
         String start =
                 "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
-                "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                 \n" +
-                "  <target>                                                                                      \n" +
-                "    <running/>                                                                                  \n" +
-                "  </target>                                                                                     \n" +
-                "  <error-option>rollback-on-error</error-option>                                                \n" +
-                "  <config>                                                                                      \n";
+                        "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                 \n" +
+                        "  <target>                                                                                      \n" +
+                        "    <running/>                                                                                  \n" +
+                        "  </target>                                                                                     \n" +
+                        "  <error-option>rollback-on-error</error-option>                                                \n" +
+                        "  <config>                                                                                      \n";
         String vpnStart =
                 "    <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">                            \n" +
-                "      <l3vpncomm>                                                                               \n" +
-                "        <l3vpnInstances>                                                                        \n" +
-                "          <l3vpnInstance>                                                                       \n" +
-                "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>                                   \n";
+                        "      <l3vpncomm>                                                                               \n" +
+                        "        <l3vpnInstances>                                                                        \n" +
+                        "          <l3vpnInstance>                                                                       \n" +
+                        "            <vrfName>" + l3vpnInstance.getVrfName() + "</vrfName>                                   \n";
         String vpnInstAFs =
                 "            <vpnInstAFs>                                                                         \n" +
-                "              <vpnInstAF>                                                                        \n" +
-                "                <afType>ipv4uni</afType>\n" +
-                "                <vrfRD>" + l3vpnInstance.getVrfRD() + "</vrfRD>                                    \n" +
-                "                  <vpnFrr>" + l3vpnInstance.getVpnFrr() + "</vpnFrr>                               \n";
+                        "              <vpnInstAF>                                                                        \n" +
+                        "                <afType>ipv4uni</afType>\n" +
+                        "                <vrfRD>" + l3vpnInstance.getVrfRD() + "</vrfRD>                                    \n" +
+                        "                  <vpnFrr>" + l3vpnInstance.getVpnFrr() + "</vpnFrr>                               \n";
         if (l3vpnInstance.getApplyLabel() == null) {
             vpnInstAFs = vpnInstAFs +
-                 "<vrfLabelMode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>    \n";
+                    "<vrfLabelMode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>    \n";
         } else {
             vpnInstAFs = vpnInstAFs +
-                 "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>                \n";
+                    "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>                \n";
         }
         if (l3vpnInstance.getApplyLabel() == null) {
             vpnInstAFs = vpnInstAFs +
-                 "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>    \n";
+                    "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>    \n";
         } else {
-            vpnInstAFs = vpnInstAFs +
-                 "                  <tnlPolicyName>" + l3vpnInstance.getTunnelPolicy() + "</tnlPolicyName>              \n";
+            if (null != l3vpnInstance.getTunnelPolicy()) {
+                vpnInstAFs = vpnInstAFs +
+                        "                  <tnlPolicyName>" + l3vpnInstance.getTunnelPolicy() + "</tnlPolicyName>              \n";
+            }
         }
         vpnInstAFs = vpnInstAFs +
                 "                  <l3vpnTtlMode> <ttlMode>" + l3vpnInstance.getTtlMode() + "</ttlMode> </l3vpnTtlMode>\n" +
@@ -303,14 +308,12 @@ public class VpnUpdateXml {
                 "</rpc>";
 
 
-
-
         return start + vpnStart + vpnInstAFs;
     }
 
-    public static String vpnApplyEbgpXml(BgpVrf bgpVrf){
+    public static String vpnApplyEbgpXml(BgpVrf bgpVrf) {
         String start =
-                        "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                         "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                                 \n" +
                         "  <target>                                                                                      \n" +
                         "    <running/>                                                                                  \n" +
@@ -319,17 +322,17 @@ public class VpnUpdateXml {
                         "  <config>                                                                                      \n";
         String bgpStart =
 
-                        "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
+                "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
                         "        <bgpcomm>\n" +
                         "          <bgpVrfs>\n" +
                         "            <bgpVrf xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
-                        "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n" ;
+                        "              <vrfName>" + bgpVrf.getVrfName() + "</vrfName>\n";
         String bgpVrfAFs = "";
         if (bgpVrf.getBgpVrfAFs() != null) {
             bgpVrfAFs = bgpVrfAFs +
-                        "              <bgpVrfAFs>\n" +
-                        "                <bgpVrfAF>\n" +
-                        "                  <afType>ipv4uni</afType>\n";
+                    "              <bgpVrfAFs>\n" +
+                    "                <bgpVrfAF>\n" +
+                    "                  <afType>ipv4uni</afType>\n";
             for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
                 bgpVrfAFs = bgpVrfAFs +
                         "                  <preferenceExternal>" + sBgpVrfAF.getPreferenceExternal() + "</preferenceExternal>\n" +
@@ -341,8 +344,8 @@ public class VpnUpdateXml {
                             "                <peerAF>\n";
                     for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
                         bgpVrfAFs = bgpVrfAFs +
-                                "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity()  + "</advertiseCommunity>\n" +
-                                "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n" ;
+                                "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity() + "</advertiseCommunity>\n" +
+                                "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n";
                         if (sPeerAF.getImportRtPolicyName() == null) {
                             bgpVrfAFs = bgpVrfAFs +
                                     "                  <importRtPolicyName nc:operation=\"delete\"/>\n";
@@ -353,7 +356,7 @@ public class VpnUpdateXml {
                         if (sPeerAF.getExportRtPolicyName() == null) {
                             bgpVrfAFs = bgpVrfAFs +
                                     "                  <exportRtPolicyName nc:operation=\"delete\"/>\n";
-                        }else{
+                        } else {
                             bgpVrfAFs = bgpVrfAFs +
                                     "                  <exportRtPolicyName>" + sPeerAF.getExportRtPolicyName() + "</exportRtPolicyName>\n";
                         }
@@ -364,11 +367,11 @@ public class VpnUpdateXml {
                         "                </peerAFs>     \n";
             }
             bgpVrfAFs = bgpVrfAFs +
-                        "              </bgpVrfAF>      \n" +
-                        "            </bgpVrfAFs>       \n";
+                    "              </bgpVrfAF>      \n" +
+                    "            </bgpVrfAFs>       \n";
         }
         String end =
-                        "       </bgpVrf>               \n" +
+                "       </bgpVrf>               \n" +
                         "      </bgpVrfs>               \n" +
                         "     </bgpcomm>                \n" +
                         "    </bgp>                     \n" +
