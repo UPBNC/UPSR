@@ -50,9 +50,26 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
-        if ((null == routerId) || routerId.isEmpty() || (null == password) || password.isEmpty()
-                || (null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
-            resultMap.put(ResponseEnum.MESSAGE.getName(), "routerId , deviceIp , devicePort or password is null.");
+        boolean flag = false;
+        String errorMsg = "";
+        if ((null == routerId) || routerId.isEmpty()) {
+            errorMsg += "rouoterId is empty.";
+            flag = true;
+        }
+        if ((null == password) || password.isEmpty()) {
+            errorMsg += "password is empty";
+            flag = true;
+        }
+        if ((null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
+            errorMsg += "deviceIP is empty.";
+            flag = true;
+        }
+        if (null == devicePort) {
+            errorMsg += "devicePort is empty.";
+            flag = true;
+        }
+        if (flag) {
+            resultMap.put(ResponseEnum.MESSAGE.getName(), errorMsg);
             return resultMap;
         }
         boolean isSyn = this.netconfSessionService.isSyn(netconfSession);
