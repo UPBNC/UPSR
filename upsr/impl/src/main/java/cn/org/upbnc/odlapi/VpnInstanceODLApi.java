@@ -255,7 +255,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                 if (bindDeviceList.size() > 0) {
                     Map<String, List<VPNInstance>> vpnInstanceMap = (Map<String, List<VPNInstance>>) this.getVpnInstanceApi().
                             getVpnInstanceMap(vpnName).get(ResponseEnum.BODY.getName());
-                    if (null != vpnInstanceMap) {
+                    if (vpnInstanceMap.containsKey(vpnName)) {
                         for (VPNInstance vpnInstance : vpnInstanceMap.get(vpnName)) {
                             if (!routerIdList.contains(vpnInstance.getRouterId())) {
                                 ret = (boolean) this.getVpnInstanceApi().delVpnInstance(vpnInstance.getRouterId(), vpnName).get(ResponseEnum.BODY.getName());
