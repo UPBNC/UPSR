@@ -1,7 +1,7 @@
 package cn.org.upbnc.enumtype;
 
 public enum TunnelDescEnum {
-    End(1,"Create_By_UPSR"),
+    End(1,"CreateByUPSR"),
     TunnelBegin(2,"Tunnel"),
     VPNBegin(3,"VPN");
     private static final String split = "_";
