@@ -48,6 +48,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VpnInstanceODLApi implements UpsrVpnInstanceService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceODLApi.class);
@@ -212,14 +214,13 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
         return RpcResultBuilder.success(vpnInstanceDelOutputBuilder.build()).buildFuture();
     }
 
-    private boolean checkRT(String RT) {
+    private boolean checkRTD(String rtd) {
         boolean result = false;
-        int index;
-        if (RT.contains(":")) {
-            index = RT.indexOf(":");
-            if (index != 0 && index != (RT.length() - 1)) {
-                result = true;
-            }
+        Pattern pattern = Pattern.compile
+                ("((((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))|^[1-9][0-9]*):[1-9][0-9]*$");
+        Matcher matcher = pattern.matcher(rtd);
+        if (matcher.matches()) {
+            result = true;
         }
         return result;
     }
@@ -283,12 +284,12 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             LOG.info("bindDevice.getEbgp().getPeerIP() :" + bindDevice.getEbgp().getPeerIP());
                             LOG.info("bindDevice.getEbgp().getPeerAS() :" + bindDevice.getEbgp().getPeerAS());
                         }
-                        if (!checkRT(Rd)) {
+                        if (!checkRTD(Rd)) {
                             errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is xx:xx.";
                             flag = true;
                         }
                     }
-                    if (!checkRT(vpnRT)) {
+                    if (!checkRTD(vpnRT)) {
                         errorMsg += "Configure failed: RT format is not right .the right example is xx:xx";
                         flag = true;
                     }
