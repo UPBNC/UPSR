@@ -1,0 +1,22 @@
+package cn.org.upbnc.util.netconf;
+
+public class SSrgbRange {
+    String srgbBegin;
+    String srgbEnd;
+
+    public String getSrgbBegin() {
+        return srgbBegin;
+    }
+
+    public void setSrgbBegin(String srgbBegin) {
+        this.srgbBegin = srgbBegin;
+    }
+
+    public String getSrgbEnd() {
+        return srgbEnd;
+    }
+
+    public void setSrgbEnd(String srgbEnd) {
+        this.srgbEnd = srgbEnd;
+    }
+}

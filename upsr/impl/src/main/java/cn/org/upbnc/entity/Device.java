@@ -33,6 +33,7 @@ public class Device {
     private Integer maxAdjSID;
     private NodeLabel nodeLabel;
     private List<AdjLabel> adjLabelList;
+    private List<DynSrgbRange> dynSrgbRanges;
 
     //private Integer srStatus;
     private String srStatus;
@@ -413,6 +414,14 @@ public class Device {
 
     public void setMaxAdjSID(Integer maxAdjSID) {
         this.maxAdjSID = maxAdjSID;
+    }
+
+    public List<DynSrgbRange> getDynSrgbRanges() {
+        return dynSrgbRanges;
+    }
+
+    public void setDynSrgbRanges(List<DynSrgbRange> dynSrgbRanges) {
+        this.dynSrgbRanges = dynSrgbRanges;
     }
 
     public DeviceInterface getDeviceInterfaceByAddress(String address){

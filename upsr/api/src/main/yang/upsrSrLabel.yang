@@ -14,6 +14,10 @@ module upsrSrLabel {
             leaf prefixId { type string; }
             leaf adjBegin { type string; }
             leaf adjEnd { type string; }
+            list srgbRange {
+                leaf srgbBegin { type int32; }
+                leaf srgbEnd { type int32; }
+            }
         }
     }
     grouping srInterface {
@@ -52,6 +56,7 @@ module upsrSrLabel {
             leaf routerId { type string; }
         }
         output {
+            leaf result { type string; }
             uses srgbLabelInfo;
         }
     }
@@ -69,6 +74,7 @@ module upsrSrLabel {
             leaf intfLocalAddress { type string; }
         }
         output {
+            leaf result { type string; }
             uses intfLabelInfo;
         }
     }

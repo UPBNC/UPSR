@@ -14,17 +14,18 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.service.SrLabelService;
+import cn.org.upbnc.service.entity.SrLabel.DynaSrgbEntity;
+import cn.org.upbnc.service.entity.SrLabel.SrgbServiceEntity;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
+import cn.org.upbnc.util.netconf.SSrgbRange;
 import cn.org.upbnc.util.xml.CheckXml;
 import cn.org.upbnc.util.xml.SrLabelXml;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
@@ -422,6 +423,18 @@ public class SrLabelServiceImpl implements SrLabelService {
         if (null != netconfSrLabelInfo.getAdjUpperSid()) {
             device.setMaxAdjSID(Integer.valueOf(netconfSrLabelInfo.getAdjUpperSid()));
         }
+
+        if ((netconfSrLabelInfo.getSrgbRangeList() != null) &&
+                !netconfSrLabelInfo.getSrgbRangeList().isEmpty()) {
+            List<DynSrgbRange> dynSrgbRangeList = new ArrayList<>();
+            for (SSrgbRange srgbRange : netconfSrLabelInfo.getSrgbRangeList()) {
+                DynSrgbRange dynSrgbRange = new DynSrgbRange();
+                dynSrgbRange.setSrgbMin(Integer.valueOf(srgbRange.getSrgbBegin()));
+                dynSrgbRange.setSrgbMax(Integer.valueOf(srgbRange.getSrgbEnd()));
+                dynSrgbRangeList.add(dynSrgbRange);
+            }
+            device.setDynSrgbRanges(dynSrgbRangeList);
+        }
         return null;
     }
 
@@ -467,5 +480,25 @@ public class SrLabelServiceImpl implements SrLabelService {
         this.syncDeviceAdjLabelRange(device);
         this.syncDeviceIntfLabel(device);
         return true;
+    }
+
+    public Map<String, Object> getSrgbLabel(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Device device = this.deviceManager.getDevice(routerId);
+        List<DynSrgbRange> dynSrgbRangeList = device.getDynSrgbRanges();
+        DynaSrgbEntity dynaSrgbEntity = new DynaSrgbEntity();
+        if (dynSrgbRangeList != null) {
+            List<SrgbServiceEntity> srgbServiceEntityList = new ArrayList<>();
+            for (DynSrgbRange dynSrgbRange : dynSrgbRangeList) {
+                SrgbServiceEntity srgbServiceEntity = new SrgbServiceEntity();
+                srgbServiceEntity.setDysrgbMin(dynSrgbRange.getSrgbMin());
+                srgbServiceEntity.setDysrgbMax(dynSrgbRange.getSrgbMax());
+                srgbServiceEntityList.add(srgbServiceEntity);
+            }
+            dynaSrgbEntity.setDynaSrgbEntityList(srgbServiceEntityList);
+        }
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(), dynaSrgbEntity);
+        return resultMap;
     }
 }

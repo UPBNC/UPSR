@@ -11,6 +11,7 @@ import cn.org.upbnc.entity.Address;
 import cn.org.upbnc.entity.AdjLabel;
 import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
+import cn.org.upbnc.util.netconf.SSrgbRange;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -102,6 +103,7 @@ public class SrLabelXml {
                 "  <filter type=\"subtree\">                                                   \n" +
                 "    <segr:segr xmlns:segr=\"http://www.huawei.com/netconf/vrp/huawei-segr\">  \n" +
                 "      <segr:srSRGBs/>                                                         \n" +
+                "      <segr:dynSrSRGBs/>                                                      \n" +
                 "    </segr:segr>                                                              \n" +
                 "  </filter>                                                                   \n" +
                 "</get>                                                                        \n" +
@@ -116,11 +118,20 @@ public class SrLabelXml {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            List<Element> childElements = root.element("data").elements().get(0).elements().get(0).elements();
+            List<Element> childElements = root.element("data").element("segr").element("srSRGBs").elements("srSRGB");
             for (Element child : childElements) {
                 netconfSrLabelInfo.setAdjLowerSid(child.elementText("lowerSid"));
                 netconfSrLabelInfo.setAdjUpperSid(child.elementText("upperSid"));
             }
+            childElements = root.element("data").element("segr").element("dynSrSRGBs").elements("dynSrSRGB");
+            List<SSrgbRange> srgbRangeList = new ArrayList<>();
+            for (Element child : childElements) {
+                SSrgbRange sSrgbRange = new SSrgbRange();
+                sSrgbRange.setSrgbBegin(child.elementText("beginSid"));
+                sSrgbRange.setSrgbEnd(child.elementText("endSid"));
+                srgbRangeList.add(sSrgbRange);
+            }
+            netconfSrLabelInfo.setSrgbRangeList(srgbRangeList);
         } catch (Exception e) {
         }
         return netconfSrLabelInfo;

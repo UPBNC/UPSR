@@ -7,6 +7,8 @@
  */
 package cn.org.upbnc.util.netconf;
 
+import java.util.List;
+
 public class NetconfSrLabelInfo {
     String ospfProcessId;
     String ospfAreaId;
@@ -19,6 +21,7 @@ public class NetconfSrLabelInfo {
 
     String adjLowerSid;
     String adjUpperSid;
+    List<SSrgbRange> srgbRangeList;
 
     public String getPrefixIfName() {
         return prefixIfName;
@@ -90,5 +93,13 @@ public class NetconfSrLabelInfo {
 
     public void setOspfAreaId(String ospfAreaId) {
         this.ospfAreaId = ospfAreaId;
+    }
+
+    public List<SSrgbRange> getSrgbRangeList() {
+        return srgbRangeList;
+    }
+
+    public void setSrgbRangeList(List<SSrgbRange> srgbRangeList) {
+        this.srgbRangeList = srgbRangeList;
     }
 }

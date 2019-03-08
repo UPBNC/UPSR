@@ -22,4 +22,6 @@ public interface SrLabelApi {
     Map<String, Object> updateIntfLabel(String routerId, String ifAddress, String labelVal, String action);
 
     Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal);
+
+    Map<String, Object> getSrgbLabel(String routerId);
 }

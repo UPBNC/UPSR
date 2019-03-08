@@ -14,18 +14,21 @@ import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SrStatusEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import cn.org.upbnc.service.entity.SrLabel.DynaSrgbEntity;
+import cn.org.upbnc.service.entity.SrLabel.SrgbServiceEntity;
 import cn.org.upbnc.util.xml.SrLabelXml;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.srgbprefixsid.SrgbRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.srgbprefixsid.SrgbRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.updatesrlabel.input.IntfLabel;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 public class SrLabelODLApi implements UpsrSrLabelService {
@@ -49,7 +52,6 @@ public class SrLabelODLApi implements UpsrSrLabelService {
 
     @Override
     public Future<RpcResult<GetSrgbLabelOutput>> getSrgbLabel(GetSrgbLabelInput input) {
-        //该函数暂未用到，待删除
         GetSrgbLabelOutputBuilder getSrgbLabelOutputBuilder = new GetSrgbLabelOutputBuilder();
         LOG.info("getSrgbLabel begin : " + input.getRouterId());
         if (SystemStatusEnum.ON != this.session.getStatus()) {
@@ -57,6 +59,20 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         } else {
             this.getSrLabelApi();
         }
+        Map<String, Object> srgbLabelRet = this.srLabelApi.getSrgbLabel(input.getRouterId());
+        DynaSrgbEntity dynaSrgbEntity = (DynaSrgbEntity) srgbLabelRet.get(ResponseEnum.BODY.getName());
+        SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
+        List<SrgbRange> srgbRangeList = new ArrayList<>();
+        for(SrgbServiceEntity srgbServiceEntity : dynaSrgbEntity.getDynaSrgbEntityList()) {
+            SrgbRangeBuilder srgbRangeBuilder = new SrgbRangeBuilder();
+            srgbRangeBuilder.setSrgbBegin(srgbServiceEntity.getDysrgbMin());
+            srgbRangeBuilder.setSrgbEnd(srgbServiceEntity.getDysrgbMax());
+            srgbRangeList.add(srgbRangeBuilder.build());
+        }
+        srgbPrefixSidBuilder.setSrgbRange(srgbRangeList);
+        getSrgbLabelOutputBuilder.setRouterId(input.getRouterId());
+        getSrgbLabelOutputBuilder.setSrgbPrefixSid(srgbPrefixSidBuilder.build());
+        getSrgbLabelOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getSrgbLabel end");
         return RpcResultBuilder.success(getSrgbLabelOutputBuilder.build()).buildFuture();
     }

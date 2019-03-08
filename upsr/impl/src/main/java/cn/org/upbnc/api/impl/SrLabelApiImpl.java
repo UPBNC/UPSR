@@ -105,4 +105,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     public Map<String, Object> checkIntfLabel(String routerId, String ifAddress, String labelVal) {
         return srLabelService.checkIntfLabel(routerId, ifAddress, labelVal);
     }
+
+    public Map<String, Object> getSrgbLabel(String routerId) {
+        return srLabelService.getSrgbLabel(routerId);
+    }
 }
