@@ -271,6 +271,8 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                         String peerAS = bindDevice.getEbgp().getPeerAS();
                         String peerIp = bindDevice.getEbgp().getPeerIP();
                         String Rd = bindDevice.getVpnRd();
+                        String importRoutePolicy = bindDevice.getEbgp().getRouterImportPolicy();
+                        String exportRoutePolicy = bindDevice.getEbgp().getRouterExportPolicy();
                         if ("".equals(peerAS)) {
                             peerAS = null;
                         }
@@ -285,12 +287,22 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             LOG.info("bindDevice.getEbgp().getPeerAS() :" + bindDevice.getEbgp().getPeerAS());
                         }
                         if (!checkRTD(Rd)) {
-                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is xx:xx.";
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is 100:100 or 192.168.1.1:888.";
+                            flag = true;
+                        }
+                        if ("".equals(importRoutePolicy)) {
+                            importRoutePolicy = null;
+                        }
+                        if ("".equals(exportRoutePolicy)) {
+                            exportRoutePolicy = null;
+                        }
+                        if ("".equals(peerIp) && (null != importRoutePolicy || null != exportRoutePolicy)) {
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp is empty when config import or export route policy.";
                             flag = true;
                         }
                     }
                     if (!checkRTD(vpnRT)) {
-                        errorMsg += "Configure failed: RT format is not right .the right example is xx:xx";
+                        errorMsg += "Configure failed: RT format is not right .the right example is 100:100 or 192.168.1.1:888.";
                         flag = true;
                     }
                     if (flag) {
