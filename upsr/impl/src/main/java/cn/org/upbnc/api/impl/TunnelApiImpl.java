@@ -60,13 +60,24 @@ public class TunnelApiImpl implements TunnelApi {
             }
             if ( null !=tunnelServiceEntity.getTunnelBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getTunnelBfd())){
                 tunnelServiceEntity.setTunnelBfd(null);
-                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Tunnel Bfd is null");
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel bfd parameter is invalid.");
                 return map;
             }
 
             if (null != tunnelServiceEntity.getMasterBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getMasterBfd())) {
                 tunnelServiceEntity.setMasterBfd(null);
-                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : Master Bfd is null");
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel lsp_bfd parameter is invalid.");
+                return map;
+            }
+        } else if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            if(null == tunnelServiceEntity.getTunnelBfd()){
+                map.put(ResponseEnum.MESSAGE.getName(), "Dynamic Bfd : None Bfd");
+                return map;
+            }
+
+            if ( null != tunnelServiceEntity.getTunnelBfd() && !this.checkDynamicBfdParams(tunnelServiceEntity.getTunnelBfd())){
+                tunnelServiceEntity.setTunnelBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel bfd parameter is invalid.");
                 return map;
             }
         }
@@ -176,6 +187,15 @@ public class TunnelApiImpl implements TunnelApi {
             return false;
         }
 
+        return true;
+    }
+
+    private boolean checkDynamicBfdParams(BfdServiceEntity bfdServiceEntity){
+        if(bfdServiceEntity.getMinRecvTime() == null || bfdServiceEntity.getMinSendTime() == null || bfdServiceEntity.getMultiplier() == null ||
+                "".equals(bfdServiceEntity.getMinRecvTime()) || "".equals(bfdServiceEntity.getMinSendTime()) || "".equals(bfdServiceEntity.getMultiplier()) )
+        {
+            return false;
+        }
         return true;
     }
 }

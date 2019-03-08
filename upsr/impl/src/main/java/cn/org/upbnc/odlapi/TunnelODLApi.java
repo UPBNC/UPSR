@@ -234,7 +234,11 @@ public class TunnelODLApi implements UpsrTunnelService {
         //end
 
         //this.tunnelBfdBuild(tunnelServiceEntity, input);
-        this.tunnelPathBuild(tunnelServiceEntity, input);
+        String buildPathRet = this.tunnelPathBuild(tunnelServiceEntity, input);
+        if (buildPathRet != null) {
+            updateTunnelInstanceOutputBuilder.setResult(buildPathRet);
+            return RpcResultBuilder.success(updateTunnelInstanceOutputBuilder.build()).buildFuture();
+        }
         LOG.info(tunnelServiceEntity.toString());
         tunnelServiceEntity.setRouterId(input.getSrcRouterId());
         Map<String, Object> resultMap = this.tunnelApi.createTunnel(tunnelServiceEntity);
@@ -481,13 +485,16 @@ public class TunnelODLApi implements UpsrTunnelService {
     }
 
 
-    private void tunnelPathBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {
+    private String tunnelPathBuild(TunnelServiceEntity tunnelServiceEntity, UpdateTunnelInstanceInput input) {
         LOG.info("tunnelPathBuild begin");
         List<MainPath> mainPathList = input.getMainPath();
         Iterator<MainPath> mainPathIterator = mainPathList.iterator();
         while (mainPathIterator.hasNext()) {
             TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
             MainPath mainPath = mainPathIterator.next();
+            if ("".equals(mainPath.getAdjlabel()) || "".equals(mainPath.getIfAddress())) {
+                return "Main path is invalid at the node " + mainPath.getDeviceName() + ".";
+            }
             tunnelHopServiceEntity.setIndex(mainPath.getIndex());
             tunnelHopServiceEntity.setDeviceName(mainPath.getDeviceName());
             tunnelHopServiceEntity.setRouterId(mainPath.getRouterId());
@@ -503,6 +510,9 @@ public class TunnelODLApi implements UpsrTunnelService {
             while (backPathIterator.hasNext()) {
                 TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
                 BackPath backPath = backPathIterator.next();
+                if ("".equals(backPath.getAdjlabel()) || "".equals(backPath.getIfAddress())) {
+                    return "Backup path is invalid at the node " + backPath.getDeviceName() + ".";
+                }
                 tunnelHopServiceEntity.setIndex(backPath.getIndex());
                 tunnelHopServiceEntity.setDeviceName(backPath.getDeviceName());
                 tunnelHopServiceEntity.setRouterId(backPath.getRouterId());
@@ -512,6 +522,7 @@ public class TunnelODLApi implements UpsrTunnelService {
             }
         }
         LOG.info("tunnelPathBuild end");
+        return null;
     }
 
     private TunnelServiceClassEntity getTSCEByODL(String odlTsce){
