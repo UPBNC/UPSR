@@ -53,30 +53,30 @@ public class VpnXml {
                         "                  <afType>ipv4uni</afType>\n" +
                         "                  <vrfRD>" + vrfRD + "</vrfRD>\n" +
                         "                  <vpnFrr>" + l3vpnInstance.getVpnFrr() + "</vpnFrr>\n";
-                        if (l3vpnInstance.getApplyLabel() == null) {
-                            start2 = start2 + "<vrfLabelMode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
-                        } else {
-                            start2 = start2 + "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>\n";
-                        }
-                        if (l3vpnInstance.getApplyLabel() == null) {
-                            start2 = start2 + "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
-                        } else {
-                            start2 = start2 + "                  <tnlPolicyName>" + l3vpnInstance.getTunnelPolicy() + "</tnlPolicyName>\n";
-                        }
-                        start2 = start2 + "                  <l3vpnTtlMode> <ttlMode>" + l3vpnInstance.getTtlMode() + "</ttlMode> </l3vpnTtlMode>\n" +
-                        "                  <vpnTargets>\n" +
-                        "                    <vpnTarget>\n" +
-                        "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
-                        "                      <vrfRTType>export_extcommunity</vrfRTType>\n" +
-                        "                    </vpnTarget>\n" +
-                        "                    <vpnTarget>\n" +
-                        "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
-                        "                      <vrfRTType>import_extcommunity</vrfRTType>\n" +
-                        "                    </vpnTarget>\n" +
-                        "                  </vpnTargets>\n" +
-                        "                </vpnInstAF>\n" +
-                        "              </vpnInstAFs>\n" +
-                        "              <l3vpnIfs>\n";
+        if (l3vpnInstance.getApplyLabel() == null) {
+            start2 = start2 + "<vrfLabelMode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+        } else {
+            start2 = start2 + "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>\n";
+        }
+        if (l3vpnInstance.getTunnelPolicy() == null) {
+            start2 = start2 + "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+        } else {
+            start2 = start2 + "                  <tnlPolicyName>" + l3vpnInstance.getTunnelPolicy() + "</tnlPolicyName>\n";
+        }
+        start2 = start2 + "                  <l3vpnTtlMode> <ttlMode>" + l3vpnInstance.getTtlMode() + "</ttlMode> </l3vpnTtlMode>\n" +
+                "                  <vpnTargets>\n" +
+                "                    <vpnTarget>\n" +
+                "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
+                "                      <vrfRTType>export_extcommunity</vrfRTType>\n" +
+                "                    </vpnTarget>\n" +
+                "                    <vpnTarget>\n" +
+                "                      <vrfRTValue>" + vrfRTValue + "</vrfRTValue>\n" +
+                "                      <vrfRTType>import_extcommunity</vrfRTType>\n" +
+                "                    </vpnTarget>\n" +
+                "                  </vpnTargets>\n" +
+                "                </vpnInstAF>\n" +
+                "              </vpnInstAFs>\n" +
+                "              <l3vpnIfs>\n";
         String middle = "";
         String ipv4Addr;
         String subnetMask;

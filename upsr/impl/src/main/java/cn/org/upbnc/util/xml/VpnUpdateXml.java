@@ -344,8 +344,10 @@ public class VpnUpdateXml {
                             "                <peerAF>\n";
                     for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
                         bgpVrfAFs = bgpVrfAFs +
-                                "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity() + "</advertiseCommunity>\n" +
-                                "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n";
+                                "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity() + "</advertiseCommunity>\n";
+                        if (!("".equals(sPeerAF.getRemoteAddress()))) {
+                            bgpVrfAFs = bgpVrfAFs + "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n";
+                        }
                         if (sPeerAF.getImportRtPolicyName() == null) {
                             bgpVrfAFs = bgpVrfAFs +
                                     "                  <importRtPolicyName nc:operation=\"delete\"/>\n";

@@ -449,7 +449,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             bindDevice.setApplyLabel(VpnApplyLabelEnum.netconf2cmd(vpnInstance.getApplyLabel()));
                             bindDevice.setTunnelPolicy(vpnInstance.getImportTunnelPolicyName());
                             bindDevice.setTtlMode(vpnInstance.getTtlMode());
-                            bindDevice.setVpnFrr("true".equals(vpnInstance.getVpnFrr()) ?
+                            bindDevice.setVpnFrr("1".equals(vpnInstance.getVpnFrr()) ?
                                     VpnFrrStatusEnum.ENABLED.getName() : VpnFrrStatusEnum.DISENABLED.getName());
                             bindDevice.setNotes(vpnInstance.getNote());
                             if (null != vpnInstance.getDeviceInterfaceList()) {
@@ -499,7 +499,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             eBgp.setEbgpPreference(vpnInstance.getEbgpPreference());
                             eBgp.setIbgpPreference(vpnInstance.getIbgpPreference());
                             eBgp.setLocalPreference(vpnInstance.getLocalPreference());
-                            eBgp.setAdvertiseCommunity("true".equals(vpnInstance.getAdvertiseCommunity()) ?
+                            eBgp.setAdvertiseCommunity("1".equals(vpnInstance.getAdvertiseCommunity()) ?
                                     VpnAdvertiseCommunityEnum.ENABLED.getName() : VpnAdvertiseCommunityEnum.DISENABLED.getName());
                             bindDevice.setEbgp(eBgp.build());
                             bindDevices.add(bindDevice.build());
