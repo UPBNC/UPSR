@@ -162,6 +162,7 @@ public class TunnelServiceImpl implements TunnelService {
                 label = new Label();
                 if (entity.getIfAddress().equals(entity.getRouterId())) {
                     label.setType(LabelTypeEnum.PREFIX.getCode());
+                    label.setAddressLocal(new Address(entity.getIfAddress(), AddressTypeEnum.V4));
                 } else {
                     label.setAddressLocal(new Address(entity.getIfAddress(), AddressTypeEnum.V4));
                     label.setType(LabelTypeEnum.ADJACENCY.getCode());
@@ -459,14 +460,15 @@ public class TunnelServiceImpl implements TunnelService {
         }
         return true;
     }
-
+    //设备获取的路径转化为前端的拓扑结构
     private boolean explicitLabelListToNodeList(ExplicitPath explicit) {
-        Device nextDevice = explicit.getDevice();
+        Device nextDevice = null;
+        Device curDevice = explicit.getDevice();
         for (String key : explicit.getLabelMap().keySet()) {
             Label label = explicit.getLabelMap().get(key);
             if (label.getType() == LabelTypeEnum.ADJACENCY.getCode()) {
-                label.setDevice(nextDevice);
-                for (AdjLabel adjLabel : nextDevice.getAdjLabelList()) {
+                label.setDevice(curDevice);
+                for (AdjLabel adjLabel : curDevice.getAdjLabelList()) {
                     if (label.getValue().equals(adjLabel.getValue())) {
                         label.setAddressLocal(adjLabel.getAddressLocal());
                         label.setAddressRemote(adjLabel.getAddressRemote());
@@ -476,6 +478,11 @@ public class TunnelServiceImpl implements TunnelService {
                         }
                     }
                 }
+                if ((nextDevice == null) || (curDevice == nextDevice)) {
+                    return false;
+                } else {
+                    curDevice = nextDevice;
+                }
             } else if (label.getType() == LabelTypeEnum.PREFIX.getCode()) {
                 nextDevice = deviceManager.getDeviceByNodeLabelValue(label.getValue());
                 if (nextDevice == null) {
@@ -484,6 +491,7 @@ public class TunnelServiceImpl implements TunnelService {
                 label.setDevice(nextDevice);
                 label.setRouterId(nextDevice.getRouterId());
                 label.setAddressLocal(new Address(nextDevice.getRouterId(), AddressTypeEnum.V4));
+                curDevice = nextDevice;
             } else {
                 return false;
             }

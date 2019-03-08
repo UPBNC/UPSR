@@ -138,8 +138,6 @@ public class TunnelODLApi implements UpsrTunnelService {
                     mainPathBuilder.setIndex(key);
                     if (null != map.get(key).getAddressLocal()) {
                         mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
-                    }
-                    if (null != map.get(key).getDevice()) {
                         mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
                         mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
                     }
@@ -156,8 +154,6 @@ public class TunnelODLApi implements UpsrTunnelService {
                     backPathBuilder.setIndex(key);
                     if (null != map.get(key).getAddressLocal()) {
                         backPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
-                    }
-                    if (null != map.get(key).getDevice()) {
                         backPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
                         backPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
                     }
