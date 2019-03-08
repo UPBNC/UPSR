@@ -506,7 +506,11 @@ public class VPNServiceImpl implements VPNService {
         vpnInstance.setDevice(device);
         vpnInstance.setRd(l3vpnInstance.getVrfRD());
         vpnInstance.setImportTunnelPolicyName(l3vpnInstance.getTunnelPolicy());
-        vpnInstance.setVpnFrr(l3vpnInstance.getVpnFrr());
+        if ("true".equals(l3vpnInstance.getVpnFrr())) {
+            vpnInstance.setVpnFrr("1");
+        } else {
+            vpnInstance.setVpnFrr("2");
+        }
         vpnInstance.setApplyLabel(l3vpnInstance.getApplyLabel());
         vpnInstance.setTtlMode(l3vpnInstance.getTtlMode());
         vpnInstance.setExportRT(l3vpnInstance.getVrfRTValue());
@@ -557,7 +561,11 @@ public class VPNServiceImpl implements VPNService {
             if (bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().size() > 0) {
                 vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
                 vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
-                vpnInstance.setAdvertiseCommunity(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity());
+                if ("true".equals(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity())) {
+                    vpnInstance.setAdvertiseCommunity("1");
+                } else {
+                    vpnInstance.setAdvertiseCommunity("2");
+                }
             }
         }
 
@@ -833,13 +841,13 @@ public class VPNServiceImpl implements VPNService {
                     tunnels = new ArrayList<Tunnel>();
                     tunnelsRouterKeyMap.put(routerId, tunnels);
                 }
-                t.setTunnelDesc(TunnelDescEnum.createTunnelDescription(t.getTunnelName(),vpnName,TunnelDescEnum.VPNBegin,TunnelDescEnum.End));
+                t.setTunnelDesc(TunnelDescEnum.createTunnelDescription(t.getTunnelName(), vpnName, TunnelDescEnum.VPNBegin, TunnelDescEnum.End));
                 this.createExplicitByTunnel(t, pathUtils);
                 tunnels.add(t);
             }
         }
 
-        for(String routerId : tunnelsRouterKeyMap.keySet()) {
+        for (String routerId : tunnelsRouterKeyMap.keySet()) {
             List<Tunnel> tunnels = tunnelsRouterKeyMap.get(routerId);
             NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
             this.tunnelManager.createTunnels(tunnels, routerId, netconfClient);
@@ -860,11 +868,11 @@ public class VPNServiceImpl implements VPNService {
         }
 
         if (expPathUtils.get(0).getFirstWeight() > expPathUtils.get(1).getFirstWeight()) {
-            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(1),tunnel.getTunnelName() + "Link",tunnel.getDevice()));
-            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(0),tunnel.getTunnelName() + "Linkback",tunnel.getDevice()));
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(1), tunnel.getTunnelName() + "Link", tunnel.getDevice()));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(0), tunnel.getTunnelName() + "Linkback", tunnel.getDevice()));
         } else if (expPathUtils.get(0).getFirstWeight() < expPathUtils.get(1).getFirstWeight()) {
-            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(0),tunnel.getTunnelName() + "Link",tunnel.getDevice()));
-            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(1),tunnel.getTunnelName() + "Linkback",tunnel.getDevice()));
+            tunnel.setMasterPath(this.createExplicitByPathUtil(expPathUtils.get(0), tunnel.getTunnelName() + "Link", tunnel.getDevice()));
+            tunnel.setSlavePath(this.createExplicitByPathUtil(expPathUtils.get(1), tunnel.getTunnelName() + "Linkback", tunnel.getDevice()));
         } else {
             return false;
         }
@@ -889,7 +897,7 @@ public class VPNServiceImpl implements VPNService {
             label.setType(LabelTypeEnum.PREFIX.getCode());
             label.setValue(device.getNodeLabel().getValue());
             label.setDevice(device);
-            label.setAddressLocal(new Address(device.getRouterId(),AddressTypeEnum.V4));
+            label.setAddressLocal(new Address(device.getRouterId(), AddressTypeEnum.V4));
             labelMap.put(index + "", label);
             index = index + 1;
         }
@@ -1205,7 +1213,7 @@ public class VPNServiceImpl implements VPNService {
     }
 
     private boolean deleteTunnelsByVpnName(String routerId, String vpnName, NetconfClient netconfClient) {
-        List<Tunnel> tunnelList = this.tunnelManager.getTunnel(routerId,null);
+        List<Tunnel> tunnelList = this.tunnelManager.getTunnel(routerId, null);
         if (tunnelList != null) {
             List<String> tunnelName = new ArrayList<>();
             for (Tunnel tunnel : tunnelList) {
@@ -1214,7 +1222,7 @@ public class VPNServiceImpl implements VPNService {
                     tunnelName.add(tunnel.getTunnelName());
                 }
             }
-            this.tunnelManager.deleteTunnels(tunnelName,routerId,netconfClient);
+            this.tunnelManager.deleteTunnels(tunnelName, routerId, netconfClient);
         }
 
         return true;
