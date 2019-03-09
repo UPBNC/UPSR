@@ -217,7 +217,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
     private boolean checkRTD(String rtd) {
         boolean result = false;
         Pattern pattern = Pattern.compile
-                ("((((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))|^[1-9][0-9]*):[1-9][0-9]*$");
+                ("((((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))|^[1-9][0-9]*|((^[1-9][0-9]*)\\.([1-9][0-9]*))):[1-9][0-9]*$");
         Matcher matcher = pattern.matcher(rtd);
         if (matcher.matches()) {
             result = true;
@@ -283,8 +283,6 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                                 ((!("".equals(peerIp))) && null == peerAS)) {
                             errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp or peerAS is null.";
                             flag = true;
-                            LOG.info("bindDevice.getEbgp().getPeerIP() :" + bindDevice.getEbgp().getPeerIP());
-                            LOG.info("bindDevice.getEbgp().getPeerAS() :" + bindDevice.getEbgp().getPeerAS());
                         }
                         if (!checkRTD(Rd)) {
                             errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is 100:100 or 192.168.1.1:888.";
@@ -300,14 +298,18 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp is empty when config import or export route policy.";
                             flag = true;
                         }
+                        if ("".equals(peerIp) && (("1").equals(bindDevice.getEbgp().getAdvertiseCommunity()))) {
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: peerIp is empty when config AdvertiseCommunity.";
+                            flag = true;
+                        }
                     }
                     if (!checkRTD(vpnRT)) {
                         errorMsg += "Configure failed: RT format is not right .the right example is 100:100 or 192.168.1.1:888.";
                         flag = true;
                     }
                     if (flag) {
-                        vpnInstanceUpdateOutputBuilder.setResult("failed");
-                        vpnInstanceUpdateOutputBuilder.setMessage(errorMsg);
+                        vpnInstanceUpdateOutputBuilder.setResult(errorMsg);
+//                        vpnInstanceUpdateOutputBuilder.setMessage(errorMsg);
                         return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
                     }
 
@@ -392,8 +394,8 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                     }
                     return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
                 } else {
-                    vpnInstanceUpdateOutputBuilder.setMessage("please select devices for vpn( " + vpnName + " ).");
-                    vpnInstanceUpdateOutputBuilder.setResult("failed.");
+//                    vpnInstanceUpdateOutputBuilder.setMessage("please select devices for vpn( " + vpnName + " ).");
+                    vpnInstanceUpdateOutputBuilder.setResult("please select devices for vpn( " + vpnName + " ).");
                 }
             } else {
                 ret = (boolean) this.getVpnInstanceApi().delVpnInstance("", vpnName).get(ResponseEnum.BODY.getName());

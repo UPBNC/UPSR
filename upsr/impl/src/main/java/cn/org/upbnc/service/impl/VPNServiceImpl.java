@@ -413,12 +413,14 @@ public class VPNServiceImpl implements VPNService {
                         for (BgpVrf bgpVrf : bgpVrfList) {
                             if (bgpVrf.getVrfName().equals(vpnInsntance.getVpnName())) {
                                 String importRoutePolicyName = null;
-                                for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
-                                    for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
-                                        LOG.info("sPeerAF.getImportRtPolicyName() :" + sPeerAF.getImportRtPolicyName());
-                                        importRoutePolicyName = sPeerAF.getImportRtPolicyName();
-                                        vpnInsntance.setImportRoutePolicyName(importRoutePolicyName);
-                                        vpnInsntance.setExportRoutePolicyName(sPeerAF.getExportRtPolicyName());
+                                if(null!=bgpVrf.getBgpVrfAFs()){
+                                    for (SBgpVrfAF sBgpVrfAF : bgpVrf.getBgpVrfAFs()) {
+                                        for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
+                                            LOG.info("sPeerAF.getImportRtPolicyName() :" + sPeerAF.getImportRtPolicyName());
+                                            importRoutePolicyName = sPeerAF.getImportRtPolicyName();
+                                            vpnInsntance.setImportRoutePolicyName(importRoutePolicyName);
+                                            vpnInsntance.setExportRoutePolicyName(sPeerAF.getExportRtPolicyName());
+                                        }
                                     }
                                 }
                                 if (null != importRoutePolicyName) {
@@ -554,21 +556,22 @@ public class VPNServiceImpl implements VPNService {
             vpnInstance.setPeerAS(Integer.parseInt(bgpVrf.getBgpPeers().get(0).getRemoteAs()));
             vpnInstance.setPeerIP(new Address(bgpVrf.getBgpPeers().get(0).getPeerAddr(), AddressTypeEnum.V4));
         }
-        if (bgpVrf.getBgpVrfAFs().size() > 0) {
-            vpnInstance.setEbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceExternal());
-            vpnInstance.setIbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceInternal());
-            vpnInstance.setLocalPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceLocal());
-            if (bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().size() > 0) {
-                vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
-                vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
-                if ("true".equals(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity())) {
-                    vpnInstance.setAdvertiseCommunity("1");
-                } else {
-                    vpnInstance.setAdvertiseCommunity("2");
+        if(null!=bgpVrf.getBgpVrfAFs()){
+            if (bgpVrf.getBgpVrfAFs().size() > 0) {
+                vpnInstance.setEbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceExternal());
+                vpnInstance.setIbgpPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceInternal());
+                vpnInstance.setLocalPreference(bgpVrf.getBgpVrfAFs().get(0).getPreferenceLocal());
+                if (bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().size() > 0) {
+                    vpnInstance.setImportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName());
+                    vpnInstance.setExportRoutePolicyName(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName());
+                    if ("true".equals(bgpVrf.getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity())) {
+                        vpnInstance.setAdvertiseCommunity("1");
+                    } else {
+                        vpnInstance.setAdvertiseCommunity("2");
+                    }
                 }
             }
         }
-
         if (bgpVrf.getNetworkRoutes() != null && bgpVrf.getNetworkRoutes().size() != 0) {
             List<NetworkSeg> networkSegList = new ArrayList<NetworkSeg>();
             for (NetworkRoute networkRoute : bgpVrf.getNetworkRoutes()) {
@@ -593,10 +596,10 @@ public class VPNServiceImpl implements VPNService {
                                        List<NetworkSeg> networkSegList, String ebgpPreference, String ibgpPreference, String localPreference,
                                        String routerImportPolicy, String routerExportPolicy, String advertiseCommunity) {
 
-        if ((null == peerAS || 0 == peerAS) && (null == peerIP || peerIP.getAddress().equals("")) &&
-                (null == importDirectRouteEnable || 0 == importDirectRouteEnable) && (null == networkSegList || networkSegList.size() == 0)) {
-            return null;
-        }
+//        if ((null == peerAS || 0 == peerAS) && (null == peerIP || peerIP.getAddress().equals("")) &&
+//                (null == importDirectRouteEnable || 0 == importDirectRouteEnable) && (null == networkSegList || networkSegList.size() == 0)) {
+//            return null;
+//        }
         BgpVrf bgpVrf = new BgpVrf();
         bgpVrf.setVrfName(vfrName);
         List<BgpPeer> bgpPeerList = new ArrayList<BgpPeer>();
@@ -631,7 +634,11 @@ public class VPNServiceImpl implements VPNService {
         bgpVrfAFList.add(sBgpVrfAF);
         List<SPeerAF> sPeerAFList = new ArrayList<>();
         SPeerAF sPeerAF = new SPeerAF();
-        sPeerAF.setRemoteAddress(peerIP.getAddress());
+        if(null==peerIP){
+            sPeerAF.setRemoteAddress("");
+        }else {
+            sPeerAF.setRemoteAddress(peerIP.getAddress());
+        }
         sPeerAF.setImportRtPolicyName(routerImportPolicy);
         sPeerAF.setExportRtPolicyName(routerExportPolicy);
         sPeerAF.setAdvertiseCommunity(advertiseCommunity);

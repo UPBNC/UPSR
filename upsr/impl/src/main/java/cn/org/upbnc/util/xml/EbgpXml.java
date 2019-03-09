@@ -58,25 +58,27 @@ public class EbgpXml {
                         "                  <preferenceInternal>" + sBgpVrfAF.getPreferenceInternal() + "</preferenceInternal>\n" +
                         "                  <preferenceLocal>" + sBgpVrfAF.getPreferenceLocal() + "</preferenceLocal>\n";
                 if (sBgpVrfAF.getPeerAFs() != null) {
-                    bgpVrfAFs = bgpVrfAFs + "                <peerAFs>\n" +
-                            "                <peerAF>\n";
-                    for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
-                        bgpVrfAFs = bgpVrfAFs + "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity()  + "</advertiseCommunity>\n" +
-                                "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n" ;
-                        if (sPeerAF.getImportRtPolicyName() == null) {
-                            bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName nc:operation=\"delete\"/>\n";
-                        } else {
-                            bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName>" + sPeerAF.getImportRtPolicyName() + "</importRtPolicyName>\n";
+                    if (!("").equals(sBgpVrfAF.getPeerAFs().get(0).getRemoteAddress())) {
+                        bgpVrfAFs = bgpVrfAFs + "                <peerAFs>\n" +
+                                "                <peerAF>\n";
+                        for (SPeerAF sPeerAF : sBgpVrfAF.getPeerAFs()) {
+                            bgpVrfAFs = bgpVrfAFs + "                   <advertiseCommunity>" + sPeerAF.getAdvertiseCommunity() + "</advertiseCommunity>\n" +
+                                    "                   <remoteAddress>" + sPeerAF.getRemoteAddress() + "</remoteAddress>\n";
+                            if (sPeerAF.getImportRtPolicyName() == null) {
+                                bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName nc:operation=\"delete\"/>\n";
+                            } else {
+                                bgpVrfAFs = bgpVrfAFs + "                  <importRtPolicyName>" + sPeerAF.getImportRtPolicyName() + "</importRtPolicyName>\n";
+                            }
+                            if (sPeerAF.getExportRtPolicyName() == null) {
+                                bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName nc:operation=\"delete\"/>\n";
+                            } else {
+                                bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName>" + sPeerAF.getExportRtPolicyName() + "</exportRtPolicyName>\n";
+                            }
                         }
-                        if (sPeerAF.getExportRtPolicyName() == null) {
-                            bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName nc:operation=\"delete\"/>\n";
-                        }else{
-                            bgpVrfAFs = bgpVrfAFs + "                  <exportRtPolicyName>" + sPeerAF.getExportRtPolicyName() + "</exportRtPolicyName>\n";
-                        }
+                        bgpVrfAFs = bgpVrfAFs + "                </peerAF>\n" +
+                                "                </peerAFs>\n";
                     }
                 }
-                bgpVrfAFs = bgpVrfAFs + "                </peerAF>\n" +
-                        "                </peerAFs>\n";
             }
         }
         String importRoutes = "";
