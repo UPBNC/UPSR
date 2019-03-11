@@ -176,6 +176,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
                 input.getSrgbPrefixSid().getSrgbEnd(), SrLabelXml.ncOperationMerge);
         if (updateLabelRangeRet.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
             resultString = resultString + updateLabelRangeRet.get(ResponseEnum.MESSAGE.getName());
+            return resultString;
         }
         Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
                 input.getSrgbPrefixSid().getPrefixId(), SrLabelXml.ncOperationMerge);
