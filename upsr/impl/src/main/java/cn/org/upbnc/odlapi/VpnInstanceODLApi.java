@@ -285,7 +285,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             flag = true;
                         }
                         if (!checkRTD(Rd)) {
-                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is 100:100 or 192.168.1.1:888.";
+                            errorMsg += "Configure " + bindDevice.getRouterId() + "failed: RD format is not right .the right example is 100:100,100.100:100 or 192.168.1.1:888.";
                             flag = true;
                         }
                         if ("".equals(importRoutePolicy)) {
@@ -304,7 +304,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                         }
                     }
                     if (!checkRTD(vpnRT)) {
-                        errorMsg += "Configure failed: RT format is not right .the right example is 100:100 or 192.168.1.1:888.";
+                        errorMsg += "Configure failed: RT format is not right .the right example is 100:100,100.100:100 or 192.168.1.1:888.";
                         flag = true;
                     }
                     if (flag) {
@@ -384,11 +384,11 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                             vpnInstanceUpdateOutputBuilder.setResult("success");
                         } else {
                             message += "Configure " + routerId + "failed: " + retMap.get(ResponseEnum.MESSAGE.getName());
-                            vpnInstanceUpdateOutputBuilder.setResult("failed");
+                            vpnInstanceUpdateOutputBuilder.setResult(message);
                         }
                     }
                     //vpnInstanceUpdateOutputBuilder.setResult("success");
-                    vpnInstanceUpdateOutputBuilder.setMessage(message);
+//                    vpnInstanceUpdateOutputBuilder.setMessage(message);
                     if (VpnUseTemplateEnum.ENABLE.getName().equals(vpnInstance_input.getUseTemplate())) {
                         vpnInstanceApi.createTunnelsByVpnTemplate(vpnInstance_input.getVpnName());
                     }
