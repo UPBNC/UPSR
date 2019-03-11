@@ -252,7 +252,9 @@ public class VpnUpdateXml {
         } else if (map.get("isIfmChanged")) {
             result = result + vpnStart + intf + VpnEnd;
         } else if (map.get("isEbgpChanged")) {
-            result = result + ebgp;
+            result = result + vpnStart + VpnEnd + ebgp;
+        } else {
+            result = result + vpnStart + VpnEnd;
         }
         return result + end;
     }
