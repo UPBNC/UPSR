@@ -13,6 +13,7 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SrLabelErrorCodeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.SrLabelService;
+import cn.org.upbnc.util.xml.SrLabelXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +50,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public Map<String, Object> updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
         Map<String, Object> resultMap = new HashMap<>();
-        if ((labelBegin == null) || (labelValAbs == null) ||
-                labelBegin.equals("") || labelValAbs.equals("")) {
+        if (action.equals(SrLabelXml.ncOperationMerge) &&
+                ((labelBegin == null) || (labelValAbs == null) || labelBegin.equals("") || labelValAbs.equals(""))) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;
@@ -60,7 +61,7 @@ public class SrLabelApiImpl implements SrLabelApi {
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.NETCONF_INVALID.getMessage());
             return resultMap;
         }
-        if (Integer.parseInt(labelValAbs) <= Integer.parseInt(labelBegin)) {
+        if (action.equals(SrLabelXml.ncOperationMerge) && (Integer.parseInt(labelValAbs) <= Integer.parseInt(labelBegin))) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.LABEL_INVALID.getMessage());
             return resultMap;
@@ -71,8 +72,8 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
         Map<String, Object> resultMap = new HashMap<>();
-        if ((labelBegin == null) || (labelEnd == null) ||
-                labelBegin.equals("") || labelEnd.equals("")) {
+        if (action.equals(SrLabelXml.ncOperationMerge) &&
+                ((labelBegin == null) || (labelEnd == null) || labelBegin.equals("") || labelEnd.equals(""))) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
             return resultMap;
@@ -80,11 +81,6 @@ public class SrLabelApiImpl implements SrLabelApi {
         if(null == serviceInterface.getNetconfSessionService().getNetconfClient(routerId)){
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.NETCONF_INVALID.getMessage());
-            return resultMap;
-        }
-        if (Integer.parseInt(labelEnd) - Integer.parseInt(labelBegin) > this.MAX_NODE_LABEL_RANGE) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.LABEL_INVALID.getMessage());
             return resultMap;
         }
         return srLabelService.updateNodeLabelRange(routerId, labelBegin, labelEnd, action);

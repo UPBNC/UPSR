@@ -33,11 +33,23 @@ public class CheckXml {
             SAXReader reader = new SAXReader();
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
-            Element lspPingResultElement = root.element("rpc-error").element("error-info");
-            errorInfoCode = Integer.parseInt(lspPingResultElement.elementText("error-info-code"));
-            System.out.println(errorInfoCode);
+            Element errorInfo = root.element("rpc-error").element("error-info");
+            errorInfoCode = Integer.parseInt(errorInfo.elementText("error-info-code"));
         } catch (Exception e) {
         }
         return errorInfoCode;
+    }
+
+    public static String getErrorMessage(String xml) {
+        String ret = "";
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            String errorMessage = root.element("rpc-error").elementText("error-message");
+            ret = ret + errorMessage;
+        } catch (Exception e) {
+        }
+        return ret;
     }
 }
