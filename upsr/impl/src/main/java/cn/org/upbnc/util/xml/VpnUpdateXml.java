@@ -287,7 +287,7 @@ public class VpnUpdateXml {
             vpnInstAFs = vpnInstAFs +
                     "                  <vrfLabelMode>" + l3vpnInstance.getApplyLabel() + "</vrfLabelMode>                \n";
         }
-        if (l3vpnInstance.getApplyLabel() == null) {
+        if (l3vpnInstance.getTunnelPolicy() == null) {
             vpnInstAFs = vpnInstAFs +
                     "<tnlPolicyName xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>    \n";
         } else {
