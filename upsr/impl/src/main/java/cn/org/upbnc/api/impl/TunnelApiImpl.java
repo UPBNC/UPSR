@@ -70,13 +70,13 @@ public class TunnelApiImpl implements TunnelApi {
                 return map;
             }
         } else if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
-            if(null == tunnelServiceEntity.getTunnelBfd()){
+            if(null == tunnelServiceEntity.getDynamicBfd()){
                 map.put(ResponseEnum.MESSAGE.getName(), "Dynamic Bfd : None Bfd");
                 return map;
             }
 
-            if ( null != tunnelServiceEntity.getTunnelBfd() && !this.checkDynamicBfdParams(tunnelServiceEntity.getTunnelBfd())){
-                tunnelServiceEntity.setTunnelBfd(null);
+            if ( null != tunnelServiceEntity.getDynamicBfd() && !this.checkDynamicBfdParams(tunnelServiceEntity.getDynamicBfd())){
+                tunnelServiceEntity.setDynamicBfd(null);
                 map.put(ResponseEnum.MESSAGE.getName(), "The tunnel bfd parameter is invalid.");
                 return map;
             }
