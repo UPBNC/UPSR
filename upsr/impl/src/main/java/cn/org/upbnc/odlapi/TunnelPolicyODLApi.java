@@ -74,22 +74,22 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
             tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
             //tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
 
-            if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()){
+            if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()) {
                 tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getName());
                 //TpNexthops list解析
                 List<TpNexthops> tpNexthopsList = new ArrayList<>();
 
-                for(TpNexthopEntity tpNexthopEntity:tunnelPolicyEntity.getTpNexthopEntities()){
-                    TpNexthopsBuilder tpNexthopsBuilder=new TpNexthopsBuilder();
+                for (TpNexthopEntity tpNexthopEntity : tunnelPolicyEntity.getTpNexthopEntities()) {
+                    TpNexthopsBuilder tpNexthopsBuilder = new TpNexthopsBuilder();
                     tpNexthopsBuilder.setDestAddr(tpNexthopEntity.getNexthopIPaddr());
-                    tpNexthopsBuilder.setDownSwitch(tpNexthopEntity.isDownSwitch()?"true":"false");
-                    tpNexthopsBuilder.setIgnoreDestCheck(tpNexthopEntity.isIgnoreDestCheck()?"true":"false");
-                    tpNexthopsBuilder.setIncludeLdp(tpNexthopEntity.isIncludeLdp()?"true":"false");
+                    tpNexthopsBuilder.setDownSwitch(tpNexthopEntity.isDownSwitch() ? "true" : "false");
+                    tpNexthopsBuilder.setIgnoreDestCheck(tpNexthopEntity.isIgnoreDestCheck() ? "true" : "false");
+                    tpNexthopsBuilder.setIncludeLdp(tpNexthopEntity.isIncludeLdp() ? "true" : "false");
                     //绑定隧道名称list解析
-                    List<BindTunnel> bindTunnelList=new ArrayList<BindTunnel>();
+                    List<BindTunnel> bindTunnelList = new ArrayList<BindTunnel>();
 
-                    for(String bindTunnelName:tpNexthopEntity.getTpTunnels()){
-                        BindTunnelBuilder bindTunnelBuilder=new BindTunnelBuilder();
+                    for (String bindTunnelName : tpNexthopEntity.getTpTunnels()) {
+                        BindTunnelBuilder bindTunnelBuilder = new BindTunnelBuilder();
                         bindTunnelBuilder.setTunnelName(bindTunnelName);
                         bindTunnelList.add(bindTunnelBuilder.build());
                     }
@@ -98,67 +98,24 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
                 }
                 tunnelPolicysBuilder.setTpNexthops(tpNexthopsList);
 
-            }else if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()){
+            } else if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()) {
                 tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.TnlSelectSeq.getName());
                 List<TnlSelSeqs> tnlSelSeqsList = new ArrayList<>();
 
-                for(TnlSelSeqEntity tnlSelSeqEntity:tunnelPolicyEntity.getTnlSelSeqlEntities()){
-                    TnlSelSeqsBuilder tnlSelSeqsBuilder=new TnlSelSeqsBuilder();
+                for (TnlSelSeqEntity tnlSelSeqEntity : tunnelPolicyEntity.getTnlSelSeqlEntities()) {
+                    TnlSelSeqsBuilder tnlSelSeqsBuilder = new TnlSelSeqsBuilder();
                     tnlSelSeqsBuilder.setLoadBalanceNum(String.valueOf(tnlSelSeqEntity.getLoadBalanceNum()));
                     tnlSelSeqsBuilder.setSelTnlType1(tnlSelSeqEntity.getSelTnlType1());
                     tnlSelSeqsBuilder.setSelTnlType2(tnlSelSeqEntity.getSelTnlType2());
                     tnlSelSeqsBuilder.setSelTnlType3(tnlSelSeqEntity.getSelTnlType3());
                     tnlSelSeqsBuilder.setSelTnlType4(tnlSelSeqEntity.getSelTnlType4());
                     tnlSelSeqsBuilder.setSelTnlType5(tnlSelSeqEntity.getSelTnlType5());
-                    tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix()?"true":"false");
+                    tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix() ? "true" : "false");
                 }
                 tunnelPolicysBuilder.setTnlSelSeqs(tnlSelSeqsList);
-            }else if(tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()){
+            } else if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()) {
                 tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getName());
             }
-
-
-//            if(tunnelPolicysBuilder.getTnlPolicyType().equals("invalid")){
-//                tunnelPolicysList.add(tunnelPolicysBuilder.build());
-//                break;
-//            }else if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlBinding")){
-//                //TpNexthops list解析
-//                List<TpNexthops> tpNexthopsList = new ArrayList<>();
-//
-//                for(TpNexthopEntity tpNexthopEntity:tunnelPolicyEntity.getTpNexthopEntities()){
-//                    TpNexthopsBuilder tpNexthopsBuilder=new TpNexthopsBuilder();
-//                    tpNexthopsBuilder.setDestAddr(tpNexthopEntity.getNexthopIPaddr());
-//                    tpNexthopsBuilder.setDownSwitch(tpNexthopEntity.isDownSwitch()?"true":"false");
-//                    tpNexthopsBuilder.setIgnoreDestCheck(tpNexthopEntity.isIgnoreDestCheck()?"true":"false");
-//                    tpNexthopsBuilder.setIncludeLdp(tpNexthopEntity.isIncludeLdp()?"true":"false");
-//                    //绑定隧道名称list解析
-//                    List<BindTunnel> bindTunnelList=new ArrayList<BindTunnel>();
-//
-//                    for(String bindTunnelName:tpNexthopEntity.getTpTunnels()){
-//                        BindTunnelBuilder bindTunnelBuilder=new BindTunnelBuilder();
-//                        bindTunnelBuilder.setTunnelName(bindTunnelName);
-//                        bindTunnelList.add(bindTunnelBuilder.build());
-//                    }
-//                    tpNexthopsBuilder.setBindTunnel(bindTunnelList);
-//                    tpNexthopsList.add(tpNexthopsBuilder.build());
-//                }
-//                tunnelPolicysBuilder.setTpNexthops(tpNexthopsList);
-//            }else if(tunnelPolicysBuilder.getTnlPolicyType().equals("tnlSelectSeq")){
-//                List<TnlSelSeqs> tnlSelSeqsList = new ArrayList<>();
-//
-//                for(TnlSelSeqEntity tnlSelSeqEntity:tunnelPolicyEntity.getTnlSelSeqlEntities()){
-//                    TnlSelSeqsBuilder tnlSelSeqsBuilder=new TnlSelSeqsBuilder();
-//                    tnlSelSeqsBuilder.setLoadBalanceNum(String.valueOf(tnlSelSeqEntity.getLoadBalanceNum()));
-//                    tnlSelSeqsBuilder.setSelTnlType1(tnlSelSeqEntity.getSelTnlType1());
-//                    tnlSelSeqsBuilder.setSelTnlType2(tnlSelSeqEntity.getSelTnlType2());
-//                    tnlSelSeqsBuilder.setSelTnlType3(tnlSelSeqEntity.getSelTnlType3());
-//                    tnlSelSeqsBuilder.setSelTnlType4(tnlSelSeqEntity.getSelTnlType4());
-//                    tnlSelSeqsBuilder.setSelTnlType5(tnlSelSeqEntity.getSelTnlType5());
-//                    tnlSelSeqsBuilder.setUnmix(tnlSelSeqEntity.isUnmix()?"true":"false");
-//                }
-//                tunnelPolicysBuilder.setTnlSelSeqs(tnlSelSeqsList);
-//            }
-
             tunnelPolicysList.add(tunnelPolicysBuilder.build());
         }
         getTunnelPolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
@@ -169,20 +126,58 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
     @Override
     public Future<RpcResult<UpdateTunnelPolicyOutput>> updateTunnelPolicy(UpdateTunnelPolicyInput input) {
         UpdateTunnelPolicyOutputBuilder updateTunnelPolicyOutputBuilder = new UpdateTunnelPolicyOutputBuilder();
+        Map<String, Object> resultMap = new HashMap<>();
         if (SystemStatusEnum.ON != this.session.getStatus()) {
             updateTunnelPolicyOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(updateTunnelPolicyOutputBuilder.build()).buildFuture();
         }
+        List<TunnelPolicyEntity> tunnelPolicyEntities = new ArrayList<>();
+        TunnelPolicyEntity entity;
+        List<TpNexthopEntity> tpNexthopEntities;
+        tpNexthopEntities = new ArrayList<>();
+        List<String> tpTunnels;
+        tpTunnels = new ArrayList<>();
+        for (TpNexthops tpNexthops : input.getTpNexthops()) {
+            for (BindTunnel bindTunnel : tpNexthops.getBindTunnel()) {
+                tpTunnels.add(bindTunnel.getTunnelName());
+            }
+            TpNexthopEntity tpNexthopEntity;
+            tpNexthopEntity = new TpNexthopEntity();
+            tpNexthopEntity.setTnlPolicyName(input.getPolicyName());
+            tpNexthopEntity.setTpTunnels(tpTunnels);
+            tpNexthopEntity.setNexthopIPaddr(tpNexthops.getDestAddr());
+            tpNexthopEntities.add(tpNexthopEntity);
+        }
+        entity = new TunnelPolicyEntity();
+        entity.setRouterID(input.getRouterId());
+        entity.setTnlPolicyName(input.getPolicyName());
+        entity.setTpNexthopEntities(tpNexthopEntities);
+        tunnelPolicyEntities.add(entity);
+        resultMap = getTunnelPolicyApi().createTunnelPolicys(tunnelPolicyEntities);
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        String result = (String) resultMap.get(ResponseEnum.MESSAGE.getName());
+        updateTunnelPolicyOutputBuilder.setResult(result);
         return RpcResultBuilder.success(updateTunnelPolicyOutputBuilder.build()).buildFuture();
     }
 
     @Override
     public Future<RpcResult<DeleteTunnelPolicyOutput>> deleteTunnelPolicy(DeleteTunnelPolicyInput input) {
         DeleteTunnelPolicyOutputBuilder deleteTunnelPolicyOutputBuilder = new DeleteTunnelPolicyOutputBuilder();
+        Map<String, Object> resultMap = new HashMap<>();
         if (SystemStatusEnum.ON != this.session.getStatus()) {
             deleteTunnelPolicyOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(deleteTunnelPolicyOutputBuilder.build()).buildFuture();
         }
+        List<TunnelPolicyEntity> tunnelPolicyEntities = new ArrayList<>();
+        TunnelPolicyEntity entity;
+        entity = new TunnelPolicyEntity();
+        entity.setRouterID(input.getRouterId());
+        entity.setTnlPolicyName(input.getPolicyName());
+        tunnelPolicyEntities.add(entity);
+        resultMap = getTunnelPolicyApi().deleteTunnelPolicys(tunnelPolicyEntities);
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        String result = (String) resultMap.get(ResponseEnum.MESSAGE.getName());
+        deleteTunnelPolicyOutputBuilder.setResult(result);
         return RpcResultBuilder.success(deleteTunnelPolicyOutputBuilder.build()).buildFuture();
     }
 }

@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class TunnelPolicyApiImpl implements TunnelPolicyApi {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceApiImpl.class);
-    private static TunnelPolicyApi ourInstance=new TunnelPolicyApiImpl();
+    private static TunnelPolicyApi ourInstance = new TunnelPolicyApiImpl();
     private ServiceInterface serviceInterface;
     private TunnelPolicyService tunnelPolicyService;
 
@@ -38,7 +38,7 @@ public class TunnelPolicyApiImpl implements TunnelPolicyApi {
 
     public Map<String, Object> getTunnelPolicyMap(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
-        if(null==this.tunnelPolicyService){
+        if (null == this.tunnelPolicyService) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.BODY.getName(), null);
             resultMap.put(ResponseEnum.MESSAGE.getName(), "TunnelPolicyApiImpl-getTunnelPolicys() : " +
@@ -47,9 +47,39 @@ public class TunnelPolicyApiImpl implements TunnelPolicyApi {
             return resultMap;
         }
         List<TunnelPolicyEntity> tunnelPolicyEntityList = new ArrayList<TunnelPolicyEntity>();
-        tunnelPolicyEntityList=tunnelPolicyService.getTunnelPolicys(routerId);
+        tunnelPolicyEntityList = tunnelPolicyService.getTunnelPolicys(routerId);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), tunnelPolicyEntityList);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> createTunnelPolicys(List<TunnelPolicyEntity> tunnelPolicyEntities) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == this.tunnelPolicyService) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "TunnelPolicyApiImpl-createTunnelPolicys() : " +
+                    "tunnelPolicyService " +
+                    "is null.");
+            return resultMap;
+        }
+        resultMap = tunnelPolicyService.createTunnelPolicys(tunnelPolicyEntities);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> deleteTunnelPolicys(List<TunnelPolicyEntity> tunnelPolicyEntities) {
+        Map<String, Object> resultMap = new HashMap<>();
+        if (null == this.tunnelPolicyService) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "TunnelPolicyApiImpl-deleteTunnelPolicys() : " +
+                    "tunnelPolicyService " +
+                    "is null.");
+            return resultMap;
+        }
+        resultMap = tunnelPolicyService.deleteTunnelPolicys(tunnelPolicyEntities);
         return resultMap;
     }
 }

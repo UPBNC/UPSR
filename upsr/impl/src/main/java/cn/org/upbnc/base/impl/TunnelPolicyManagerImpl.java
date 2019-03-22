@@ -261,29 +261,36 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
         sTunnelPolicy.setTnlPolicyName(tunnelPolicy.getTnlPolicyName());
         sTunnelPolicy.setDescription(tunnelPolicy.getDescription());
         //tunnelPolicy.setTnlPolicyType(sTunnelPolicy.getTnlPolicyType());
-        if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()){
-            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getName());
-        }else if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()){//解析tpNexthops
-            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getName());
+//        if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()){
+//            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getName());
+//        }else if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()){//解析tpNexthops
+//            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getName());
+//
+//            for(TpNexthop tpNexthop:tunnelPolicy.getTpNexthops()){
+//
+//                STpNexthop sTpNexthop= this.tpNexthopToSTpNexthop(tpNexthop);
+//                if(null==tpNexthop){
+//                    break;
+//                }
+//                sTunnelPolicy.getSTpNexthops().add(sTpNexthop);
+//            }
+//        }else if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()){//解析tnlSelSeqs
+//            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlSelectSeq.getName());
+//
+//            for(TnlSelSeq tnlSelSeq:tunnelPolicy.getTnlSelSeqls()){
+//
+//                STnlSelSeq stnlSelSeq= this.tnlSelSeqToSTnlSelSeq(tnlSelSeq);
+//                sTunnelPolicy.getSTnlSelSeqls().add(stnlSelSeq);
+//            }
+//        }
+        for(TpNexthop tpNexthop:tunnelPolicy.getTpNexthops()){
 
-            for(TpNexthop tpNexthop:tunnelPolicy.getTpNexthops()){
-
-                STpNexthop sTpNexthop= this.tpNexthopToSTpNexthop(tpNexthop);
-                if(null==tpNexthop){
-                    break;
-                }
-                sTunnelPolicy.getSTpNexthops().add(sTpNexthop);
+            STpNexthop sTpNexthop= this.tpNexthopToSTpNexthop(tpNexthop);
+            if(null==tpNexthop){
+                break;
             }
-        }else if(tunnelPolicy.getTnlPolicyType() == TnlPolicyTypeEnum.TnlSelectSeq.getCode()){//解析tnlSelSeqs
-            sTunnelPolicy.setTnlPolicyType(TnlPolicyTypeEnum.TnlSelectSeq.getName());
-
-            for(TnlSelSeq tnlSelSeq:tunnelPolicy.getTnlSelSeqls()){
-
-                STnlSelSeq stnlSelSeq= this.tnlSelSeqToSTnlSelSeq(tnlSelSeq);
-                sTunnelPolicy.getSTnlSelSeqls().add(stnlSelSeq);
-            }
+            sTunnelPolicy.getSTpNexthops().add(sTpNexthop);
         }
-
         return sTunnelPolicy;
     }
 

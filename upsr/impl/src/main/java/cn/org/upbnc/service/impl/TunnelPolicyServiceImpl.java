@@ -190,9 +190,10 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
         tunnelPolicyEntity.setTnlPolicyName(tunnelPolicy.getTnlPolicyName());
         tunnelPolicyEntity.setDescription(tunnelPolicy.getDescription());
         tunnelPolicyEntity.setTnlPolicyType(tunnelPolicy.getTnlPolicyType());
-        if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()) {
-            return tunnelPolicyEntity;
-        }
+//        if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()) {
+//            return tunnelPolicyEntity;
+//        }
+        if (null != tunnelPolicyEntity.getTnlPolicyType()) {
         if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()) {//解析tpNexthops
             for (TpNexthop tpNexthop : tunnelPolicy.getTpNexthops()) {
                 TpNexthopEntity tpNexthopEntity = tpNexthopToTpNexthopEntity(tpNexthop);
@@ -210,6 +211,7 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
             }
             return tunnelPolicyEntity;
         }
+    }
         return tunnelPolicyEntity;
     }
 
