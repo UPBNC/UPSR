@@ -7,14 +7,25 @@
  */
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.entity.NetConfMessage;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.util.List;
 
 public class CheckXml {
     public static final String RESULT_OK = "ok";
+    private static final String XML_RPC_ERROR = "rpc-error";
+    private static final String XML_ERROR_TYPE = "error-type";
+    private static final String XML_ERROR_TAG = "error-tag";
+    private static final String XML_ERROR_MSG = "error-message";
+    private static final String XML_ERROR_PATH = "error-path";
+    private static final String XML_ERROR_INFO = "error-info";
+    private static final String XML_ERROR_INFO_CODE = "nc-ext:error-info-code";
+    private static final String XML_ERROR_INFO_PARAS = "nc-ext:error-paras";
+    private static final String XML_ERROR_INFO_PARA = "nc-ext:error-para";
 
     public static String checkOk(String result) {
         String str = "";
@@ -48,6 +59,42 @@ public class CheckXml {
             Element root = document.getRootElement();
             String errorMessage = root.element("rpc-error").elementText("error-message");
             ret = ret + errorMessage;
+        } catch (Exception e) {
+        }
+        return ret;
+    }
+
+    public static NetConfMessage getNetConfMessage(String xml){
+        NetConfMessage ret = new NetConfMessage();
+        if (xml.contains(RESULT_OK)) {
+            ret.setOK(true);
+            return ret;
+        }else{
+            ret.setOK(false);
+        }
+
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            Element error = root.element(XML_RPC_ERROR);
+
+            ret.setPath(root.elementText(XML_ERROR_PATH));
+            ret.setMessage(error.elementText(XML_ERROR_MSG));
+            ret.setTag(root.elementText(XML_ERROR_TAG));
+            ret.setType(root.elementText(XML_ERROR_TYPE));
+
+            Element info = root.element(XML_ERROR_INFO);
+
+            ret.setCode(info.elementText(XML_ERROR_INFO_CODE));
+            Element paras = info.element(XML_ERROR_INFO_PARAS);
+            if(paras != null ) {
+                List<Element> list = paras.elements();
+                for(Element e : list){
+                    ret.addPara(e.getText());
+                }
+            }
+
         } catch (Exception e) {
         }
         return ret;
