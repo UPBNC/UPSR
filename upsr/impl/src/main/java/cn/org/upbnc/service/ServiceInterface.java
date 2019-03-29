@@ -28,6 +28,7 @@ public class ServiceInterface {
     private TunnelService tunnelService;
     private TunnelPolicyService tunnelPolicyService;
     private RoutePolicyService routePolicyService;
+    private StatisticService statisticService;
 
 
     public ServiceInterface() {
@@ -56,6 +57,7 @@ public class ServiceInterface {
             this.tunnelService = TunnelServiceImpl.getInstance();
             this.tunnelPolicyService = TunnelPolicyServiceImpl.getInstance();
             this.routePolicyService = RoutePolicyServiceImpl.getInstance();
+            this.statisticService = StatisticServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -78,6 +80,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.tunnelService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.tunnelPolicyService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.routePolicyService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.statisticService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -130,6 +133,13 @@ public class ServiceInterface {
             this.topoService = TopoServiceImpl.getInstance();
         }
         return this.topoService;
+    }
+
+    public StatisticService getStatisticService() {
+        if (null == this.statisticService) {
+            this.statisticService = StatisticServiceImpl.getInstance();
+        }
+        return this.statisticService;
     }
 
     public NetconfSessionService getNetconfSessionService() {
