@@ -25,6 +25,7 @@ public class BaseInterface {
     private TunnelManager tunnelManager;
     private TunnelPolicyManager tunnelPolicyManager;
     private RoutePolicyManager routePolicyManager;
+    private StatisticsManager statisticsManager;
 
     public BaseInterface() {
     }
@@ -43,6 +44,7 @@ public class BaseInterface {
             this.tunnelManager = TunnelManagerImpl.getInstance();
             this.tunnelPolicyManager = TunnelPolicyManagerImpl.getInstance();
             this.routePolicyManager = RoutePolicyManagerImpl.getInstance();
+            this.statisticsManager = StatisticsManagerImpl.getInstance();
             LOG.info("BaseInterface init End!");
         } catch (Exception e) {
             LOG.info("BaseInterface init failure! " + e.getMessage());
@@ -126,6 +128,13 @@ public class BaseInterface {
             this.routePolicyManager = RoutePolicyManagerImpl.getInstance();
         }
         return this.routePolicyManager;
+    }
+
+    public StatisticsManager getStatisticsManager() {
+        if (null == this.statisticsManager) {
+            this.statisticsManager = StatisticsManagerImpl.getInstance();
+        }
+        return this.statisticsManager;
     }
 
     ///....

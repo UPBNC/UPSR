@@ -8,6 +8,7 @@
 package cn.org.upbnc.impl;
 
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.odlapi.*;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -17,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrinte
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.UpsrRouterPolicyService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.UpsrSrLabelService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.UpsrStatisticService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.UpsrSyncConfService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtopo.rev181119.UpsrTopoService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.UpsrTunnelService;
@@ -32,7 +34,7 @@ public class UpsrProvider implements AutoCloseable {
     private final RpcProviderRegistry rpcRegistry;
     private final DataBroker dataBroker;
     private NetconfSessionODLApi netconfSessionODLApi;
-
+    private StatisticsThread statisticsThread;
     //ODL REST Service RpcRegistration start;
     private BindingAwareBroker.RpcRegistration<UpsrTopoService> topoInfoServiceReg;
     private BindingAwareBroker.RpcRegistration<UpsrBgplsSessionService> upsrBgplsSessionServiceRpcRegistration;
@@ -44,6 +46,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrTunnelService> upsrTunnelServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrTunnelPolicyService> upsrTunnelPolicyServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrRouterPolicyService> upsrRouterPolicyServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrStatisticService> upsrStatisticServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -62,6 +65,8 @@ public class UpsrProvider implements AutoCloseable {
 
         // Register service
         this.registerServices();
+        statisticsThread = new StatisticsThread();
+        statisticsThread.start();
         LOG.info("Upsr Session Initiated End!");
     }
 
@@ -71,6 +76,7 @@ public class UpsrProvider implements AutoCloseable {
     public void close() {
         // Close Register Service
         this.closeServices();
+        statisticsThread.stopMe();
         LOG.info("UpsrProvider Closed");
     }
 
@@ -86,6 +92,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrTunnelServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTunnelService.class, new TunnelODLApi(this.upsr));
         this.upsrTunnelPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTunnelPolicyService.class, new TunnelPolicyODLApi(this.upsr));
         this.upsrRouterPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrRouterPolicyService.class, new RouterPolicyODLApi(this.upsr));
+        this.upsrStatisticServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrStatisticService.class, new StatisticODLApi(this.upsr));
     }
 
     private void closeServices() {
@@ -100,6 +107,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrTunnelServiceRpcRegistration.close();
         this.upsrTunnelPolicyServiceRpcRegistration.close();
         this.upsrRouterPolicyServiceRpcRegistration.close();
+        this.upsrStatisticServiceRpcRegistration.close();
     }
 
 }

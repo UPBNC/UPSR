@@ -1,0 +1,38 @@
+module upsrStatistic {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrStatistic";
+    prefix "upsrStatistic";
+
+    revision "2018-12-27" {
+        description "Initial revision of upsrStatistic model";
+    }
+
+    grouping statistic{
+        leaf ifIndex { type string; }
+        leaf ifName { type string; }
+        leaf routerId { type string; }
+        leaf date { type string; }
+        leaf rcvUniPacket { type string; }
+        leaf sendUniPacket { type string; }
+        leaf sendPacket { type string; }
+        leaf inPacketRate { type string; }
+        leaf outPacketRate { type string; }
+        leaf inUseRate { type string; }
+        leaf outUseRate { type string; }
+        leaf rcvErrorPacket { type string; }
+        leaf sendErrorPacket { type string; }
+    }
+
+    rpc getStatistic {
+        input {
+            leaf routerId { type string; }
+            leaf type { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list statistics {
+                uses statistic;
+            }
+        }
+    }
+}

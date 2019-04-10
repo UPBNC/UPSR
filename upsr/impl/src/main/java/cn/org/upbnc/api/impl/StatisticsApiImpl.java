@@ -3,6 +3,7 @@ package cn.org.upbnc.api.impl;
 import cn.org.upbnc.api.StatisticsApi;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
+import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.StatisticService;
 import cn.org.upbnc.service.entity.StatisticsEntity;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsApiImpl implements StatisticsApi {
-    private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceApiImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticsApiImpl.class);
     private static StatisticsApi ourInstance = new StatisticsApiImpl();
     private ServiceInterface serviceInterface;
     private StatisticService statisticService;
@@ -37,7 +38,7 @@ public class StatisticsApiImpl implements StatisticsApi {
     }
 
     @Override
-    public Map<String, Object> getStatisticsMap(String routerId, String ifName) {
+    public Map<String, Object> getStatisticsMap(String routerId, String type) {
         Map<String, Object> resultMap = new HashMap<>();
         if (null == this.statisticService) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
@@ -48,9 +49,20 @@ public class StatisticsApiImpl implements StatisticsApi {
             return resultMap;
         }
         List<StatisticsEntity> statisticsEntityList = new ArrayList<>();
-        statisticsEntityList = statisticService.getStatisticsMap(routerId, ifName);
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.BODY.getName(), statisticsEntityList);
+        if (null == TimeEnum.getEnum(type)) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), null);
+            resultMap.put(ResponseEnum.MESSAGE.getName(), "type is not exist.");
+        } else {
+            statisticsEntityList = statisticService.getStatisticsMap(routerId, TimeEnum.getEnum(type));
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            resultMap.put(ResponseEnum.BODY.getName(), statisticsEntityList);
+        }
         return resultMap;
+    }
+
+    @Override
+    public void setStatistics() {
+        statisticService.setStatistics();
     }
 }

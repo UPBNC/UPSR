@@ -2,6 +2,8 @@ package cn.org.upbnc.service.entity;
 
 public class StatisticsEntity {
     private String ifName;
+    private long date;
+    private String routerId;
     private String ifIndex;
     private String ifOperStatItvl;
     private String inByteRate;
@@ -42,6 +44,22 @@ public class StatisticsEntity {
     private String rcvMutiPacketRate;
     private String sendBroadPacketRate;
     private String rcvBroadPacketRate;
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public String getIfName() {
         return ifName;
