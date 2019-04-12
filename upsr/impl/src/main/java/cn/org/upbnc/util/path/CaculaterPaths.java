@@ -66,7 +66,7 @@ public class CaculaterPaths {
 
             for(Device sourceDevice : sourceDevices){
                 for(Device targetDevice : targetDevices){
-                    pathUtils.addAll(caculatePathsBySrcAndDst(sourceDevice.getRouterId(),targetDevice.getRouterId(),nodeNeighborMap));
+                    pathUtils.addAll(caculatePathsBySrcAndDstNew(sourceDevice.getRouterId(),targetDevice.getRouterId(),nodeNeighborMap));
                 }
             }
         }
@@ -74,7 +74,49 @@ public class CaculaterPaths {
         return pathUtils;
     }
 
-    private static List<PathUtil> caculatePathsBySrcAndDst(String src,String dst,Map<String,NodeNeighbors> nodeNeighborMap){
+//    private static List<PathUtil> caculatePathsBySrcAndDst(String src,String dst,Map<String,NodeNeighbors> nodeNeighborMap){
+//        int MaxStep = nodeNeighborMap.keySet().size();
+//        int currentStep = 0;
+//        int currentPathNum = 0;
+//        List<PathUtil> ret = new ArrayList<PathUtil>();
+//        // init path
+//        List<PathUtil> currentPaths = new ArrayList<PathUtil>();
+//        List<PathUtil> tempCurrentPaths = new ArrayList<PathUtil>();
+//        PathUtil currentPath = new PathUtil();
+//        currentPath.setSrc(src);
+//        currentPath.setDst(src);
+//        currentPaths.add(currentPath);
+//
+//        while( currentPathNum < MAX_PATH && currentStep < MaxStep && !currentPaths.isEmpty()){
+//
+//            // circle the current
+//            for(PathUtil p : currentPaths){
+//                String target = p.getDst();
+//                NodeNeighbors neighbors = nodeNeighborMap.get(target);
+//                List<NodeNeighbor> list = neighbors.getNeighborList();
+//                for(NodeNeighbor n : list){
+//                    PathUtil tempP = createPaths(p,n);
+//                    if(tempP != null) {
+//                        if (tempP.getDst().equals(dst)) {
+//                            ret.add(tempP);
+//                            currentPathNum++;
+//                        } else {
+//                            tempCurrentPaths.add(tempP);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            currentPaths.clear();
+//            currentPaths.addAll(tempCurrentPaths);
+//            tempCurrentPaths.clear();
+//            currentStep++;
+//        }
+//
+//        return ret;
+//    }
+
+    private static List<PathUtil> caculatePathsBySrcAndDstNew(String src,String dst,Map<String,NodeNeighbors> nodeNeighborMap){
         int MaxStep = nodeNeighborMap.keySet().size();
         int currentStep = 0;
         int currentPathNum = 0;
@@ -87,29 +129,45 @@ public class CaculaterPaths {
         currentPath.setDst(src);
         currentPaths.add(currentPath);
 
+        // Max path num: default < 2
+        // Max step num: < total node
+        // Current path is not empty
         while( currentPathNum < MAX_PATH && currentStep < MaxStep && !currentPaths.isEmpty()){
 
-            // circle the current
+            // circle the current paths
             for(PathUtil p : currentPaths){
+
+                // get temp target node
                 String target = p.getDst();
+                // find target's neighbors
                 NodeNeighbors neighbors = nodeNeighborMap.get(target);
+
+                // circle the neighbors
                 List<NodeNeighbor> list = neighbors.getNeighborList();
                 for(NodeNeighbor n : list){
+                    // create path :
+                    // 1. get neighbor's node
+                    // 2. copy a current path
                     PathUtil tempP = createPaths(p,n);
                     if(tempP != null) {
+                        // add to ret
                         if (tempP.getDst().equals(dst)) {
                             ret.add(tempP);
                             currentPathNum++;
                         } else {
+                            // others to temp
                             tempCurrentPaths.add(tempP);
                         }
                     }
                 }
             }
 
+            // clear current paths
+            // add temp paths
             currentPaths.clear();
             currentPaths.addAll(tempCurrentPaths);
             tempCurrentPaths.clear();
+            // step add 1 step
             currentStep++;
         }
 
