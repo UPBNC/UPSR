@@ -29,9 +29,9 @@ import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 public class TunnelManagerImpl implements TunnelManager {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelManager.class);
     private static TunnelManager instance = null;
-    private Map<String,Map<String, Tunnel>> tunnelMap;
-    private Map<String,Map<Integer, BfdSession>> bfdSessionMap;
-    private final int MAX_BFD_LOCAL= 65535;
+    private Map<String, Map<String, Tunnel>> tunnelMap;
+    private Map<String, Map<Integer, BfdSession>> bfdSessionMap;
+    private final int MAX_BFD_LOCAL = 65535;
     private final String Link = "Link";
     private final String Linkback = "Linkback";
 
@@ -134,17 +134,16 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
 
-
     @Override
-    public boolean isBfdDiscriminatorLocal(Integer local){
+    public boolean isBfdDiscriminatorLocal(Integer local) {
         return this.bfdSessionMap.containsKey(local);
     }
 
     @Override
-    public Integer getBfdDiscriminatorLocal(){
+    public Integer getBfdDiscriminatorLocal() {
         Integer i = 1;
-        while(i < MAX_BFD_LOCAL){
-            if(!this.bfdSessionMap.containsKey(i)){
+        while (i < MAX_BFD_LOCAL) {
+            if (!this.bfdSessionMap.containsKey(i)) {
                 return i;
             }
             i = i + 1;
@@ -153,7 +152,7 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean isBfdDiscriminatorLocalUsed(String routerId, Integer i){
+    public boolean isBfdDiscriminatorLocalUsed(String routerId, Integer i) {
         if (this.bfdSessionMap.containsKey(routerId)) {
             Map<Integer, BfdSession> integerBfdSessionMap = this.bfdSessionMap.get(routerId);
             if (integerBfdSessionMap != null &&
@@ -166,36 +165,35 @@ public class TunnelManagerImpl implements TunnelManager {
 
 
     @Override
-    public boolean createTunnels(List<Tunnel> tunnels, String routerId, NetconfClient netconfClient){
+    public boolean createTunnels(List<Tunnel> tunnels, String routerId, NetconfClient netconfClient) {
         boolean isCreate = false;
+        Map<String, Tunnel> map = this.tunnelMap.get(routerId);
+        Map<Integer, BfdSession> bfdMap = this.bfdSessionMap.get(routerId);
+        if (null != tunnels && !tunnels.isEmpty() && null != routerId) {
 
-        if(null != tunnels && !tunnels.isEmpty() && null != routerId){
-            isCreate = this.createTunnelListTotalToDevice(tunnels,netconfClient);
-
-            if(isCreate){
-                Map<String, Tunnel> map = this.tunnelMap.get(routerId);
-                Map<Integer, BfdSession> bfdMap = this.bfdSessionMap.get(routerId);
-
+            isCreate = this.createTunnelListTotalToDevice(tunnels, netconfClient);
+//            isCreate = this.createTunnelListTotalToDevice(tunnels,netconfClient);
+            if (isCreate) {
                 if (null == map) {
                     map = new ConcurrentHashMap<>();
-                    this.tunnelMap.put(routerId,map);
+                    this.tunnelMap.put(routerId, map);
                 }
 
-                if(null == bfdMap){
+                if (null == bfdMap) {
                     bfdMap = new ConcurrentHashMap<>();
-                    this.bfdSessionMap.put(routerId,bfdMap);
+                    this.bfdSessionMap.put(routerId, bfdMap);
                 }
 
-                for(Tunnel t : tunnels) {
+                for (Tunnel t : tunnels) {
                     // add tunnel to map
                     map.put(t.getTunnelName(), t);
 
                     // add bfd to map
-                    if(null != t.getTunnelBfd()){
+                    if (null != t.getTunnelBfd()) {
                         bfdMap.put(Integer.parseInt(t.getTunnelBfd().getDiscriminatorLocal()), t.getTunnelBfd());
                     }
 
-                    if (null != t.getMasterBfd()){
+                    if (null != t.getMasterBfd()) {
                         bfdMap.put(Integer.parseInt(t.getMasterBfd().getDiscriminatorLocal()), t.getMasterBfd());
                     }
                 }
@@ -206,10 +204,10 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public boolean deleteTunnels(List<String> tunnels, String routerId, NetconfClient netconfClient){
+    public boolean deleteTunnels(List<String> tunnels, String routerId, NetconfClient netconfClient) {
         boolean isDelete = false;
 
-        if(null != tunnels && !tunnels.isEmpty() && null != routerId ){
+        if (null != tunnels && !tunnels.isEmpty() && null != routerId) {
             isDelete = this.deleteTunnelsFromDeviceByNameList(tunnels, routerId, netconfClient);
         }
 
@@ -217,9 +215,9 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
-    public Map<String,Tunnel> syncTunnelsConf(String routerId,NetconfClient netconfClient){
-        Map<String,Tunnel> ret = null;
-        if(null != routerId){
+    public Map<String, Tunnel> syncTunnelsConf(String routerId, NetconfClient netconfClient) {
+        Map<String, Tunnel> ret = null;
+        if (null != routerId) {
             // get s bfds from device
             List<SBfdCfgSession> sBfdCfgSessions = this.getBfdSessionsFromDeviceByRouterId(netconfClient);
 
@@ -227,11 +225,11 @@ public class TunnelManagerImpl implements TunnelManager {
             List<SSrTeTunnel> sSrTeTunnels = this.getTunnelListFromDeviceByRouterId(netconfClient);
 
             // get s explicit paths from device
-            List<SExplicitPath> sExplicitPaths =  this.getExplicitPathsFromDeviceByRouterId(netconfClient);
+            List<SExplicitPath> sExplicitPaths = this.getExplicitPathsFromDeviceByRouterId(netconfClient);
 
             // get bfds from s bfds
-            Map<Integer,BfdSession> bfdSessionMap = this.getBfdSessionFromSBfdCfgSessions(sBfdCfgSessions);
-            this.bfdSessionMap.put(routerId,bfdSessionMap);
+            Map<Integer, BfdSession> bfdSessionMap = this.getBfdSessionFromSBfdCfgSessions(sBfdCfgSessions);
+            this.bfdSessionMap.put(routerId, bfdSessionMap);
 
             // get explicit paths from s explicit paths
             List<ExplicitPath> explicitPaths = this.getExplicitPathsFromSExplicitPaths(sExplicitPaths);
@@ -239,12 +237,12 @@ public class TunnelManagerImpl implements TunnelManager {
             // tunnels
             List<BfdSession> bfdSessions = new ArrayList<>(bfdSessionMap.values());
             ret = new ConcurrentHashMap<String, Tunnel>();
-            for(SSrTeTunnel st: sSrTeTunnels){
-                Tunnel t = this.sSrTeTunnelToTunnel(st,bfdSessions,explicitPaths);
-                ret.put(t.getTunnelName(),t);
+            for (SSrTeTunnel st : sSrTeTunnels) {
+                Tunnel t = this.sSrTeTunnelToTunnel(st, bfdSessions, explicitPaths);
+                ret.put(t.getTunnelName(), t);
             }
 
-            this.tunnelMap.put(routerId,ret);
+            this.tunnelMap.put(routerId, ret);
         }
         return ret;
     }
@@ -259,12 +257,52 @@ public class TunnelManagerImpl implements TunnelManager {
         return bfdSessionMap;
     }
 
-    private boolean createTunnelListTotalToDevice(List<Tunnel> tunnels, NetconfClient netconfClient){
+    private boolean createTunnelListTotalToDevice(List<Tunnel> tunnels, NetconfClient netconfClient) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<SSrTeTunnel>();
         List<SExplicitPath> explicitPaths = new ArrayList<SExplicitPath>();
         List<SBfdCfgSession> sBfdCfgSessions = new ArrayList<SBfdCfgSession>();
-        for(Tunnel t : tunnels){
+        Map<String, Tunnel> map;
+        Map<Integer, BfdSession> bfdMap;
 
+        String routerId = tunnels.get(0).getDevice().getRouterId();
+
+
+        List<String> pathNames = null;
+        List<String> bfdNames;
+        Tunnel tunnel;
+        map = tunnelMap.get(routerId);
+        for (Tunnel t : tunnels) {
+            pathNames = new ArrayList<String>();
+            bfdNames = new ArrayList<String>();
+            if (null != map) {
+                tunnel = map.get(t.getTunnelName());
+                if (null != tunnel) {
+                    String masterPath = tunnel.getMasterPath().getPathName();
+                    if (null != masterPath && null == t.getMasterPath().getPathName()) {
+                        pathNames.add(masterPath);
+                    }
+
+                    String slavePath = tunnel.getSlavePath().getPathName();
+                    if (null != slavePath && null == t.getSlavePath().getPathName()) {
+                        pathNames.add(slavePath);
+                    }
+
+                    if (tunnel.getTunnelBfd() != null && null == t.getTunnelBfd()) {
+                        bfdNames.add(tunnel.getTunnelBfd().getBfdName());
+                    }
+
+                    if (tunnel.getMasterBfd() != null && null == t.getMasterBfd()) {
+                        bfdNames.add(tunnel.getMasterBfd().getBfdName());
+                    }
+                    if (bfdNames.size() > 0) {
+                        boolean isDeleteBfdSessions = this.deleteBfdSessionsFromDeviceByNameList(bfdNames, netconfClient);
+                        if (isDeleteBfdSessions) {
+                            this.deleteBfdSessionsFromBase(bfdNames, routerId);
+                        }
+                    }
+                }
+
+            }
             // Add SExplictPaths
             explicitPaths.addAll(this.tunnelToSExplicitPath(t));
 
@@ -275,49 +313,58 @@ public class TunnelManagerImpl implements TunnelManager {
             sBfdCfgSessions.addAll(this.tunnelToSBfdCfgSession(t));
         }
 
-        boolean isCreateExplicitPaths = this.createExplicitPathsToDevice(explicitPaths,netconfClient);
 
-        if(!isCreateExplicitPaths){
+        boolean isCreateExplicitPaths = this.createExplicitPathsToDevice(explicitPaths, netconfClient);
+
+        if (!isCreateExplicitPaths) {
             return false;
         }
 
-        boolean isCreateTunnels = this.createTunnelListToDevice(srTeTunnels,netconfClient);
-        if(!isCreateTunnels){
+
+        boolean isCreateTunnels = this.createTunnelListToDevice(srTeTunnels, netconfClient);
+        if (!isCreateTunnels) {
             //delete paths
             List<String> list = new ArrayList<>();
-            for(SExplicitPath s : explicitPaths){
+            for (SExplicitPath s : explicitPaths) {
                 list.add(s.getExplicitPathName());
             }
-            this.deleteExplicitPathsFromDeviceByNameList(list,netconfClient);
+            this.deleteExplicitPathsFromDeviceByNameList(list, netconfClient);
 
             return false;
         }
 
-        boolean isCreateBfds = this.createBfdSessionsToDevice(sBfdCfgSessions,netconfClient);
-        if(!isCreateBfds){
+
+        //delete paths from device
+        if (null != pathNames) {
+            boolean isDeleteExplicitPaths = this.deleteExplicitPathsFromDeviceByNameList(pathNames, netconfClient);
+        }
+
+
+        boolean isCreateBfds = this.createBfdSessionsToDevice(sBfdCfgSessions, netconfClient);
+        if (!isCreateBfds) {
 
             //delete tunnels
             List<String> tunnelList = new ArrayList<>();
-            for(SSrTeTunnel sr : srTeTunnels){
+            for (SSrTeTunnel sr : srTeTunnels) {
                 tunnelList.add(sr.getTunnelName());
             }
-            this.deleteTunnelListFromDeviceByNameList(tunnelList,netconfClient);
+            this.deleteTunnelListFromDeviceByNameList(tunnelList, netconfClient);
 
             //delete paths
             List<String> pathList = new ArrayList<>();
-            for(SExplicitPath s : explicitPaths){
+            for (SExplicitPath s : explicitPaths) {
                 pathList.add(s.getExplicitPathName());
             }
-            this.deleteExplicitPathsFromDeviceByNameList(pathList,netconfClient);
+            this.deleteExplicitPathsFromDeviceByNameList(pathList, netconfClient);
             return false;
         }
 
         return true;
     }
 
-    private boolean createExplicitPathsToDevice(List<SExplicitPath> explicitPaths,NetconfClient netconfClient){
+    private boolean createExplicitPathsToDevice(List<SExplicitPath> explicitPaths, NetconfClient netconfClient) {
 
-        if(explicitPaths.isEmpty()){
+        if (explicitPaths.isEmpty()) {
             return true;
         }
 
@@ -330,8 +377,8 @@ public class TunnelManagerImpl implements TunnelManager {
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutCreateExplicitPathsXml));
     }
 
-    private boolean createTunnelListToDevice(List<SSrTeTunnel> srTeTunnels,NetconfClient netconfClient){
-        if(srTeTunnels.isEmpty()){
+    private boolean createTunnelListToDevice(List<SSrTeTunnel> srTeTunnels, NetconfClient netconfClient) {
+        if (srTeTunnels.isEmpty()) {
             return false;
         }
         String commandCreateTunnelsXml = SrTeTunnelXml.createSrTeTunnelXml(srTeTunnels);
@@ -343,9 +390,9 @@ public class TunnelManagerImpl implements TunnelManager {
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutCreateTunnelsXml));
     }
 
-    private boolean createBfdSessionsToDevice(List<SBfdCfgSession> sBfdCfgSessions,NetconfClient netconfClient){
+    private boolean createBfdSessionsToDevice(List<SBfdCfgSession> sBfdCfgSessions, NetconfClient netconfClient) {
 
-        if(sBfdCfgSessions.isEmpty()){
+        if (sBfdCfgSessions.isEmpty()) {
             return true;
         }
 
@@ -358,7 +405,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutCreateBfdSessionsXml));
     }
 
-    private SSrTeTunnel tunnelToSSrTeTunnel(Tunnel tunnel){
+    private SSrTeTunnel tunnelToSSrTeTunnel(Tunnel tunnel) {
         SSrTeTunnel ret = new SSrTeTunnel();
 
         ret.setTunnelName(tunnel.getTunnelName());
@@ -368,7 +415,7 @@ public class TunnelManagerImpl implements TunnelManager {
         ret.setTunnelDesc(tunnel.getTunnelDesc());
 
         TunnelServiceClass tsc = tunnel.getServiceClass();
-        if(null != tsc){
+        if (null != tsc) {
             STunnelServiceClass stsc = new STunnelServiceClass();
             stsc.setAf1ServiceClassEnable(tsc.isAf1());
             stsc.setAf2ServiceClassEnable(tsc.isAf2());
@@ -383,18 +430,18 @@ public class TunnelManagerImpl implements TunnelManager {
             ret.setMplsteServiceClass(stsc);
         }
 
-        if(tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+        if (tunnel.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
             ret.setMplsTeTunnelBfdMinTx(tunnel.getDynamicBfd().getMinSendTime());
             ret.setMplsTeTunnelBfdMinnRx(tunnel.getDynamicBfd().getMinRecvTime());
             ret.setMplsTeTunnelBfdDetectMultiplier(tunnel.getDynamicBfd().getMultiplier());
-        }else{
+        } else {
             ret.setMplsTeTunnelBfdMinTx("");
             ret.setMplsTeTunnelBfdMinnRx("");
             ret.setMplsTeTunnelBfdDetectMultiplier("");
         }
 
         List<SSrTeTunnelPath> srTeTunnelPaths = new ArrayList<>();
-        if(null != tunnel.getMasterPath()){
+        if (null != tunnel.getMasterPath()) {
             SSrTeTunnelPath masterPath = new SSrTeTunnelPath();
             masterPath.setExplicitPathName(tunnel.getMasterPath().getPathName());
             masterPath.setPathType("primary");
@@ -402,7 +449,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
         }
 
-        if(null != tunnel.getSlavePath()){
+        if (null != tunnel.getSlavePath()) {
             SSrTeTunnelPath slavePath = new SSrTeTunnelPath();
             slavePath.setExplicitPathName(tunnel.getSlavePath().getPathName());
             slavePath.setPathType("hotStandby");
@@ -414,15 +461,15 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private List<SExplicitPath> tunnelToSExplicitPath(Tunnel tunnel){
+    private List<SExplicitPath> tunnelToSExplicitPath(Tunnel tunnel) {
         List<SExplicitPath> ret = new ArrayList<SExplicitPath>();
 
-        if(null != tunnel.getMasterPath()){
+        if (null != tunnel.getMasterPath()) {
             ExplicitPath masterPath = tunnel.getMasterPath();
             ret.add(this.explicitPathToSExplicitPath(masterPath));
         }
 
-        if(null != tunnel.getSlavePath()){
+        if (null != tunnel.getSlavePath()) {
             ExplicitPath slavePath = tunnel.getSlavePath();
             ret.add(this.explicitPathToSExplicitPath(slavePath));
         }
@@ -430,30 +477,30 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private List<SBfdCfgSession> tunnelToSBfdCfgSession(Tunnel tunnel){
+    private List<SBfdCfgSession> tunnelToSBfdCfgSession(Tunnel tunnel) {
         List<SBfdCfgSession> ret = new ArrayList<SBfdCfgSession>();
-        if(null != tunnel.getTunnelBfd()){
+        if (null != tunnel.getTunnelBfd()) {
             BfdSession tunnelBfd = tunnel.getTunnelBfd();
-            ret.add(this.bfdSessionToSBfdCfgSession(tunnelBfd,tunnel.getTunnelName()));
+            ret.add(this.bfdSessionToSBfdCfgSession(tunnelBfd, tunnel.getTunnelName()));
         }
-        if(null != tunnel.getMasterBfd()){
+        if (null != tunnel.getMasterBfd()) {
             BfdSession masterBfd = tunnel.getMasterBfd();
-            ret.add(this.bfdSessionToSBfdCfgSession(masterBfd,tunnel.getTunnelName()));
+            ret.add(this.bfdSessionToSBfdCfgSession(masterBfd, tunnel.getTunnelName()));
         }
         return ret;
     }
 
-    private SExplicitPath explicitPathToSExplicitPath(ExplicitPath explicitPath){
+    private SExplicitPath explicitPathToSExplicitPath(ExplicitPath explicitPath) {
         SExplicitPath ret = new SExplicitPath();
 
         ret.setExplicitPathName(explicitPath.getPathName());
         List<SExplicitPathHop> explicitPathHops = new ArrayList<>();
         Set<Map.Entry<String, Label>> set = explicitPath.getLabelMap().entrySet();
 
-        for( Map.Entry<String,Label> entry: set ){
+        for (Map.Entry<String, Label> entry : set) {
             SExplicitPathHop explicitPathHop = new SExplicitPathHop();
             Label label = entry.getValue();
-            if(label.getType() == LabelTypeEnum.PREFIX.getCode()){
+            if (label.getType() == LabelTypeEnum.PREFIX.getCode()) {
                 explicitPathHop.setMplsTunnelHopSidLabelType(LabelTypeEnum.PREFIX.getName());
             }
             explicitPathHop.setMplsTunnelHopIndex(entry.getKey());
@@ -465,7 +512,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private SBfdCfgSession bfdSessionToSBfdCfgSession(BfdSession bfdSession,String tunnelName){
+    private SBfdCfgSession bfdSessionToSBfdCfgSession(BfdSession bfdSession, String tunnelName) {
         SBfdCfgSession ret = new SBfdCfgSession();
         ret.setTunnelName(tunnelName);
         ret.setMultiplier(bfdSession.getMultiplier());
@@ -479,68 +526,68 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private String getBfdLinkType(Integer type){
-        if(type == BfdTypeEnum.Tunnel.getCode()){
+    private String getBfdLinkType(Integer type) {
+        if (type == BfdTypeEnum.Tunnel.getCode()) {
             return "TE_TUNNEL";
-        }else{
+        } else {
             return "TE_LSP";
         }
     }
 
 
-    private boolean deleteTunnelsFromDeviceByNameList(List<String> tunnels, String routerId, NetconfClient netconfClient){
+    private boolean deleteTunnelsFromDeviceByNameList(List<String> tunnels, String routerId, NetconfClient netconfClient) {
 
         List<String> pathNames = new ArrayList<String>();
         List<String> bfdNames = new ArrayList<String>();
 
         Map<String, Tunnel> tempTunnelsMap = this.tunnelMap.get(routerId);
-        for(String tunnelName : tunnels){
+        for (String tunnelName : tunnels) {
             Tunnel tunnel = tempTunnelsMap.get(tunnelName);
-            if(null != tunnel){
-                String masterPath = this.getPathName(tunnel.getTunnelName()+this.Link,tunnel.getMasterPath());
-                if(null != masterPath){
+            if (null != tunnel) {
+                String masterPath = this.getPathName(tunnel.getTunnelName() + this.Link, tunnel.getMasterPath());
+                if (null != masterPath) {
                     pathNames.add(masterPath);
                 }
 
-                String slavePath = this.getPathName(tunnel.getTunnelName()+this.Linkback,tunnel.getSlavePath());
-                if(null != slavePath){
+                String slavePath = this.getPathName(tunnel.getTunnelName() + this.Linkback, tunnel.getSlavePath());
+                if (null != slavePath) {
                     pathNames.add(slavePath);
                 }
 
-                if(tunnel.getTunnelBfd() != null){
+                if (tunnel.getTunnelBfd() != null) {
                     bfdNames.add(tunnel.getTunnelBfd().getBfdName());
                 }
 
-                if(tunnel.getMasterBfd() != null){
+                if (tunnel.getMasterBfd() != null) {
                     bfdNames.add(tunnel.getMasterBfd().getBfdName());
                 }
             }
         }
 
         //delete bfds from device
-        boolean isDeleteBfdSessions = this.deleteBfdSessionsFromDeviceByNameList(bfdNames,netconfClient);
+        boolean isDeleteBfdSessions = this.deleteBfdSessionsFromDeviceByNameList(bfdNames, netconfClient);
         //delete bfds from map
-        if(isDeleteBfdSessions){
-            this.deleteBfdSessionsFromBase(bfdNames,routerId);
+        if (isDeleteBfdSessions) {
+            this.deleteBfdSessionsFromBase(bfdNames, routerId);
         }
 
         //delete tunnels from device
-        boolean isDeleteTunnels = this.deleteTunnelListFromDeviceByNameList(tunnels,netconfClient);
+        boolean isDeleteTunnels = this.deleteTunnelListFromDeviceByNameList(tunnels, netconfClient);
         //delete from map
-        if(isDeleteTunnels){
-            this.deleteTunnelsFromBase(tunnels,routerId);
+        if (isDeleteTunnels) {
+            this.deleteTunnelsFromBase(tunnels, routerId);
         }
 
         //delete paths from device
-        boolean isDeleteExplicitPaths = this.deleteExplicitPathsFromDeviceByNameList(pathNames,netconfClient);
+        boolean isDeleteExplicitPaths = this.deleteExplicitPathsFromDeviceByNameList(pathNames, netconfClient);
         //none
 
         return (isDeleteBfdSessions && isDeleteTunnels && isDeleteExplicitPaths);
 
     }
 
-    private boolean deleteExplicitPathsFromDeviceByNameList(List<String> names,NetconfClient netconfClient){
-        if(names.isEmpty()){
+    private boolean deleteExplicitPathsFromDeviceByNameList(List<String> names, NetconfClient netconfClient) {
+        if (names.isEmpty()) {
             return true;
         }
 
@@ -554,8 +601,8 @@ public class TunnelManagerImpl implements TunnelManager {
 
     }
 
-    private boolean deleteTunnelListFromDeviceByNameList(List<String> names,NetconfClient netconfClient){
-        if(names.isEmpty()){
+    private boolean deleteTunnelListFromDeviceByNameList(List<String> names, NetconfClient netconfClient) {
+        if (names.isEmpty()) {
             return false;
         }
 
@@ -568,8 +615,8 @@ public class TunnelManagerImpl implements TunnelManager {
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutDeleteTunnelsXml));
     }
 
-    private boolean deleteBfdSessionsFromDeviceByNameList(List<String> names,NetconfClient netconfClient){
-        if(names.isEmpty()){
+    private boolean deleteBfdSessionsFromDeviceByNameList(List<String> names, NetconfClient netconfClient) {
+        if (names.isEmpty()) {
             return true;
         }
 
@@ -582,25 +629,25 @@ public class TunnelManagerImpl implements TunnelManager {
         return CheckXml.RESULT_OK.equals(CheckXml.checkOk(outPutDeleteBfdSessionsXml));
     }
 
-    private String getPathName(String tunnelPathName,ExplicitPath path){
+    private String getPathName(String tunnelPathName, ExplicitPath path) {
         String pathName = null;
 
-        if(path != null && tunnelPathName.equals(path.getPathName())){
+        if (path != null && tunnelPathName.equals(path.getPathName())) {
             return tunnelPathName;
         }
 
         return pathName;
     }
 
-    private void deleteBfdSessionsFromBase(List<String> names,String routerId){
-        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
-        if(null != map) {
-            Map<Integer,BfdSession> newMap = new ConcurrentHashMap<>(map);
+    private void deleteBfdSessionsFromBase(List<String> names, String routerId) {
+        Map<Integer, BfdSession> map = this.bfdSessionMap.get(routerId);
+        if (null != map) {
+            Map<Integer, BfdSession> newMap = new ConcurrentHashMap<>(map);
 
             Iterator<BfdSession> iterator = newMap.values().iterator();
             while (iterator.hasNext()) {
                 BfdSession bfdSession = iterator.next();
-                for(String name : names) {
+                for (String name : names) {
                     if (bfdSession.getBfdName().equals(name)) {
                         map.remove(Integer.parseInt(bfdSession.getDiscriminatorLocal()));
                     }
@@ -610,17 +657,17 @@ public class TunnelManagerImpl implements TunnelManager {
         return;
     }
 
-    private void deleteTunnelsFromBase(List<String> names,String routerId){
-        Map<String,Tunnel> map = this.tunnelMap.get(routerId);
-        if(null != map) {
-            for(String name : names){
+    private void deleteTunnelsFromBase(List<String> names, String routerId) {
+        Map<String, Tunnel> map = this.tunnelMap.get(routerId);
+        if (null != map) {
+            for (String name : names) {
                 map.remove(name);
             }
         }
         return;
     }
 
-    private List<SBfdCfgSession> getBfdSessionsFromDeviceByRouterId(NetconfClient netconfClient){
+    private List<SBfdCfgSession> getBfdSessionsFromDeviceByRouterId(NetconfClient netconfClient) {
 
         String commandGetBfdSessionsXml = BfdCfgSessionXml.getBfdCfgSessionsXml();
         LOG.info("CommandGetBfdSessionsXml: " + commandGetBfdSessionsXml);
@@ -632,7 +679,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private List<SSrTeTunnel> getTunnelListFromDeviceByRouterId(NetconfClient netconfClient){
+    private List<SSrTeTunnel> getTunnelListFromDeviceByRouterId(NetconfClient netconfClient) {
 
         String commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml("");
         LOG.info("CommandGetTunnelsXml: " + commandGetTunnelsXml);
@@ -651,9 +698,9 @@ public class TunnelManagerImpl implements TunnelManager {
 
         List<SSrTeTunnelInterface> list = SrTeTunnelXml.getSrTeTunnelInterfacesFromXml(outPutGetTunnelInterfacesXml);
 
-        for(SSrTeTunnel t: ret){
-            for(SSrTeTunnelInterface i : list){
-                if(t.getTunnelName().equals(i.getIfName())){
+        for (SSrTeTunnel t : ret) {
+            for (SSrTeTunnelInterface i : list) {
+                if (t.getTunnelName().equals(i.getIfName())) {
                     t.setTunnelDesc(i.getIfDescr());
                     break;
                 }
@@ -663,7 +710,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private List<SExplicitPath> getExplicitPathsFromDeviceByRouterId(NetconfClient netconfClient){
+    private List<SExplicitPath> getExplicitPathsFromDeviceByRouterId(NetconfClient netconfClient) {
         List<SExplicitPath> ret = null;
         String getExplicitPathXml = ExplicitPathXml.getExplicitPathXml();
         LOG.info("command getExplicitPathXml: " + getExplicitPathXml);
@@ -673,26 +720,26 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private Map<String,Tunnel> getTunnelsMap(List<SBfdCfgSession> sBfdCfgSessions ,List<SSrTeTunnel> sSrTeTunnels,List<SExplicitPath> sExplicitPaths ){
-        Map<String,Tunnel> ret = new ConcurrentHashMap<>();
+    private Map<String, Tunnel> getTunnelsMap(List<SBfdCfgSession> sBfdCfgSessions, List<SSrTeTunnel> sSrTeTunnels, List<SExplicitPath> sExplicitPaths) {
+        Map<String, Tunnel> ret = new ConcurrentHashMap<>();
 
         return ret;
     }
 
-    private Map<Integer,BfdSession> getBfdSessionFromSBfdCfgSessions(List<SBfdCfgSession> sBfdCfgSessions){
-        Map<Integer,BfdSession> ret = new ConcurrentHashMap<>();
-        for(SBfdCfgSession s : sBfdCfgSessions){
+    private Map<Integer, BfdSession> getBfdSessionFromSBfdCfgSessions(List<SBfdCfgSession> sBfdCfgSessions) {
+        Map<Integer, BfdSession> ret = new ConcurrentHashMap<>();
+        for (SBfdCfgSession s : sBfdCfgSessions) {
             BfdSession b = this.sBfdCfgSessionToBfdSession(s);
-            if(null != b) {
+            if (null != b) {
                 ret.put(Integer.parseInt(b.getDiscriminatorLocal()), b);
             }
         }
         return ret;
     }
 
-    private BfdSession sBfdCfgSessionToBfdSession(SBfdCfgSession sBfdCfgSession){
+    private BfdSession sBfdCfgSessionToBfdSession(SBfdCfgSession sBfdCfgSession) {
         BfdSession ret = null;
-        if(null != sBfdCfgSession){
+        if (null != sBfdCfgSession) {
             ret = new BfdSession();
             ret.setTunnelName(sBfdCfgSession.getTunnelName());
             ret.setBfdName(sBfdCfgSession.getSessName());
@@ -701,20 +748,20 @@ public class TunnelManagerImpl implements TunnelManager {
             ret.setMinSendTime(sBfdCfgSession.getMinTxInt());
             ret.setDiscriminatorLocal(sBfdCfgSession.getLocalDiscr());
             ret.setDiscriminatorRemote(sBfdCfgSession.getRemoteDiscr());
-            if(sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Tunnel.getName())){
+            if (sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Tunnel.getName())) {
                 ret.setType(BfdTypeEnum.Tunnel.getCode());
-            }else if(sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Master.getName())){
+            } else if (sBfdCfgSession.getLinkType().equals(SBfdCfgSessionLinkTypeEnum.Master.getName())) {
                 ret.setType(BfdTypeEnum.Master.getCode());
             }
         }
         return ret;
     }
 
-    private List<ExplicitPath> getExplicitPathsFromSExplicitPaths(List<SExplicitPath> sExplicitPaths){
-        List<ExplicitPath> ret= null;
+    private List<ExplicitPath> getExplicitPathsFromSExplicitPaths(List<SExplicitPath> sExplicitPaths) {
+        List<ExplicitPath> ret = null;
 
-        if(null != sExplicitPaths && !sExplicitPaths.isEmpty()) {
-            ret= new ArrayList<ExplicitPath>();
+        if (null != sExplicitPaths && !sExplicitPaths.isEmpty()) {
+            ret = new ArrayList<ExplicitPath>();
             for (SExplicitPath s : sExplicitPaths) {
                 ret.add(this.sExplicitPathToExplicitPath(s));
             }
@@ -723,7 +770,7 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath sExplicitPath){
+    private ExplicitPath sExplicitPathToExplicitPath(SExplicitPath sExplicitPath) {
         ExplicitPath ret = new ExplicitPath();
         ret.setPathName(sExplicitPath.getExplicitPathName());
         if (sExplicitPath.getExplicitPathHops() != null) {
@@ -732,14 +779,14 @@ public class TunnelManagerImpl implements TunnelManager {
                 Label label = new Label();
                 label.setValue(Integer.valueOf(sExplicitPathHop.getMplsTunnelHopSidLabel()));
                 label.setType(LabelTypeEnum.nameToCode(sExplicitPathHop.getMplsTunnelHopSidLabelType()));
-                labelMap.put(sExplicitPathHop.getMplsTunnelHopIndex(),label);
+                labelMap.put(sExplicitPathHop.getMplsTunnelHopIndex(), label);
             }
             ret.setLabelMap(labelMap);
         }
         return ret;
     }
 
-    private Tunnel sSrTeTunnelToTunnel(SSrTeTunnel sSrTeTunnel,List<BfdSession> bfdCfgSessions,List<ExplicitPath> explicitPaths){
+    private Tunnel sSrTeTunnelToTunnel(SSrTeTunnel sSrTeTunnel, List<BfdSession> bfdCfgSessions, List<ExplicitPath> explicitPaths) {
         Tunnel ret = new Tunnel();
 
         // set tunnel values
@@ -750,7 +797,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
         ret.setTunnelDesc(sSrTeTunnel.getTunnelDesc());
 
-        if(null != sSrTeTunnel.getMplsteServiceClass()){
+        if (null != sSrTeTunnel.getMplsteServiceClass()) {
             TunnelServiceClass tsc = new TunnelServiceClass();
             STunnelServiceClass stsc = sSrTeTunnel.getMplsteServiceClass();
             tsc.setAf1(stsc.isAf1ServiceClassEnable());
@@ -767,14 +814,14 @@ public class TunnelManagerImpl implements TunnelManager {
         }
 
         // set bfd values
-        BfdSession tunnelBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Tunnel.getCode(),bfdCfgSessions);
-        BfdSession masterBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(),BfdTypeEnum.Master.getCode(),bfdCfgSessions);
+        BfdSession tunnelBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(), BfdTypeEnum.Tunnel.getCode(), bfdCfgSessions);
+        BfdSession masterBfd = this.getBfdSessionFromListByTunnelNameAndType(ret.getTunnelName(), BfdTypeEnum.Master.getCode(), bfdCfgSessions);
 
         ret.setMasterBfd(masterBfd);
         ret.setTunnelBfd(tunnelBfd);
 
-        if( null == masterBfd && null == tunnelBfd) {
-            if(Boolean.valueOf(sSrTeTunnel.getMplsTeTunnelBfdEnable())){
+        if (null == masterBfd && null == tunnelBfd) {
+            if (Boolean.valueOf(sSrTeTunnel.getMplsTeTunnelBfdEnable())) {
                 // set dynamicBfd
                 BfdSession dynamicBfd = new BfdSession();
                 dynamicBfd.setMinSendTime(sSrTeTunnel.getMplsTeTunnelBfdMinTx());
@@ -782,22 +829,22 @@ public class TunnelManagerImpl implements TunnelManager {
                 dynamicBfd.setMultiplier(sSrTeTunnel.getMplsTeTunnelBfdDetectMultiplier());
                 ret.setDynamicBfd(dynamicBfd);
                 ret.setBfdType(BfdTypeEnum.Dynamic.getCode());
-            }else {
+            } else {
                 ret.setBfdType(BfdTypeEnum.Empty.getCode());
             }
-        }else{
+        } else {
             ret.setBfdType(BfdTypeEnum.Static.getCode());
         }
 
         // set explicit paths
-        List<SSrTeTunnelPath>  sSrTeTunnelPaths = sSrTeTunnel.getSrTeTunnelPaths();
-        if(null != sSrTeTunnelPaths && !sSrTeTunnelPaths.isEmpty() ){
-            for(SSrTeTunnelPath srtp : sSrTeTunnelPaths){
-                ExplicitPath ep = this.getExplictPathFromListByName(srtp.getExplicitPathName(),explicitPaths);
-                if(null != ep){
-                    if(srtp.getPathType().equals(STunnelPathTypeEnum.Primary.getName())){
+        List<SSrTeTunnelPath> sSrTeTunnelPaths = sSrTeTunnel.getSrTeTunnelPaths();
+        if (null != sSrTeTunnelPaths && !sSrTeTunnelPaths.isEmpty()) {
+            for (SSrTeTunnelPath srtp : sSrTeTunnelPaths) {
+                ExplicitPath ep = this.getExplictPathFromListByName(srtp.getExplicitPathName(), explicitPaths);
+                if (null != ep) {
+                    if (srtp.getPathType().equals(STunnelPathTypeEnum.Primary.getName())) {
                         ret.setMasterPath(ep);
-                    }else if(srtp.getPathType().equals(STunnelPathTypeEnum.HotStandby.getName())){
+                    } else if (srtp.getPathType().equals(STunnelPathTypeEnum.HotStandby.getName())) {
                         ret.setSlavePath(ep);
                     }
                 }
@@ -807,45 +854,45 @@ public class TunnelManagerImpl implements TunnelManager {
         return ret;
     }
 
-    private ExplicitPath getExplictPathFromListByName(String name,List<ExplicitPath> explicitPaths){
-        if(null == name || null == explicitPaths || explicitPaths.isEmpty()){
+    private ExplicitPath getExplictPathFromListByName(String name, List<ExplicitPath> explicitPaths) {
+        if (null == name || null == explicitPaths || explicitPaths.isEmpty()) {
             return null;
         }
 
-        for(ExplicitPath e : explicitPaths){
-            if(e.getPathName().equals(name)){
+        for (ExplicitPath e : explicitPaths) {
+            if (e.getPathName().equals(name)) {
                 return e;
             }
         }
         return null;
     }
 
-    private BfdSession getBfdSessionFromListByTunnelNameAndType(String tunnelName,Integer type,List<BfdSession> bfdSessions){
+    private BfdSession getBfdSessionFromListByTunnelNameAndType(String tunnelName, Integer type, List<BfdSession> bfdSessions) {
 
-        if( null == bfdSessions || bfdSessions.isEmpty() || null == tunnelName || null == type){
+        if (null == bfdSessions || bfdSessions.isEmpty() || null == tunnelName || null == type) {
             return null;
         }
-        for(BfdSession b : bfdSessions){
-            if(b.getTunnelName().equals(tunnelName) && b.getType() == type){
+        for (BfdSession b : bfdSessions) {
+            if (b.getTunnelName().equals(tunnelName) && b.getType() == type) {
                 return b;
             }
         }
         return null;
     }
 
-    private boolean addBfdSessionToBase(BfdSession bfdSession,String routerId){
-        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
-        if(null == map){
+    private boolean addBfdSessionToBase(BfdSession bfdSession, String routerId) {
+        Map<Integer, BfdSession> map = this.bfdSessionMap.get(routerId);
+        if (null == map) {
             map = new ConcurrentHashMap<Integer, BfdSession>();
-            this.bfdSessionMap.put(bfdSession.getDevice().getRouterId(),map);
+            this.bfdSessionMap.put(bfdSession.getDevice().getRouterId(), map);
         }
-        map.put(Integer.parseInt(bfdSession.getDiscriminatorLocal()),bfdSession);
+        map.put(Integer.parseInt(bfdSession.getDiscriminatorLocal()), bfdSession);
         return true;
     }
 
-    private boolean deleteBfdSessionFromBase(String name,String routerId){
-        Map<Integer,BfdSession> map = this.bfdSessionMap.get(routerId);
-        if(null != map) {
+    private boolean deleteBfdSessionFromBase(String name, String routerId) {
+        Map<Integer, BfdSession> map = this.bfdSessionMap.get(routerId);
+        if (null != map) {
             Iterator<BfdSession> iterator = map.values().iterator();
             while (iterator.hasNext()) {
                 BfdSession bfdSession = iterator.next();

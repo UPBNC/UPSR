@@ -14,7 +14,7 @@ public class BfdCfgSessionXml {
     private static final Logger LOG = LoggerFactory.getLogger(cn.org.upbnc.util.xml.BfdCfgSessionXml.class);
 
     public static String createBfdCfgSessionsXml(List<SBfdCfgSession> bfdCfgSessions) {
-        String head ="<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"+
+        String head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config >\n";
 
@@ -24,13 +24,13 @@ public class BfdCfgSessionXml {
 
         String configStart = "    <config>\n";
 
-        String bfdStart = "      <bfd xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bfd\">\n"+
+        String bfdStart = "      <bfd xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bfd\">\n" +
                 "        <bfdCfgSessions>\n";
 
 
         String bfdSession = "";
 
-        for(SBfdCfgSession sBfdCfgSession: bfdCfgSessions){
+        for (SBfdCfgSession sBfdCfgSession : bfdCfgSessions) {
             bfdSession = bfdSession + getBfdSession(sBfdCfgSession);
         }
 
@@ -39,17 +39,17 @@ public class BfdCfgSessionXml {
 
         String configEnd = "    </config>\n";
 
-        String  end =
+        String end =
                 "  </edit-config>\n" +
                         "</rpc>";
-        return head + target + configStart + bfdStart + bfdSession + bfdEnd + configEnd +end;
+        return head + target + configStart + bfdStart + bfdSession + bfdEnd + configEnd + end;
     }
 
 
     public static String deleteBfdCfgSessionsXml(List<String> sessNames) {
 
-        String head ="<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\""+ GetMessageId.getId() +"\">\n" +
+        String head = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
                 "      <running/>\n" +
@@ -60,22 +60,22 @@ public class BfdCfgSessionXml {
                 "        <bfdCfgSessions> \n";
         String bfdSession = "";
 
-        for(String sessName: sessNames){
+        for (String sessName : sessNames) {
             bfdSession = bfdSession + getBfdSessionName(sessName);
         }
 
         String end =
-                "        </bfdCfgSessions>\n"+
-                "      </bfd>\n" +
-                "    </config>\n" +
-                "  </edit-config>\n" +
-                "</rpc>\n";
-        return head + bfdSession +end;
+                "        </bfdCfgSessions>\n" +
+                        "      </bfd>\n" +
+                        "    </config>\n" +
+                        "  </edit-config>\n" +
+                        "</rpc>\n";
+        return head + bfdSession + end;
     }
 
-    public static String getBfdCfgSessionsXml(){
-        String xml="<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\""+GetMessageId.getId()+"\">\n" +
+    public static String getBfdCfgSessionsXml() {
+        String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <get-config>\n" +
                 "    <source>\n" +
                 "      <running/>\n" +
@@ -124,26 +124,27 @@ public class BfdCfgSessionXml {
     }
 
     private static String getBfdSessionName(String sessname) {
-          String ret =
-                  "          <bfdCfgSession nc:operation=\"delete\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
-                          "            <sessName>"+ sessname +"</sessName>\n" +
-                          "          </bfdCfgSession>\n";
-          return ret;
+        String ret =
+                "          <bfdCfgSession nc:operation=\"delete\" xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                        "            <sessName>" + sessname + "</sessName>\n" +
+                        "          </bfdCfgSession>\n";
+        return ret;
     }
 
 
     private static String getBfdSession(SBfdCfgSession sBfdCfgSession) {
         String ret =
-                "        <bfdCfgSession xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"create\">\n" +
-                "            <sessName >"+ sBfdCfgSession.getSessName() +"</sessName >\n" +
-                "            <minTxInt >" + sBfdCfgSession.getMinTxInt() + "</minTxInt >\n" +
-                "            <minRxInt >" + sBfdCfgSession.getMinRxInt() + "</minRxInt >\n" +
-                "            <linkType >" + sBfdCfgSession.getLinkType() + "</linkType >\n" +
-                "            <tunnelName >" + sBfdCfgSession.getTunnelName() + "</tunnelName >\n" +
-                "            <createType >" + sBfdCfgSession.getCreateType() + "</createType >\n" +
-                "            <localDiscr >" + sBfdCfgSession.getLocalDiscr() + "</localDiscr >\n" +
-                "            <remoteDiscr >" + sBfdCfgSession.getRemoteDiscr() + "</remoteDiscr >\n" +
-                "        </bfdCfgSession >\n";
+                "        <bfdCfgSession>\n" +
+                        "            <sessName >" + sBfdCfgSession.getSessName() + "</sessName >\n" +
+                        "            <minTxInt >" + sBfdCfgSession.getMinTxInt() + "</minTxInt >\n" +
+                        "            <minRxInt >" + sBfdCfgSession.getMinRxInt() + "</minRxInt >\n" +
+                        "            <linkType >" + sBfdCfgSession.getLinkType() + "</linkType >\n" +
+                        "            <detectMulti >" + sBfdCfgSession.getMultiplier() + "</detectMulti >\n" +
+                        "            <tunnelName >" + sBfdCfgSession.getTunnelName() + "</tunnelName >\n" +
+                        "            <createType >" + sBfdCfgSession.getCreateType() + "</createType >\n" +
+                        "            <localDiscr >" + sBfdCfgSession.getLocalDiscr() + "</localDiscr >\n" +
+                        "            <remoteDiscr >" + sBfdCfgSession.getRemoteDiscr() + "</remoteDiscr >\n" +
+                        "        </bfdCfgSession >\n";
         return ret;
     }
 
