@@ -72,7 +72,11 @@ public class SrTeTunnelXml {
 
             if ("".equals(srTeTunnel.getMplsTeTunnelBfdMinTx()) || "".equals(srTeTunnel.getMplsTeTunnelBfdMinnRx())
                     || "".equals(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier())) {
-                middle = middle + "<mplsTeTunnelBfd xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+                middle = middle + "            <mplsTeTunnelBfd>\n" +
+                        "              <mplsTeTunnelBfdMinTx xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n" +
+                        "              <mplsTeTunnelBfdMinnRx xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n" +
+                        "              <mplsTeTunnelBfdDetectMultiplier xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>\n" +
+                        "            </mplsTeTunnelBfd>";
             } else {
                 middle = middle +
                         "            <mplsTeTunnelBfd>\n" +
