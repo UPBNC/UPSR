@@ -339,7 +339,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
 
         //delete paths from device
-        if (null != pathNames) {
+        if (null != pathNames && pathNames.size() > 0) {
             boolean isDeleteExplicitPaths = this.deleteExplicitPathsFromDeviceByNameList(pathNames, netconfClient);
         }
 

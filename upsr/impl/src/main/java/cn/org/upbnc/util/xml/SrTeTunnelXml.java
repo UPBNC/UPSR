@@ -64,13 +64,15 @@ public class SrTeTunnelXml {
                         "                 <cs6ServiceClassEnable>    " + String.valueOf(sc.isCs6ServiceClassEnable()) + "</cs6ServiceClassEnable>\n" +
                         "                 <cs7ServiceClassEnable>    " + String.valueOf(sc.isCs7ServiceClassEnable()) + "</cs7ServiceClassEnable>\n" +
                         "             </mplsteServiceClass>\n";
+            } else {
+                middle = middle + "<mplsteServiceClass xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
             }
             middle = middle +
                     "            </tunnelInterface>\n";
 
             if ("".equals(srTeTunnel.getMplsTeTunnelBfdMinTx()) || "".equals(srTeTunnel.getMplsTeTunnelBfdMinnRx())
                     || "".equals(srTeTunnel.getMplsTeTunnelBfdDetectMultiplier())) {
-                LOG.info("bfd is not set.");
+                middle = middle + "<mplsTeTunnelBfd xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
             } else {
                 middle = middle +
                         "            <mplsTeTunnelBfd>\n" +
@@ -118,8 +120,8 @@ public class SrTeTunnelXml {
         }
         String end =
                 "  </config>\n" +
-                "</edit-config>\n" +
-                "</rpc>";
+                        "</edit-config>\n" +
+                        "</rpc>";
         return start + middle + end;
     }
 
@@ -155,7 +157,6 @@ public class SrTeTunnelXml {
                 "</rpc>";
         return start + middle + end;
     }
-
 
 
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml) {
@@ -260,7 +261,7 @@ public class SrTeTunnelXml {
                     "          </mpls:srTeTunnel>\n";
         }
 
-        String end ="        </mpls:srTeTunnels>\n" +
+        String end = "        </mpls:srTeTunnels>\n" +
                 "      </mpls:mplsTe>\n" +
                 "    </mpls:mpls>\n" +
                 "  </config>\n" +
@@ -269,7 +270,7 @@ public class SrTeTunnelXml {
         return start + middle + end;
     }
 
-    public static String  getSrTeTunnelInterfacesXml(){
+    public static String getSrTeTunnelInterfacesXml() {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
@@ -279,9 +280,9 @@ public class SrTeTunnelXml {
                 "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
                 "      <ifm:interfaces>\n" +
                 "        <ifm:interface>\n" +
-                "          <ifm:ifName/>\n"+
-                "          <ifm:ifDescr/>\n"+
-                "          <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n"+
+                "          <ifm:ifName/>\n" +
+                "          <ifm:ifDescr/>\n" +
+                "          <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n" +
                 "        </ifm:interface>\n" +
                 "      </ifm:interfaces>\n" +
                 "    </ifm:ifm>\n" +
@@ -308,7 +309,7 @@ public class SrTeTunnelXml {
                     sSrTeTunnelInterface.setIfPhyType(element.elementText("ifPhyType"));
                     ret.add(sSrTeTunnelInterface);
                 }
-            }catch (Exception e) {
+            } catch (Exception e) {
 
             }
         }
@@ -316,10 +317,10 @@ public class SrTeTunnelXml {
     }
 
 
-    private static String getTunnelDescXml(String desc){
-        if(desc == null || desc == ""){
+    private static String getTunnelDescXml(String desc) {
+        if (desc == null || desc == "") {
             return "";
-        }else {
+        } else {
             return "          <ifDescr> " + desc + "</ifDescr>\n";
         }
     }
