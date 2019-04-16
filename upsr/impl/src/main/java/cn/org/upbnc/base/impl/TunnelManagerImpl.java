@@ -277,14 +277,18 @@ public class TunnelManagerImpl implements TunnelManager {
             if (null != map) {
                 tunnel = map.get(t.getTunnelName());
                 if (null != tunnel) {
-                    String masterPath = tunnel.getMasterPath().getPathName();
-                    if (null != masterPath && null == t.getMasterPath().getPathName()) {
-                        pathNames.add(masterPath);
+                    if (null != tunnel.getMasterPath()) {
+                        String masterPath = tunnel.getMasterPath().getPathName();
+                        if (null != masterPath && null == t.getMasterPath().getPathName()) {
+                            pathNames.add(masterPath);
+                        }
                     }
 
-                    String slavePath = tunnel.getSlavePath().getPathName();
-                    if (null != slavePath && null == t.getSlavePath().getPathName()) {
-                        pathNames.add(slavePath);
+                    if (null != tunnel.getSlavePath()) {
+                        String slavePath = tunnel.getSlavePath().getPathName();
+                        if (null != slavePath && null == t.getSlavePath().getPathName()) {
+                            pathNames.add(slavePath);
+                        }
                     }
 
                     if (tunnel.getTunnelBfd() != null && null == t.getTunnelBfd()) {
