@@ -352,7 +352,30 @@ public class TunnelServiceImpl implements TunnelService {
 
     @Override
     public Map<String, Object> updateTunnel(TunnelServiceEntity tunnelServiceEntity) {
-        return null;
+        LOG.info("updateTunnel :" + tunnelServiceEntity.toString());
+        Map<String, Object> map = new HashMap<>();
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+
+        Device device = this.deviceManager.getDevice(tunnelServiceEntity.getRouterId());
+        if (device != null) {
+            LOG.info(device.getNetConf().getIp().getAddress());
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            LOG.info("get device is null,which routerId is " + tunnelServiceEntity.getRouterId());
+            return map;
+        }
+
+        if (!("".equals(device.getOspfProcess().getIntfName())) || null != device.getOspfProcess().getIntfName()) {
+            LOG.info("device.getOspfProcess().getIntfName() :" + device.getOspfProcess().getIntfName());
+            tunnelServiceEntity.setUnNumIfName(device.getOspfProcess().getIntfName());
+        }
+        LOG.info("device.getLoopBack() :" + device.getLoopBack());
+        if (this.createSrTunnel(tunnelServiceEntity)) {
+            map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            map.put(ResponseEnum.MESSAGE.getName(), "update tunnel fail");
+        }
+        return map;
     }
 
     @Override

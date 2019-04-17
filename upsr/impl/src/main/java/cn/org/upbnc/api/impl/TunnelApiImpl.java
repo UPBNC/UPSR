@@ -87,7 +87,49 @@ public class TunnelApiImpl implements TunnelApi {
 
     @Override
     public Map<String, Object> updateTunnel(TunnelServiceEntity tunnelServiceEntity) {
-        return null;
+        Map<String, Object> map = new HashMap<>();
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        if (null == tunnelServiceEntity.getTunnelName() || "".equals(tunnelServiceEntity.getTunnelName()) ||
+                null == tunnelServiceEntity.getTunnelId() || "".equals(tunnelServiceEntity.getTunnelId()) ||
+                null == tunnelServiceEntity.getRouterId() || "".equals(tunnelServiceEntity.getRouterId())) {
+            map.put(ResponseEnum.MESSAGE.getName(), "tunnel name ,id or routerId is null");
+            return map;
+        }
+        if (null == serviceInterface.getNetconfSessionService().getNetconfClient(tunnelServiceEntity.getRouterId())) {
+            map.put(ResponseEnum.MESSAGE.getName(), "netconfClient is null");
+            return map;
+        }
+
+        if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Static.getCode()){
+            if(null == tunnelServiceEntity.getTunnelBfd() && null == tunnelServiceEntity.getMasterBfd()){
+                map.put(ResponseEnum.MESSAGE.getName(), "Static Bfd : None Bfd");
+                return map;
+            }
+            if ( null !=tunnelServiceEntity.getTunnelBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getTunnelBfd())){
+                tunnelServiceEntity.setTunnelBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel bfd parameter is invalid.");
+                return map;
+            }
+
+            if (null != tunnelServiceEntity.getMasterBfd() && !this.checkStaticBfdParams(tunnelServiceEntity.getMasterBfd())) {
+                tunnelServiceEntity.setMasterBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel lsp_bfd parameter is invalid.");
+                return map;
+            }
+        } else if (tunnelServiceEntity.getBfdType() == BfdTypeEnum.Dynamic.getCode()) {
+            if(null == tunnelServiceEntity.getDynamicBfd()){
+                map.put(ResponseEnum.MESSAGE.getName(), "Dynamic Bfd : None Bfd");
+                return map;
+            }
+
+            if ( null != tunnelServiceEntity.getDynamicBfd() && !this.checkDynamicBfdParams(tunnelServiceEntity.getDynamicBfd())){
+                tunnelServiceEntity.setDynamicBfd(null);
+                map.put(ResponseEnum.MESSAGE.getName(), "The tunnel bfd parameter is invalid.");
+                return map;
+            }
+        }
+
+        return tunnelService.updateTunnel(tunnelServiceEntity);
     }
 
     @Override
