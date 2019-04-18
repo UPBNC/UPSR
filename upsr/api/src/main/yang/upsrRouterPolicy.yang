@@ -27,4 +27,24 @@ module upsrRouterPolicy {
             }
         }
     }
+
+    rpc updateRoutePolicy {
+        input {
+            uses routePolicy;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc deleteRoutePolicy {
+        input {
+            leaf routerId { type string; }
+            leaf policyName { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
 }

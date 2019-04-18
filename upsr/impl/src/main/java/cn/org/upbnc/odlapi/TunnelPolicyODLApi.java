@@ -69,7 +69,7 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
         List<TunnelPolicys> tunnelPolicysList = new ArrayList<>();
         for (TunnelPolicyEntity tunnelPolicyEntity : tunnelPolicyEntityList) {
             TunnelPolicysBuilder tunnelPolicysBuilder = new TunnelPolicysBuilder();
-//            tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
+            tunnelPolicysBuilder.setRouterId(tunnelPolicyEntity.getRouterID());
             tunnelPolicysBuilder.setPolicyName(tunnelPolicyEntity.getTnlPolicyName());
             tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
             //tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());

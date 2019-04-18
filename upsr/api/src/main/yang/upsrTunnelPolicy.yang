@@ -9,7 +9,6 @@ module upsrTunnelPolicy {
 
     grouping tunnelPolicy {
         leaf policyName { type string; }
-        //leaf routerId{type string;}
         leaf description{type string;}
         leaf tnlPolicyType{type string;}
         list tpNexthops {
@@ -40,6 +39,7 @@ module upsrTunnelPolicy {
         output {
             leaf result { type string; }
             list tunnelPolicys {
+                leaf routerId{type string;}
                 uses tunnelPolicy;
             }
         }

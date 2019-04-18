@@ -7,10 +7,7 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.RoutePolicyEntity;
 import cn.org.upbnc.service.entity.RoutePolicyNodeEntity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.GetRoutePolicysInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.GetRoutePolicysOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.GetRoutePolicysOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.UpsrRouterPolicyService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.getroutepolicys.output.RoutePolicys;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.getroutepolicys.output.RoutePolicysBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.routepolicy.RoutePolicyNode;
@@ -46,6 +43,22 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
     }
 
     @Override
+    public Future<RpcResult<UpdateRoutePolicyOutput>> updateRoutePolicy(UpdateRoutePolicyInput input) {
+        LOG.info("updateRoutePolicy input : " + input);
+        UpdateRoutePolicyOutputBuilder updateRoutePolicyOutputBuilder = new UpdateRoutePolicyOutputBuilder();
+        Map<String, Object> resultMap = new HashMap<>();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            updateRoutePolicyOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(updateRoutePolicyOutputBuilder.build()).buildFuture();
+        }
+
+
+
+
+        return null;
+    }
+
+    @Override
     public Future<RpcResult<GetRoutePolicysOutput>> getRoutePolicys(GetRoutePolicysInput input) {
         LOG.info("getRoutePolicys input : " + input);
         GetRoutePolicysOutputBuilder getRoutePolicysOutputBuilder = new GetRoutePolicysOutputBuilder();
@@ -75,5 +88,20 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
         getRoutePolicysOutputBuilder.setRoutePolicys(routePolicyList);
         getRoutePolicysOutputBuilder.setResult("success");
         return RpcResultBuilder.success(getRoutePolicysOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<DeleteRoutePolicyOutput>> deleteRoutePolicy(DeleteRoutePolicyInput input) {
+        LOG.info("deleteRoutePolicy input : " + input);
+        DeleteRoutePolicyOutputBuilder deleteRoutePolicyOutputBuilder = new DeleteRoutePolicyOutputBuilder();
+        Map<String, Object> resultMap = new HashMap<>();
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            deleteRoutePolicyOutputBuilder.setResult("System is not ready or shutdown");
+            return RpcResultBuilder.success(deleteRoutePolicyOutputBuilder.build()).buildFuture();
+        }
+
+
+
+        return null;
     }
 }
