@@ -13,9 +13,10 @@ import org.xml.sax.InputSource;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TunnelPolicyXml {
-    private static final Logger LOG = LoggerFactory.getLogger(RoutePolicyXml.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TunnelPolicyXml.class);
 
     public static String getTunnelPolicyXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
@@ -61,7 +62,7 @@ public class TunnelPolicyXml {
         return tunnelPolicy;
     }
 
-    public static String createTunnelPolicyXml(List<STunnelPolicy> sTunnelPolicyList) {
+    public static String createTunnelPolicyXml(List<STunnelPolicy> sTunnelPolicyList, Map<String, List<String>> listMap) {
         String head =
                 "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                         "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                \n" +
@@ -74,7 +75,7 @@ public class TunnelPolicyXml {
                         "      <tunnelPolicys xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">     \n";
         String tunnelPolicys = "";
         for (STunnelPolicy sTunnelPolicy : sTunnelPolicyList) {
-            tunnelPolicys = tunnelPolicys + getTunnelPolicysCreateXml(sTunnelPolicy);
+            tunnelPolicys = tunnelPolicys + getTunnelPolicysCreateXml(sTunnelPolicy, listMap);
         }
         String end =
                 "      </tunnelPolicys>                                                         \n" +
@@ -85,7 +86,7 @@ public class TunnelPolicyXml {
         return head + tunnelPolicys + end;
     }
 
-    private static String getTunnelPolicysCreateXml(STunnelPolicy sTunnelPolicy) {
+    private static String getTunnelPolicysCreateXml(STunnelPolicy sTunnelPolicy, Map<String, List<String>> listMap) {
         String tunnelPolicy =
                 "        <tunnelPolicy>                                                                      \n" +
                         "          <tnlPolicyName>" + sTunnelPolicy.getTnlPolicyName() + "</tnlPolicyName>               \n";
@@ -106,6 +107,13 @@ public class TunnelPolicyXml {
                     for (String tunnelName : sTpNexthop.getTpTunnels()) {
                         tpTunnels = tpTunnels +
                                 "                <tpTunnel><tunnelName>" + tunnelName + "</tunnelName></tpTunnel>              \n";
+                    }
+                    if (listMap.containsKey(sTunnelPolicy.getTnlPolicyName())) {
+                        for (String string : listMap.get(sTunnelPolicy.getTnlPolicyName())) {
+                            tpTunnels = tpTunnels + "                <tpTunnel xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                                    "                  <tunnelName >" + string + "</tunnelName>\n" +
+                                    "                </tpTunnel>";
+                        }
                     }
                     tpTunnels = tpTunnels +
                             "              </tpTunnels>                                                                  \n";
