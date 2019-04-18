@@ -73,7 +73,9 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
             tunnelPolicysBuilder.setPolicyName(tunnelPolicyEntity.getTnlPolicyName());
             tunnelPolicysBuilder.setDescription(tunnelPolicyEntity.getDescription());
             //tunnelPolicysBuilder.setTnlPolicyType(tunnelPolicyEntity.getTnlPolicyType());
+            if (null == tunnelPolicyEntity.getTnlPolicyType()) {
 
+            } else {
             if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.TnlBinding.getCode()) {
                 tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.TnlBinding.getName());
                 //TpNexthops list解析
@@ -116,6 +118,7 @@ public class TunnelPolicyODLApi implements UpsrTunnelPolicyService {
             } else if (tunnelPolicyEntity.getTnlPolicyType() == TnlPolicyTypeEnum.Invalid.getCode()) {
                 tunnelPolicysBuilder.setTnlPolicyType(TnlPolicyTypeEnum.Invalid.getName());
             }
+        }
             tunnelPolicysList.add(tunnelPolicysBuilder.build());
         }
         getTunnelPolicysOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
