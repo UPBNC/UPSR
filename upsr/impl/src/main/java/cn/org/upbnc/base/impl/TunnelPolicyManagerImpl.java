@@ -326,31 +326,70 @@ public class TunnelPolicyManagerImpl implements TunnelPolicyManager {
 
     private boolean createTunnelPolicyListToDevice(List<TunnelPolicy> tunnelPolicies, NetconfClient netconfClient) {
 
-        Map<String, List<String>> map = new HashMap<>();
+        Map<String, List<String>> map;
+        Map<String, Map<String, List<String>>> maps = new HashMap<>();
+        Map<String, List<String>> nexthopIPaddrMap = new HashMap<>();
         TunnelPolicy tp;
         List<String> stringList;
+        List<String> nexthopIPaddrList;
+        boolean flag = false;
         List<STunnelPolicy> sTunnelPolicies = this.tunnelPolicyListToSTunnelPolicyList(tunnelPolicies);
         for (TunnelPolicy tunnelPolicy : tunnelPolicies) {
-            if(tunnelPolicyMap.containsKey(tunnelPolicy.getTnlPolicyName())){
-               tp=tunnelPolicyMap.get(tunnelPolicy.getTnlPolicyName());
-               if(tp.getTpNexthops().size()>0){
-                   for(String string:tp.getTpNexthops().get(0).getTpTunnels()){
-                       if(tunnelPolicy.getTpNexthops().size()>0){
-                           if(!(tunnelPolicy.getTpNexthops().get(0).getTpTunnels().contains(string))){
-                               if(map.containsKey(tunnelPolicy.getTnlPolicyName())){
-                                   map.get(tunnelPolicy.getTnlPolicyName()).add(string);
-                               }else {
-                                   stringList=new ArrayList<>();
-                                   stringList.add(string);
-                                   map.put(tunnelPolicy.getTnlPolicyName(),stringList);
-                               }
-                           }
-                       }
-                   }
-               }
+            if (tunnelPolicyMap.containsKey(tunnelPolicy.getTnlPolicyName())) {
+                tp = tunnelPolicyMap.get(tunnelPolicy.getTnlPolicyName());
+                if (tp.getTpNexthops().size() > 0) {
+                    for (TpNexthop tpNexthop : tp.getTpNexthops()) {
+                        nexthopIPaddrList = new ArrayList<>();
+                        if (tunnelPolicy.getTpNexthops().size() > 0) {
+                            for (TpNexthop tpNexthop1 : tunnelPolicy.getTpNexthops()) {
+                                flag = false;
+                                if (tpNexthop1.getNexthopIPaddr().equals(tpNexthop.getNexthopIPaddr())) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (!flag) {
+                                if (nexthopIPaddrMap.containsKey(tp.getTnlPolicyName())) {
+                                    nexthopIPaddrMap.get(tp.getTnlPolicyName()).add(tpNexthop.getNexthopIPaddr());
+                                } else {
+                                    nexthopIPaddrList.add(tpNexthop.getNexthopIPaddr());
+                                    nexthopIPaddrMap.put(tp.getTnlPolicyName(), nexthopIPaddrList);
+                                }
+                                flag = false;
+                            } else {
+                                for (String string : tpNexthop.getTpTunnels()) {
+                                    stringList = new ArrayList<>();
+                                    for (TpNexthop tpNexthop1 : tunnelPolicy.getTpNexthops()) {
+                                        if (!(tpNexthop1.getTpTunnels().contains(string))) {
+                                            stringList.add(string);
+                                        }
+                                    }
+                                    if (stringList.size() > 0) {
+                                        if (maps.containsKey(tpNexthop.getTnlPolicyName())) {
+                                            maps.get(tpNexthop.getTnlPolicyName()).put(tpNexthop.getNexthopIPaddr(), stringList);
+                                        } else {
+                                            map = new HashMap<>();
+                                            map.put(tpNexthop.getNexthopIPaddr(), stringList);
+                                            maps.put(tpNexthop.getTnlPolicyName(), map);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (nexthopIPaddrMap.containsKey(tp.getTnlPolicyName())) {
+                                nexthopIPaddrMap.get(tp.getTnlPolicyName()).add(tpNexthop.getNexthopIPaddr());
+                            } else {
+                                nexthopIPaddrList.add(tpNexthop.getNexthopIPaddr());
+                                nexthopIPaddrMap.put(tp.getTnlPolicyName(), nexthopIPaddrList);
+                            }
+                        }
+                        LOG.info("nexthopIPaddrMap.toString()  :" + nexthopIPaddrMap.toString());
+
+                    }
+                }
             }
         }
-        String commandCreateTunnelPolicyXml = TunnelPolicyXml.createTunnelPolicyXml(sTunnelPolicies,map);
+        String commandCreateTunnelPolicyXml = TunnelPolicyXml.createTunnelPolicyXml(sTunnelPolicies, nexthopIPaddrMap, maps);
         LOG.info("CommandCreateTunnelPolicyXml: " + commandCreateTunnelPolicyXml);
 
         String outPutTunnelPolicyXml = netconfController.sendMessage(netconfClient, commandCreateTunnelPolicyXml);

@@ -62,7 +62,7 @@ public class TunnelPolicyXml {
         return tunnelPolicy;
     }
 
-    public static String createTunnelPolicyXml(List<STunnelPolicy> sTunnelPolicyList, Map<String, List<String>> listMap) {
+    public static String createTunnelPolicyXml(List<STunnelPolicy> sTunnelPolicyList, Map<String, List<String>> nexthopIPaddrMap, Map<String, Map<String, List<String>>> maps) {
         String head =
                 "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                         "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">                \n" +
@@ -75,7 +75,7 @@ public class TunnelPolicyXml {
                         "      <tunnelPolicys xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">     \n";
         String tunnelPolicys = "";
         for (STunnelPolicy sTunnelPolicy : sTunnelPolicyList) {
-            tunnelPolicys = tunnelPolicys + getTunnelPolicysCreateXml(sTunnelPolicy, listMap);
+            tunnelPolicys = tunnelPolicys + getTunnelPolicysCreateXml(sTunnelPolicy, nexthopIPaddrMap, maps);
         }
         String end =
                 "      </tunnelPolicys>                                                         \n" +
@@ -86,7 +86,7 @@ public class TunnelPolicyXml {
         return head + tunnelPolicys + end;
     }
 
-    private static String getTunnelPolicysCreateXml(STunnelPolicy sTunnelPolicy, Map<String, List<String>> listMap) {
+    private static String getTunnelPolicysCreateXml(STunnelPolicy sTunnelPolicy, Map<String, List<String>> nexthopIPaddrMap, Map<String, Map<String, List<String>>> maps) {
         String tunnelPolicy =
                 "        <tunnelPolicy>                                                                      \n" +
                         "          <tnlPolicyName>" + sTunnelPolicy.getTnlPolicyName() + "</tnlPolicyName>               \n";
@@ -108,11 +108,13 @@ public class TunnelPolicyXml {
                         tpTunnels = tpTunnels +
                                 "                <tpTunnel><tunnelName>" + tunnelName + "</tunnelName></tpTunnel>              \n";
                     }
-                    if (listMap.containsKey(sTunnelPolicy.getTnlPolicyName())) {
-                        for (String string : listMap.get(sTunnelPolicy.getTnlPolicyName())) {
-                            tpTunnels = tpTunnels + "                <tpTunnel xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
-                                    "                  <tunnelName >" + string + "</tunnelName>\n" +
-                                    "                </tpTunnel>";
+                    if (maps.containsKey(sTunnelPolicy.getTnlPolicyName())) {
+                        if (maps.get(sTunnelPolicy.getTnlPolicyName()).containsKey(sTpNexthop.getNexthopIPaddr())) {
+                            for (String string : maps.get(sTunnelPolicy.getTnlPolicyName()).get(sTpNexthop.getNexthopIPaddr())) {
+                                tpTunnels = tpTunnels + "                <tpTunnel xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                                        "                  <tunnelName >" + string + "</tunnelName>\n" +
+                                        "                </tpTunnel>";
+                            }
                         }
                     }
                     tpTunnels = tpTunnels +
@@ -120,6 +122,13 @@ public class TunnelPolicyXml {
                 }
                 tpNexthop = tpNexthop + tpTunnels +
                         "            </tpNexthop>                                                                    \n";
+            }
+            if (nexthopIPaddrMap.containsKey(sTunnelPolicy.getTnlPolicyName())) {
+                for (String str : nexthopIPaddrMap.get(sTunnelPolicy.getTnlPolicyName())) {
+                    tpNexthop = tpNexthop + "            <tpNexthop xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                            "              <nexthopIPaddr>" + str + "</nexthopIPaddr>\n" +
+                            "            </tpNexthop>";
+                }
             }
             tpNexthop = tpNexthop +
                     "          </tpNexthops>                                                                     \n";
