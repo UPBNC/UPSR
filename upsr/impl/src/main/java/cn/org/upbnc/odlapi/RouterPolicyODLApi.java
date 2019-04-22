@@ -3,6 +3,7 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.RoutePolicyApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
 import cn.org.upbnc.service.entity.RoutePolicyEntity;
@@ -51,11 +52,27 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
             updateRoutePolicyOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(updateRoutePolicyOutputBuilder.build()).buildFuture();
         }
-
-
-
-
-        return null;
+        List<RoutePolicyEntity> routePolicyEntities = new ArrayList<>();
+        RoutePolicyEntity routePolicyEntity = new RoutePolicyEntity();
+        routePolicyEntity.setPolicyName(input.getPolicyName());
+        routePolicyEntity.setRouterId(input.getRouterId());
+        List<RoutePolicyNodeEntity> routePolicyNodes = new ArrayList<>();
+        RoutePolicyNodeEntity routePolicyNodeEntity;
+        for (RoutePolicyNode routePolicyNode : input.getRoutePolicyNode()) {
+            routePolicyNodeEntity = new RoutePolicyNodeEntity();
+            routePolicyNodeEntity.setNodeSequence(routePolicyNode.getNodeSequence());
+            routePolicyNodes.add(routePolicyNodeEntity);
+        }
+        routePolicyEntity.setRoutePolicyNodes(routePolicyNodes);
+        routePolicyEntities.add(routePolicyEntity);
+        resultMap = getRoutePolicyApi().createRoutePolicys(routePolicyEntities);
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (code.equals(CodeEnum.SUCCESS.getName())) {
+            updateRoutePolicyOutputBuilder.setResult("success");
+        } else {
+            updateRoutePolicyOutputBuilder.setResult("error");
+        }
+        return RpcResultBuilder.success(updateRoutePolicyOutputBuilder.build()).buildFuture();
     }
 
     @Override
@@ -99,9 +116,18 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
             deleteRoutePolicyOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(deleteRoutePolicyOutputBuilder.build()).buildFuture();
         }
-
-
-
-        return null;
+        List<RoutePolicyEntity> routePolicyEntities = new ArrayList<>();
+        RoutePolicyEntity routePolicyEntity = new RoutePolicyEntity();
+        routePolicyEntity.setPolicyName(input.getPolicyName());
+        routePolicyEntity.setRouterId(input.getRouterId());
+        routePolicyEntities.add(routePolicyEntity);
+        resultMap = getRoutePolicyApi().deleteRoutePolicys(routePolicyEntities);
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (code.equals(CodeEnum.SUCCESS.getName())) {
+            deleteRoutePolicyOutputBuilder.setResult("success");
+        } else {
+            deleteRoutePolicyOutputBuilder.setResult("error");
+        }
+        return RpcResultBuilder.success(deleteRoutePolicyOutputBuilder.build()).buildFuture();
     }
 }

@@ -50,4 +50,28 @@ public class RoutePolicyApiImpl implements RoutePolicyApi {
         resultMap.put(ResponseEnum.BODY.getName(), routePolicyEntities);
         return resultMap;
     }
+
+    @Override
+    public Map<String, Object> createRoutePolicys(List<RoutePolicyEntity> routePolicyEntities) {
+        Map<String, Object> resultMap = new HashMap<>();
+        boolean flag = routePolicyService.createRoutePolicys(routePolicyEntities);
+        if (flag) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        }
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities) {
+        Map<String, Object> resultMap = new HashMap<>();
+        boolean flag = routePolicyService.deleteRoutePolicys(routePolicyEntities);
+        if (flag) {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        }
+        return resultMap;
+    }
 }
