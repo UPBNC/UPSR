@@ -136,10 +136,14 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
             routePolicy = new SRoutePolicy();
             routePolicyNodes = new ArrayList<>();
             routePolicy.setName(routePolicyEntity.getPolicyName());
-            for (RoutePolicyNodeEntity entity : routePolicyEntity.getRoutePolicyNodes()) {
-                routePolicyNode = new SRoutePolicyNode();
-                routePolicyNode.setNodeSequence(entity.getNodeSequence());
-                routePolicyNodes.add(routePolicyNode);
+            if(null==routePolicyEntity.getRoutePolicyNodes()){
+
+            }else {
+                for (RoutePolicyNodeEntity entity : routePolicyEntity.getRoutePolicyNodes()) {
+                    routePolicyNode = new SRoutePolicyNode();
+                    routePolicyNode.setNodeSequence(entity.getNodeSequence());
+                    routePolicyNodes.add(routePolicyNode);
+                }
             }
             routePolicy.setRoutePolicyNodes(routePolicyNodes);
             routePolicies.add(routePolicy);
