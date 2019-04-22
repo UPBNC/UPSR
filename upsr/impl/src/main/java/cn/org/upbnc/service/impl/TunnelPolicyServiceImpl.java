@@ -137,7 +137,7 @@ public class TunnelPolicyServiceImpl implements TunnelPolicyService {
                 names.add(entity.getTnlPolicyName());
             }
             if (names.size() > 0) {
-                boolean flag = tunnelPolicyManager.deleteTunnelPolicyByNameList(names, netconfClient);
+                boolean flag = tunnelPolicyManager.deleteTunnelPolicyByNameList(names, netconfClient,routerId);
                 if (flag) {
                     map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
                     map.put(ResponseEnum.MESSAGE.getName(), "success");

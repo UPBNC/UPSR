@@ -19,7 +19,7 @@ public interface TunnelPolicyManager {
 
     boolean deleteTunnelPolicyByName(String name,NetconfClient netconfClient);
 
-    boolean deleteTunnelPolicyByNameList(List<String> names,NetconfClient netconfClient);
+    boolean deleteTunnelPolicyByNameList(List<String> names,NetconfClient netconfClient,String routerId);
 
     boolean syncTunnelPolicyConf(String routerID,NetconfClient netconfClient);
 
