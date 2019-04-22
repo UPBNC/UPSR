@@ -7,6 +7,8 @@ import cn.org.upbnc.base.RoutePolicyManager;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.RoutePolicy;
 import cn.org.upbnc.entity.RoutePolicyNode;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.RoutePolicyService;
 import cn.org.upbnc.service.entity.RoutePolicyEntity;
 import cn.org.upbnc.service.entity.RoutePolicyNodeEntity;
@@ -19,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
 
@@ -115,8 +119,8 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
             routePolicyNodes = new ArrayList<>();
             routePolicy.setPolicyName(routePolicyEntity.getPolicyName());
             routePolicy.setRouterId(routePolicyEntity.getRouterId());
-            if(null==routePolicyEntity.getRoutePolicyNodes()){
-            }else {
+            if (null == routePolicyEntity.getRoutePolicyNodes()) {
+            } else {
                 for (RoutePolicyNodeEntity entity : routePolicyEntity.getRoutePolicyNodes()) {
                     routePolicyNode = new RoutePolicyNode();
                     routePolicyNode.setNodeSequence(entity.getNodeSequence());
@@ -139,9 +143,9 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
             routePolicy = new SRoutePolicy();
             routePolicyNodes = new ArrayList<>();
             routePolicy.setName(routePolicyEntity.getPolicyName());
-            if(null==routePolicyEntity.getRoutePolicyNodes()){
+            if (null == routePolicyEntity.getRoutePolicyNodes()) {
 
-            }else {
+            } else {
                 for (RoutePolicyNodeEntity entity : routePolicyEntity.getRoutePolicyNodes()) {
                     routePolicyNode = new SRoutePolicyNode();
                     routePolicyNode.setNodeSequence(entity.getNodeSequence());
@@ -156,7 +160,11 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
 
 
     @Override
-    public boolean deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities) {
+    public Map<String, Object> deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities) {
+        Map<String, Object> map=new HashMap<>();
+        String message="error";
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        map.put(ResponseEnum.MESSAGE.getName(), message);
         boolean flag = false;
         if (routePolicyEntities.size() > 0) {
             List<SRoutePolicy> routePolicies = routePolicyEntityMapToSRoutePolicy(routePolicyEntities);
@@ -166,13 +174,18 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
                 flag = true;
+                message="ok";
+                map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+            } else {
+                message=CheckXml.getErrorMessage(result);
             }
+            map.put(ResponseEnum.MESSAGE.getName(), message);
             if (flag) {
                 List<RoutePolicy> routePolicy = routePolicyEntityMapToRoutePolicy(routePolicyEntities);
                 routePolicyManager.deletePolicys(routePolicy);
             }
         }
-        return flag;
+        return map;
     }
 
     @Override

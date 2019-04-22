@@ -6,6 +6,7 @@ import cn.org.upbnc.service.entity.RoutePolicyEntity;
 import cn.org.upbnc.service.entity.TunnelPolicy.TunnelPolicyEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoutePolicyService {
     boolean setBaseInterface(BaseInterface baseInterface);
@@ -14,7 +15,7 @@ public interface RoutePolicyService {
 
     boolean createRoutePolicys(List<RoutePolicyEntity> routePolicyEntities);
 
-    boolean deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities);
+    Map<String, Object> deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities);
 
     List<RoutePolicyEntity> getRoutePolicys(String routerId, String policyName);
 }

@@ -126,7 +126,7 @@ public class RouterPolicyODLApi implements UpsrRouterPolicyService {
         if (code.equals(CodeEnum.SUCCESS.getName())) {
             deleteRoutePolicyOutputBuilder.setResult("success");
         } else {
-            deleteRoutePolicyOutputBuilder.setResult("error");
+            deleteRoutePolicyOutputBuilder.setResult((String) resultMap.get(ResponseEnum.MESSAGE.getName()));
         }
         return RpcResultBuilder.success(deleteRoutePolicyOutputBuilder.build()).buildFuture();
     }
