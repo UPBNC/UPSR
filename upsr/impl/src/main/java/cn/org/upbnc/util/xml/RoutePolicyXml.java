@@ -10,6 +10,7 @@ import org.xml.sax.InputSource;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RoutePolicyXml {
     private static final Logger LOG = LoggerFactory.getLogger(RoutePolicyXml.class);
@@ -36,7 +37,7 @@ public class RoutePolicyXml {
         return start + middle + end;
     }
 
-    public static String getCreateRoutePolicyXml(List<SRoutePolicy> sRoutePolicies) {
+    public static String getCreateRoutePolicyXml(List<SRoutePolicy> sRoutePolicies, Map<String, List<String>> map) {
         String start = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
@@ -60,6 +61,13 @@ public class RoutePolicyXml {
                         "                  <isGotoNextNode>false</isGotoNextNode>\n" +
                         "                </nextNodeChoice>\n" +
                         "              </routePolicyNode>\n";
+            }
+            if (map.containsKey(routePolicy.getName())) {
+                for (String str : map.get(routePolicy.getName())) {
+                    middle = middle + "            <routePolicyNode xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\">\n" +
+                            "              <nodeSequence>" + str + "</nodeSequence>\n" +
+                            "            </routePolicyNode>";
+                }
             }
             middle = middle +
                     "            </routePolicyNodes>\n" +

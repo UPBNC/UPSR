@@ -95,7 +95,32 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
         if (routePolicyEntities.size() > 0) {
             List<SRoutePolicy> routePolicies = routePolicyEntityMapToSRoutePolicy(routePolicyEntities);
             NetconfClient netconfClient = this.netConfManager.getNetconClient(routePolicyEntities.get(0).getRouterId());
-            String sendMsg = RoutePolicyXml.getCreateRoutePolicyXml(routePolicies);
+            List<RoutePolicy> routePolicyList;
+            RoutePolicy policy;
+            Map<String, List<String>> map = new HashMap<>();
+            List<String> stringList;
+            List<String> deleteList;
+            for (RoutePolicyEntity entity : routePolicyEntities) {
+                routePolicyList = routePolicyManager.getRoutePolicys(entity.getRouterId(), entity.getPolicyName());
+                if (routePolicyList.size() > 0) {
+                    policy = routePolicyList.get(0);
+                    stringList = new ArrayList<>();
+                    deleteList = new ArrayList<>();
+                    for (RoutePolicyNodeEntity routePolicyNodeEntity : entity.getRoutePolicyNodes()) {
+                        stringList.add(routePolicyNodeEntity.getNodeSequence());
+                    }
+                    for (RoutePolicyNode node : policy.getRoutePolicyNodes()) {
+                        if (stringList.contains(node.getNodeSequence())) {
+                        } else {
+                            deleteList.add(node.getNodeSequence());
+                        }
+                    }
+                    if (deleteList.size() > 0) {
+                        map.put(policy.getPolicyName(), deleteList);
+                    }
+                }
+            }
+            String sendMsg = RoutePolicyXml.getCreateRoutePolicyXml(routePolicies,map);
             LOG.info("getRoutePolicyXml sendMsg={}", new Object[]{sendMsg});
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
@@ -161,8 +186,8 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
 
     @Override
     public Map<String, Object> deleteRoutePolicys(List<RoutePolicyEntity> routePolicyEntities) {
-        Map<String, Object> map=new HashMap<>();
-        String message="error";
+        Map<String, Object> map = new HashMap<>();
+        String message = "error";
         map.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         map.put(ResponseEnum.MESSAGE.getName(), message);
         boolean flag = false;
@@ -174,10 +199,10 @@ public class RoutePolicyServiceImpl implements RoutePolicyService {
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
                 flag = true;
-                message="ok";
+                message = "ok";
                 map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
             } else {
-                message=CheckXml.getErrorMessage(result);
+                message = CheckXml.getErrorMessage(result);
             }
             map.put(ResponseEnum.MESSAGE.getName(), message);
             if (flag) {
