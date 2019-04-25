@@ -21,7 +21,7 @@ public class SrTeTunnelXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n";
         String middle = "";
@@ -129,11 +129,11 @@ public class SrTeTunnelXml {
         return start + middle + end;
     }
 
-    public static String getSrTeTunnelXml(String tunnelName) {
+    public static String getSrTeTunnelXml(String tunnelName,String database) {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <source>\n" +
-                "    <running/>\n" +
+                "    <"+database+"/>\n" +
                 "  </source>\n" +
                 "  <filter type=\"subtree\">\n" +
                 "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +

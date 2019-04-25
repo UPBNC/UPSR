@@ -5,15 +5,11 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.entity.TunnelPolicy.TpNexthop;
-import cn.org.upbnc.entity.TunnelPolicy.TunnelPolicy;
 import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.service.TunnelService;
 import cn.org.upbnc.service.entity.*;
 import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.xml.*;
-import com.google.common.primitives.UnsignedInteger;
-import com.google.common.primitives.UnsignedInts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +93,7 @@ public class TunnelServiceImpl implements TunnelService {
         tunnel.setTunnelId(tunnelServiceEntity.getTunnelId());
         tunnel.setTunnelName(tunnelServiceEntity.getTunnelName());
         // Create tunnel description
-        tunnel.setTunnelDesc(TunnelDescEnum.createTunnelDescription(tunnel.getTunnelName(),null,TunnelDescEnum.TunnelBegin,TunnelDescEnum.End));
+        tunnel.setTunnelDesc(TunnelDescEnum.createTunnelDescription(tunnel.getTunnelName(), null, TunnelDescEnum.TunnelBegin, TunnelDescEnum.End));
 
         if (null != tunnelServiceEntity.getTunnelServiceClassEntity()) {
             TunnelServiceClassEntity tsce = tunnelServiceEntity.getTunnelServiceClassEntity();
@@ -143,11 +139,49 @@ public class TunnelServiceImpl implements TunnelService {
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         List<Tunnel> tunnelList = new ArrayList<>();
         tunnelList.add(tunnel);
-
-        if (this.tunnelManager.createTunnels(tunnelList, tunnelServiceEntity.getRouterId(), netconfClient)) {
+        boolean flag = this.tunnelManager.createTunnels(tunnelList, tunnelServiceEntity.getRouterId(), netconfClient);
+        if (flag) {
+            tunnelCompare(netconfClient, tunnel.getTunnelName());
             return true;
         } else {
             return false;
+        }
+    }
+
+    public void tunnelCompare(NetconfClient netconfClient, String tunnelName) {
+        String commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml(tunnelName, DatabaseEnum.running.name());
+        LOG.info("CommandGetTunnelsXml(running): " + commandGetTunnelsXml);
+        boolean createFlag = false;
+        boolean updateFlag = false;
+        String outPutGetTunnelsXml = netconfController.sendMessage(netconfClient, commandGetTunnelsXml);
+        LOG.info("OutPutGetTunnelsXml(running): " + outPutGetTunnelsXml);
+
+        List<SSrTeTunnel> runningResult = SrTeTunnelXml.getSrTeTunnelFromXml(outPutGetTunnelsXml);
+        if (runningResult.size() > 0) {
+            LOG.info("update : " + tunnelName);
+            updateFlag = true;
+        } else {
+            createFlag = true;
+            LOG.info("create : " + tunnelName);
+        }
+
+        commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml(tunnelName, DatabaseEnum.candidate.name());
+        LOG.info("CommandGetTunnelsXml(candidate): " + commandGetTunnelsXml);
+
+        outPutGetTunnelsXml = netconfController.sendMessage(netconfClient, commandGetTunnelsXml);
+        LOG.info("OutPutGetTunnelsXml(candidate): " + outPutGetTunnelsXml);
+
+        List<SSrTeTunnel> candidateResult = SrTeTunnelXml.getSrTeTunnelFromXml(outPutGetTunnelsXml);
+        if (createFlag) {
+            LOG.info("create : " + candidateResult.toString());
+        }
+        if (updateFlag) {
+            LOG.info("update : " + tunnelName);
+            if (candidateResult.get(0).getMplsTunnelBandwidth() != runningResult.get(0).getMplsTunnelBandwidth()) {
+                LOG.info("bandwidth 由 " + runningResult.get(0).getMplsTunnelBandwidth() + "  update to :" + candidateResult.get(0).getMplsTunnelBandwidth());
+            }
+            LOG.info("candidateResult.get(0).getMplsteServiceClass() :" + candidateResult.get(0).getMplsteServiceClass());
+            LOG.info("runningResult.get(0).getMplsteServiceClass() :" + runningResult.get(0).getMplsteServiceClass());
         }
     }
 
@@ -483,6 +517,7 @@ public class TunnelServiceImpl implements TunnelService {
         }
         return true;
     }
+
     //设备获取的路径转化为前端的拓扑结构
     private boolean explicitLabelListToNodeList(ExplicitPath explicit) {
         Device nextDevice = null;
@@ -532,7 +567,7 @@ public class TunnelServiceImpl implements TunnelService {
         }
         NetconfClient netconfClient = this.netConfManager.getNetconClient(device.getNetConf().getRouterID());
         LOG.info("enter getTunnelInstanceListFromDevice");
-        String xml = SrTeTunnelXml.getSrTeTunnelXml("");
+        String xml = SrTeTunnelXml.getSrTeTunnelXml("", DatabaseEnum.running.name());
         LOG.info(xml);
         String result = netconfController.sendMessage(netconfClient, xml);
         List<SSrTeTunnel> srTeTunnels = SrTeTunnelXml.getSrTeTunnelFromXml(result);

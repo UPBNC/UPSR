@@ -9,10 +9,7 @@ package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.TunnelManager;
 import cn.org.upbnc.entity.*;
-import cn.org.upbnc.enumtype.BfdTypeEnum;
-import cn.org.upbnc.enumtype.LabelTypeEnum;
-import cn.org.upbnc.enumtype.SBfdCfgSessionLinkTypeEnum;
-import cn.org.upbnc.enumtype.STunnelPathTypeEnum;
+import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.xml.BfdCfgSessionXml;
 import cn.org.upbnc.util.xml.CheckXml;
@@ -685,7 +682,7 @@ public class TunnelManagerImpl implements TunnelManager {
 
     private List<SSrTeTunnel> getTunnelListFromDeviceByRouterId(NetconfClient netconfClient) {
 
-        String commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml("");
+        String commandGetTunnelsXml = SrTeTunnelXml.getSrTeTunnelXml("", DatabaseEnum.running.name());
         LOG.info("CommandGetTunnelsXml: " + commandGetTunnelsXml);
 
         String outPutGetTunnelsXml = netconfController.sendMessage(netconfClient, commandGetTunnelsXml);
