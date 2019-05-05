@@ -431,9 +431,15 @@ public class BGPManagerImpl implements BGPManager, DataChangeListener {
             // Add Prefix
             this.setBgpDevicePrefixList(igpNodeAttributes,bgpDevice);
 
-            // Find a opsf Node & add address
-            this.setBgpDeviceRouterIp(igpNodeAttributes,bgpDevice);
-
+            if (node.getNodeId().getValue().contains("IsisLevel2")) {
+                LOG.info("IGP is ISIS");
+                Address address = new Address(igpNodeAttributes.getRouterId().get(0).getIpv4Address().getValue(),AddressTypeEnum.V4);
+                bgpDevice.setAddress(address);
+            } else {
+                LOG.info("IGP is OSPF");
+                // Find a opsf Node & add address
+                this.setBgpDeviceRouterIp(igpNodeAttributes, bgpDevice);
+            }
             // Find termination & add interface into device
             this.setBgpDeviceTerminationPoint(node,bgpDevice);
 
