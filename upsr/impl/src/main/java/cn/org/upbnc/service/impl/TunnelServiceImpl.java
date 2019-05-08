@@ -376,7 +376,7 @@ public class TunnelServiceImpl implements TunnelService {
         if (tunnelServiceEntity.getBackPath().size() > 0) {
             explicitPaths.add(buildSExplicitPath(tunnelName + linkback, tunnelServiceEntity.getBackPath()));
         }
-        String result = netconfController.sendMessage(netconfClient, ExplicitPathXml.createExplicitPathXml(explicitPaths));
+        String result = netconfController.sendMessage(netconfClient, ExplicitPathXml.createExplicitPathXml(explicitPaths,""));
         if (CheckXml.RESULT_OK.equals(CheckXml.checkOk(result))) {
             flag = true;
         }

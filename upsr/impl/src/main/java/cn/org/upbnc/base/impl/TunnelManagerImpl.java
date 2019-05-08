@@ -260,7 +260,7 @@ public class TunnelManagerImpl implements TunnelManager {
         List<SBfdCfgSession> sBfdCfgSessions = new ArrayList<SBfdCfgSession>();
         Map<String, Tunnel> map;
         Map<Integer, BfdSession> bfdMap;
-
+        String masterAndSlaveFlag = "";
         String routerId = tunnels.get(0).getDevice().getRouterId();
 
 
@@ -279,12 +279,18 @@ public class TunnelManagerImpl implements TunnelManager {
                         if (null != masterPath && null == t.getMasterPath().getPathName()) {
                             pathNames.add(masterPath);
                         }
+                        if (null != tunnel.getMasterPath().getLabelMap() && tunnel.getMasterPath().getLabelMap().size() > 0) {
+                            masterAndSlaveFlag = masterAndSlaveFlag + "master";
+                        }
                     }
 
                     if (null != tunnel.getSlavePath()) {
                         String slavePath = tunnel.getSlavePath().getPathName();
                         if (null != slavePath && null == t.getSlavePath().getPathName()) {
                             pathNames.add(slavePath);
+                        }
+                        if (null != tunnel.getSlavePath().getLabelMap() && tunnel.getSlavePath().getLabelMap().size() > 0) {
+                            masterAndSlaveFlag = masterAndSlaveFlag + "slave";
                         }
                     }
 
@@ -315,7 +321,7 @@ public class TunnelManagerImpl implements TunnelManager {
         }
 
 
-        boolean isCreateExplicitPaths = this.createExplicitPathsToDevice(explicitPaths, netconfClient);
+        boolean isCreateExplicitPaths = this.createExplicitPathsToDevice(explicitPaths, netconfClient,masterAndSlaveFlag);
 
         if (!isCreateExplicitPaths) {
             return false;
@@ -363,13 +369,13 @@ public class TunnelManagerImpl implements TunnelManager {
         return true;
     }
 
-    private boolean createExplicitPathsToDevice(List<SExplicitPath> explicitPaths, NetconfClient netconfClient) {
+    private boolean createExplicitPathsToDevice(List<SExplicitPath> explicitPaths, NetconfClient netconfClient,String masterAndSlaveFlag) {
 
         if (explicitPaths.isEmpty()) {
             return true;
         }
 
-        String commandCreateExplicitPathsXml = ExplicitPathXml.createExplicitPathXml(explicitPaths);
+        String commandCreateExplicitPathsXml = ExplicitPathXml.createExplicitPathXml(explicitPaths,masterAndSlaveFlag);
         LOG.info("CommandCreateExplicitPathsXml: " + commandCreateExplicitPathsXml);
 
         String outPutCreateExplicitPathsXml = netconfController.sendMessage(netconfClient, commandCreateExplicitPathsXml);

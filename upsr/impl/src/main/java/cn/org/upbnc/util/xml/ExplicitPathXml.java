@@ -14,7 +14,7 @@ import java.util.List;
 public class ExplicitPathXml {
     private static final Logger LOG = LoggerFactory.getLogger(ExplicitPathXml.class);
 
-    public static String createExplicitPathXml(List<SExplicitPath> explicitPaths) {
+    public static String createExplicitPathXml(List<SExplicitPath> explicitPaths, String masterAndSlaveFlag) {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
@@ -28,8 +28,14 @@ public class ExplicitPathXml {
         for (SExplicitPath explicitPath : explicitPaths) {
             middle = middle +
                     "          <explicitPath>\n" +
-                    "            <explicitPathName>" + explicitPath.getExplicitPathName() + "</explicitPathName>\n" +
-                    "            <explicitPathHops>\n";
+                    "            <explicitPathName>" + explicitPath.getExplicitPathName() + "</explicitPathName>\n";
+            if (explicitPath.getExplicitPathName().contains("Linkback") && masterAndSlaveFlag.contains("slave")) {
+                middle = middle + " <explicitPathHops xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+            }
+            if (!(explicitPath.getExplicitPathName().contains("Linkback")) && masterAndSlaveFlag.contains("master")) {
+                middle = middle + " <explicitPathHops xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\" nc:operation=\"delete\"/>";
+            }
+            middle = middle + "            <explicitPathHops>\n";
             String middleStart = "";
 
             for (SExplicitPathHop explicitPathHop : explicitPath.getExplicitPathHops()) {
@@ -87,18 +93,18 @@ public class ExplicitPathXml {
     public static String getExplicitPathXml() {
         return
                 "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">  \n" +
-                "<get>                                                                          \n" +
-                "  <filter type=\"subtree\">                                                    \n" +
-                "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">   \n" +
-                "      <mpls:mplsTe>                                                            \n" +
-                "        <mpls:explicitPaths>                                                   \n" +
-                "          <mpls:explicitPath/>                                                 \n" +
-                "        </mpls:explicitPaths>                                                  \n" +
-                "      </mpls:mplsTe>                                                           \n" +
-                "    </mpls:mpls>                                                               \n" +
-                "  </filter>                                                                    \n" +
-                "</get>                                                                         \n" +
-                "</rpc>";
+                        "<get>                                                                          \n" +
+                        "  <filter type=\"subtree\">                                                    \n" +
+                        "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">   \n" +
+                        "      <mpls:mplsTe>                                                            \n" +
+                        "        <mpls:explicitPaths>                                                   \n" +
+                        "          <mpls:explicitPath/>                                                 \n" +
+                        "        </mpls:explicitPaths>                                                  \n" +
+                        "      </mpls:mplsTe>                                                           \n" +
+                        "    </mpls:mpls>                                                               \n" +
+                        "  </filter>                                                                    \n" +
+                        "</get>                                                                         \n" +
+                        "</rpc>";
     }
 
     public static String getDeleteExplicitPathXml(List<SExplicitPath> explicitPaths) {
@@ -129,7 +135,7 @@ public class ExplicitPathXml {
         return start + middle + end;
     }
 
-    public static String getDeleteExplicitPathByNamesXml(List<String> explicitPaths){
+    public static String getDeleteExplicitPathByNamesXml(List<String> explicitPaths) {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
