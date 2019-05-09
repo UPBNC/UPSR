@@ -1,0 +1,37 @@
+module upsrActionCfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrActionCfg";
+    prefix "upsrActionCfg";
+
+    revision "2019-05-09" {
+        description "Initial revision of upsrActionCfg model";
+    }
+
+    rpc commitCfg {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc getCfgCliChane {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list cliChanges {
+                leaf routerId { type string; }
+                list commandChanges{
+                    leaf commandId { type string; }
+                    leaf candidate { type string; }
+                    leaf running { type string; }
+                    leaf actionType { type string; }
+                    leaf cliCommand { type string; }
+                }
+            }
+        }
+    }
+}

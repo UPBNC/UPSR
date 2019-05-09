@@ -13,6 +13,7 @@ import cn.org.upbnc.odlapi.*;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.UpsrActionCfgService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrinterface.rev181119.UpsrInterfaceService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
@@ -47,6 +48,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrTunnelPolicyService> upsrTunnelPolicyServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrRouterPolicyService> upsrRouterPolicyServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrStatisticService> upsrStatisticServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrActionCfgService> actionCfgServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -93,6 +95,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrTunnelPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTunnelPolicyService.class, new TunnelPolicyODLApi(this.upsr));
         this.upsrRouterPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrRouterPolicyService.class, new RouterPolicyODLApi(this.upsr));
         this.upsrStatisticServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrStatisticService.class, new StatisticODLApi(this.upsr));
+        this.actionCfgServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrActionCfgService.class, new ActionCfgODLApi(this.upsr));
     }
 
     private void closeServices() {
@@ -108,6 +111,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrTunnelPolicyServiceRpcRegistration.close();
         this.upsrRouterPolicyServiceRpcRegistration.close();
         this.upsrStatisticServiceRpcRegistration.close();
+        this.actionCfgServiceRpcRegistration.close();
     }
 
 }
