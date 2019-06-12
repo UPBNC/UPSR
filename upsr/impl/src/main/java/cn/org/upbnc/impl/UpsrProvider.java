@@ -65,8 +65,8 @@ public class UpsrProvider implements AutoCloseable {
 
         // Register service
         this.registerServices();
-        statisticsThread = new StatisticsThread();
-        statisticsThread.start();
+//        statisticsThread = new StatisticsThread();
+//        statisticsThread.start();
         LOG.info("Upsr Session Initiated End!");
     }
 
@@ -76,7 +76,7 @@ public class UpsrProvider implements AutoCloseable {
     public void close() {
         // Close Register Service
         this.closeServices();
-        statisticsThread.stopMe();
+//        statisticsThread.stopMe();
         LOG.info("UpsrProvider Closed");
     }
 
