@@ -10,6 +10,7 @@ package cn.org.upbnc.impl;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.odlapi.*;
+import cn.org.upbnc.xmlcompare.XMLCompareTest;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -67,8 +68,9 @@ public class UpsrProvider implements AutoCloseable {
 
         // Register service
         this.registerServices();
-        statisticsThread = new StatisticsThread();
-        statisticsThread.start();
+//        statisticsThread = new StatisticsThread();
+//        statisticsThread.start();
+//        XMLCompareTest.test();
         LOG.info("Upsr Session Initiated End!");
     }
 
@@ -78,7 +80,7 @@ public class UpsrProvider implements AutoCloseable {
     public void close() {
         // Close Register Service
         this.closeServices();
-        statisticsThread.stopMe();
+//        statisticsThread.stopMe();
         LOG.info("UpsrProvider Closed");
     }
 
