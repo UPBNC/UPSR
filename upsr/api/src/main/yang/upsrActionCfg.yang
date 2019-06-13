@@ -10,6 +10,7 @@ module upsrActionCfg {
     rpc commitCfg {
         input {
             leaf routerId { type string; }
+            leaf cfgType { type string; }
         }
         output {
             leaf result { type string; }
@@ -31,6 +32,21 @@ module upsrActionCfg {
                     leaf actionType { type string; }
                     leaf cliCommand { type string; }
                 }
+            }
+        }
+    }
+
+    rpc getCfgChane {
+        input {
+            leaf routerId { type string; }
+            leaf cfgType { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list command {
+                leaf routerId { type string; }
+                leaf deviceName { type string; }
+                leaf change { type string; }
             }
         }
     }
