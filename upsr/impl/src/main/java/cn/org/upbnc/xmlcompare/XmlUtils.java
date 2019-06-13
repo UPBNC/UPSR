@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XmlUtils {
-    public static ActionEntity compare(String xml1, String xml2) {
+    public static ActionEntity compare(String xml1, String xml2, String flag) {
         ActionEntity actionEntity = new ActionEntity();
         Diff diff;
         try {
@@ -25,7 +25,13 @@ public class XmlUtils {
                         Difference difference1;
                         List<ModifyEntity> modifyEntities = new ArrayList<>();
                         ModifyEntity modifyEntity;
-                        for (int i = 1; i < myDiff.getAllDifferences().size(); i++) {
+                        int i;
+                        if ("explicitPath".equals(flag)) {
+                            i = 0;
+                        } else {
+                            i = 1;
+                        }
+                        for (; i < myDiff.getAllDifferences().size(); i++) {
                             difference1 = (Difference) myDiff.getAllDifferences().get(i);
                             modifyEntity = new ModifyEntity();
                             modifyEntity.setPath(difference1.getControlNodeDetail().getXpathLocation());
@@ -61,5 +67,9 @@ public class XmlUtils {
             e.printStackTrace();
         }
         return actionEntity;
+    }
+
+    public static ActionEntity compare(String xml1, String xml2) {
+        return compare(xml1, xml2, "");
     }
 }
