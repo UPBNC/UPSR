@@ -38,6 +38,28 @@ public class ModifyEntity {
         this.label = label;
     }
 
+    public String getClicommand(String action) {
+        if (this.label.equals("mplsTunnelEgressLSRId")) {
+            return this.getTunnelDestCli("modify");
+        }
+        return "";
+    }
+    private String getTunnelDestCli(String action) {
+        return " destination " + this.getNewValue() + "\n";
+    }
+    private String getTunnelBandwidthCli(String action) {
+        return " mpls te bandwidth ct0 " + this.getNewValue() + "\n";
+    }
+    private String getTunnelPath(String action) {
+        return " mpls te path explicit-path  " + this.getNewValue() + "\n";
+    }
+    private String getTunnelBfdCli(String action) {
+        return " mpls te bfd enable  " + this.getNewValue() + "\n";
+    }
+    private String getTunnelServiceClassCli(String action) {
+        return " mpls te service-class  " + this.getNewValue() + "\n";
+    }
+
     @Override
     public String toString() {
         return "ModifyEntity{" +

@@ -29,6 +29,7 @@ public class ServiceInterface {
     private TunnelPolicyService tunnelPolicyService;
     private RoutePolicyService routePolicyService;
     private StatisticService statisticService;
+    private ActionCfgService actionCfgService;
 
 
     public ServiceInterface() {
@@ -44,6 +45,7 @@ public class ServiceInterface {
         this.tunnelService = null;
         this.tunnelPolicyService = null;
         this.routePolicyService = null;
+        this.actionCfgService = null;
     }
 
     public void init() {
@@ -58,6 +60,7 @@ public class ServiceInterface {
             this.tunnelPolicyService = TunnelPolicyServiceImpl.getInstance();
             this.routePolicyService = RoutePolicyServiceImpl.getInstance();
             this.statisticService = StatisticServiceImpl.getInstance();
+            this.actionCfgService = ActionCfgServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -81,6 +84,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.tunnelPolicyService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.routePolicyService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.statisticService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.actionCfgService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -182,5 +186,12 @@ public class ServiceInterface {
             this.routePolicyService = RoutePolicyServiceImpl.getInstance();
         }
         return routePolicyService;
+    }
+
+    public ActionCfgService getActionCfgService() {
+        if (this.actionCfgService == null) {
+            this.actionCfgService = ActionCfgServiceImpl.getInstance();
+        }
+        return actionCfgService;
     }
 }
