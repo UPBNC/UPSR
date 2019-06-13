@@ -1,8 +1,6 @@
 package cn.org.upbnc.xmlcompare;
 
-import cn.org.upbnc.util.netconf.SSrTeTunnel;
-import cn.org.upbnc.util.netconf.SSrTeTunnelPath;
-import cn.org.upbnc.util.netconf.STunnelServiceClass;
+import cn.org.upbnc.util.netconf.*;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
@@ -67,4 +65,42 @@ public class GetXml {
         }
         return srTeTunnels;
     }
+
+    public static List<SExplicitPath> getExplicitPathFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<SExplicitPath> explicitPaths = new ArrayList<>();
+        SExplicitPath explicitPath;
+        List<SExplicitPathHop> explicitPathHops;
+        SExplicitPathHop explicitPathHop;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
+                Element element;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    element = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                } else {
+                    element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                }
+                explicitPath = new SExplicitPath();
+                explicitPathHops = new ArrayList<>();
+                explicitPath.setExplicitPathName(element.elementText("explicitPathName"));
+                for (org.dom4j.Element child : element.elements("explicitPathHops").get(0).elements()) {
+                    explicitPathHop = new SExplicitPathHop();
+                    explicitPathHop.setMplsTunnelHopIndex(child.elementText("mplsTunnelHopIndex"));
+                    explicitPathHop.setMplsTunnelHopMode(child.elementText("mplsTunnelHopMode"));
+                    explicitPathHop.setMplsTunnelHopSidLabel(child.elementText("mplsTunnelHopSidLabel"));
+                    explicitPathHop.setMplsTunnelHopSidLabelType(child.elementText("mplsTunnelHopSidLabelType"));
+                    explicitPathHops.add(explicitPathHop);
+                }
+                explicitPath.setExplicitPathHops(explicitPathHops);
+                explicitPaths.add(explicitPath);
+            } catch (Exception e) {
+
+            }
+        }
+        return explicitPaths;
+    }
+
 }
