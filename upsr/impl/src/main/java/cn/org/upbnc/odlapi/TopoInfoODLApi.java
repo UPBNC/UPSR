@@ -144,6 +144,17 @@ public class TopoInfoODLApi implements UpsrTopoService {
         return deviceInterfaces;
     }
 
+    private boolean isIntfSrEnabled(List<DeviceInterfaces> deviceInterfaces) {
+        Iterator<DeviceInterfaces> deviceInterfacesIterator = deviceInterfaces.iterator();
+        while (deviceInterfacesIterator.hasNext()) {
+            DeviceInterfaces deviceInterfaces1 = deviceInterfacesIterator.next();
+            if (deviceInterfaces1.getSrEnabled().equals(SrStatusEnum.ENABLED.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private SrgbPrefixSidBuilder srgbPrefixSidBuilderCreate(Device device) {
         SrgbPrefixSidBuilder srgbPrefixSidBuilder = new SrgbPrefixSidBuilder();
         if ((device.getSrStatus() != null) && device.getSrStatus().equals(SrStatusEnum.ENABLED.getName()) &&
@@ -175,10 +186,14 @@ public class TopoInfoODLApi implements UpsrTopoService {
             }
             NodesBuilder nodesBuilder = new NodesBuilder();
             nodesBuilder.setRouterId(device.getRouterId());
-            nodesBuilder.setSrEnabled(device.getSrStatus());
             nodesBuilder.setDeviceName(device.getDeviceName());
             nodesBuilder.setSrgbPrefixSid(srgbPrefixSidBuilderCreate(device).build());
             nodesBuilder.setDeviceInterfaces(deviceInterfacesCreate(device, filter));
+            if (isIntfSrEnabled(nodesBuilder.getDeviceInterfaces())) {
+                nodesBuilder.setSrEnabled(SrStatusEnum.ENABLED.getName());
+            } else {
+                nodesBuilder.setSrEnabled(device.getSrStatus());
+            }
             nodesList.add(nodesBuilder.build());
         }
         return nodesList;
