@@ -1,6 +1,10 @@
 package cn.org.upbnc.xmlcompare;
 
 import cn.org.upbnc.util.netconf.*;
+import cn.org.upbnc.util.netconf.bgp.BgpPeer;
+import cn.org.upbnc.util.netconf.bgp.BgpVrf;
+import cn.org.upbnc.util.netconf.bgp.ImportRoute;
+import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
@@ -103,4 +107,191 @@ public class GetXml {
         return explicitPaths;
     }
 
+    public static List<BgpVrf> getEbgpFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<BgpVrf> bgpVrfs = new ArrayList<>();
+        List<BgpPeer> BgpPeers = new ArrayList<>();
+        List<NetworkRoute> NetworkRoutes;
+        List<ImportRoute> ImportRoutes;
+        List<SBgpVrfAF> bgpVrfAFs;
+        List<SPeerAF> peerAFs;
+        SPeerAF peerAF;
+        SBgpVrfAF bgpVrfAF;
+        BgpVrf bgpVrf;
+        BgpPeer bgpPeer;
+        NetworkRoute networkRoute;
+        ImportRoute importRoute;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
+                Element child = null;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                } else {
+                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                }
+                if ("_public_".equals(child.elementText("vrfName"))) {
+//                        LOG.info("this instance is invalid.");
+                } else {
+                    bgpVrf = new BgpVrf();
+                    NetworkRoutes = new ArrayList<>();
+                    BgpPeers = new ArrayList<>();
+                    ImportRoutes = new ArrayList<>();
+                    bgpVrfAFs = new ArrayList<>();
+                    bgpVrf.setVrfName(child.elementText("vrfName"));
+                    peerAFs = new ArrayList<>();
+                    bgpVrfAF = new SBgpVrfAF();
+                    try {
+                        if (child.elements("bgpVrfAFs").size() > 0) {
+                            for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements()) {
+                                bgpVrfAF.setPreferenceExternal(child1.elementText("preferenceExternal"));
+                                bgpVrfAF.setPreferenceInternal(child1.elementText("preferenceInternal"));
+                                bgpVrfAF.setPreferenceLocal(child1.elementText("preferenceLocal"));
+                                if (child1.elements("peerAFs").size() > 0) {
+                                    for (org.dom4j.Element child2 : child1.elements("peerAFs").get(0).elements()) {
+                                        peerAF = new SPeerAF();
+                                        peerAF.setImportRtPolicyName(child2.elementText("importRtPolicyName"));
+                                        peerAF.setExportRtPolicyName(child2.elementText("exportRtPolicyName"));
+                                        peerAF.setAdvertiseCommunity(child2.elementText("advertiseCommunity"));
+                                        peerAF.setRemoteAddress(child2.elementText("remoteAddress"));
+                                        peerAFs.add(peerAF);
+                                    }
+                                }
+                            }
+                            bgpVrfAF.setPeerAFs(peerAFs);
+                            bgpVrfAFs.add(bgpVrfAF);
+                            bgpVrf.setBgpVrfAFs(bgpVrfAFs);
+                            if (child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").size() > 0) {
+                                for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("networkRoutes").get(0).elements()) {
+                                    networkRoute = new NetworkRoute(child1.elementText("networkAddress"), child1.elementText("maskLen"));
+                                    NetworkRoutes.add(networkRoute);
+                                }
+                            } else {
+//                                    LOG.info("networkRoutes is null.");
+                            }
+                            for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
+                                importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
+                                ImportRoutes.add(importRoute);
+                            }
+                        }
+                    } catch (Exception e) {
+                    } finally {
+                        bgpVrf.setImportRoutes(ImportRoutes);
+                        bgpVrf.setNetworkRoutes(NetworkRoutes);
+                        try {
+                            for (org.dom4j.Element child2 : child.elements("bgpPeers").get(0).elements()) {
+                                bgpPeer = new BgpPeer(child2.elementText("peerAddr"), child2.elementText("remoteAs"));
+                                BgpPeers.add(bgpPeer);
+                            }
+                        } catch (Exception e1) {
+                        } finally {
+                            bgpVrf.setBgpPeers(BgpPeers);
+                            bgpVrfs.add(bgpVrf);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+//                LOG.info(e.toString());
+            }
+        }
+        return bgpVrfs;
+    }
+
+    public static List<L3vpnInstance> getVpnFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<L3vpnInstance> l3vpnInstanceList = new ArrayList<>();
+        List<L3vpnIf> l3vpnIfs;
+        L3vpnInstance l3vpnInstance;
+        L3vpnIf l3vpnIf;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
+                Element child = null;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                } else {
+                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                }
+                l3vpnInstance = new L3vpnInstance();
+                l3vpnIfs = new ArrayList<>();
+                l3vpnInstance.setVrfName(child.elementText("vrfName"));
+                l3vpnInstance.setVrfDescription(child.elementText("vrfDescription"));
+                String vrfRD = null;
+                String vrfLabelMode = null;
+                String tnlPolicyName = null;
+                String ttlMode = null;
+                String vpnFrr = null;
+                String vrfRTValue = null;
+                try {
+                    for (org.dom4j.Element children : child.element("vpnInstAFs").elements()) {
+                        vrfRD = children.elementText("vrfRD");
+                        vrfLabelMode = children.elementText("vrfLabelMode");
+                        tnlPolicyName = children.elementText("tnlPolicyName");
+                        ttlMode = children.element("l3vpnTtlMode").elementText("ttlMode");
+                        vpnFrr = children.elementText("vpnFrr");
+                        vrfRTValue = children.element("vpnTargets").elements().get(0).elementText("vrfRTValue");
+                    }
+                } catch (Exception e) {
+                } finally {
+                    l3vpnInstance.setVrfRD(vrfRD);
+                    l3vpnInstance.setApplyLabel(vrfLabelMode);
+                    l3vpnInstance.setTunnelPolicy(tnlPolicyName);
+                    l3vpnInstance.setTtlMode(ttlMode);
+                    l3vpnInstance.setVpnFrr(vpnFrr);
+                    l3vpnInstance.setVrfRTValue(vrfRTValue);
+                    try {
+                        for (org.dom4j.Element children : child.element("l3vpnIfs").elements()) {
+                            l3vpnIf = new L3vpnIf();
+                            l3vpnIf.setIfName(children.elementText("ifName"));
+                            l3vpnIf.setIpv4Addr(children.elementText("ipv4Addr"));
+                            l3vpnIf.setSubnetMask(children.elementText("subnetMask"));
+                            l3vpnIfs.add(l3vpnIf);
+                        }
+                    } catch (Exception e) {
+                    } finally {
+                        l3vpnInstance.setL3vpnIfs(l3vpnIfs);
+                        l3vpnInstanceList.add(l3vpnInstance);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+        return l3vpnInstanceList;
+    }
+
+    public static List<SBfdCfgSession> getBfdCfgSessionsFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<SBfdCfgSession> ret = new ArrayList<SBfdCfgSession>();
+        SBfdCfgSession sBfdCfgSession;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements();
+                Element child = null;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                } else {
+                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                }
+                sBfdCfgSession = new SBfdCfgSession();
+                sBfdCfgSession.setSessName(child.elementText("sessName"));
+                sBfdCfgSession.setTunnelName(child.elementText("tunnelName"));
+                sBfdCfgSession.setLinkType(child.elementText("linkType"));
+                sBfdCfgSession.setCreateType(child.elementText("createType"));
+                sBfdCfgSession.setMultiplier(child.elementText("detectMulti"));
+                sBfdCfgSession.setMinRxInt(child.elementText("minRxInt"));
+                sBfdCfgSession.setMinTxInt(child.elementText("minTxInt"));
+                sBfdCfgSession.setLocalDiscr(child.elementText("localDiscr"));
+                sBfdCfgSession.setRemoteDiscr(child.elementText("remoteDiscr"));
+                ret.add(sBfdCfgSession);
+            } catch (Exception ex) {
+            }
+        }
+        return ret;
+    }
 }
