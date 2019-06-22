@@ -11,6 +11,7 @@ import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.ConfSyncApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.SyncConfInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.SyncConfOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.SyncConfOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsyncconf.rev181129.UpsrSyncConfService;
@@ -39,7 +40,8 @@ public class ConfSyncODLApi implements UpsrSyncConfService {
         }
         return this.confSyncApi;
     }
-    public Future<RpcResult<SyncConfOutput>> syncConf() {
+    @Override
+    public Future<RpcResult<SyncConfOutput>> syncConf(SyncConfInput input) {
         String result = null;
         SyncConfOutputBuilder syncConfOutputBuilder = new SyncConfOutputBuilder();
 
