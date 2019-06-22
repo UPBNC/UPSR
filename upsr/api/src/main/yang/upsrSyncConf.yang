@@ -7,6 +7,9 @@ module upsrSyncConf {
         description "Initial revision of upsrSyncConf model";
     }
     rpc syncConf {
+        input {
+            leaf syncType { type string; }
+        }
         output {
             leaf result {
                 type string;
