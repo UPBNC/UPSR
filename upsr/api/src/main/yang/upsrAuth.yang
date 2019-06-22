@@ -1,0 +1,20 @@
+module upsrAuth {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrAuth";
+    prefix "upsrAuth";
+
+    revision "2017-08-30" { // TODO change revision to date of model creation
+        description "Initial revision of upsrAuth model";
+    }
+
+    rpc checkUser {
+        input {
+            leaf user { type string; }
+            leaf passwd { type string; }
+        }
+
+        output {
+            leaf result { type string; }
+        }
+    }
+}
