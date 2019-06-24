@@ -32,22 +32,29 @@ public class ConfSyncApiImpl implements ConfSyncApi {
     }
 
     @Override
-    public String syncDeviceConf() {
+    public String syncDeviceConf(String type) {
         String ret = null;
         String result = null;
         result = "sync device configure start......";
-        ret = this.serviceInterface.getInterfaceService().syncInterfaceConf() ? " success" : "failed";
-        result += ret;
+        if ("1".equals(type)) {
+            ret = this.serviceInterface.getInterfaceService().syncInterfaceConf() ? " success" : "failed";
+            result += ret;
+            result += this.serviceInterface.getSrLabelService().syncAllIntfLabel();
+            result += this.serviceInterface.getSrLabelService().syncAllNodeLabel();
+        }
         result += "\n";
-        result += "sync vpnInstance configure....";
-        ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success" : "failed";
-        result += ret;
+        if ("1".equals(type) || "2".equals(type)) {
+            result += "sync vpnInstance configure....";
+            ret = this.serviceInterface.getVpnService().syncVpnInstanceConf() ? " success" : "failed";
+            result += this.serviceInterface.getRoutePolicyService().syncRoutePolicyConf();
+            result += ret;
+        }
         result += "\n";
-        result += this.serviceInterface.getSrLabelService().syncAllIntfLabel();
-        result += this.serviceInterface.getSrLabelService().syncAllNodeLabel();
-        result += this.serviceInterface.getTunnelService().syncTunnelInstanceConf();
-        result += this.serviceInterface.getRoutePolicyService().syncRoutePolicyConf();
-        result += "\n";
+        if ("1".equals(type) || "3".equals(type)) {
+            result += this.serviceInterface.getTunnelService().syncTunnelInstanceConf();
+            result += this.serviceInterface.getTunnelPolicyService().syncTunnelPolicyConf();
+            result += "\n";
+        }
         result += "sync device configure end.";
         LOG.info("sync ret : " + result);
         return CodeEnum.SUCCESS.getMessage();

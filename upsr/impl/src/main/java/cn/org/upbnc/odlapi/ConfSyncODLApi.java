@@ -50,7 +50,7 @@ public class ConfSyncODLApi implements UpsrSyncConfService {
 
         }else{
             //调用系统Api层函数
-            result = this.getConfSyncApi().syncDeviceConf();
+            result = this.getConfSyncApi().syncDeviceConf(input.getSyncType());
             syncConfOutputBuilder.setResult(result);
         }
         return RpcResultBuilder.success(syncConfOutputBuilder.build()).buildFuture();
