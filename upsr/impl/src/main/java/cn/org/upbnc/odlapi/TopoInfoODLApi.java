@@ -148,7 +148,8 @@ public class TopoInfoODLApi implements UpsrTopoService {
         Iterator<DeviceInterfaces> deviceInterfacesIterator = deviceInterfaces.iterator();
         while (deviceInterfacesIterator.hasNext()) {
             DeviceInterfaces deviceInterfaces1 = deviceInterfacesIterator.next();
-            if (deviceInterfaces1.getSrEnabled().equals(SrStatusEnum.ENABLED.getName())) {
+            if (deviceInterfaces1.getSrEnabled() != null &&
+                    deviceInterfaces1.getSrEnabled().equals(SrStatusEnum.ENABLED.getName())) {
                 return true;
             }
         }
