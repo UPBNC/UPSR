@@ -52,9 +52,7 @@ public class SrLabelApiImpl implements SrLabelApi {
         Map<String, Object> resultMap = new HashMap<>();
         if (action.equals(SrLabelXml.ncOperationMerge) &&
                 (((labelBegin == null) && (labelValAbs == null)) || (labelBegin.equals("") && labelValAbs.equals("")))) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), CodeEnum.SUCCESS.getMessage());
-            return resultMap;
+            return srLabelService.updateNodeLabel(routerId, "", SrLabelXml.ncOperationDelete);
         }
         if (action.equals(SrLabelXml.ncOperationMerge) &&
                 ((labelBegin == null) || (labelValAbs == null) || labelBegin.equals("") || labelValAbs.equals(""))) {
@@ -80,9 +78,7 @@ public class SrLabelApiImpl implements SrLabelApi {
         Map<String, Object> resultMap = new HashMap<>();
         if (action.equals(SrLabelXml.ncOperationMerge) &&
                 (((labelBegin == null) && (labelEnd == null)) || (labelBegin.equals("") && labelEnd.equals("")))) {
-            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.MESSAGE.getName(), CodeEnum.SUCCESS.getMessage());
-            return resultMap;
+            return srLabelService.updateNodeLabelRange(routerId, "", "", SrLabelXml.ncOperationDelete);
         }
         if (action.equals(SrLabelXml.ncOperationMerge) &&
                 ((labelBegin == null) || (labelEnd == null) || labelBegin.equals("") || labelEnd.equals(""))) {
