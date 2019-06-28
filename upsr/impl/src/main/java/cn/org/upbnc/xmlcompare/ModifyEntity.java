@@ -42,22 +42,22 @@ public class ModifyEntity {
         if (this.label.equals("mplsTunnelEgressLSRId")) {
             return this.getTunnelDestCli("modify");
         }
-        return "";
+        return null;
     }
     private String getTunnelDestCli(String action) {
-        return " destination " + this.getNewValue() + "\n";
+        return " destination " + this.getNewValue();
     }
     private String getTunnelBandwidthCli(String action) {
-        return " mpls te bandwidth ct0 " + this.getNewValue() + "\n";
+        return " mpls te bandwidth ct0 " + this.getNewValue();
     }
     private String getTunnelPath(String action) {
-        return " mpls te path explicit-path  " + this.getNewValue() + "\n";
+        return " mpls te path explicit-path  " + this.getNewValue();
     }
     private String getTunnelBfdCli(String action) {
-        return " mpls te bfd enable  " + this.getNewValue() + "\n";
+        return " mpls te bfd enable  " + this.getNewValue();
     }
     private String getTunnelServiceClassCli(String action) {
-        return " mpls te service-class  " + this.getNewValue() + "\n";
+        return " mpls te service-class  " + this.getNewValue();
     }
 
     @Override

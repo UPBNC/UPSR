@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import sun.security.jca.GetInstance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static cn.org.upbnc.base.impl.NetConfManagerImpl.netconfController;
@@ -57,11 +58,11 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 //        String runningCfg = this.getRunningCfgXml(device,cfgType);
         String xml1 = Util.candidate();
         String xml2 = Util.modify();
-        String cliString = TunnelCli.tunnelCfgCli(xml1,xml2);
-        cliString = cliString + SrlabelCli.srLabelCfgCli();
+        List<String> cliList = TunnelCli.tunnelCfgCli(xml1,xml2);
+        cliList.addAll(SrlabelCli.srLabelCfgCli());
 
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.MESSAGE.getName(), cliString);
+        resultMap.put(ResponseEnum.MESSAGE.getName(), cliList);
         return resultMap;
     }
     private String getCandidateCfgXml(Device device, String cfgType) {

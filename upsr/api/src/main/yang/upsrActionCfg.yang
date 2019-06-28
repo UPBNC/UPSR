@@ -17,7 +17,7 @@ module upsrActionCfg {
         }
     }
 
-    rpc getCfgCliChane {
+    rpc getCfgCliChange {
         input {
             leaf routerId { type string; }
         }
@@ -36,7 +36,7 @@ module upsrActionCfg {
         }
     }
 
-    rpc getCfgChane {
+    rpc getCfgChange {
         input {
             leaf routerId { type string; }
             leaf cfgType { type string; }
@@ -46,8 +46,31 @@ module upsrActionCfg {
             list command {
                 leaf routerId { type string; }
                 leaf deviceName { type string; }
-                leaf change { type string; }
+                list commandChange {
+                    leaf index { type string; }
+                    leaf change { type string; }
+                }
             }
+        }
+    }
+
+    rpc confirmCfgChange {
+        input {
+            leaf routerId { type string; }
+            leaf cfgType { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc cancelCfgChange {
+        input {
+            leaf routerId { type string; }
+            leaf cfgType { type string; }
+        }
+        output {
+            leaf result { type string; }
         }
     }
 }
