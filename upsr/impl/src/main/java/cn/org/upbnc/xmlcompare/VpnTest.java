@@ -13,6 +13,8 @@ public class VpnTest {
         String xml1 = VpnUtils.modify();
         String xml2 = VpnUtils.running();
         //xml1 candidate  xml2 running
+        xml1 = XmlUtils.subString(xml1);
+        xml2 = XmlUtils.subString(xml2);
         String flag = "explicitPath";
         ActionEntity actionEntity = XmlUtils.compare(xml1, xml2, flag);
         if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
