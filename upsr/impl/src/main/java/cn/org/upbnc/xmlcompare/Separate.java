@@ -21,10 +21,11 @@ public class Separate {
             List<DifferentEntity> differentEntities = new ArrayList<>();
             DifferentEntity differentEntity;
             String str = null;
-            if (myDiff.getAllDifferences().size() > 0) {
-                for (int i = 0; i < myDiff.getAllDifferences().size(); i++) {
+            List allDifferences=myDiff.getAllDifferences();
+            if (allDifferences.size() > 0) {
+                for (int i = 0; i < allDifferences.size(); i++) {
                     differentEntity = new DifferentEntity();
-                    difference = (Difference) myDiff.getAllDifferences().get(i);
+                    difference = (Difference)allDifferences.get(i);
                     differentEntity.setId(difference.getId());
                     differentEntity.setDescription(difference.getDescription());
                     if (null != difference.getControlNodeDetail().getNode()) {
@@ -68,7 +69,7 @@ public class Separate {
             int y;
             for (int j = 0; j < separateEntities.size(); j++) {
                 if (differentEntities.get(separateEntities.get(j).getNum() + 1).getDescription().contains("sequence")
-                        && (separateEntities.get(j).getNum() + 2) == myDiff.getAllDifferences().size()) {
+                        && (separateEntities.get(j).getNum() + 2) == allDifferences.size()) {
                 } else {
                     separates.add(separateEntities.get(j));
                     if (differentEntities.get(separateEntities.get(j).getNum() + 1).getDescription().contains("sequence")) {
@@ -84,8 +85,8 @@ public class Separate {
                         int sum = 0;
                         if ((j + 1 < separateEntities.size()) && separateEntities.get(j).getNum() + 2 < separateEntities.get(j + 1).getNum()) {
                             sum = (separateEntities.get(j + 1).getNum() - separateEntities.get(j).getNum() - 1) / 2;
-                        } else if (separateEntities.get(j).getNum() + 1 < myDiff.getAllDifferences().size()) {
-                            sum = (myDiff.getAllDifferences().size() - separateEntities.get(j).getNum() - 1) / 2;
+                        } else if (separateEntities.get(j).getNum() + 1 < allDifferences.size()) {
+                            sum = (allDifferences.size() - separateEntities.get(j).getNum() - 1) / 2;
                         }
                         if (sum > 1) {
                             for (int xyz = 1; xyz < sum; xyz++) {
@@ -101,9 +102,9 @@ public class Separate {
                         actionEntity = new ActionEntity();
                         if (differentEntities.get(y + 1).getControlXpathLocation().equals(differentEntities.get(y + 1).getTestXpathLocation())) {
                             if (separateEntities.size() == 1) {
-                                for (int x = separateEntities.get(j).getNum() + 1; x < myDiff.getAllDifferences().size(); x++) {
+                                for (int x = separateEntities.get(j).getNum() + 1; x < allDifferences.size(); x++) {
                                     modifyEntity = new ModifyEntity();
-                                    difference = (Difference) myDiff.getAllDifferences().get(x);
+                                    difference = (Difference) allDifferences.get(x);
                                     if (null == (difference.getControlNodeDetail().getXpathLocation())) {
                                         continue;
                                     } else {
@@ -116,7 +117,7 @@ public class Separate {
                             } else {
                                 for (int x = separateEntities.get(j).getNum() + 1; x < separateEntities.get(j + 1).getNum(); x++) {
                                     modifyEntity = new ModifyEntity();
-                                    difference = (Difference) myDiff.getAllDifferences().get(x);
+                                    difference = (Difference)allDifferences.get(x);
                                     if (null == (difference.getControlNodeDetail().getXpathLocation())) {
                                         continue;
                                     } else {
@@ -157,10 +158,11 @@ public class Separate {
             List<DifferentEntity> differentEntities = new ArrayList<>();
             DifferentEntity differentEntity;
             String str = null;
-            if (myDiff.getAllDifferences().size() > 0) {
-                for (int i = 0; i < myDiff.getAllDifferences().size(); i++) {
+            List allDifferences=myDiff.getAllDifferences();
+            if (allDifferences.size() > 0) {
+                for (int i = 0; i < allDifferences.size(); i++) {
                     differentEntity = new DifferentEntity();
-                    difference = (Difference) myDiff.getAllDifferences().get(i);
+                    difference = (Difference) allDifferences.get(i);
                     differentEntity.setId(difference.getId());
                     differentEntity.setDescription(difference.getDescription());
                     if (null != difference.getControlNodeDetail().getNode()) {
@@ -186,7 +188,6 @@ public class Separate {
                     differentEntity.setTestValue(str);
                     differentEntity.setTestXpathLocation(difference.getTestNodeDetail().getXpathLocation());
                     differentEntities.add(differentEntity);
-
                 }
             }
             List<SeparateEntity> separateEntities = new ArrayList<>();
@@ -200,6 +201,9 @@ public class Separate {
                     if (("explicitPaths").equals
                             (AttributeParse.parse(entity.getControlXpathLocation()).get(AttributeParse.parse(entity.
                                     getControlXpathLocation()).size() - 2).getName())) {
+                        if (differentEntities.get(i + 1).getDescription().contains("sequence")) {
+                            continue;
+                        }
                         if (differentEntities.get(i + 1).getDescription().contains("text")) {
                             continue;
                         }
@@ -259,11 +263,10 @@ public class Separate {
                     }
                 }
             }
-
             int y;
             for (int j = 0; j < separateEntities.size(); j++) {
                 if (differentEntities.get(separateEntities.get(j).getNum() + 1).getDescription().contains("sequence")
-                        && (separateEntities.get(j).getNum() + 2) == myDiff.getAllDifferences().size()) {
+                        && (separateEntities.get(j).getNum() + 2) == allDifferences.size()) {
                 } else {
                     separates.add(separateEntities.get(j));
                     if (differentEntities.get(separateEntities.get(j).getNum() + 1).getDescription().contains("sequence")) {
@@ -279,8 +282,8 @@ public class Separate {
                         int sum = 0;
                         if ((j + 1 < separateEntities.size()) && separateEntities.get(j).getNum() + 2 < separateEntities.get(j + 1).getNum()) {
                             sum = (separateEntities.get(j + 1).getNum() - separateEntities.get(j).getNum() - 1) / 2;
-                        } else if (separateEntities.get(j).getNum() + 1 < myDiff.getAllDifferences().size()) {
-                            sum = (myDiff.getAllDifferences().size() - separateEntities.get(j).getNum() - 1) / 2;
+                        } else if (separateEntities.get(j).getNum() + 1 < allDifferences.size()) {
+                            sum = (allDifferences.size() - separateEntities.get(j).getNum() - 1) / 2;
                         }
                         if (sum > 1) {
                             for (int xyz = 1; xyz < sum; xyz++) {
@@ -289,16 +292,16 @@ public class Separate {
                                 actionEntity.setAction(ActionTypeEnum.delete);
                                 actionEntity.setPath(differentEntities.get(y + 2 * xyz + 1).getTestXpathLocation());
                                 separateEntity.getActionEntities().add(actionEntity);
-                                separates.add(separateEntity);
+                                separateEntities.add(separateEntity);
                             }
                         }
                     } else if (differentEntities.get(y + 1).getDescription().contains("text value")) {
                         actionEntity = new ActionEntity();
                         if (differentEntities.get(y + 1).getControlXpathLocation().equals(differentEntities.get(y + 1).getTestXpathLocation())) {
                             if (separateEntities.size() == 1) {
-                                for (int x = separateEntities.get(j).getNum() + 1; x < myDiff.getAllDifferences().size(); x++) {
+                                for (int x = separateEntities.get(j).getNum() + 1; x < allDifferences.size(); x++) {
                                     modifyEntity = new ModifyEntity();
-                                    difference = (Difference) myDiff.getAllDifferences().get(x);
+                                    difference = (Difference) allDifferences.get(x);
                                     if (null == (difference.getControlNodeDetail().getXpathLocation())) {
                                         continue;
                                     } else {
@@ -312,19 +315,21 @@ public class Separate {
                                     }
                                 }
                             } else {
-                                for (int x = separateEntities.get(j).getNum() + 1; x < separateEntities.get(j + 1).getNum(); x++) {
-                                    modifyEntity = new ModifyEntity();
-                                    difference = (Difference) myDiff.getAllDifferences().get(x);
-                                    if (null == (difference.getControlNodeDetail().getXpathLocation())) {
-                                        continue;
-                                    } else {
-                                        modifyEntity.setPath(difference.getControlNodeDetail().getXpathLocation());
-                                        List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
-                                        String lable = attributes.get(attributes.size() - 2).getName();
-                                        modifyEntity.setLabel(lable);
-                                        modifyEntity.setOdlValue(difference.getTestNodeDetail().getValue());
-                                        modifyEntity.setNewValue(difference.getControlNodeDetail().getValue());
-                                        actionEntity.getModifyEntities().add(modifyEntity);
+                                if (j + 1 <= separateEntities.size() - 1) {
+                                    for (int x = separateEntities.get(j).getNum() + 1; x <= separateEntities.get(j + 1).getNum(); x++) {
+                                        modifyEntity = new ModifyEntity();
+                                        difference = (Difference) allDifferences.get(x);
+                                        if (null == (difference.getControlNodeDetail().getXpathLocation())) {
+                                            continue;
+                                        } else {
+                                            modifyEntity.setPath(difference.getControlNodeDetail().getXpathLocation());
+                                            List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
+                                            String lable = attributes.get(attributes.size() - 2).getName();
+                                            modifyEntity.setLabel(lable);
+                                            modifyEntity.setOdlValue(difference.getTestNodeDetail().getValue());
+                                            modifyEntity.setNewValue(difference.getControlNodeDetail().getValue());
+                                            actionEntity.getModifyEntities().add(modifyEntity);
+                                        }
                                     }
                                 }
                             }
@@ -338,7 +343,7 @@ public class Separate {
                     }
                 }
             }
-            for (int xy = 0; xy < separates.size(); xy++) {
+            for (int xy = 0; xy < separateEntities.size(); xy++) {
                 ReturnSeparates.add(separateEntities.get(xy));
             }
         } catch (SAXException e) {
