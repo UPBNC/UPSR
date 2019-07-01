@@ -10,7 +10,8 @@ import java.util.List;
 
 public class TunnelCli {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelCli.class);
-    public static List<String> tunnelCfgCli(String xml1,String xml2){
+
+    public static List<String> tunnelCfgCli(String xml1, String xml2) {
         List<String> cliList = new ArrayList<>();
 
         ActionEntity actionEntity = XmlUtils.compare(xml1, xml2);
@@ -20,7 +21,7 @@ public class TunnelCli {
         } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
             LOG.info("delete");
         } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
-            List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()));
+            List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
             LOG.info("modify");
             if (sSrTeTunnels.size() != 0) {
                 cliList.add("interface " + sSrTeTunnels.get(0).getTunnelName());

@@ -3,7 +3,7 @@ package cn.org.upbnc.xmlcompare;
 public class Util {
     public static String candidate()
     {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+        return
                 "<data xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "    <mplsTe>\n" +
@@ -671,7 +671,7 @@ public class Util {
 
     public static String running()
     {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+        return
                 "<data xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "    <mplsTe>\n" +
@@ -1265,7 +1265,7 @@ public class Util {
                 "</data>";
     }
     public static String modify(){
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+        return
                 "<data xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "    <mplsTe>\n" +

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetXml {
-    public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml, List<Attribute> attributes) {
+    public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
         SSrTeTunnel srTeTunnel;
         if (!("".equals(xml))) {
@@ -22,8 +22,8 @@ public class GetXml {
                 SAXReader reader = new SAXReader();
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 Element root = document.getRootElement();
-                List<Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
-                Element element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                List<Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
+                Element element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
                 srTeTunnel = new SSrTeTunnel();
                 srTeTunnel.setTunnelName(element.elementText("tunnelName"));
                 srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));

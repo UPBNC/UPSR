@@ -72,4 +72,10 @@ public class XmlUtils {
     public static ActionEntity compare(String xml1, String xml2) {
         return compare(xml1, xml2, "");
     }
+
+    public static String subString(String string) {
+        String str;
+        str = string.substring(string.indexOf("<data"), string.lastIndexOf("</data>") + 7);
+        return str;
+    }
 }
