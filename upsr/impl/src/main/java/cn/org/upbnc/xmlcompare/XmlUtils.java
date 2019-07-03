@@ -16,11 +16,12 @@ public class XmlUtils {
         try {
             diff = new Diff(xml1, xml2);
             DetailedDiff myDiff = new DetailedDiff(diff);
+            List allDifferences = myDiff.getAllDifferences();
             if (myDiff.identical()) {
                 actionEntity.setAction(ActionTypeEnum.identical);
             } else {
-                if (myDiff.getAllDifferences().size() > 0) {
-                    Difference difference = (Difference) myDiff.getAllDifferences().get(0);
+                if (allDifferences.size() > 0) {
+                    Difference difference = (Difference) allDifferences.get(0);
                     if (difference.getDescription().contains("text value")) {
                         Difference difference1;
                         List<ModifyEntity> modifyEntities = new ArrayList<>();
@@ -31,8 +32,8 @@ public class XmlUtils {
                         } else {
                             i = 1;
                         }
-                        for (; i < myDiff.getAllDifferences().size(); i++) {
-                            difference1 = (Difference) myDiff.getAllDifferences().get(i);
+                        for (; i < allDifferences.size(); i++) {
+                            difference1 = (Difference) allDifferences.get(i);
                             modifyEntity = new ModifyEntity();
                             modifyEntity.setPath(difference1.getControlNodeDetail().getXpathLocation());
                             List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
@@ -46,7 +47,7 @@ public class XmlUtils {
                         actionEntity.setModifyEntities(modifyEntities);
                         actionEntity.setAction(ActionTypeEnum.modify);
                     } else if (difference.getDescription().contains("number of child nodes")) {
-                        Difference difference1 = (Difference) myDiff.getAllDifferences().get(1);
+                        Difference difference1 = (Difference) allDifferences.get(1);
                         if (Integer.parseInt(difference.getControlNodeDetail().getValue()) > Integer.parseInt(difference.getTestNodeDetail().getValue())) {
                             actionEntity.setPath(difference1.getControlNodeDetail().getXpathLocation());
                             actionEntity.setAction(ActionTypeEnum.add);
