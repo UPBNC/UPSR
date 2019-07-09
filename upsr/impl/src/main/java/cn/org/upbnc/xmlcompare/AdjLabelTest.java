@@ -7,7 +7,7 @@ import cn.org.upbnc.entity.AdjLabel;
 import java.util.List;
 
 public class AdjLabelTest {
-    public static void main(String args[]) {
+    public static void test() {
         String xml1 = Rpc.getStart("1") + AdjLabelUtils.modify() + Rpc.getEnd();
         String xml2 = Rpc.getStart("2") + AdjLabelUtils.running() + Rpc.getEnd();
         xml1 = XmlUtils.subString(xml1);

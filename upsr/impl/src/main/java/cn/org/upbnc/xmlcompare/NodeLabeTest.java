@@ -5,7 +5,7 @@ import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
 import java.util.List;
 
 public class NodeLabeTest {
-    public static void main(String args[]) {
+    public static void test() {
         String xml1 = Rpc.getStart("1") + NodeLabelUtils.modify() + Rpc.getEnd();
         String xml2 = Rpc.getStart("2") + NodeLabelUtils.running() + Rpc.getEnd();
         xml1 = XmlUtils.subString(xml1);
