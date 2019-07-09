@@ -1,10 +1,14 @@
 package cn.org.upbnc.xmlcompare;
 
+import cn.org.upbnc.entity.Address;
+import cn.org.upbnc.entity.AdjLabel;
+import cn.org.upbnc.enumtype.AddressTypeEnum;
 import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.netconf.bgp.BgpPeer;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
 import cn.org.upbnc.util.netconf.bgp.ImportRoute;
 import cn.org.upbnc.util.netconf.bgp.NetworkRoute;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
@@ -293,5 +297,55 @@ public class GetXml {
             }
         }
         return ret;
+    }
+
+    public static List<AdjLabel> getSrAdjLabelFromSrAdjLabelXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<AdjLabel> adjLabelList = new ArrayList<>();
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            List<Element> childElements = root.elements().get(0).elements().get(0).elements();
+            Element child;
+            if (ActionTypeEnum.modify == actionTypeEnum) {
+                child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+            } else {
+                child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+            }
+            AdjLabel adjLabel = new AdjLabel();
+            adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));
+            adjLabel.setAddressRemote(new Address(child.elementText("remoteIpAddress"), AddressTypeEnum.V4));
+            adjLabel.setValue(Integer.valueOf(child.elementText("segmentId")));
+            adjLabelList.add(adjLabel);
+        } catch (DocumentException e) {
+        }
+        return adjLabelList;
+    }
+
+    public static NetconfSrLabelInfo getSrNodeLabelFromgSrNodeLabelXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                Element root = document.getRootElement();
+                List<Element> ospfSiteElements = root.elements().get(0).elements().get(0).elements().get(0).elements()
+                        .get(0).elements();
+                Element child;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    child = ospfSiteElements.get(1).elements().get(0).elements().get(1).elements()
+                            .get(attributes.get(attributes.size() - 4).getIndex() - 1);
+                } else {
+                    child = ospfSiteElements.get(1).elements().get(0).elements().get(1).elements().get(attributes
+                            .get(attributes.size() - 1).getIndex() - 1);
+                }
+                netconfSrLabelInfo.setPrefixIfName(child.elementText("ifName"));
+                netconfSrLabelInfo.setPrefixLabel(child.element("srInterface").elementText("prefixLabel"));
+                netconfSrLabelInfo.setPrefixType(child.element("srInterface").elementText("prefixSidType"));
+                return netconfSrLabelInfo;
+            } catch (Exception e) {
+            }
+        }
+        return null;
     }
 }
