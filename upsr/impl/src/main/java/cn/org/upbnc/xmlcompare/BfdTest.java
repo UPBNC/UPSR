@@ -15,6 +15,8 @@ public class BfdTest {
         String xml2 = BfdUtils.add();
         //xml1 candidate  xml2 running
         String flag = "explicitPath";
+        xml1 = XmlUtils.subString(xml1);
+        xml2 = XmlUtils.subString(xml2);
         ActionEntity actionEntity = XmlUtils.compare(xml1, xml2, flag);
         if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
             LOG.info("add");
