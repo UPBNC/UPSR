@@ -348,4 +348,29 @@ public class GetXml {
         }
         return null;
     }
+
+    public static NetconfSrLabelInfo getSrNodeLabelRangeFromNodeLabelRangeXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<Element> ospfSiteElements = root.elements().get(0).elements().get(0).elements().get(0).elements()
+                        .get(0).elements();
+                Element child;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    child = ospfSiteElements.get(1).elements().get(0).elements().get(1).elements()
+                            .get(attributes.get(attributes.size() - 4).getIndex() - 1);
+                } else {
+                    child = ospfSiteElements.get(1).elements().get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                }
+                netconfSrLabelInfo.setSrgbBegin(child.elementText("srgbBegin"));
+                netconfSrLabelInfo.setSrgbEnd(child.elementText("srgbEnd"));
+                return netconfSrLabelInfo;
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
 }
