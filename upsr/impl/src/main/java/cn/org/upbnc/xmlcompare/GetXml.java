@@ -373,4 +373,27 @@ public class GetXml {
         }
         return null;
     }
+
+    public static NetconfSrLabelInfo getSrSRGBRangeFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
+        if ("".equals(xml)) {
+            return null;
+        }
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            List<Element> childElements = root.elements().get(0).elements().get(0).elements();
+            Element child;
+            if (ActionTypeEnum.modify == actionTypeEnum) {
+                child = childElements.get(attributes.get(attributes.size() - 4).getIndex() - 1);
+            } else {
+                child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+            }
+            netconfSrLabelInfo.setAdjLowerSid(child.elementText("lowerSid"));
+            netconfSrLabelInfo.setAdjUpperSid(child.elementText("upperSid"));
+        } catch (Exception e) {
+        }
+        return netconfSrLabelInfo;
+    }
 }

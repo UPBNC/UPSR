@@ -4,10 +4,10 @@ import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
 
 import java.util.List;
 
-public class OspfSrgbTest {
+public class SrSRGBTest {
     public static void test() {
-        String xml1 = Rpc.getStart("1") + OspfSrgbUtils.running() + Rpc.getEnd();
-        String xml2 = Rpc.getStart("2") + OspfSrgbUtils.add() + Rpc.getEnd();
+        String xml1 = Rpc.getStart("1") + SrSRGBUtils.modify() + Rpc.getEnd();
+        String xml2 = Rpc.getStart("2") + SrSRGBUtils.running() + Rpc.getEnd();
         xml1 = XmlUtils.subString(xml1);
         xml2 = XmlUtils.subString(xml2);
         //xml1 candidate  xml2 running
@@ -15,11 +15,11 @@ public class OspfSrgbTest {
         ActionEntity actionEntity = XmlUtils.compare(xml1, xml2, flag);
         if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
             System.out.println("add");
-            NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelRangeFromNodeLabelRangeXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+            NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrSRGBRangeFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
             System.out.println(netconfSrLabelInfo);
         } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
             System.out.println("delete");
-            NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelRangeFromNodeLabelRangeXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+            NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrSRGBRangeFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
             System.out.println(netconfSrLabelInfo);
         } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
             List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
