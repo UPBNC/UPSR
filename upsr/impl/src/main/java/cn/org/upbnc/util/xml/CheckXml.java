@@ -47,7 +47,7 @@ public class CheckXml {
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
             String errorMessage = root.element("rpc-error").elementText("error-message");
-            ret = ret + errorMessage;
+            ret = ret + "common error";
         } catch (Exception e) {
         }
         return ret;

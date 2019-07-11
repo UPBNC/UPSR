@@ -67,7 +67,7 @@ public class NetConfManagerImpl implements NetConfManager {
             }
         }
         try {
-            netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
+            netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getUpsrpwd());
         } catch (Exception e) {
             normal = false;
             LOG.info(" e.getCause :" + e.getCause());
@@ -81,7 +81,7 @@ public class NetConfManagerImpl implements NetConfManager {
         }
         if (netconfClient.label.equals(netConf.getIp().getAddress())) {
             if (netconfClient == null) {
-                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
+                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  getUpsrpwd : " + netConf.getUpsrpwd());
             } else {
                 if (normal) {
                     flag = checkRouterId(key, netconfClient);
@@ -169,7 +169,7 @@ public class NetConfManagerImpl implements NetConfManager {
         if (netConfMap.containsKey(routerID) && netconfClientMap.containsKey(routerID)) {
             netConf = netConfMap.get(routerID);
             try {
-                netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getPassword());
+                netconfClient = netconfController.createClient(netConf.getIp().getAddress(), netConf.getPort(), netConf.getIp().getAddress(), netConf.getUser(), netConf.getUpsrpwd());
             } catch (Exception e) {
                 netconfClientMap.remove(routerID);
                 LOG.info(" e.getCause :" + e.getCause());
@@ -183,7 +183,7 @@ public class NetConfManagerImpl implements NetConfManager {
                 normal = false;
             }
             if (netconfClient == null) {
-                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  password : " + netConf.getPassword());
+                LOG.info("ip:" + netConf.getIp().getAddress() + "  port: " + netConf.getPort() + " userName: " + netConf.getUser() + "  getUpsrupwd : " + netConf.getUpsrpwd());
             } else {
                 if (normal) {
                     flag = checkRouterId(routerID, netconfClient);

@@ -119,15 +119,16 @@ public class TunnelDetectXml {
             org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
             Element root = document.getRootElement();
             Element lspPingResultElement = root.element("data").element("dgntl").element("lsp").element("lspPingResults").element("lspPingResult");
-            sPingLspResultInfo.setTunnelName(lspPingResultElement.elementText("tunnelName"));
-            sPingLspResultInfo.setPacketSend(lspPingResultElement.elementText("packetSend"));
-            sPingLspResultInfo.setPacketRecv(lspPingResultElement.elementText("packetRecv"));
-            sPingLspResultInfo.setLossRatio(lspPingResultElement.elementText("lossRatio"));
-//            List<Element> pingResultDetail = lspPingResultElement.element("pingResultDetails").elements("pingResultDetail");
-//            for (org.dom4j.Element interfaceElement : pingResultDetail) {
-//                System.out.println(interfaceElement.elementText("index"));
-//                System.out.println(interfaceElement.elementText("destIpAddr"));
-//            }
+            String name = lspPingResultElement.elementText("tunnelName");
+            char[] cs=name.toCharArray();
+            cs[0]-=32;
+            sPingLspResultInfo.setTunnelName(String.valueOf(cs));
+            int packetSend = Integer.parseInt(lspPingResultElement.elementText("packetSend"));
+            sPingLspResultInfo.setPacketSend(String.valueOf(packetSend));
+            int packetRecv = Integer.parseInt(lspPingResultElement.elementText("packetRecv"));
+            sPingLspResultInfo.setPacketRecv(String.valueOf(packetRecv));
+            int lossRatio = Integer.parseInt(lspPingResultElement.elementText("lossRatio"));
+            sPingLspResultInfo.setLossRatio(String.valueOf(lossRatio));
         } catch (Exception e) {
                 LOG.info(e.toString());
         }

@@ -17,7 +17,7 @@ public class NetConf {
     private Integer port;
     private Address ip;
     private String user;
-    private String password;
+    private String upsrpwd;
     private String routerID;
 
     public NetConf() {
@@ -27,23 +27,23 @@ public class NetConf {
         this.port = 0;
         this.ip = null;
         this.user = null;
-        this.password = null;
+        this.upsrpwd = null;
     }
 
-    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String password) {
+    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String upsrpwd) {
         this.id = id;
         this.device = device;
         this.status = status;
         this.port = port;
         this.ip = ip;
         this.user = user;
-        this.password = password;
+        this.upsrpwd = upsrpwd;
     }
-    public NetConf(String ip,  Integer port,  String user, String password)
+    public NetConf(String ip,  Integer port,  String user, String upsrpwd)
     {
         this.port = port;
         this.user = user;
-        this.password = password;
+        this.upsrpwd = upsrpwd;
         this.ip = new Address(ip, AddressTypeEnum.V4);
     }
     public Integer getId() {
@@ -95,11 +95,19 @@ public class NetConf {
     }
 
     public String getPassword() {
-        return password;
+        return upsrpwd;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.upsrpwd = upsrpwd;
+    }
+
+    public String getUpsrpwd() {
+        return upsrpwd;
+    }
+
+    public void setUpsrpwd(String upsrpwd) {
+        this.upsrpwd = upsrpwd;
     }
 
     public String getRouterID() {
