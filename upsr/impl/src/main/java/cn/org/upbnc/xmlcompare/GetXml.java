@@ -27,7 +27,12 @@ public class GetXml {
                 org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
                 Element root = document.getRootElement();
                 List<Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements().get(0).elements();
-                Element element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                Element element;
+                if (ActionTypeEnum.delete == actionTypeEnum) {
+                    element = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                } else {
+                    element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                }
                 srTeTunnel = new SSrTeTunnel();
                 srTeTunnel.setTunnelName(element.elementText("tunnelName"));
                 srTeTunnel.setMplsTunnelEgressLSRId(element.elementText("mplsTunnelEgressLSRId"));
@@ -137,7 +142,6 @@ public class GetXml {
                     child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
                 }
                 if ("_public_".equals(child.elementText("vrfName"))) {
-//                        LOG.info("this instance is invalid.");
                 } else {
                     bgpVrf = new BgpVrf();
                     NetworkRoutes = new ArrayList<>();
@@ -173,7 +177,6 @@ public class GetXml {
                                     NetworkRoutes.add(networkRoute);
                                 }
                             } else {
-//                                    LOG.info("networkRoutes is null.");
                             }
                             for (org.dom4j.Element child1 : child.elements("bgpVrfAFs").get(0).elements().get(0).elements("importRoutes").get(0).elements()) {
                                 importRoute = new ImportRoute(child1.elementText("importProtocol"), child1.elementText("importProcessId"));
@@ -197,7 +200,6 @@ public class GetXml {
                     }
                 }
             } catch (Exception e) {
-//                LOG.info(e.toString());
             }
         }
         return bgpVrfs;
@@ -392,6 +394,33 @@ public class GetXml {
             }
             netconfSrLabelInfo.setAdjLowerSid(child.elementText("lowerSid"));
             netconfSrLabelInfo.setAdjUpperSid(child.elementText("upperSid"));
+        } catch (Exception e) {
+        }
+        return netconfSrLabelInfo;
+    }
+
+    public static NetconfSrLabelInfo getSynSrSRGBRangeFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        NetconfSrLabelInfo netconfSrLabelInfo = new NetconfSrLabelInfo();
+        if ("".equals(xml)) {
+            return null;
+        }
+        try {
+            SAXReader reader = new SAXReader();
+            org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            List<Element> childElements = root.elements().get(0).elements().get(0).elements();
+            Element child;
+            if (ActionTypeEnum.modify == actionTypeEnum) {
+                child = childElements.get(attributes.get(attributes.size() - 4).getIndex() - 1);
+            } else {
+                child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+            }
+            List<SSrgbRange> srgbRangeList = new ArrayList<>();
+            SSrgbRange sSrgbRange = new SSrgbRange();
+            sSrgbRange.setSrgbBegin(child.elementText("beginSid"));
+            sSrgbRange.setSrgbEnd(child.elementText("endSid"));
+            srgbRangeList.add(sSrgbRange);
+            netconfSrLabelInfo.setSrgbRangeList(srgbRangeList);
         } catch (Exception e) {
         }
         return netconfSrLabelInfo;
