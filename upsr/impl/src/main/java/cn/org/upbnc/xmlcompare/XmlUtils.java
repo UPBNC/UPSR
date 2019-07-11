@@ -56,9 +56,7 @@ public class XmlUtils {
                             actionEntity.setPath(difference1.getTestNodeDetail().getXpathLocation());
                         }
                     } else {
-                        System.out.println("difference.getDescription() :" + difference.getDescription());
                         actionEntity.setAction(ActionTypeEnum.unknown);
-                        System.out.println("others");
                     }
                 }
             }
