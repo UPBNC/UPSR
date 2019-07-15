@@ -61,19 +61,19 @@ module upsrTunnel {
     }
     rpc updateTunnelInstance {
         input {
-            uses tunnelInstance;
+        //    uses tunnelInstance;
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
     rpc deleteTunnelInstance {
         input {
-            leaf routerId { type string; }
-            leaf tunnelName { type string; }
+        //    leaf routerId { type string; }
+        //    leaf tunnelName { type string; }
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
 

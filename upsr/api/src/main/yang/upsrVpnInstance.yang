@@ -118,27 +118,27 @@ module upsrVpnInstance {
     rpc delVpnInstance
     {
         input {
-            leaf routerId { type string; }
-            leaf vpnName { type string; }
+        //    leaf routerId { type string; }
+        //    leaf vpnName { type string; }
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
     rpc updateVpnInstance{
         input {
-            container vpnInstance {
-                leaf vpnName { type string; }
-                leaf vpnRt { type string; }
-                leaf businessArea { type string; }
-                leaf notes { type string; }
-                leaf useTemplate { type string; }
-                uses updateBindDevices;
-            }
+        //    container vpnInstance {
+        //        leaf vpnName { type string; }
+        //        leaf vpnRt { type string; }
+        //        leaf businessArea { type string; }
+        //        leaf notes { type string; }
+        //        leaf useTemplate { type string; }
+        //        uses updateBindDevices;
+        //    }
         }
         output {
-            leaf result { type string; }
-            leaf message { type string; }
+        //    leaf result { type string; }
+        //    leaf message { type string; }
         }
     }
     rpc getVpnInstance{

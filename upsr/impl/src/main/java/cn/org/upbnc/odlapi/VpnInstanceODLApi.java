@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.ebgpinfo.EbgpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatebinddevices.DeviceBind;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatebinddevices.devicebind.BindIfNet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatevpninstance.input.VpnInstance;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.updatevpninstance.input.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.BindInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.BindInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrvpninstance.rev181119.vpninstanceinfo.NetSegment;
@@ -189,13 +189,13 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
     }
 
     public Future<RpcResult<DelVpnInstanceOutput>> delVpnInstance(DelVpnInstanceInput input) {
-        boolean ret = false;
+//        boolean ret = false;
         DelVpnInstanceOutputBuilder vpnInstanceDelOutputBuilder = new DelVpnInstanceOutputBuilder();
 
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
-        if (SystemStatusEnum.ON != this.session.getStatus()) {
+        /*if (SystemStatusEnum.ON != this.session.getStatus()) {
             vpnInstanceDelOutputBuilder.setResult("System is not ready or shutdown");
             return RpcResultBuilder.success(vpnInstanceDelOutputBuilder.build()).buildFuture();
         } else {
@@ -210,7 +210,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
         }
         //以下是业务代码
         vpnInstanceDelOutputBuilder.setResult("failed");
-
+        */
         return RpcResultBuilder.success(vpnInstanceDelOutputBuilder.build()).buildFuture();
     }
 
@@ -226,10 +226,10 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
     }
 
     public Future<RpcResult<UpdateVpnInstanceOutput>> updateVpnInstance(UpdateVpnInstanceInput input) {
-        boolean ret = false;
+//        boolean ret = false;
 
         UpdateVpnInstanceOutputBuilder vpnInstanceUpdateOutputBuilder = new UpdateVpnInstanceOutputBuilder();
-        LOG.info("enter vpnInstanceUpdate");
+        /*LOG.info("enter vpnInstanceUpdate");
         // 判断系统是否准备完毕：
         // 系统状态，未准备完毕返回失败
         // 系统状态，准备成功调用API
@@ -405,7 +405,7 @@ public class VpnInstanceODLApi implements UpsrVpnInstanceService {
                 }
             }
         }
-//        vpnInstanceUpdateOutputBuilder.setResult("failed");
+//        vpnInstanceUpdateOutputBuilder.setResult("failed");*/
         return RpcResultBuilder.success(vpnInstanceUpdateOutputBuilder.build()).buildFuture();
     }
 

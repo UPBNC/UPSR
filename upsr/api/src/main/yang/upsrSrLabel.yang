@@ -45,10 +45,10 @@ module upsrSrLabel {
     }
     rpc updateSrgbLabel {
         input {
-            uses srgbLabelInfo;
+        //    uses srgbLabelInfo;
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
     rpc getSrgbLabel {
@@ -62,10 +62,10 @@ module upsrSrLabel {
     }
     rpc updateIntfLabel {
         input {
-            uses intfLabelInfo;
+        //    uses intfLabelInfo;
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
     rpc getIntfLabel {
@@ -80,13 +80,13 @@ module upsrSrLabel {
     }
     rpc updateSrLabel {
         input {
-            uses srgbLabelInfo;
-            list intfLabel {
-                uses intfLabelInfo;
-            }
+        //    uses srgbLabelInfo;
+        //    list intfLabel {
+        //        uses intfLabelInfo;
+        //    }
         }
         output {
-            leaf result { type string; }
+        //    leaf result { type string; }
         }
     }
 }

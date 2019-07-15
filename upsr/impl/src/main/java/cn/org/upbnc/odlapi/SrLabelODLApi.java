@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrla
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.SrgbPrefixSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.srgbprefixsid.SrgbRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.srglobal.srgbprefixsid.SrgbRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.updatesrlabel.input.IntfLabel;
+//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.updatesrlabel.input.IntfLabel;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -123,7 +123,7 @@ public class SrLabelODLApi implements UpsrSrLabelService {
     public Future<RpcResult<UpdateSrLabelOutput>> updateSrLabel(UpdateSrLabelInput input) {
         UpdateSrLabelOutputBuilder updateSrLabelOutputBuilder = new UpdateSrLabelOutputBuilder();
         LOG.info("updateSrLabel begin");
-        if (SystemStatusEnum.ON != this.session.getStatus()) {
+        /*if (SystemStatusEnum.ON != this.session.getStatus()) {
             return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
         } else {
             this.getSrLabelApi();
@@ -138,10 +138,10 @@ public class SrLabelODLApi implements UpsrSrLabelService {
         } else if (input.getSrEnabled().equals(SrStatusEnum.ENABLED.getName())) {
             updateSrLabelOutputBuilder.setResult(this.enableSrLabel(input));
         }
-        LOG.info("updateSrLabel end");
+        LOG.info("updateSrLabel end");*/
         return RpcResultBuilder.success(updateSrLabelOutputBuilder.build()).buildFuture();
     }
-    private String disableSrLabel(UpdateSrLabelInput input) {
+    /*private String disableSrLabel(UpdateSrLabelInput input) {
         String resultString = "";
         List<IntfLabel> intfLabelList = input.getIntfLabel();
         Map<String, Object> updateLabelRet = srLabelApi.updateNodeLabel(input.getRouterId(), input.getSrgbPrefixSid().getSrgbBegin(),
@@ -203,5 +203,5 @@ public class SrLabelODLApi implements UpsrSrLabelService {
             return resultString;
         }
         return CodeEnum.SUCCESS.getMessage();
-    }
+    }*/
 }
