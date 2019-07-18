@@ -17,7 +17,7 @@ public class NetConf {
     private Integer port;
     private Address ip;
     private String user;
-    private String upsrpwd;
+    private String upsrStaticChek;
     private String routerID;
 
     public NetConf() {
@@ -27,23 +27,23 @@ public class NetConf {
         this.port = 0;
         this.ip = null;
         this.user = null;
-        this.upsrpwd = null;
+        this.upsrStaticChek = null;
     }
 
-    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String upsrpwd) {
+    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String upsrStaticChek) {
         this.id = id;
         this.device = device;
         this.status = status;
         this.port = port;
         this.ip = ip;
         this.user = user;
-        this.upsrpwd = upsrpwd;
+        this.upsrStaticChek = upsrStaticChek;
     }
-    public NetConf(String ip,  Integer port,  String user, String upsrpwd)
+    public NetConf(String ip,  Integer port,  String user, String upsrStaticChek)
     {
         this.port = port;
         this.user = user;
-        this.upsrpwd = upsrpwd;
+        this.upsrStaticChek = upsrStaticChek;
         this.ip = new Address(ip, AddressTypeEnum.V4);
     }
     public Integer getId() {
@@ -94,20 +94,20 @@ public class NetConf {
         this.user = user;
     }
 
-    public String getPassword() {
-        return upsrpwd;
+    public String getUpsrStaticChek() {
+        return upsrStaticChek;
     }
 
-    public void setPassword(String password) {
-        this.upsrpwd = upsrpwd;
+    public void setUpsrStaticChek(String upsrStaticChek) {
+        this.upsrStaticChek = upsrStaticChek;
     }
 
     public String getUpsrpwd() {
-        return upsrpwd;
+        return upsrStaticChek;
     }
 
-    public void setUpsrpwd(String upsrpwd) {
-        this.upsrpwd = upsrpwd;
+    public void setUpsrpwd(String upsrStaticChek) {
+        this.upsrStaticChek = upsrStaticChek;
     }
 
     public String getRouterID() {
