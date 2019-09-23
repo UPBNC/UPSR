@@ -1,0 +1,61 @@
+module upsrTrafficPolicy {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrTrafficPolicy";
+    prefix "upsrTrafficPolicy";
+
+    revision "2019-09-23" { // TODO change revision to date of model creation
+        description "Initial revision of upsrTrafficPolicy model";
+    }
+
+    grouping aclInfo {
+        leaf name { type string; }
+        list rules {
+            leaf ruleId { type string; }
+            leaf ruleType { type string; }
+            leaf protoType { type string; }
+            leaf source { type string; }
+            leaf sourcePort { type string; }
+            leaf destination { type string; }
+            leaf destinationPort { type string; }
+        }
+    }
+
+    rpc addAclInfo {
+        input {
+            uses aclInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc updateAclInfo {
+        input {
+            uses aclInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc deleteAclInfo {
+        input {
+            leaf name { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc getAclInfo {
+        input {
+            leaf name { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list ruleList {
+                uses aclInfo;
+            }
+        }
+    }
+}

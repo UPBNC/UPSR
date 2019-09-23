@@ -17,6 +17,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.UpsrActionCfgService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrinterface.rev181119.UpsrInterfaceService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrmonitor.rev190923.UpsrMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrrouterpolicy.rev120222.UpsrRouterPolicyService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrsrlabel.rev181126.UpsrSrLabelService;
@@ -50,6 +51,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrRouterPolicyService> upsrRouterPolicyServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrStatisticService> upsrStatisticServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrActionCfgService> actionCfgServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrMonitorService> monitorServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -98,6 +100,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrRouterPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrRouterPolicyService.class, new RouterPolicyODLApi(this.upsr));
         this.upsrStatisticServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrStatisticService.class, new StatisticODLApi(this.upsr));
         this.actionCfgServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrActionCfgService.class, new ActionCfgODLApi(this.upsr));
+        this.monitorServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrMonitorService.class, new MonitorInterfaseODLApi(this.upsr));
     }
 
     private void closeServices() {
@@ -114,6 +117,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrRouterPolicyServiceRpcRegistration.close();
         this.upsrStatisticServiceRpcRegistration.close();
         this.actionCfgServiceRpcRegistration.close();
+        this.monitorServiceRpcRegistration.close();
     }
 
 }

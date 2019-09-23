@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 public class ActionCfgODLApi implements UpsrActionCfgService {
-    private static final Logger LOG = LoggerFactory.getLogger(NetconfSessionODLApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionCfgODLApi.class);
     Session session;
     ActionCfgApi actionCfgApi;
 

@@ -1,0 +1,49 @@
+module upsrMonitor {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrMonitor";
+    prefix "upsrMonitor";
+
+    revision "2019-09-23" { // TODO change revision to date of model creation
+        description "Initial revision of upsrMonitor model";
+    }
+
+    rpc getIfStatistics {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list routerListIf {
+                leaf routerId { type string; }
+                list ifList {
+                    leaf ifName { type string; }
+                    leaf phyStatus { type string; }
+                    leaf proStatus { type string; }
+                    leaf totalBandwidth { type string; }
+                    leaf usedBandwidth { type string; }
+                }
+            }
+        }
+    }
+
+    rpc getTunnelStatistics {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list routerListTunnel {
+                leaf routerId { type string; }
+                list tunnelList {
+                    leaf ifName { type string; }
+                    leaf phyStatus { type string; }
+                    leaf proStatus { type string; }
+                    leaf totalBandwidth { type string; }
+                    leaf usedBandwidth { type string; }
+                    leaf linkMainStatus { type string; }
+                    leaf linkBackStatus { type string; }
+                }
+            }
+        }
+    }
+}
