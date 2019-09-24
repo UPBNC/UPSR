@@ -8,19 +8,60 @@ module upsrTrafficPolicy {
     }
 
     grouping aclInfo {
-        leaf name { type string; }
-        list rules {
-            leaf ruleId { type string; }
-            leaf ruleType { type string; }
-            leaf protoType { type string; }
-            leaf source { type string; }
-            leaf sourcePort { type string; }
-            leaf destination { type string; }
-            leaf destinationPort { type string; }
+        leaf routerId { type string; }
+        list aclEntries {
+            leaf aclName { type string; }
+            list rules {
+                leaf ruleId { type string; }
+                leaf ruleType { type string; }
+                leaf protoType { type string; }
+                leaf source { type string; }
+                leaf sourcePort { type string; }
+                leaf destination { type string; }
+                leaf destinationPort { type string; }
+            }
         }
     }
 
-    rpc addAclInfo {
+    grouping trafficClassInfo {
+        leaf routerId { type string; }
+        list trafficClassEntries {
+            leaf className { type string; }
+            leaf operator { type string; description "Specify the operation relation for classification rules"; }
+            list matches {
+                leaf aclName { type string; }
+            }
+        }
+    }
+
+    grouping trafficBehaveInfo {
+        leaf routerId { type string; }
+        list trafficBehaveEntries {
+            leaf behaveName { type string; }
+            leaf tunnelName { type string; }
+        }
+    }
+
+    grouping trafficPolicyInfo {
+        leaf routerId { type string; }
+        list trafficPolicyEntries {
+            leaf policyName { type string; }
+            list policy {
+                leaf className { type string; }
+                leaf behaveName { type string; }
+            }
+        }
+    }
+
+    grouping ifPolicyInfo {
+        leaf routerId { type string; }
+        list ifPolicyEntries {
+            leaf ifName { type string; }
+            leaf policyName { type string; }
+        }
+    }
+
+    rpc addAcl {
         input {
             uses aclInfo;
         }
@@ -28,8 +69,7 @@ module upsrTrafficPolicy {
             leaf result { type string; }
         }
     }
-
-    rpc updateAclInfo {
+    rpc updateAcl {
         input {
             uses aclInfo;
         }
@@ -37,24 +77,176 @@ module upsrTrafficPolicy {
             leaf result { type string; }
         }
     }
-
-    rpc deleteAclInfo {
+    rpc deleteAcl {
         input {
-            leaf name { type string; }
+            leaf routerId { type string; }
+            leaf aclName { type string; }
         }
         output {
             leaf result { type string; }
         }
     }
-    rpc getAclInfo {
+    rpc getAcl {
         input {
-            leaf name { type string; }
+            leaf aclName { type string; }
             leaf routerId { type string; }
         }
         output {
             leaf result { type string; }
-            list ruleList {
+            list aclRouters {
                 uses aclInfo;
+            }
+        }
+    }
+
+    rpc addTrafficClass {
+        input {
+            uses trafficClassInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc updateTrafficClass{
+        input {
+            uses trafficClassInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc deleteTrafficClass{
+        input {
+            leaf className { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc getTrafficClass{
+        input {
+            leaf className { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list trafficClassRouters {
+                uses trafficClassInfo;
+            }
+        }
+    }
+
+    rpc addTrafficBehave {
+        input {
+            uses trafficBehaveInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc updateTrafficBehave {
+        input {
+            uses trafficBehaveInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc deleteTrafficBehave {
+        input {
+            leaf behaveName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc getTrafficBehave {
+        input {
+            leaf behaveName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list trafficBehaveRouters {
+                uses trafficBehaveInfo;
+            }
+        }
+    }
+
+    rpc addTrafficPolicy {
+        input {
+            uses trafficPolicyInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc updateTrafficPolicy {
+        input {
+            uses trafficPolicyInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc deleteTrafficPolicy {
+        input {
+            leaf policyName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc getTrafficPolicy {
+        input {
+            leaf policyName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list trafficPolicyRouters {
+                uses trafficPolicyInfo;
+            }
+        }
+    }
+
+    rpc addIfPolicy {
+        input {
+            uses ifPolicyInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc updateIfPolicy {
+        input {
+            uses ifPolicyInfo;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc deleteIfPolicy {
+        input {
+            leaf ifName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+    rpc getIfPolicy {
+        input {
+            leaf ifName { type string; }
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list ifPolicyRouters {
+                uses ifPolicyInfo;
             }
         }
     }
