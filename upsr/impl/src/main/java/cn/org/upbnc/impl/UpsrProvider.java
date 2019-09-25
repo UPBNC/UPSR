@@ -14,6 +14,7 @@ import cn.org.upbnc.xmlcompare.XMLCompareTest;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrauth.rev170830.UpsrAuthService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.UpsrActionCfgService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrinterface.rev181119.UpsrInterfaceService;
@@ -52,6 +53,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrRouterPolicyService> upsrRouterPolicyServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrStatisticService> upsrStatisticServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrActionCfgService> actionCfgServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrAuthService> upsrAuthServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrMonitorService> monitorServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrTrafficPolicyService> trafficPolicyServiceRpcRegistration;
     //...
@@ -75,6 +77,8 @@ public class UpsrProvider implements AutoCloseable {
 //        statisticsThread = new StatisticsThread();
 //        statisticsThread.start();
 //        XMLCompareTest.test();
+//        statisticsThread = new StatisticsThread();
+//        statisticsThread.start();
         LOG.info("Upsr Session Initiated End!");
     }
 
@@ -102,6 +106,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrRouterPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrRouterPolicyService.class, new RouterPolicyODLApi(this.upsr));
         this.upsrStatisticServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrStatisticService.class, new StatisticODLApi(this.upsr));
         this.actionCfgServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrActionCfgService.class, new ActionCfgODLApi(this.upsr));
+        this.upsrAuthServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrAuthService.class, new UpsrAuthODLAPI(this.upsr));
         this.monitorServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrMonitorService.class, new MonitorInterfaseODLApi(this.upsr));
         this.trafficPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTrafficPolicyService.class, new TrafficPolicyODLApi(this.upsr));
     }
@@ -120,6 +125,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrRouterPolicyServiceRpcRegistration.close();
         this.upsrStatisticServiceRpcRegistration.close();
         this.actionCfgServiceRpcRegistration.close();
+        this.upsrAuthServiceRpcRegistration.close();
         this.monitorServiceRpcRegistration.close();
         this.trafficPolicyServiceRpcRegistration.close();
     }

@@ -51,6 +51,10 @@ public class SrLabelApiImpl implements SrLabelApi {
     public Map<String, Object> updateNodeLabel(String routerId, String labelBegin, String labelValAbs, String action) {
         Map<String, Object> resultMap = new HashMap<>();
         if (action.equals(SrLabelXml.ncOperationMerge) &&
+                (((labelBegin == null) && (labelValAbs == null)) || (labelBegin.equals("") && labelValAbs.equals("")))) {
+            return srLabelService.updateNodeLabel(routerId, "", SrLabelXml.ncOperationDelete);
+        }
+        if (action.equals(SrLabelXml.ncOperationMerge) &&
                 ((labelBegin == null) || (labelValAbs == null) || labelBegin.equals("") || labelValAbs.equals(""))) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.MESSAGE.getName(), SrLabelErrorCodeEnum.INPUT_INVALID.getMessage());
@@ -72,6 +76,10 @@ public class SrLabelApiImpl implements SrLabelApi {
     @Override
     public Map<String, Object> updateNodeLabelRange(String routerId, String labelBegin, String labelEnd, String action) {
         Map<String, Object> resultMap = new HashMap<>();
+        if (action.equals(SrLabelXml.ncOperationMerge) &&
+                (((labelBegin == null) && (labelEnd == null)) || (labelBegin.equals("") && labelEnd.equals("")))) {
+            return srLabelService.updateNodeLabelRange(routerId, "", "", SrLabelXml.ncOperationDelete);
+        }
         if (action.equals(SrLabelXml.ncOperationMerge) &&
                 ((labelBegin == null) || (labelEnd == null) || labelBegin.equals("") || labelEnd.equals(""))) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());

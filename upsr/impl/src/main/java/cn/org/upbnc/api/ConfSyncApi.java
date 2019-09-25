@@ -11,5 +11,5 @@ import cn.org.upbnc.service.ServiceInterface;
 
 public interface ConfSyncApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
-    String   syncDeviceConf();
+    String   syncDeviceConf(String type);
 }
