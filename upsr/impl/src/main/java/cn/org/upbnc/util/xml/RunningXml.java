@@ -31,6 +31,19 @@ public class RunningXml {
                 "      </ifm:ifm>\n" +
                 "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "        <mpls:mplsTe>\n" +
+                "          <mpls:explicitPaths>\n" +
+                "            <mpls:explicitPath>\n" +
+                "              <mpls:explicitPathName></mpls:explicitPathName>\n" +
+                "              <mpls:explicitPathHops>\n" +
+                "                <mpls:explicitPathHop>\n" +
+                "                  <mpls:mplsTunnelHopIndex></mpls:mplsTunnelHopIndex>\n" +
+                "                  <mpls:mplsTunnelHopMode></mpls:mplsTunnelHopMode>\n" +
+                "                  <mpls:mplsTunnelHopSidLabel></mpls:mplsTunnelHopSidLabel>\n" +
+                "                  <mpls:mplsTunnelHopSidLabelType></mpls:mplsTunnelHopSidLabelType>\n" +
+                "                </mpls:explicitPathHop>\n" +
+                "              </mpls:explicitPathHops>\n" +
+                "            </mpls:explicitPath>\n" +
+                "          </mpls:explicitPaths>\n" +
                 "          <mpls:srTeTunnels>\n" +
                 "            <mpls:srTeTunnel>\n" +
                 "              <mpls:tunnelName/>\n" +
@@ -101,5 +114,80 @@ public class RunningXml {
                 "</rpc>";
         return xml;
     }
-
+    public static String getRunningVpnXml() {
+        String xml = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <running/>\n" +
+                "    </source>\n" +
+                "    <filter type=\"subtree\">\n" +
+                "      <bgp:bgp xmlns:bgp=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
+                "        <bgp:bgpcomm>\n" +
+                "          <bgp:bgpVrfs>\n" +
+                "            <bgp:bgpVrf>\n" +
+                "              <bgp:vrfName></bgp:vrfName>\n" +
+                "              <bgp:bgpPeers>\n" +
+                "                <bgp:bgpPeer>\n" +
+                "                  <bgp:peerAddr></bgp:peerAddr>\n" +
+                "                  <bgp:remoteAs></bgp:remoteAs>\n" +
+                "                </bgp:bgpPeer>\n" +
+                "              </bgp:bgpPeers>\n" +
+                "              <bgp:bgpVrfAFs>\n" +
+                "                <bgp:bgpVrfAF>\n" +
+                "                  <bgp:afType></bgp:afType>\n" +
+                "                  <bgp:importRoutes>\n" +
+                "                    <bgp:importRoute>\n" +
+                "                      <bgp:importProtocol></bgp:importProtocol>\n" +
+                "                      <bgp:importProcessId></bgp:importProcessId>\n" +
+                "                    </bgp:importRoute>\n" +
+                "                  </bgp:importRoutes>\n" +
+                "                  <bgp:networkRoutes>\n" +
+                "                    <bgp:networkRoute>\n" +
+                "                      <bgp:networkAddress></bgp:networkAddress>\n" +
+                "                      <bgp:maskLen></bgp:maskLen>\n" +
+                "                    </bgp:networkRoute>\n" +
+                "                  </bgp:networkRoutes>\n" +
+                "                </bgp:bgpVrfAF>\n" +
+                "              </bgp:bgpVrfAFs>\n" +
+                "            </bgp:bgpVrf>\n" +
+                "          </bgp:bgpVrfs>\n" +
+                "        </bgp:bgpcomm>\n" +
+                "      </bgp:bgp>\n" +
+                "      <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "        <ifm:interfaces>\n" +
+                "          <ifm:interface>\n" +
+                "            <ifm:ipv4Config></ifm:ipv4Config>\n" +
+                "          </ifm:interface>\n" +
+                "        </ifm:interfaces>\n" +
+                "      </ifm:ifm>\n" +
+                "      <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
+                "        <l3vpncomm>\n" +
+                "          <l3vpnInstances>\n" +
+                "            <l3vpnInstance>\n" +
+                "              <vrfName/>\n" +
+                "              <vrfDescription/>\n" +
+                "              <trafficStatisticEnable/>\n" +
+                "              <vpnInstAFs>\n" +
+                "                <vpnInstAF xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "                  <afType>ipv4uni</afType>\n" +
+                "                  <vrfRD/>\n" +
+                "                  <vpnFrr/>\n" +
+                "                  <vrfLabelMode/>\n" +
+                "                  <tnlPolicyName/>\n" +
+                "                  <l3vpnTtlMode>\n" +
+                "                    <ttlMode></ttlMode>\n" +
+                "                  </l3vpnTtlMode>\n" +
+                "                  <vpnTargets/>\n" +
+                "                </vpnInstAF>\n" +
+                "              </vpnInstAFs>\n" +
+                "              <l3vpnIfs/>\n" +
+                "            </l3vpnInstance>\n" +
+                "          </l3vpnInstances>\n" +
+                "        </l3vpncomm>\n" +
+                "      </l3vpn>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>";
+        return xml;
+    }
 }

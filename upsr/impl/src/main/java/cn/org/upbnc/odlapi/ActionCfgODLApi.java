@@ -3,6 +3,7 @@ package cn.org.upbnc.odlapi;
 import cn.org.upbnc.api.APIInterface;
 import cn.org.upbnc.api.ActionCfgApi;
 import cn.org.upbnc.core.Session;
+import cn.org.upbnc.entity.CommandLine;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
@@ -83,11 +84,12 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         }
         if (cfgChaneRet.get(ResponseEnum.CODE.getName()) == CodeEnum.SUCCESS.getName()) {
             List<Command> commandList = new ArrayList<>();
-            for (int i = 1;i<=2;i++) {
+            List<CommandLine> commandLineList = (List<CommandLine>) cfgChaneRet.get(ResponseEnum.MESSAGE.getName());
+            for (CommandLine c : commandLineList) {
                 CommandBuilder commandBuilder = new CommandBuilder();
-                commandBuilder.setDeviceName("shanghai-pe-" + i);
-                commandBuilder.setRouterId("1.1.1." + i);
-                this.commandChangeBuild(commandBuilder, (List<String>) cfgChaneRet.get(ResponseEnum.MESSAGE.getName()));
+                commandBuilder.setDeviceName(c.getDeviceName());
+                commandBuilder.setRouterId(c.getRouterId());
+                this.commandChangeBuild(commandBuilder, c.getCliList());
                 commandList.add(commandBuilder.build());
             }
             getCfgChangeOutputBuilder.setCommand(commandList);

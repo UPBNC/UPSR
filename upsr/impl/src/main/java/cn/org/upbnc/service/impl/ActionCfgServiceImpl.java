@@ -5,6 +5,8 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.cfgcli.srlabelcli.SrlabelCli;
 import cn.org.upbnc.cfgcli.tunnelcli.TunnelCli;
+import cn.org.upbnc.cfgcli.vpncli.VpnCli;
+import cn.org.upbnc.entity.CommandLine;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.enumtype.CfgTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
@@ -56,26 +58,40 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     @Override
     public Map<String, Object> getCfgChane(String routerId, String cfgType) {
         Map<String, Object> resultMap = new HashMap<>();
+        List<CommandLine> commandLineList = new ArrayList<>();
+        List<Device> deviceList = new ArrayList<>();
         Device device = deviceManager.getDevice(routerId);
-        String candidateCfg = this.getCandidateCfgXml(device,cfgType);
-        String runningCfg = this.getRunningCfgXml(device,cfgType);
-
-        LOG.info("candidateCfg : \n" + candidateCfg);
-        LOG.info("runningCfg : \n" + runningCfg);
-        List<String> cliList = new ArrayList<>();
-
-        if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
-            cliList.addAll(SrlabelCli.srLabelCfgCli(candidateCfg, runningCfg));
-        } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
-            cliList.addAll(TunnelCli.tunnelCfgCli(candidateCfg, runningCfg));
+        if (device == null) {
+            deviceList = deviceManager.getDeviceList();
         } else {
-            String xml1 = Util.candidate();
-            String xml2 = Util.modify();
-            cliList.addAll(TunnelCli.tunnelCfgCliTest(xml1, xml2));
-            cliList.addAll(SrlabelCli.srLabelCfgCliTest());
+            deviceList.add(device);
+        }
+        for (Device d :deviceList) {
+            CommandLine commandLine = new CommandLine();
+            String candidateCfg = this.getCandidateCfgXml(d, cfgType);
+            String runningCfg = this.getRunningCfgXml(d, cfgType);
+            LOG.info("candidateCfg : \n" + candidateCfg);
+            LOG.info("runningCfg : \n" + runningCfg);
+            commandLine.setDeviceName(d.getDeviceName());
+            commandLine.setRouterId(d.getRouterId());
+            if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
+                commandLine.getCliList().addAll(SrlabelCli.srLabelCfgCli(candidateCfg, runningCfg));
+            } else if (cfgType.equals(CfgTypeEnum.VPN.getCfgType())) {
+                commandLine.getCliList().addAll(VpnCli.vpnCfgCli(candidateCfg, runningCfg));
+            } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
+                commandLine.getCliList().addAll(TunnelCli.tunnelCfgCli(candidateCfg, runningCfg));
+            } else {
+                String xml1 = Util.candidate();
+                String xml2 = Util.modify();
+                commandLine.getCliList().addAll(TunnelCli.tunnelCfgCliTest(xml1, xml2));
+                commandLine.getCliList().addAll(SrlabelCli.srLabelCfgCliTest());
+            }
+            if (commandLine.getCliList().size() != 0 ) {
+                commandLineList.add(commandLine);
+            }
         }
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.MESSAGE.getName(), cliList);
+        resultMap.put(ResponseEnum.MESSAGE.getName(), commandLineList);
         return resultMap;
     }
 
@@ -83,10 +99,18 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     public Map<String, Object> commitCfgChane(String routerId, String cfgType) {
         Map<String, Object> resultMap = new HashMap<>();
         String commitXml = ActionCfgXml.getCommitCfgXml();
+        List<Device> deviceList = new ArrayList<>();
         Device device = deviceManager.getDevice(routerId);
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        String outPutXml = netconfController.sendMessage(netconfClient, commitXml);
-        LOG.info(outPutXml);
+        if (device == null) {
+            deviceList = deviceManager.getDeviceList();
+        } else {
+            deviceList.add(device);
+        }
+        for (Device d :deviceList) {
+            NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
+            String outPutXml = netconfController.sendMessage(netconfClient, commitXml);
+            LOG.info(outPutXml);
+        }
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
     }
@@ -95,18 +119,28 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     public Map<String, Object> cancelCfgChane(String routerId, String cfgType) {
         Map<String, Object> resultMap = new HashMap<>();
         String cancelXml = ActionCfgXml.getCancelCfgXml();
+        List<Device> deviceList = new ArrayList<>();
         Device device = deviceManager.getDevice(routerId);
-        NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        String outPutXml = netconfController.sendMessage(netconfClient, cancelXml);
-        LOG.info(outPutXml);
+        if (device == null) {
+            deviceList = deviceManager.getDeviceList();
+        } else {
+            deviceList.add(device);
+        }
+        for (Device d :deviceList) {
+            NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
+            String outPutXml = netconfController.sendMessage(netconfClient, cancelXml);
+            LOG.info(outPutXml);
+        }
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
     }
 
     private String getCandidateCfgXml(Device device, String cfgType) {
-        String xml;
+        String xml = null;
         if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
             xml = CandidateXml.getCandidateSrLabelXml();
+        } else if (cfgType.equals(CfgTypeEnum.VPN.getCfgType())) {
+            xml = CandidateXml.getCandidateVpnXml();
         } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
             xml = CandidateXml.getCandidateTunnelXml();
         } else {
@@ -121,7 +155,9 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String xml;
         if (cfgType.equals(CfgTypeEnum.SR_LABEL.getCfgType())) {
             xml = RunningXml.getRunningSrLabelXml();
-        } else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
+        } else if (cfgType.equals(CfgTypeEnum.VPN.getCfgType())) {
+            xml = RunningXml.getRunningVpnXml();
+        }else if (cfgType.equals(CfgTypeEnum.SR_TUNNEL.getCfgType())) {
             xml = RunningXml.getRunningTunnelXml();
         } else {
 //            xml = RunningXml.getRunningXml();

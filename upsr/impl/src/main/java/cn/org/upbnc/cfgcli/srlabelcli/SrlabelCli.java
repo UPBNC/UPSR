@@ -1,5 +1,6 @@
 package cn.org.upbnc.cfgcli.srlabelcli;
 
+import cn.org.upbnc.entity.CommandLine;
 import cn.org.upbnc.xmlcompare.ActionEntity;
 import cn.org.upbnc.xmlcompare.XmlUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class SrlabelCli {
         return cliList;
     }
     public static List<String> srLabelCfgCli(String candidateCfg, String runningCfg){
+
         List<String> cliList = new ArrayList<>();
         ActionEntity actionEntity = XmlUtils.compare(candidateCfg, runningCfg);
         LOG.info(actionEntity.getPath());
