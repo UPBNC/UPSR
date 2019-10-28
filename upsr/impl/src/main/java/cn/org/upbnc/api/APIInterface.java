@@ -30,6 +30,7 @@ public class APIInterface {
     private RoutePolicyApi routePolicyApi;
     private StatisticsApi statisticsApi;
     private ActionCfgApi actionCfgApi;
+    private TrafficPolicyApi trafficPolicyApi;
 
     public APIInterface() {
         // Service Interface
@@ -48,6 +49,7 @@ public class APIInterface {
         this.tunnelPolicyApi = null;
         this.routePolicyApi = null;
         this.actionCfgApi = null;
+        this.trafficPolicyApi = null;
     }
 
     public void init() {
@@ -65,6 +67,7 @@ public class APIInterface {
             this.routePolicyApi = RoutePolicyApiImpl.getInstance();
             this.statisticsApi = StatisticsApiImpl.getInstance();
             this.actionCfgApi = ActionCfgApiImpl.getInstance();
+            this.trafficPolicyApi = TrafficPolicyApiImpl.getInstance();
             LOG.info("APIInterface init End!");
         } catch (Exception e) {
             LOG.info("APIInterface init Failure!" + e.getMessage());
@@ -88,6 +91,7 @@ public class APIInterface {
             ret = ((true == ret) ? this.routePolicyApi.setServiceInterface(this.serviceInterface) : false);
             ret = ((true == ret) ? this.statisticsApi.setServiceInterface(this.serviceInterface) : false);
             ret = ((true == ret) ? this.actionCfgApi.setServiceInterface(this.serviceInterface) : false);
+            ret = ((true == ret) ? this.trafficPolicyApi.setServiceInterface(this.serviceInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -155,5 +159,9 @@ public class APIInterface {
 
     public ActionCfgApi getActionCfgApi() {
         return actionCfgApi;
+    }
+
+    public TrafficPolicyApi getTrafficPolicyApi() {
+        return trafficPolicyApi;
     }
 }

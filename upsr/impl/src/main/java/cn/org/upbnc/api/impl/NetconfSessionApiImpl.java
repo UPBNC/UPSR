@@ -111,6 +111,10 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         tmpRet += this.serviceInterface.getTunnelService().syncTunnelInstanceConf(routerId) ? " success" : "failed";
         tmpRet += "\n";
         tmpRet += "sync tunnel configure....";
+        tmpRet += "sync traffic policy configure....";
+        tmpRet += this.serviceInterface.getTrafficPolicyService().syncTrafficPolicyConf(routerId) ? " success" : "failed";
+        tmpRet += "\n";
+
         tmpRet += "sync device configure end.";
         return tmpRet;
     }

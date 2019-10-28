@@ -30,6 +30,7 @@ public class ServiceInterface {
     private RoutePolicyService routePolicyService;
     private StatisticService statisticService;
     private ActionCfgService actionCfgService;
+    private TrafficPolicyService trafficPolicyService;
 
 
     public ServiceInterface() {
@@ -46,6 +47,7 @@ public class ServiceInterface {
         this.tunnelPolicyService = null;
         this.routePolicyService = null;
         this.actionCfgService = null;
+        this.trafficPolicyService = null;
     }
 
     public void init() {
@@ -61,6 +63,7 @@ public class ServiceInterface {
             this.routePolicyService = RoutePolicyServiceImpl.getInstance();
             this.statisticService = StatisticServiceImpl.getInstance();
             this.actionCfgService = ActionCfgServiceImpl.getInstance();
+            this.trafficPolicyService = TrafficPolicyServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -85,6 +88,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.routePolicyService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.statisticService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.actionCfgService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.trafficPolicyService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -120,6 +124,7 @@ public class ServiceInterface {
         this.tunnelService.syncTunnelInstanceConf();
         this.tunnelPolicyService.syncTunnelPolicyConf();
         this.routePolicyService.syncRoutePolicyConf();
+        this.trafficPolicyService.syncTrafficPolicyConf("1.1.1.1");
         // Start topology service at last
         this.topoService.startService();
 
@@ -193,5 +198,9 @@ public class ServiceInterface {
             this.actionCfgService = ActionCfgServiceImpl.getInstance();
         }
         return actionCfgService;
+    }
+
+    public TrafficPolicyService getTrafficPolicyService() {
+        return trafficPolicyService;
     }
 }

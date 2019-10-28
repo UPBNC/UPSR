@@ -1,7 +1,11 @@
 package cn.org.upbnc.odlapi;
 
+import cn.org.upbnc.api.APIInterface;
+import cn.org.upbnc.api.TrafficPolicyApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
+import cn.org.upbnc.service.entity.TrafficPolicy.AclInfoServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.aclinfo.AclEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.aclinfo.AclEntriesBuilder;
@@ -36,14 +40,26 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     private static final Logger LOG = LoggerFactory.getLogger(TrafficPolicyODLApi.class);
     Session session;
+    TrafficPolicyApi trafficPolicyApi;
 
     public TrafficPolicyODLApi(Session session) {
         this.session = session;
+    }
+
+    private TrafficPolicyApi getTrafficPolicyApi() {
+        if (this.trafficPolicyApi == null) {
+            APIInterface apiInterface = session.getApiInterface();
+            if (apiInterface != null) {
+                trafficPolicyApi = apiInterface.getTrafficPolicyApi();
+            }
+        }
+        return this.trafficPolicyApi;
     }
     //acl
     @Override
@@ -51,11 +67,18 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         LOG.info("getAcl begin");
         GetAclOutputBuilder getAclOutputBuilder = new GetAclOutputBuilder();
         getAclOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        Map<String, Object> resultMap;
+        resultMap = getTrafficPolicyApi().getAclInfo(input.getRouterId(),input.getAclName());
+
+        Map<String,List<AclInfoServiceEntity>> aclMaps =
+                (Map<String,List<AclInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<AclRouters> aclRoutersList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
+        for (String key : aclMaps.keySet()) {
             AclRoutersBuilder ruleListBuilder = new AclRoutersBuilder();
             List<AclEntries> aclEntriesList = new ArrayList<>();
-            for (int k = 1; k < 3; k++) {
+
+            List<AclInfoServiceEntity> aclInfoServiceEntityList = aclMaps.get(key);
+            for (AclInfoServiceEntity aclInfoServiceEntity : aclInfoServiceEntityList) {
                 AclEntriesBuilder aclEntriesBuilder = new AclEntriesBuilder();
                 List<Rules> rulesList = new ArrayList<>();
                 for (int j = 1; j < 5; j++) {
@@ -69,11 +92,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
                     rulesBuilder.setDestinationPort("11" + j);
                     rulesList.add(rulesBuilder.build());
                 }
-                aclEntriesBuilder.setAclName("acl300" + k);
+                aclEntriesBuilder.setAclName(aclInfoServiceEntity.getAclName());
                 aclEntriesBuilder.setRules(rulesList);
                 aclEntriesList.add(aclEntriesBuilder.build());
             }
-            ruleListBuilder.setRouterId("1.1.1." + i);
+            ruleListBuilder.setRouterId(key);
             ruleListBuilder.setAclEntries(aclEntriesList);
             aclRoutersList.add(ruleListBuilder.build());
         }
