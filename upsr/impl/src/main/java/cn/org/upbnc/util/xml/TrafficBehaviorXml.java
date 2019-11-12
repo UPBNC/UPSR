@@ -1,5 +1,14 @@
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.TrafficPolicy.STrafficBehaveInfo;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.xml.sax.InputSource;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TrafficBehaviorXml {
     public static String getTrafficBehaviorXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
@@ -17,5 +26,29 @@ public class TrafficBehaviorXml {
                 "  </filter>                                                                           \n" +
                 "</get>                                                                                \n" +
                 "</rpc>";
+    }
+
+    public static List<STrafficBehaveInfo> getSTrafficBehaveFromXml(String xml) {
+        List<STrafficBehaveInfo> sTrafficBehaveInfoList = new ArrayList<>();
+
+        if (null == xml || xml.isEmpty()) {//判断xml是否为空
+            return sTrafficBehaveInfoList;
+        }
+        SAXReader reader = new SAXReader();
+        org.dom4j.Document document = null;
+        try {
+            document = reader.read(new InputSource(new StringReader(xml)));
+            Element root = document.getRootElement();
+            List<Element> aclGroupElements = root.element("data").element("acl").element("aclGroups").elements("aclGroup");
+            for (org.dom4j.Element aclGroupElement : aclGroupElements) {
+                STrafficBehaveInfo sTrafficBehaveInfo = new STrafficBehaveInfo();
+                sTrafficBehaveInfo.setTrafficBehaveName(aclGroupElement.elementText("aclNumOrName"));
+
+                sTrafficBehaveInfoList.add(sTrafficBehaveInfo);
+            }
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        return sTrafficBehaveInfoList;
     }
 }

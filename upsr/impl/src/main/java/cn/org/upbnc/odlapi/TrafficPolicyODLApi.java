@@ -5,7 +5,7 @@ import cn.org.upbnc.api.TrafficPolicyApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
-import cn.org.upbnc.service.entity.TrafficPolicy.AclInfoServiceEntity;
+import cn.org.upbnc.service.entity.TrafficPolicy.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.aclinfo.AclEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtrafficpolicy.rev190923.aclinfo.AclEntriesBuilder;
@@ -136,14 +136,20 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         GetTrafficClassOutputBuilder getTrafficClassOutputBuilder = new GetTrafficClassOutputBuilder();
         getTrafficClassOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<TrafficClassRouters> trafficClassRoutersList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
+        Map<String, Object> resultMap;
+        resultMap = getTrafficPolicyApi().getTrafficClassInfo(input.getRouterId(),input.getClassName());
+        Map<String,List<TrafficClassServiceEntity>> trafficClassMaps =
+                (Map<String,List<TrafficClassServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+
+        for (String key : trafficClassMaps.keySet()) {
+            List<TrafficClassServiceEntity> trafficClassServiceEntityList = trafficClassMaps.get(key);
             TrafficClassRoutersBuilder trafficClassRoutersBuilder = new TrafficClassRoutersBuilder();
-            trafficClassRoutersBuilder.setRouterId("1.1.1." + i);
+            trafficClassRoutersBuilder.setRouterId(key);
             List<TrafficClassEntries> trafficClassEntriesList = new ArrayList<>();
-            for (int j = 1; j < 3 ;j ++) {
+            for (TrafficClassServiceEntity trafficClassServiceEntity : trafficClassServiceEntityList) {
                 TrafficClassEntriesBuilder trafficClassEntriesBuilder = new TrafficClassEntriesBuilder();
-                trafficClassEntriesBuilder.setClassName("c" + j);
-                trafficClassEntriesBuilder.setOperator(j%2==0?"and":"or");
+                trafficClassEntriesBuilder.setClassName(trafficClassServiceEntity.getTrafficClassName());
+                trafficClassEntriesBuilder.setOperator(trafficClassServiceEntity.getOperator());
                 List<Matches> matchesList = new ArrayList<>();
                 for (int k = 1; k < 5; k++) {
                     MatchesBuilder matchesBuilder = new MatchesBuilder();
@@ -156,6 +162,7 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
             trafficClassRoutersBuilder.setTrafficClassEntries(trafficClassEntriesList);
             trafficClassRoutersList.add(trafficClassRoutersBuilder.build());
         }
+
         getTrafficClassOutputBuilder.setTrafficClassRouters(trafficClassRoutersList);
         LOG.info("getTrafficClass end");
         return RpcResultBuilder.success(getTrafficClassOutputBuilder.build()).buildFuture();
@@ -215,14 +222,19 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         GetTrafficBehaveOutputBuilder getTrafficBehaveOutputBuilder = new GetTrafficBehaveOutputBuilder();
         getTrafficBehaveOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<TrafficBehaveRouters> trafficBehaveRoutersList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
+        Map<String, Object> resultMap;
+        resultMap = getTrafficPolicyApi().getTrafficBehaveInfo(input.getRouterId(),input.getBehaveName());
+        Map<String,List<TrafficBehaveServiceEntity>> trafficBehaveMaps =
+                (Map<String,List<TrafficBehaveServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        for (String key : trafficBehaveMaps.keySet()) {
+            List<TrafficBehaveServiceEntity> trafficBehaveServiceEntityList = trafficBehaveMaps.get(key);
             TrafficBehaveRoutersBuilder trafficBehaveRoutersBuilder = new TrafficBehaveRoutersBuilder();
-            trafficBehaveRoutersBuilder.setRouterId("1.1.1." + i);
+            trafficBehaveRoutersBuilder.setRouterId(key);
             List<TrafficBehaveEntries> trafficBehaveEntriesList = new ArrayList<>();
-            for (int j = 1; j < 3; j++) {
+            for (TrafficBehaveServiceEntity trafficBehaveServiceEntity : trafficBehaveServiceEntityList) {
                 TrafficBehaveEntriesBuilder trafficBehaveEntriesBuilder = new TrafficBehaveEntriesBuilder();
-                trafficBehaveEntriesBuilder.setBehaveName("be" + j);
-                trafficBehaveEntriesBuilder.setTunnelName("Tunnel_" + j);
+                trafficBehaveEntriesBuilder.setBehaveName(trafficBehaveServiceEntity.getTrafficBehaveName());
+                trafficBehaveEntriesBuilder.setTunnelName(trafficBehaveServiceEntity.getTunnelName());
                 trafficBehaveEntriesList.add(trafficBehaveEntriesBuilder.build());
             }
             trafficBehaveRoutersBuilder.setTrafficBehaveEntries(trafficBehaveEntriesList);
@@ -263,13 +275,19 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         GetTrafficPolicyOutputBuilder getTrafficPolicyOutputBuilder = new GetTrafficPolicyOutputBuilder();
         getTrafficPolicyOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<TrafficPolicyRouters> trafficPolicyRoutersList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
+
+        Map<String, Object> resultMap;
+        resultMap = getTrafficPolicyApi().getTrafficPolicyInfo(input.getRouterId(),input.getPolicyName());
+        Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps =
+                (Map<String,List<TrafficPolicyServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        for (String key : trafficPolicyMaps.keySet()) {
+            List<TrafficPolicyServiceEntity> trafficPolicyServiceEntityList = trafficPolicyMaps.get(key);
             TrafficPolicyRoutersBuilder trafficPolicyRoutersBuilder = new TrafficPolicyRoutersBuilder();
-            trafficPolicyRoutersBuilder.setRouterId("1.1.1." + i);
+            trafficPolicyRoutersBuilder.setRouterId(key);
             List<TrafficPolicyEntries> trafficPolicyEntriesList = new ArrayList<>();
-            for (int j = 1; j < 3; j++) {
+            for (TrafficPolicyServiceEntity trafficPolicyServiceEntity : trafficPolicyServiceEntityList) {
                 TrafficPolicyEntriesBuilder trafficPolicyEntriesBuilder = new TrafficPolicyEntriesBuilder();
-                trafficPolicyEntriesBuilder.setPolicyName("policy_" + j);
+                trafficPolicyEntriesBuilder.setPolicyName(trafficPolicyServiceEntity.getTrafficPolicyName());
                 List<Policy> policyList = new ArrayList<>();
                 for (int k = 1; k < 4; k++) {
                     PolicyBuilder policyBuilder = new PolicyBuilder();
@@ -283,6 +301,7 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
             trafficPolicyRoutersBuilder.setTrafficPolicyEntries(trafficPolicyEntriesList);
             trafficPolicyRoutersList.add(trafficPolicyRoutersBuilder.build());
         }
+
         getTrafficPolicyOutputBuilder.setTrafficPolicyRouters(trafficPolicyRoutersList);
         LOG.info("getTrafficPolicy end");
         return RpcResultBuilder.success(getTrafficPolicyOutputBuilder.build()).buildFuture();
@@ -295,14 +314,20 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         GetIfPolicyOutputBuilder getIfPolicyOutputBuilder = new GetIfPolicyOutputBuilder();
         getIfPolicyOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<IfPolicyRouters> ifPolicyRoutersList = new ArrayList<>();
-        for (int i = 1; i < 3; i++) {
+
+        Map<String, Object> resultMap;
+        resultMap = getTrafficPolicyApi().getTrafficIfPolicyInfo(input.getRouterId(),input.getIfName());
+        Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps =
+                (Map<String,List<TrafficIfPolicyServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        for (String key : trafficIfPolicyMaps.keySet()) {
+            List<TrafficIfPolicyServiceEntity> trafficIfPolicyServiceEntityList = trafficIfPolicyMaps.get(key);
             IfPolicyRoutersBuilder ifPolicyRoutersBuilder = new IfPolicyRoutersBuilder();
-            ifPolicyRoutersBuilder.setRouterId("1.1.1." + i);
+            ifPolicyRoutersBuilder.setRouterId(key);
             List<IfPolicyEntries> ifPolicyEntriesList = new ArrayList<>();
-            for (int j = 1; j < 3; j++) {
+            for (TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity : trafficIfPolicyServiceEntityList) {
                 IfPolicyEntriesBuilder ifPolicyEntriesBuilder = new IfPolicyEntriesBuilder();
-                ifPolicyEntriesBuilder.setIfName("interface G0/0/" + j);
-                ifPolicyEntriesBuilder.setPolicyName("policy" + j);
+                ifPolicyEntriesBuilder.setIfName(trafficIfPolicyServiceEntity.getIfName());
+                ifPolicyEntriesBuilder.setPolicyName(trafficIfPolicyServiceEntity.getPolicyName());
                 ifPolicyEntriesList.add(ifPolicyEntriesBuilder.build());
             }
             ifPolicyRoutersBuilder.setIfPolicyEntries(ifPolicyEntriesList);

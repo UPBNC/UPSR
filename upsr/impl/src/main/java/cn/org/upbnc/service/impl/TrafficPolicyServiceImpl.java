@@ -4,9 +4,9 @@ import cn.org.upbnc.base.BaseInterface;
 import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.TrafficPolicyManager;
-import cn.org.upbnc.entity.TrafficPolicy.AclInfoEntity;
+import cn.org.upbnc.entity.TrafficPolicy.*;
 import cn.org.upbnc.service.TrafficPolicyService;
-import cn.org.upbnc.service.entity.TrafficPolicy.AclInfoServiceEntity;
+import cn.org.upbnc.service.entity.TrafficPolicy.*;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.xml.TrafficAclXml;
 
@@ -52,7 +52,7 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
     @Override
     public Map<String,List<AclInfoServiceEntity>> getAclInfo(String routerId, String aclName) {
         Map<String,List<AclInfoServiceEntity>> aclMaps = new HashMap<>();
-        Map<String, Map<String,AclInfoEntity>> aclInfoMaps = trafficPolicyManager.getAllTrafficPolicy();
+        Map<String, Map<String,AclInfoEntity>> aclInfoMaps = trafficPolicyManager.getAllAclInfoEntity();
         if (routerId == null) {
             for (String key : aclInfoMaps.keySet()) {
                 Collection<AclInfoEntity> collection = aclInfoMaps.get(key).values();
@@ -87,11 +87,185 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
         return aclMaps;
     }
 
+    @Override
+    public Map<String, List<TrafficClassServiceEntity>> getTrafficClassInfo(String routerId, String trafficClassName) {
+        Map<String,List<TrafficClassServiceEntity>> trafficClassMaps = new HashMap<>();
+        Map<String, Map<String,TrafficClassInfoEntity>> trafficClassInfoMaps = trafficPolicyManager.getAllTrafficClassInfoEntity();
+        if (routerId == null) {
+            for (String key : trafficClassInfoMaps.keySet()) {
+                Collection<TrafficClassInfoEntity> collection = trafficClassInfoMaps.get(key).values();
+                List<TrafficClassServiceEntity> trafficClassServiceEntityList = new ArrayList<>();
+                for (TrafficClassInfoEntity trafficClassInfoEntity : collection) {
+                    TrafficClassServiceEntity aclInfoServiceEntity = trafficClassInfoEntityToTrafficClassServiceEntity(trafficClassInfoEntity);
+                    trafficClassServiceEntityList.add(aclInfoServiceEntity);
+                }
+                trafficClassMaps.put(key,trafficClassServiceEntityList);
+            }
+        } else {
+            if (trafficClassName == null) {
+                Collection<TrafficClassInfoEntity> collection = trafficClassInfoMaps.get(routerId).values();
+                List<TrafficClassServiceEntity> trafficClassServiceEntityList = new ArrayList<>();
+                for (TrafficClassInfoEntity trafficClassInfoEntity : collection) {
+                    TrafficClassServiceEntity trafficClassServiceEntity = trafficClassInfoEntityToTrafficClassServiceEntity(trafficClassInfoEntity);
+                    trafficClassServiceEntityList.add(trafficClassServiceEntity);
+                }
+                trafficClassMaps.put(routerId,trafficClassServiceEntityList);
+            } else {
+                Collection<TrafficClassInfoEntity> collection = trafficClassInfoMaps.get(routerId).values();
+                List<TrafficClassServiceEntity> trafficClassServiceEntityList = new ArrayList<>();
+                for (TrafficClassInfoEntity trafficClassInfoEntity : collection) {
+                    if (trafficClassInfoEntity.getTrafficClassName().equals(trafficClassName)) {
+                        TrafficClassServiceEntity trafficClassServiceEntity = trafficClassInfoEntityToTrafficClassServiceEntity(trafficClassInfoEntity);
+                        trafficClassServiceEntityList.add(trafficClassServiceEntity);
+                    }
+                }
+                trafficClassMaps.put(routerId,trafficClassServiceEntityList);
+            }
+        }
+        return trafficClassMaps;
+    }
 
+    @Override
+    public Map<String, List<TrafficBehaveServiceEntity>> getTrafficBehaveInfo(String routerId, String trafficBehaveName) {
+        Map<String,List<TrafficBehaveServiceEntity>> trafficBehaveMaps = new HashMap<>();
+        Map<String, Map<String,TrafficBehaveInfoEntity>> trafficBehaveInfoMaps = trafficPolicyManager.getAllTrafficBehaveInfoEntity();
+        if (routerId == null) {
+            for (String key : trafficBehaveInfoMaps.keySet()) {
+                Collection<TrafficBehaveInfoEntity> collection = trafficBehaveInfoMaps.get(key).values();
+                List<TrafficBehaveServiceEntity> trafficBehaveServiceEntityList = new ArrayList<>();
+                for (TrafficBehaveInfoEntity trafficBehaveInfoEntity : collection) {
+                    TrafficBehaveServiceEntity trafficBehaveServiceEntity = trafficBehaveInfoEntityToTrafficBehaveServiceEntity(trafficBehaveInfoEntity);
+                    trafficBehaveServiceEntityList.add(trafficBehaveServiceEntity);
+                }
+                trafficBehaveMaps.put(key,trafficBehaveServiceEntityList);
+            }
+        } else {
+            if (trafficBehaveName == null) {
+                Collection<TrafficBehaveInfoEntity> collection = trafficBehaveInfoMaps.get(routerId).values();
+                List<TrafficBehaveServiceEntity> trafficBehaveServiceEntityList = new ArrayList<>();
+                for (TrafficBehaveInfoEntity trafficBehaveInfoEntity : collection) {
+                    TrafficBehaveServiceEntity trafficBehaveServiceEntity = trafficBehaveInfoEntityToTrafficBehaveServiceEntity(trafficBehaveInfoEntity);
+                    trafficBehaveServiceEntityList.add(trafficBehaveServiceEntity);
+                }
+                trafficBehaveMaps.put(routerId,trafficBehaveServiceEntityList );
+            } else {
+                Collection<TrafficBehaveInfoEntity> collection = trafficBehaveInfoMaps.get(routerId).values();
+                List<TrafficBehaveServiceEntity> trafficBehaveServiceEntityList = new ArrayList<>();
+                for (TrafficBehaveInfoEntity trafficBehaveInfoEntity : collection) {
+                    if (trafficBehaveInfoEntity.getTrafficBehaveName().equals(trafficBehaveName)) {
+                        TrafficBehaveServiceEntity trafficBehaveServiceEntity = trafficBehaveInfoEntityToTrafficBehaveServiceEntity(trafficBehaveInfoEntity);
+                        trafficBehaveServiceEntityList.add(trafficBehaveServiceEntity);
+                    }
+                }
+                trafficBehaveMaps.put(routerId,trafficBehaveServiceEntityList);
+            }
+        }
+        return trafficBehaveMaps;
+    }
+
+    @Override
+    public Map<String, List<TrafficPolicyServiceEntity>> getTrafficPolicyInfo(String routerId, String trafficPolicyName) {
+        Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps = new HashMap<>();
+        Map<String, Map<String,TrafficPolicyInfoEntity>> trafficPolicyInfoMaps = trafficPolicyManager.getAllTrafficPolicyInfoEntity();
+        if (routerId == null) {
+            for (String key : trafficPolicyInfoMaps.keySet()) {
+                Collection<TrafficPolicyInfoEntity> collection = trafficPolicyInfoMaps.get(key).values();
+                List<TrafficPolicyServiceEntity> trafficPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficPolicyInfoEntity trafficPolicyInfoEntity : collection) {
+                    TrafficPolicyServiceEntity trafficPolicyServiceEntity = trafficPolicyInfoEntityToTrafficPolicyServiceEntity(trafficPolicyInfoEntity);
+                    trafficPolicyServiceEntityList.add(trafficPolicyServiceEntity);
+                }
+                trafficPolicyMaps.put(key,trafficPolicyServiceEntityList);
+            }
+        } else {
+            if (trafficPolicyName == null) {
+                Collection<TrafficPolicyInfoEntity> collection = trafficPolicyInfoMaps.get(routerId).values();
+                List<TrafficPolicyServiceEntity> trafficPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficPolicyInfoEntity trafficPolicyInfoEntity : collection) {
+                    TrafficPolicyServiceEntity trafficPolicyServiceEntity = trafficPolicyInfoEntityToTrafficPolicyServiceEntity(trafficPolicyInfoEntity);
+                    trafficPolicyServiceEntityList.add(trafficPolicyServiceEntity);
+                }
+                trafficPolicyMaps.put(routerId,trafficPolicyServiceEntityList );
+            } else {
+                Collection<TrafficPolicyInfoEntity> collection = trafficPolicyInfoMaps.get(routerId).values();
+                List<TrafficPolicyServiceEntity> trafficPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficPolicyInfoEntity trafficPolicyInfoEntity : collection) {
+                    if (trafficPolicyInfoEntity.getTrafficPolicyName().equals(trafficPolicyName)) {
+                        TrafficPolicyServiceEntity trafficPolicyServiceEntity = trafficPolicyInfoEntityToTrafficPolicyServiceEntity(trafficPolicyInfoEntity);
+                        trafficPolicyServiceEntityList.add(trafficPolicyServiceEntity);
+                    }
+                }
+                trafficPolicyMaps.put(routerId,trafficPolicyServiceEntityList);
+            }
+        }
+        return trafficPolicyMaps;
+    }
+
+    @Override
+    public Map<String, List<TrafficIfPolicyServiceEntity>> getTrafficIfPolicyInfo(String routerId, String ifName) {
+        Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps = new HashMap<>();
+        Map<String, Map<String,TrafficIfPolicyInfoEntity>> trafficIfPolicyInfoMaps = trafficPolicyManager.getAllTrafficIfPolicyInfoEntity();
+        if (routerId == null) {
+            for (String key : trafficIfPolicyInfoMaps.keySet()) {
+                Collection<TrafficIfPolicyInfoEntity> collection = trafficIfPolicyInfoMaps.get(key).values();
+                List<TrafficIfPolicyServiceEntity> trafficIfPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity : collection) {
+                    TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity = trafficIfPolicyInfoEntityToTrafficIfPolicyServiceEntity(trafficIfPolicyInfoEntity);
+                    trafficIfPolicyServiceEntityList.add(trafficIfPolicyServiceEntity);
+                }
+                trafficIfPolicyMaps.put(key,trafficIfPolicyServiceEntityList);
+            }
+        } else {
+            if (ifName == null) {
+                Collection<TrafficIfPolicyInfoEntity> collection = trafficIfPolicyInfoMaps.get(routerId).values();
+                List<TrafficIfPolicyServiceEntity> trafficIfPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity : collection) {
+                    TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity = trafficIfPolicyInfoEntityToTrafficIfPolicyServiceEntity(trafficIfPolicyInfoEntity);
+                    trafficIfPolicyServiceEntityList.add(trafficIfPolicyServiceEntity);
+                }
+                trafficIfPolicyMaps.put(routerId,trafficIfPolicyServiceEntityList );
+            } else {
+                Collection<TrafficIfPolicyInfoEntity> collection = trafficIfPolicyInfoMaps.get(routerId).values();
+                List<TrafficIfPolicyServiceEntity> trafficIfPolicyServiceEntityList = new ArrayList<>();
+                for (TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity : collection) {
+                    if (trafficIfPolicyInfoEntity.getIfName().equals(ifName)) {
+                        TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity = trafficIfPolicyInfoEntityToTrafficIfPolicyServiceEntity(trafficIfPolicyInfoEntity);
+                        trafficIfPolicyServiceEntityList.add(trafficIfPolicyServiceEntity);
+                    }
+                }
+                trafficIfPolicyMaps.put(routerId,trafficIfPolicyServiceEntityList);
+            }
+        }
+        return trafficIfPolicyMaps;
+    }
 
     private AclInfoServiceEntity aclInfoEntityToAclInfoServiceEntity(AclInfoEntity aclInfoEntity) {
         AclInfoServiceEntity aclInfoServiceEntity = new AclInfoServiceEntity();
         aclInfoServiceEntity.setAclName(aclInfoEntity.getAclName());
         return aclInfoServiceEntity;
+    }
+
+    private TrafficClassServiceEntity trafficClassInfoEntityToTrafficClassServiceEntity(TrafficClassInfoEntity trafficClassInfoEntity) {
+        TrafficClassServiceEntity trafficClassServiceEntity = new TrafficClassServiceEntity();
+        trafficClassInfoEntity.setTrafficClassName(trafficClassInfoEntity.getTrafficClassName());
+        return trafficClassServiceEntity;
+    }
+
+    private TrafficBehaveServiceEntity trafficBehaveInfoEntityToTrafficBehaveServiceEntity(TrafficBehaveInfoEntity trafficBehaveInfoEntity) {
+        TrafficBehaveServiceEntity trafficBehaveServiceEntity = new TrafficBehaveServiceEntity();
+        trafficBehaveServiceEntity.setTrafficBehaveName(trafficBehaveInfoEntity.getTrafficBehaveName());
+        return trafficBehaveServiceEntity;
+    }
+
+    private TrafficPolicyServiceEntity trafficPolicyInfoEntityToTrafficPolicyServiceEntity(TrafficPolicyInfoEntity trafficPolicyInfoEntity) {
+        TrafficPolicyServiceEntity trafficPolicyServiceEntity = new TrafficPolicyServiceEntity();
+        trafficPolicyServiceEntity.setTrafficPolicyName(trafficPolicyInfoEntity.getTrafficPolicyName());
+        return trafficPolicyServiceEntity;
+    }
+
+    private TrafficIfPolicyServiceEntity trafficIfPolicyInfoEntityToTrafficIfPolicyServiceEntity(TrafficIfPolicyInfoEntity trafficIfPolicyInfoEntity) {
+        TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity = new TrafficIfPolicyServiceEntity();
+        trafficIfPolicyServiceEntity.setIfName(trafficIfPolicyInfoEntity.getIfName());
+        return trafficIfPolicyServiceEntity;
     }
 }

@@ -5,7 +5,7 @@ import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.TrafficPolicyService;
-import cn.org.upbnc.service.entity.TrafficPolicy.AclInfoServiceEntity;
+import cn.org.upbnc.service.entity.TrafficPolicy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +47,62 @@ public class TrafficPolicyApiImpl implements TrafficPolicyApi {
 
     @Override
     public Map<String, Object> addAclInfo(AclInfoServiceEntity aclInfoServiceEntity) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getTrafficClassInfo(String routerId, String trafficClassName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<TrafficClassServiceEntity>> trafficClassMaps = trafficPolicyService.getTrafficClassInfo(routerId, trafficClassName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),trafficClassMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> addTrafficClassInfo(TrafficClassServiceEntity trafficClassServiceEntity) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getTrafficBehaveInfo(String routerId, String trafficBehaveName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<TrafficBehaveServiceEntity>> trafficBehaveMaps = trafficPolicyService.getTrafficBehaveInfo(routerId, trafficBehaveName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),trafficBehaveMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> addTrafficBehaveInfo(TrafficBehaveServiceEntity trafficBehaveServiceEntity) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getTrafficPolicyInfo(String routerId, String trafficPolicyName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps = trafficPolicyService.getTrafficPolicyInfo(routerId, trafficPolicyName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),trafficPolicyMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> addTrafficPolicyInfo(TrafficPolicyServiceEntity trafficPolicyServiceEntity) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getTrafficIfPolicyInfo(String routerId, String ifName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps = trafficPolicyService.getTrafficIfPolicyInfo(routerId, ifName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),trafficIfPolicyMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> addTrafficIfPolicyInfo(TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity) {
         return null;
     }
 }
