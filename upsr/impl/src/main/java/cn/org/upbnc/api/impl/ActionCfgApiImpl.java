@@ -1,12 +1,16 @@
 package cn.org.upbnc.api.impl;
 
 import cn.org.upbnc.api.ActionCfgApi;
+import cn.org.upbnc.enumtype.CodeEnum;
+import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ActionCfgService;
 import cn.org.upbnc.service.ServiceInterface;
+import cn.org.upbnc.service.entity.actionCfg.CheckPointInfoServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ActionCfgApiImpl implements ActionCfgApi {
@@ -53,7 +57,19 @@ public class ActionCfgApiImpl implements ActionCfgApi {
 
     @Override
     public Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId) {
-        actionCfgService.getCfgCommitPointInfo(routerId,commitId);
-        return null;
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, List<CheckPointInfoServiceEntity>> checkInfoMap = actionCfgService.getCfgCommitPointInfo(routerId,commitId);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),checkInfoMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> rollbackToCommitId(String routerId, String commitId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> rollbackRet = actionCfgService.rollbackToCommitId(routerId,commitId);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),rollbackRet);
+        return resultMap;
     }
 }

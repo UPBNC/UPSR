@@ -12,7 +12,11 @@ import cn.org.upbnc.enumtype.CfgTypeEnum;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ActionCfgService;
+import cn.org.upbnc.service.entity.actionCfg.CheckPointInfoServiceEntity;
+import cn.org.upbnc.service.entity.actionCfg.PointChangeInfoServiceEntity;
 import cn.org.upbnc.util.netconf.NetconfClient;
+import cn.org.upbnc.util.netconf.actionCfg.SCheckPointInfo;
+import cn.org.upbnc.util.netconf.actionCfg.SPointChangeInfo;
 import cn.org.upbnc.util.xml.ActionCfgXml;
 import cn.org.upbnc.util.xml.CandidateXml;
 import cn.org.upbnc.util.xml.RunningXml;
@@ -171,7 +175,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     }
 
     @Override
-    public Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId) {
+    public Map<String, List<CheckPointInfoServiceEntity>> getCfgCommitPointInfo(String routerId, String commitId) {
+        Map<String,List<CheckPointInfoServiceEntity>>  checkInfoMap = new HashMap<>();
         List<Device> deviceList = new ArrayList<>();
         Device device = deviceManager.getDevice(routerId);
         if (device == null) {
@@ -181,9 +186,57 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         }
         for (Device d : deviceList) {
             String getCommitXml = ActionCfgXml.getCheckPointInfoXml(commitId);
+            LOG.info(d.getRouterId() + " getCommitXml: " + getCommitXml);
             NetconfClient netconfClient = netConfManager.getNetconClient(d.getNetConf().getRouterID());
             String outPutCommitXml = netconfController.sendMessage(netconfClient, getCommitXml);
+            LOG.info(d.getRouterId() + " outPutCommitXml: " + outPutCommitXml);
+            List<SCheckPointInfo> sCheckPointInfoList = ActionCfgXml.getCheckPointInfoFromXml(outPutCommitXml);
+            List<CheckPointInfoServiceEntity> checkPointInfoServiceEntityList = sCheckPointInfoToCheckPointInfoServiceEntity(sCheckPointInfoList);
+            checkInfoMap.put(routerId,checkPointInfoServiceEntityList);
         }
-        return null;
+        return checkInfoMap;
     }
+
+    @Override
+    public Map<String, Object> rollbackToCommitId(String routerId, String commitId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Device device = deviceManager.getDevice(routerId);
+        if (device == null) {
+            return null;
+        }
+        String getCommitXml = ActionCfgXml.getRollBackToCommitIdXml(commitId);
+        LOG.info("getCommitXml: " + getCommitXml);
+        NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+        String outPutCommitXml = netconfController.sendMessage(netconfClient, getCommitXml);
+        LOG.info("outPutCommitXml: " + outPutCommitXml);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return resultMap;
+    }
+
+    private List<CheckPointInfoServiceEntity> sCheckPointInfoToCheckPointInfoServiceEntity(List<SCheckPointInfo> sCheckPointInfoList) {
+        List<CheckPointInfoServiceEntity> checkPointInfoServiceEntityList = new ArrayList<>();
+        for (SCheckPointInfo sCheckPointInfo : sCheckPointInfoList) {
+            CheckPointInfoServiceEntity checkPointInfoServiceEntity = new CheckPointInfoServiceEntity();
+            checkPointInfoServiceEntity.setCommitId(sCheckPointInfo.getCommitId());
+            checkPointInfoServiceEntity.setUserLabel(sCheckPointInfo.getUserLabel());
+            checkPointInfoServiceEntity.setUserName(sCheckPointInfo.getUserName());
+            checkPointInfoServiceEntity.setTimeStamp(sCheckPointInfo.getTimeStamp());
+            checkPointInfoServiceEntity.setSinceList(this.sPointChangeInfoToPointChangeInfoServiceEntity(sCheckPointInfo.getSinceList()));
+            checkPointInfoServiceEntity.setCurList(this.sPointChangeInfoToPointChangeInfoServiceEntity(sCheckPointInfo.getCurrList()));
+            checkPointInfoServiceEntityList.add(checkPointInfoServiceEntity);
+        }
+        return checkPointInfoServiceEntityList;
+    }
+
+    private List<PointChangeInfoServiceEntity> sPointChangeInfoToPointChangeInfoServiceEntity(List<SPointChangeInfo> sPointChangeInfoList) {
+        List<PointChangeInfoServiceEntity> pointChangeInfoServiceEntityList = new ArrayList<>();
+        for (SPointChangeInfo sPointChangeInfo : sPointChangeInfoList) {
+            PointChangeInfoServiceEntity pointChangeInfoServiceEntity = new PointChangeInfoServiceEntity();
+            pointChangeInfoServiceEntity.setIndex(sPointChangeInfo.getIndex());
+            pointChangeInfoServiceEntity.setChange(sPointChangeInfo.getChange());
+            pointChangeInfoServiceEntityList.add(pointChangeInfoServiceEntity);
+        }
+        return  pointChangeInfoServiceEntityList;
+    }
+
 }

@@ -7,8 +7,8 @@ import cn.org.upbnc.entity.CommandLine;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import com.sun.org.apache.bcel.internal.classfile.Code;
-import org.apache.commons.collections.list.AbstractListDecorator;
+import cn.org.upbnc.service.entity.actionCfg.CheckPointInfoServiceEntity;
+import cn.org.upbnc.service.entity.actionCfg.PointChangeInfoServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.getcfgchange.output.Command;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.getcfgchange.output.CommandBuilder;
@@ -148,33 +148,35 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("getCfgCommit begin");
         GetCfgCommitOutputBuilder getCfgCommitOutputBuilder = new GetCfgCommitOutputBuilder();
         getCfgCommitOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
-        if (input != null) {
-            this.actionCfgApi.getCfgCommitPointInfo(input.getRouterId(), input.getCommitId());
-        }
+        Map<String, Object> resultMap
+                = this.actionCfgApi.getCfgCommitPointInfo(input.getRouterId(), input.getCommitId());
+        Map<String, List<CheckPointInfoServiceEntity>> checkInfoMap =
+                (Map<String, List<CheckPointInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<CommitRouters> commitRoutersList = new ArrayList<>();
-        for (int i = 1; i < 4; i++) {
+        for (String key : checkInfoMap.keySet()) {
             CommitRoutersBuilder commitRoutersBuilder = new CommitRoutersBuilder();
-            commitRoutersBuilder.setRouterId("1.1.1." + i);
+            commitRoutersBuilder.setRouterId(key);
             List<CommitInfo> commitInfoList = new ArrayList<>();
-            for (int j = 1; j < 5; j++) {
+            List<CheckPointInfoServiceEntity> checkPointInfoServiceEntityList = checkInfoMap.get(key);
+            for (CheckPointInfoServiceEntity checkPointInfoServiceEntity : checkPointInfoServiceEntityList) {
                 CommitInfoBuilder commitInfoBuilder = new CommitInfoBuilder();
-                commitInfoBuilder.setCommitId("" + j);
-                commitInfoBuilder.setUserName("user" + j);
-                commitInfoBuilder.setUserLabel("label_" + j);
-                commitInfoBuilder.setTimeStamp("2012-04-23 11:11:2" + j);
+                commitInfoBuilder.setCommitId(checkPointInfoServiceEntity.getCommitId());
+                commitInfoBuilder.setUserName(checkPointInfoServiceEntity.getUserName());
+                commitInfoBuilder.setUserLabel(checkPointInfoServiceEntity.getUserLabel());
+                commitInfoBuilder.setTimeStamp(checkPointInfoServiceEntity.getTimeStamp());
                 List<CurrentChanges> currentChangesList = new ArrayList<>();
-                for (int k = 1; k < 5; k++) {
+                for (PointChangeInfoServiceEntity pointChangeInfoServiceEntity : checkPointInfoServiceEntity.getCurList()) {
                     CurrentChangesBuilder currentChangesBuilder = new CurrentChangesBuilder();
-                    currentChangesBuilder.setIndex("1" + k);
-                    currentChangesBuilder.setChange("ip address unnumbered interface LoopBack0");
+                    currentChangesBuilder.setIndex(pointChangeInfoServiceEntity.getIndex());
+                    currentChangesBuilder.setChange(pointChangeInfoServiceEntity.getChange());
                     currentChangesList.add(currentChangesBuilder.build());
                 }
                 commitInfoBuilder.setCurrentChanges(currentChangesList);
                 List<SinceChanges> sinceChangesList = new ArrayList<>();
-                for (int k = 1; k < 5; k++) {
+                for (PointChangeInfoServiceEntity pointChangeInfoServiceEntity : checkPointInfoServiceEntity.getSinceList()) {
                     SinceChangesBuilder sinceChangesBuilder = new SinceChangesBuilder();
-                    sinceChangesBuilder.setIndex("2" + k);
-                    sinceChangesBuilder.setChange("tunnel-protocol mpls te");
+                    sinceChangesBuilder.setIndex(pointChangeInfoServiceEntity.getIndex());
+                    sinceChangesBuilder.setChange(pointChangeInfoServiceEntity.getChange());
                     sinceChangesList.add(sinceChangesBuilder.build());
                 }
                 commitInfoBuilder.setSinceChanges(sinceChangesList);
@@ -190,6 +192,12 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
 
     @Override
     public Future<RpcResult<RollbackOutput>> rollback(RollbackInput input) {
-        return null;
+        RollbackOutputBuilder rollbackOutputBuilder = new RollbackOutputBuilder();
+        input.getRouterId();
+        input.getCommitId();
+        Map<String, Object> resultMap
+                = this.actionCfgApi.rollbackToCommitId(input.getRouterId(), input.getCommitId());
+        rollbackOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        return RpcResultBuilder.success(rollbackOutputBuilder.build()).buildFuture();
     }
 }

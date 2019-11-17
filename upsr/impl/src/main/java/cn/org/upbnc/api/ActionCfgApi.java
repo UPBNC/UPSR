@@ -10,4 +10,5 @@ public interface ActionCfgApi {
     Map<String, Object> commitCfgChane(String routerId, String cfgType);
     Map<String, Object> cancelCfgChane(String routerId, String cfgType);
     Map<String, Object> getCfgCommitPointInfo(String routerId, String commitId);
+    Map<String, Object> rollbackToCommitId(String routerId, String commitId);
 }

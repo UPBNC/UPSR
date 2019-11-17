@@ -110,6 +110,16 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         LOG.info("addAcl begin");
         LOG.info(input.getRouterId());
         AddAclOutputBuilder addAclOutputBuilder = new AddAclOutputBuilder();
+
+
+        AclInfoServiceEntity aclInfoServiceEntity = new AclInfoServiceEntity();
+        aclInfoServiceEntity.setRouterId(input.getRouterId());
+        if (input.getAclEntries().size() != 0) {
+            aclInfoServiceEntity.setAclName(input.getAclEntries().get(0).getAclName());
+        }
+
+
+
         addAclOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("addAcl end");
         return RpcResultBuilder.success(addAclOutputBuilder.build()).buildFuture();
