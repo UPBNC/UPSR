@@ -68,8 +68,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         GetAclOutputBuilder getAclOutputBuilder = new GetAclOutputBuilder();
         getAclOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         Map<String, Object> resultMap;
-        resultMap = getTrafficPolicyApi().getAclInfo(input.getRouterId(),input.getAclName());
-
+        if (input == null) {
+            resultMap = getTrafficPolicyApi().getAclInfo(null, null);
+        } else {
+            resultMap = getTrafficPolicyApi().getAclInfo(input.getRouterId(), input.getAclName());
+        }
         Map<String,List<AclInfoServiceEntity>> aclMaps =
                 (Map<String,List<AclInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<AclRouters> aclRoutersList = new ArrayList<>();
@@ -147,7 +150,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         getTrafficClassOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<TrafficClassRouters> trafficClassRoutersList = new ArrayList<>();
         Map<String, Object> resultMap;
-        resultMap = getTrafficPolicyApi().getTrafficClassInfo(input.getRouterId(),input.getClassName());
+        if (input == null) {
+            resultMap = getTrafficPolicyApi().getTrafficClassInfo(null, null);
+        } else {
+            resultMap = getTrafficPolicyApi().getTrafficClassInfo(input.getRouterId(), input.getClassName());
+        }
         Map<String,List<TrafficClassServiceEntity>> trafficClassMaps =
                 (Map<String,List<TrafficClassServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
 
@@ -233,7 +240,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         getTrafficBehaveOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         List<TrafficBehaveRouters> trafficBehaveRoutersList = new ArrayList<>();
         Map<String, Object> resultMap;
-        resultMap = getTrafficPolicyApi().getTrafficBehaveInfo(input.getRouterId(),input.getBehaveName());
+        if (input == null) {
+            resultMap = getTrafficPolicyApi().getTrafficBehaveInfo(null, null);
+        } else {
+            resultMap = getTrafficPolicyApi().getTrafficBehaveInfo(input.getRouterId(), input.getBehaveName());
+        }
         Map<String,List<TrafficBehaveServiceEntity>> trafficBehaveMaps =
                 (Map<String,List<TrafficBehaveServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         for (String key : trafficBehaveMaps.keySet()) {
@@ -287,7 +298,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         List<TrafficPolicyRouters> trafficPolicyRoutersList = new ArrayList<>();
 
         Map<String, Object> resultMap;
-        resultMap = getTrafficPolicyApi().getTrafficPolicyInfo(input.getRouterId(),input.getPolicyName());
+        if (input == null) {
+            resultMap = getTrafficPolicyApi().getTrafficPolicyInfo(null, null);
+        } else {
+            resultMap = getTrafficPolicyApi().getTrafficPolicyInfo(input.getRouterId(), input.getPolicyName());
+        }
         Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps =
                 (Map<String,List<TrafficPolicyServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         for (String key : trafficPolicyMaps.keySet()) {
@@ -326,7 +341,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
         List<IfPolicyRouters> ifPolicyRoutersList = new ArrayList<>();
 
         Map<String, Object> resultMap;
-        resultMap = getTrafficPolicyApi().getTrafficIfPolicyInfo(input.getRouterId(),input.getIfName());
+        if (input == null) {
+            resultMap = getTrafficPolicyApi().getTrafficIfPolicyInfo(null , null);
+        } else {
+            resultMap = getTrafficPolicyApi().getTrafficIfPolicyInfo(input.getRouterId(), input.getIfName());
+        }
         Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps =
                 (Map<String,List<TrafficIfPolicyServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         for (String key : trafficIfPolicyMaps.keySet()) {
