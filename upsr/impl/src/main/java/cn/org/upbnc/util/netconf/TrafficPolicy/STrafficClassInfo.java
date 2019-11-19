@@ -4,6 +4,7 @@ import java.util.List;
 
 public class STrafficClassInfo {
     String trafficClassName;
+    String operator;
     List<STrafficClassAclInfo> sTrafficClassAclInfoList;
 
     public List<STrafficClassAclInfo> getsTrafficClassAclInfoList() {
@@ -16,6 +17,14 @@ public class STrafficClassInfo {
 
     public String getTrafficClassName() {
         return trafficClassName;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     public void setTrafficClassName(String trafficClassName) {

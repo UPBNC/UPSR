@@ -226,6 +226,7 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     private TrafficClassInfoEntity sTrafficClassInfoToTrafficClassInfoEntity(STrafficClassInfo sTrafficClassInfo) {
         TrafficClassInfoEntity trafficClassInfoEntity = new TrafficClassInfoEntity();
         trafficClassInfoEntity.setTrafficClassName(sTrafficClassInfo.getTrafficClassName());
+        trafficClassInfoEntity.setOperator(sTrafficClassInfo.getOperator());
         return trafficClassInfoEntity;
     }
 
@@ -261,7 +262,7 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
         aclRuleInfoEntity.setSourcePort(sAclRuleInfo.getSourcePort());
         aclRuleInfoEntity.setDestination(sAclRuleInfo.getDestination());
         aclRuleInfoEntity.setDestinationWild(sAclRuleInfo.getDestinationWild());
-        aclRuleInfoEntity.setDestinationPortOp(sAclRuleInfo.getProtoType());
+        aclRuleInfoEntity.setDestinationPortOp(sAclRuleInfo.getDestinationPortOp());
         aclRuleInfoEntity.setDestinationPort(sAclRuleInfo.getDestinationPort());
         return aclRuleInfoEntity;
     }

@@ -40,6 +40,7 @@ public class TrafficClassifier {
             for (org.dom4j.Element qosClassifier : qosClassifierElements) {
                 STrafficClassInfo sTrafficClassInfo = new STrafficClassInfo();
                 sTrafficClassInfo.setTrafficClassName(qosClassifier.elementText("classifierName"));
+                sTrafficClassInfo.setOperator(qosClassifier.elementText("operator"));
                 List<STrafficClassAclInfo> sTrafficClassAclInfoList = new ArrayList<>();
                 List<Element> qosRuleAclElements = qosClassifier.element("qosRuleAcls").elements("qosRuleAcl");
                 for (org.dom4j.Element qosRuleAcl : qosRuleAclElements) {

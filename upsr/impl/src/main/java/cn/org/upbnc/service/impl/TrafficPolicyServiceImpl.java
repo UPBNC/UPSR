@@ -108,8 +108,8 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
                 Collection<TrafficClassInfoEntity> collection = trafficClassInfoMaps.get(key).values();
                 List<TrafficClassServiceEntity> trafficClassServiceEntityList = new ArrayList<>();
                 for (TrafficClassInfoEntity trafficClassInfoEntity : collection) {
-                    TrafficClassServiceEntity aclInfoServiceEntity = trafficClassInfoEntityToTrafficClassServiceEntity(trafficClassInfoEntity);
-                    trafficClassServiceEntityList.add(aclInfoServiceEntity);
+                    TrafficClassServiceEntity trafficClassServiceEntity = trafficClassInfoEntityToTrafficClassServiceEntity(trafficClassInfoEntity);
+                    trafficClassServiceEntityList.add(trafficClassServiceEntity);
                 }
                 trafficClassMaps.put(key,trafficClassServiceEntityList);
             }
@@ -265,7 +265,8 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
 
     private TrafficClassServiceEntity trafficClassInfoEntityToTrafficClassServiceEntity(TrafficClassInfoEntity trafficClassInfoEntity) {
         TrafficClassServiceEntity trafficClassServiceEntity = new TrafficClassServiceEntity();
-        trafficClassInfoEntity.setTrafficClassName(trafficClassInfoEntity.getTrafficClassName());
+        trafficClassServiceEntity.setTrafficClassName(trafficClassInfoEntity.getTrafficClassName());
+        trafficClassServiceEntity.setOperator(trafficClassInfoEntity.getOperator());
         List<TrafficClassAclServiceEntity> trafficClassAclServiceEntityList = new ArrayList<>();
         for(TrafficClassAclInfoEntity trafficClassAclInfoEntity:trafficClassInfoEntity.getTrafficClassAclInfoEntityList()){
             TrafficClassAclServiceEntity trafficClassAclServiceEntity = trafficClassAclInfoEntityToTrafficClassAclServiceEntity(trafficClassAclInfoEntity);

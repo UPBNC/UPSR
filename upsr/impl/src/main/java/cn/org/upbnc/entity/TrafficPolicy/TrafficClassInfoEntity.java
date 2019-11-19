@@ -4,6 +4,7 @@ import java.util.List;
 
 public class TrafficClassInfoEntity {
     String trafficClassName;
+    String operator;
 
     List<TrafficClassAclInfoEntity> trafficClassAclInfoEntityList;
 
@@ -21,5 +22,13 @@ public class TrafficClassInfoEntity {
 
     public void setTrafficClassName(String trafficClassName) {
         this.trafficClassName = trafficClassName;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 }
