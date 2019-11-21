@@ -70,12 +70,12 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     public boolean syncTrafficPolicyAclConf(String routerID, NetconfClient netconfClient) {
-        String commandTrafficAclXml = TrafficAclXml.getSTrafficAclXml();
+        String commandTrafficAclXml = TrafficAclXml.getTrafficAclXml();
         LOG.info("commandTrafficAclXml : " + commandTrafficAclXml);
         String outPutTrafficAclXml = netconfController.sendMessage(netconfClient,commandTrafficAclXml);
         LOG.info("outPutTrafficAclXml : " + outPutTrafficAclXml);
 
-        List<SAclInfo> sAclInfoList = TrafficAclXml.getSTrafficAclFromXml(outPutTrafficAclXml);
+        List<SAclInfo> sAclInfoList = TrafficAclXml.getTrafficAclFromXml(outPutTrafficAclXml);
 
         for (SAclInfo sAclInfo : sAclInfoList) {
             AclInfoEntity aclInfoEntity = this.sAclInfoToAclInfoEntity(sAclInfo);
@@ -170,7 +170,7 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     public boolean syncTrafficPolicyTrafficIfPolicyConf(String routerID, NetconfClient netconfClient) {
-        String commandTrafficIfPolicyXml = TrafficPolicyApplyXml.getTrafficPolicyXml();
+        String commandTrafficIfPolicyXml = TrafficPolicyApplyXml.getTrafficPolicyApplyXml();
         LOG.info("commandTrafficIfPolicyXml : " + commandTrafficIfPolicyXml);
         String outPutTrafficIfPolicyXml = netconfController.sendMessage(netconfClient,commandTrafficIfPolicyXml);
         LOG.info("outPutTrafficIfPolicyXml : " + outPutTrafficIfPolicyXml);
@@ -197,8 +197,32 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     @Override
+    public Map<String, Object> deleteAclInfoEntity(String routerId, String aclName,NetconfClient netconfClient) {
+        Map<String, Object> ret = new HashMap<>();
+        String commandDeleteTrafficAclXml = TrafficAclXml.getDeleteTrafficAclXml(aclName);
+        LOG.info("commandDeleteTrafficAclXml : " + commandDeleteTrafficAclXml);
+        String outPutDeleteTrafficAclXml = netconfController.sendMessage(netconfClient,commandDeleteTrafficAclXml);
+        LOG.info("outPutDeleteTrafficAclXml : " + outPutDeleteTrafficAclXml);
+        aclInfoEntityMap = this.aclInfoEntityMaps.get(routerId);
+        aclInfoEntityMap.remove(aclName);
+        return ret;
+    }
+
+    @Override
     public Map<String, Map<String, TrafficClassInfoEntity>> getAllTrafficClassInfoEntity() {
         return this.trafficClassInfoEntityMaps;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficClassInfoEntity(String routerId, String trafficClassName, NetconfClient netconfClient) {
+        Map<String, Object> ret = new HashMap<>();
+        String commandDeleteTrafficClassifierXml = TrafficClassifier.getDeleteTrafficClassifierXml(trafficClassName);
+        LOG.info("commandDeleteTrafficClassifierXml : " + commandDeleteTrafficClassifierXml);
+        String outPutDeleteTrafficClassifierXml = netconfController.sendMessage(netconfClient,commandDeleteTrafficClassifierXml);
+        LOG.info("outPutDeleteTrafficClassifierXml : " + outPutDeleteTrafficClassifierXml);
+        trafficClassInfoEntityMap = this.trafficClassInfoEntityMaps.get(routerId);
+        trafficClassInfoEntityMap.remove(trafficClassName);
+        return ret;
     }
 
     @Override
@@ -207,13 +231,49 @@ public class TrafficPolicyManagerImpl implements TrafficPolicyManager {
     }
 
     @Override
+    public Map<String, Object> deleteTrafficBehaveInfoEntity(String routerId, String trafficBehaveName, NetconfClient netconfClient) {
+        Map<String, Object> ret = new HashMap<>();
+        String commandDeleteTrafficBehaviorXml = TrafficBehaviorXml.getDeleteTrafficBehaviorXml(trafficBehaveName);
+        LOG.info("commandDeleteTrafficBehaviorXml : " + commandDeleteTrafficBehaviorXml);
+        String outPutDeleteTrafficBehaviorXml = netconfController.sendMessage(netconfClient,commandDeleteTrafficBehaviorXml);
+        LOG.info("outPutDeleteTrafficBehaviorXml : " + outPutDeleteTrafficBehaviorXml);
+        trafficBehaveInfoEntityMap = this.trafficBehaveInfoEntityMaps.get(routerId);
+        trafficBehaveInfoEntityMap.remove(trafficBehaveName);
+        return ret;
+    }
+
+    @Override
     public Map<String, Map<String, TrafficPolicyInfoEntity>> getAllTrafficPolicyInfoEntity() {
         return this.trafficPolicyInfoEntityMaps;
     }
 
     @Override
+    public Map<String, Object> deleteTrafficPolicyInfoEntity(String routerId, String trafficPolicyName, NetconfClient netconfClient) {
+        Map<String, Object> ret = new HashMap<>();
+        String commandDeleteTrafficPolicyXml = TrafficPolicyXml.getDeleteTrafficPolicyXml(trafficPolicyName);
+        LOG.info("commandDeleteTrafficPolicyXml : " + commandDeleteTrafficPolicyXml);
+        String outPutDeleteTrafficPolicyXml = netconfController.sendMessage(netconfClient,commandDeleteTrafficPolicyXml);
+        LOG.info("outPutDeleteTrafficPolicyXml : " + outPutDeleteTrafficPolicyXml);
+        trafficPolicyInfoEntityMap = this.trafficPolicyInfoEntityMaps.get(routerId);
+        trafficPolicyInfoEntityMap.remove(trafficPolicyName);
+        return ret;
+    }
+
+    @Override
     public Map<String, Map<String, TrafficIfPolicyInfoEntity>> getAllTrafficIfPolicyInfoEntity() {
         return this.trafficIfPolicyInfoEntityMaps;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficIfPolicyInfoEntity(String routerId, String ifName, NetconfClient netconfClient) {
+        Map<String, Object> ret = new HashMap<>();
+        String commandDeleteTrafficPolicyApplyXml = TrafficPolicyApplyXml.getDeleteTrafficPolicyApplyXml(ifName);
+        LOG.info("commandDeleteTrafficPolicyApplyXml : " + commandDeleteTrafficPolicyApplyXml);
+        String outPutDeleteTrafficPolicyApplyXml = netconfController.sendMessage(netconfClient,commandDeleteTrafficPolicyApplyXml);
+        LOG.info("outPutDeleteTrafficPolicyApplyXml : " + outPutDeleteTrafficPolicyApplyXml);
+        trafficIfPolicyInfoEntityMap = this.trafficIfPolicyInfoEntityMaps.get(routerId);
+        trafficIfPolicyInfoEntityMap.remove(ifName);
+        return ret;
     }
 
     private AclInfoEntity sAclInfoToAclInfoEntity(SAclInfo sAclInfo) {

@@ -131,8 +131,12 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     @Override
     public Future<RpcResult<DeleteAclOutput>> deleteAcl(DeleteAclInput input) {
         LOG.info("getTunnelStatistics begin");
+        DeleteAclOutputBuilder deleteAclOutputBuilder = new DeleteAclOutputBuilder();
+
+        Map<String, Object> resultMap = getTrafficPolicyApi().deleteAclInfo(input.getRouterId(), input.getAclName());
+        deleteAclOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getTunnelStatistics end");
-        return null;
+        return RpcResultBuilder.success(deleteAclOutputBuilder.build()).buildFuture();
     }
 
     @Override
@@ -195,8 +199,12 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     @Override
     public Future<RpcResult<DeleteTrafficClassOutput>> deleteTrafficClass(DeleteTrafficClassInput input) {
         LOG.info("deleteTrafficClass begin");
+        DeleteTrafficClassOutputBuilder deleteTrafficClassOutputBuilder = new DeleteTrafficClassOutputBuilder();
+
+        Map<String, Object> resultMap = getTrafficPolicyApi().deleteTrafficClassInfo(input.getRouterId(), input.getClassName());
+        deleteTrafficClassOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("deleteTrafficClass end");
-        return null;
+        return RpcResultBuilder.success(deleteTrafficClassOutputBuilder.build()).buildFuture();
     }
 
     @Override
@@ -220,8 +228,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     @Override
     public Future<RpcResult<DeleteTrafficBehaveOutput>> deleteTrafficBehave(DeleteTrafficBehaveInput input) {
         LOG.info("getTunnelStatistics begin");
+        DeleteTrafficBehaveOutputBuilder deleteTrafficBehaveOutputBuilder = new DeleteTrafficBehaveOutputBuilder();
+        Map<String, Object> resultMap = getTrafficPolicyApi().deleteTrafficBehaveInfo(input.getRouterId(), input.getBehaveName());
+        deleteTrafficBehaveOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getTunnelStatistics end");
-        return null;
+        return RpcResultBuilder.success(deleteTrafficBehaveOutputBuilder.build()).buildFuture();
     }
 
     @Override
@@ -277,8 +288,11 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     @Override
     public Future<RpcResult<DeleteTrafficPolicyOutput>> deleteTrafficPolicy(DeleteTrafficPolicyInput input) {
         LOG.info("getTunnelStatistics begin");
+        DeleteTrafficPolicyOutputBuilder deleteTrafficPolicyOutputBuilder = new DeleteTrafficPolicyOutputBuilder();
+        Map<String, Object> resultMap = getTrafficPolicyApi().deleteTrafficPolicyInfo(input.getRouterId(), input.getPolicyName());
+        deleteTrafficPolicyOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getTunnelStatistics end");
-        return null;
+        return RpcResultBuilder.success(deleteTrafficPolicyOutputBuilder.build()).buildFuture();
     }
 
     @Override
@@ -386,7 +400,10 @@ public class TrafficPolicyODLApi implements UpsrTrafficPolicyService {
     @Override
     public Future<RpcResult<DeleteIfPolicyOutput>> deleteIfPolicy(DeleteIfPolicyInput input) {
         LOG.info("deleteIfPolicy begin");
+        DeleteIfPolicyOutputBuilder deleteIfPolicyOutputBuilder = new DeleteIfPolicyOutputBuilder();
+        Map<String, Object> resultMap = getTrafficPolicyApi().deleteTrafficIfPolicyInfo(input.getRouterId(), input.getIfName());
+        deleteIfPolicyOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("deleteIfPolicy end");
-        return null;
+        return RpcResultBuilder.success(deleteIfPolicyOutputBuilder.build()).buildFuture();
     }
 }

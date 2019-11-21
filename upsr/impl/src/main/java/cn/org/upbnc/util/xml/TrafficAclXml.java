@@ -13,7 +13,7 @@ import java.util.List;
 
 public class TrafficAclXml {
 
-    public static String getSTrafficAclXml() {
+    public static String getTrafficAclXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>                                                                     \n" +
                 "  <filter type=\"subtree\">                                               \n" +
@@ -29,7 +29,11 @@ public class TrafficAclXml {
                 "</rpc>";
     }
 
-    public static List<SAclInfo> getSTrafficAclFromXml(String xml) {
+    public static String getDeleteTrafficAclXml(String aclName) {
+        return null;
+    }
+
+    public static List<SAclInfo> getTrafficAclFromXml(String xml) {
         List<SAclInfo> sAclInfoList = new ArrayList<>();
         if (null == xml || xml.isEmpty()) {//判断xml是否为空
             return sAclInfoList;

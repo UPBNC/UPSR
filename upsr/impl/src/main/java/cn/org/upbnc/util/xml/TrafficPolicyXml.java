@@ -28,6 +28,11 @@ public class TrafficPolicyXml {
                 "</rpc>";
     }
 
+    public static String getDeleteTrafficPolicyXml(String trafficPolicyName) {
+
+        return null;
+    }
+
     public static List<STrafficPolicyInfo> getSTrafficPolicyFromXml(String xml){
         List<STrafficPolicyInfo> sTrafficPolicyInfoList = new ArrayList<>();
         if (null == xml || xml.isEmpty()) {//判断xml是否为空

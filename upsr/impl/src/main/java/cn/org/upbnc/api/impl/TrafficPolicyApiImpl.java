@@ -46,6 +46,13 @@ public class TrafficPolicyApiImpl implements TrafficPolicyApi {
     }
 
     @Override
+    public Map<String, Object> deleteAclInfo(String routerId, String aclName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap = trafficPolicyService.deleteAclInfo(routerId, aclName);
+        return resultMap;
+    }
+
+    @Override
     public Map<String, Object> addAclInfo(AclInfoServiceEntity aclInfoServiceEntity) {
         return null;
     }
@@ -56,6 +63,13 @@ public class TrafficPolicyApiImpl implements TrafficPolicyApi {
         Map<String,List<TrafficClassServiceEntity>> trafficClassMaps = trafficPolicyService.getTrafficClassInfo(routerId, trafficClassName);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),trafficClassMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficClassInfo(String routerId, String trafficClassName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap = trafficPolicyService.deleteTrafficClassInfo(routerId, trafficClassName);
         return resultMap;
     }
 
@@ -79,11 +93,25 @@ public class TrafficPolicyApiImpl implements TrafficPolicyApi {
     }
 
     @Override
+    public Map<String, Object> deleteTrafficBehaveInfo(String routerId, String trafficBehaveName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap = trafficPolicyService.deleteTrafficBehaveInfo(routerId, trafficBehaveName);
+        return resultMap;
+    }
+
+    @Override
     public Map<String, Object> getTrafficPolicyInfo(String routerId, String trafficPolicyName) {
         Map<String, Object> resultMap = new HashMap<>();
         Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps = trafficPolicyService.getTrafficPolicyInfo(routerId, trafficPolicyName);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),trafficPolicyMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficPolicyInfo(String routerId, String trafficPolicyName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap = trafficPolicyService.deleteTrafficPolicyInfo(routerId, trafficPolicyName);
         return resultMap;
     }
 
@@ -98,6 +126,13 @@ public class TrafficPolicyApiImpl implements TrafficPolicyApi {
         Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps = trafficPolicyService.getTrafficIfPolicyInfo(routerId, ifName);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),trafficIfPolicyMaps);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficIfPolicyInfo(String routerId, String ifName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap = trafficPolicyService.deleteTrafficIfPolicyInfo(routerId, ifName);
         return resultMap;
     }
 

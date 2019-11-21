@@ -27,7 +27,9 @@ public class TrafficBehaviorXml {
                 "</get>                                                                                \n" +
                 "</rpc>";
     }
-
+    public static String getDeleteTrafficBehaviorXml(String trafficBehaveName) {
+        return null;
+    }
     public static List<STrafficBehaveInfo> getSTrafficBehaveFromXml(String xml) {
         List<STrafficBehaveInfo> sTrafficBehaveInfoList = new ArrayList<>();
 

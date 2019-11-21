@@ -100,6 +100,13 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
     }
 
     @Override
+    public Map<String, Object> deleteAclInfo(String routerId, String aclName) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
+        trafficPolicyManager.deleteAclInfoEntity(routerId, aclName, netconfClient);
+        return null;
+    }
+
+    @Override
     public Map<String, List<TrafficClassServiceEntity>> getTrafficClassInfo(String routerId, String trafficClassName) {
         Map<String,List<TrafficClassServiceEntity>> trafficClassMaps = new HashMap<>();
         Map<String, Map<String,TrafficClassInfoEntity>> trafficClassInfoMaps = trafficPolicyManager.getAllTrafficClassInfoEntity();
@@ -135,6 +142,13 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
             }
         }
         return trafficClassMaps;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficClassInfo(String routerId, String trafficClassName) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
+        trafficPolicyManager.deleteTrafficClassInfoEntity(routerId, trafficClassName, netconfClient);
+        return null;
     }
 
     @Override
@@ -176,6 +190,13 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
     }
 
     @Override
+    public Map<String, Object> deleteTrafficBehaveInfo(String routerId, String trafficBehaveName) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
+        trafficPolicyManager.deleteTrafficBehaveInfoEntity(routerId, trafficBehaveName, netconfClient);
+        return null;
+    }
+
+    @Override
     public Map<String, List<TrafficPolicyServiceEntity>> getTrafficPolicyInfo(String routerId, String trafficPolicyName) {
         Map<String,List<TrafficPolicyServiceEntity>> trafficPolicyMaps = new HashMap<>();
         Map<String, Map<String,TrafficPolicyInfoEntity>> trafficPolicyInfoMaps = trafficPolicyManager.getAllTrafficPolicyInfoEntity();
@@ -214,6 +235,13 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
     }
 
     @Override
+    public Map<String, Object> deleteTrafficPolicyInfo(String routerId, String trafficPolicyName) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
+        trafficPolicyManager.deleteTrafficPolicyInfoEntity(routerId, trafficPolicyName, netconfClient);
+        return null;
+    }
+
+    @Override
     public Map<String, List<TrafficIfPolicyServiceEntity>> getTrafficIfPolicyInfo(String routerId, String ifName) {
         Map<String,List<TrafficIfPolicyServiceEntity>> trafficIfPolicyMaps = new HashMap<>();
         Map<String, Map<String,TrafficIfPolicyInfoEntity>> trafficIfPolicyInfoMaps = trafficPolicyManager.getAllTrafficIfPolicyInfoEntity();
@@ -249,6 +277,13 @@ public class TrafficPolicyServiceImpl implements TrafficPolicyService {
             }
         }
         return trafficIfPolicyMaps;
+    }
+
+    @Override
+    public Map<String, Object> deleteTrafficIfPolicyInfo(String routerId, String ifName) {
+        NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
+        trafficPolicyManager.deleteTrafficIfPolicyInfoEntity(routerId, ifName, netconfClient);
+        return null;
     }
 
     private AclInfoServiceEntity aclInfoEntityToAclInfoServiceEntity(AclInfoEntity aclInfoEntity) {

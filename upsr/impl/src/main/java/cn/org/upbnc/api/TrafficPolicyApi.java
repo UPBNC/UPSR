@@ -10,13 +10,18 @@ public interface TrafficPolicyApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
 
     Map<String, Object> getAclInfo(String routerId, String aclName);
+    Map<String, Object> deleteAclInfo(String routerId, String aclName);
     Map<String, Object> addAclInfo(AclInfoServiceEntity aclInfoServiceEntity);
     Map<String, Object> getTrafficClassInfo(String routerId, String trafficClassName);
+    Map<String, Object> deleteTrafficClassInfo(String routerId, String trafficClassName);
     Map<String, Object> addTrafficClassInfo(TrafficClassServiceEntity trafficClassServiceEntity);
     Map<String, Object> getTrafficBehaveInfo(String routerId, String trafficBehaveName);
+    Map<String, Object> deleteTrafficBehaveInfo(String routerId, String trafficBehaveName);
     Map<String, Object> addTrafficBehaveInfo(TrafficBehaveServiceEntity trafficBehaveServiceEntity);
     Map<String, Object> getTrafficPolicyInfo(String routerId, String trafficPolicyName);
+    Map<String, Object> deleteTrafficPolicyInfo(String routerId, String trafficPolicyName);
     Map<String, Object> addTrafficPolicyInfo(TrafficPolicyServiceEntity trafficPolicyServiceEntity);
     Map<String, Object> getTrafficIfPolicyInfo(String routerId, String ifName);
+    Map<String, Object> deleteTrafficIfPolicyInfo(String routerId, String ifName);
     Map<String, Object> addTrafficIfPolicyInfo(TrafficIfPolicyServiceEntity trafficIfPolicyServiceEntity);
 }

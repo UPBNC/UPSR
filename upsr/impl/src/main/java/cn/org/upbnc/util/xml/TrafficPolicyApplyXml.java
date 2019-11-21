@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrafficPolicyApplyXml {
-    public static String getTrafficPolicyXml() {
+    public static String getTrafficPolicyApplyXml() {
         return "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>                                                                             \n" +
                 "  <filter type=\"subtree\">                                                       \n" +
@@ -29,6 +29,9 @@ public class TrafficPolicyApplyXml {
                 "  </filter>                                                                       \n" +
                 "</get>                                                                            \n" +
                 "</rpc>";
+    }
+    public static String getDeleteTrafficPolicyApplyXml(String ifName) {
+        return null;
     }
     public static List<STrafficIfPolicyInfo> getSTrafficIfPolicyFromXml(String xml){
         List<STrafficIfPolicyInfo> sTrafficIfPolicyInfoList = new ArrayList<>();

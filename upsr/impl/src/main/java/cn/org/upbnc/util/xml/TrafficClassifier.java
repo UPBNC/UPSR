@@ -26,7 +26,9 @@ public class TrafficClassifier {
                 "</get>                                                                           \n" +
                 "</rpc>";
     }
-
+    public static String getDeleteTrafficClassifierXml(String trafficClassName) {
+        return null;
+    }
     public static List<STrafficClassInfo> getSTrafficClassFromXml(String xml) {
         List<STrafficClassInfo> sTrafficClassInfoList = new ArrayList<>();
         if (null == xml || xml.isEmpty()) {//判断xml是否为空

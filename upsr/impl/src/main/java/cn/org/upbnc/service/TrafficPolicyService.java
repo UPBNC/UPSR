@@ -11,8 +11,13 @@ public interface TrafficPolicyService {
     boolean syncTrafficPolicyConf();
     boolean syncTrafficPolicyConf(String routerId);
     Map<String,List<AclInfoServiceEntity>> getAclInfo(String routerId, String aclName);
+    Map<String,Object> deleteAclInfo(String routerId, String aclName);
     Map<String,List<TrafficClassServiceEntity>> getTrafficClassInfo(String routerId, String trafficClassName);
+    Map<String,Object> deleteTrafficClassInfo(String routerId, String trafficClassName);
     Map<String,List<TrafficBehaveServiceEntity>> getTrafficBehaveInfo(String routerId, String trafficBehaveName);
+    Map<String,Object> deleteTrafficBehaveInfo(String routerId, String trafficBehaveName);
     Map<String,List<TrafficPolicyServiceEntity>> getTrafficPolicyInfo(String routerId, String trafficPolicyName);
+    Map<String,Object> deleteTrafficPolicyInfo(String routerId, String trafficPolicyName);
     Map<String,List<TrafficIfPolicyServiceEntity>> getTrafficIfPolicyInfo(String routerId, String ifName);
+    Map<String,Object> deleteTrafficIfPolicyInfo(String routerId, String ifName);
 }
