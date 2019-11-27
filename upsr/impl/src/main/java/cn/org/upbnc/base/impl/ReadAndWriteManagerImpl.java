@@ -1,7 +1,7 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.ReadAndWriteManager;
-import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.util.TimeUtils;
@@ -32,9 +32,9 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
     }
 
     @Override
-    public void write(List<Statistics> statistics) {
+    public void write(List<IfClearedStatEntity> statistics) {
         String userString = "";
-        for (Statistics statistic : statistics) {
+        for (IfClearedStatEntity statistic : statistics) {
             JSONObject jsonObject = JSONObject.fromObject(statistic);
             if (("").equals(userString)) {
                 userString = jsonObject.toString();
@@ -67,9 +67,9 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
     }
 
     @Override
-    public List<Statistics> read(TimeEnum time) {
+    public List<IfClearedStatEntity> read(TimeEnum time) {
 
-        List<Statistics> statistics = new ArrayList<>();
+        List<IfClearedStatEntity> statistics = new ArrayList<>();
         File file = new File(path);
         try {
             if (file.isFile() && file.exists()) {
@@ -81,7 +81,7 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     String end = "[" + lineTxt + "]";
                     JSONArray jsonArray = JSONArray.fromObject(end);
-                    List<Statistics> list = (List<Statistics>) JSONArray.toList(jsonArray, Statistics.class);
+                    List<IfClearedStatEntity> list = (List<IfClearedStatEntity>) JSONArray.toList(jsonArray, IfClearedStatEntity.class);
                     if (list.size() > 0) {
                         if(time.equals(TimeEnum.Day)){
                             if(TimeUtils.isToday(list.get(0).getDate())){

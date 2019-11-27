@@ -2,7 +2,7 @@ package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.ReadAndWriteManager;
 import cn.org.upbnc.base.StatisticsManager;
-import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import org.slf4j.Logger;
@@ -26,10 +26,10 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public List<Statistics> getStatistics(String routerId, TimeEnum timeEnum) {
-        List<Statistics> statistics = new ArrayList<>();
-        List<Statistics> statisticsList = readAndWriteManager.read(timeEnum);
-        for (Statistics statistic : statisticsList) {
+    public List<IfClearedStatEntity> getStatistics(String routerId, TimeEnum timeEnum) {
+        List<IfClearedStatEntity> statistics = new ArrayList<>();
+        List<IfClearedStatEntity> ifClearedStatEntityList = readAndWriteManager.read(timeEnum);
+        for (IfClearedStatEntity statistic : ifClearedStatEntityList) {
             if ("".equals(routerId)) {
                 statistics.add(statistic);
             } else {
@@ -42,7 +42,7 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public void setIfClearedStat(List<Statistics> statistics) {
+    public void setIfClearedStat(List<IfClearedStatEntity> statistics) {
         readAndWriteManager.write(statistics);
     }
 

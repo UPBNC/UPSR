@@ -5,7 +5,7 @@ import cn.org.upbnc.base.DeviceManager;
 import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.base.StatisticsManager;
 import cn.org.upbnc.entity.Device;
-import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.StatisticService;
@@ -31,7 +31,7 @@ public class StatisticServiceImpl implements StatisticService {
     private DeviceManager deviceManager;
     private StatisticsManager statisticsManager;
     private Map<String,List<IfStatisticsEntity>> ifStatisticsEntityMaps;
-    private Map<String,List<Statistics>> ifClearedStatEntityMaps;
+    private Map<String,List<IfClearedStatEntity>> ifClearedStatEntityMaps;
     public static NetconfDevice netconfController = new NetconfDevice();
 
     public static StatisticService getInstance() {
@@ -57,29 +57,29 @@ public class StatisticServiceImpl implements StatisticService {
     public List<StatisticsEntity> getStatisticsMap(String routerId, TimeEnum timeEnum) {
         List<StatisticsEntity> statisticsEntityList = new ArrayList<>();
         StatisticsEntity statisticsEntity;
-        List<Statistics> statisticsList = statisticsManager.getStatistics(routerId, timeEnum);
-        for (Statistics statistics : statisticsList) {
-            statisticsEntity = statisticsMapToStatisticsEntity(statistics);
+        List<IfClearedStatEntity> ifClearedStatEntityList = statisticsManager.getStatistics(routerId, timeEnum);
+        for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
+            statisticsEntity = statisticsMapToStatisticsEntity(ifClearedStatEntity);
             statisticsEntityList.add(statisticsEntity);
         }
         return statisticsEntityList;
     }
 
-    private StatisticsEntity statisticsMapToStatisticsEntity(Statistics statistics) {
+    private StatisticsEntity statisticsMapToStatisticsEntity(IfClearedStatEntity ifClearedStatEntity) {
         StatisticsEntity statisticsEntity = new StatisticsEntity();
-        statisticsEntity.setRouterId(statistics.getRouterId());
-        statisticsEntity.setDate(statistics.getDate());
-        statisticsEntity.setIfIndex(statistics.getIfIndex());
-        statisticsEntity.setIfName(statistics.getIfName());
-        statisticsEntity.setRcvUniPacket(statistics.getRcvUniPacket());
-        statisticsEntity.setSendUniPacket(statistics.getSendUniPacket());
-        statisticsEntity.setSendPacket(statistics.getSendPacket());
-        statisticsEntity.setInPacketRate(statistics.getInPacketRate());
-        statisticsEntity.setOutPacketRate(statistics.getOutPacketRate());
-        statisticsEntity.setInUseRate(statistics.getInUseRate());
-        statisticsEntity.setOutUseRate(statistics.getOutUseRate());
-        statisticsEntity.setRcvErrorPacket(statistics.getRcvErrorPacket());
-        statisticsEntity.setSendErrorPacket(statistics.getSendErrorPacket());
+        statisticsEntity.setRouterId(ifClearedStatEntity.getRouterId());
+        statisticsEntity.setDate(ifClearedStatEntity.getDate());
+        statisticsEntity.setIfIndex(ifClearedStatEntity.getIfIndex());
+        statisticsEntity.setIfName(ifClearedStatEntity.getIfName());
+        statisticsEntity.setRcvUniPacket(ifClearedStatEntity.getRcvUniPacket());
+        statisticsEntity.setSendUniPacket(ifClearedStatEntity.getSendUniPacket());
+        statisticsEntity.setSendPacket(ifClearedStatEntity.getSendPacket());
+        statisticsEntity.setInPacketRate(ifClearedStatEntity.getInPacketRate());
+        statisticsEntity.setOutPacketRate(ifClearedStatEntity.getOutPacketRate());
+        statisticsEntity.setInUseRate(ifClearedStatEntity.getInUseRate());
+        statisticsEntity.setOutUseRate(ifClearedStatEntity.getOutUseRate());
+        statisticsEntity.setRcvErrorPacket(ifClearedStatEntity.getRcvErrorPacket());
+        statisticsEntity.setSendErrorPacket(ifClearedStatEntity.getSendErrorPacket());
         return statisticsEntity;
     }
 
@@ -94,7 +94,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<Statistics>> getIfClearedStat(String routerId) {
+    public Map<String, List<IfClearedStatEntity>> getIfClearedStat(String routerId) {
         return null;
     }
 
@@ -109,8 +109,8 @@ public class StatisticServiceImpl implements StatisticService {
             String sendMsg = StatisticXml.getIfClearedStatXml(ifName);
             String result = netconfController.sendMessage(netconfClient, sendMsg);
             List<SIfClearedStat> sIfClearedStats = StatisticXml.getIfClearedStatFromXml(result);
-            List<Statistics> statistics = new ArrayList<>();
-            Statistics statistic;
+            List<IfClearedStatEntity> statistics = new ArrayList<>();
+            IfClearedStatEntity statistic;
             for (SIfClearedStat sIfClearedStat : sIfClearedStats) {
                 statistic = sIfClearedStatMapToStatistics(sIfClearedStat);
                 statistic.setRouterId(routerId);
@@ -149,21 +149,21 @@ public class StatisticServiceImpl implements StatisticService {
         return;
     }
 
-    public Statistics sIfClearedStatMapToStatistics(SIfClearedStat sIfClearedStat) {
-        Statistics statistics = new Statistics();
-        statistics.setDate(System.currentTimeMillis());
-        statistics.setIfIndex(sIfClearedStat.getIfIndex());
-        statistics.setIfName(sIfClearedStat.getIfName());
-        statistics.setRcvUniPacket(sIfClearedStat.getRcvUniPacket());
-        statistics.setSendUniPacket(sIfClearedStat.getSendUniPacket());
-        statistics.setSendPacket(sIfClearedStat.getSendPacket());
-        statistics.setInPacketRate(sIfClearedStat.getInPacketRate());
-        statistics.setOutPacketRate(sIfClearedStat.getOutPacketRate());
-        statistics.setInUseRate(sIfClearedStat.getInUseRate());
-        statistics.setOutUseRate(sIfClearedStat.getOutUseRate());
-        statistics.setRcvErrorPacket(sIfClearedStat.getRcvErrorPacket());
-        statistics.setSendErrorPacket(sIfClearedStat.getSendErrorPacket());
-        return statistics;
+    public IfClearedStatEntity sIfClearedStatMapToStatistics(SIfClearedStat sIfClearedStat) {
+        IfClearedStatEntity ifClearedStatEntity = new IfClearedStatEntity();
+        ifClearedStatEntity.setDate(System.currentTimeMillis());
+        ifClearedStatEntity.setIfIndex(sIfClearedStat.getIfIndex());
+        ifClearedStatEntity.setIfName(sIfClearedStat.getIfName());
+        ifClearedStatEntity.setRcvUniPacket(sIfClearedStat.getRcvUniPacket());
+        ifClearedStatEntity.setSendUniPacket(sIfClearedStat.getSendUniPacket());
+        ifClearedStatEntity.setSendPacket(sIfClearedStat.getSendPacket());
+        ifClearedStatEntity.setInPacketRate(sIfClearedStat.getInPacketRate());
+        ifClearedStatEntity.setOutPacketRate(sIfClearedStat.getOutPacketRate());
+        ifClearedStatEntity.setInUseRate(sIfClearedStat.getInUseRate());
+        ifClearedStatEntity.setOutUseRate(sIfClearedStat.getOutUseRate());
+        ifClearedStatEntity.setRcvErrorPacket(sIfClearedStat.getRcvErrorPacket());
+        ifClearedStatEntity.setSendErrorPacket(sIfClearedStat.getSendErrorPacket());
+        return ifClearedStatEntity;
     }
 
     private IfStatisticsEntity sIfStatisticsToIfStatisticsEntity (SIfStatistics sIfStatistics) {

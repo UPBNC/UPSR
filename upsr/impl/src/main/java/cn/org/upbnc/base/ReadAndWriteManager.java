@@ -1,13 +1,13 @@
 package cn.org.upbnc.base;
 
-import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 
 import java.util.List;
 
 public interface ReadAndWriteManager {
-    void write(List<Statistics> statistics);
+    void write(List<IfClearedStatEntity> statistics);
     void writeIfStatisticsEntity(List<IfStatisticsEntity> ifStatisticsEntityList);
-    List<Statistics> read(TimeEnum time);
+    List<IfClearedStatEntity> read(TimeEnum time);
 }
