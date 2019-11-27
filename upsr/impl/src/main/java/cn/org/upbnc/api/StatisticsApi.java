@@ -8,5 +8,6 @@ import java.util.Map;
 public interface StatisticsApi {
     boolean setServiceInterface(ServiceInterface serviceInterface);
     Map<String, Object> getStatisticsMap(String routerId, String type);
+    Map<String, Object> getIfClearedStat(String routerId);
     void setStatistics();
 }

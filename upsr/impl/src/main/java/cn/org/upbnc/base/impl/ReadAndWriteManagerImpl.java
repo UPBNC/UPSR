@@ -1,7 +1,8 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.ReadAndWriteManager;
-import cn.org.upbnc.entity.Statistics;
+import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.util.TimeUtils;
 import net.sf.json.JSONArray;
@@ -58,6 +59,11 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void writeIfStatisticsEntity(List<IfStatisticsEntity> ifStatisticsEntityList) {
+        return;
     }
 
     @Override

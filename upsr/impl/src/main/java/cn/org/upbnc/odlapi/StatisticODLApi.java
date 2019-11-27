@@ -7,7 +7,7 @@ import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import cn.org.upbnc.service.entity.StatisticsEntity;
+import cn.org.upbnc.service.entity.statistics.StatisticsEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.Statistics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.StatisticsBuilder;
@@ -104,5 +104,33 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("interval : " + statisticsThread.getStatisticInterval());
         LOG.info("statisticSwitch end");
         return RpcResultBuilder.success(statisticSwitchOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetMemoryInfoOutput>> getMemoryInfo(GetMemoryInfoInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<GetCpuInfoOutput>> getCpuInfo(GetCpuInfoInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<GetIfClearedStatOutput>> getIfClearedStat(GetIfClearedStatInput input) {
+        GetIfClearedStatOutputBuilder getIfClearedStatOutputBuilder= new GetIfClearedStatOutputBuilder();
+
+
+        Map<String, Object> resultMap;
+        resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId());
+
+
+        getIfClearedStatOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        return RpcResultBuilder.success(getIfClearedStatOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetIfStatisticsOutput>> getIfStatistics(GetIfStatisticsInput input) {
+        return null;
     }
 }

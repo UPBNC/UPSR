@@ -1,7 +1,9 @@
-package cn.org.upbnc.util.netconf;
+package cn.org.upbnc.service.entity.statistics;
 
-public class SIfClearedStat {
+public class StatisticsEntity {
     private String ifName;
+    private long date;
+    private String routerId;
     private String ifIndex;
     private String ifOperStatItvl;
     private String inByteRate;
@@ -42,6 +44,22 @@ public class SIfClearedStat {
     private String rcvMutiPacketRate;
     private String sendBroadPacketRate;
     private String rcvBroadPacketRate;
+
+    public String getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(String routerId) {
+        this.routerId = routerId;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public String getIfName() {
         return ifName;
@@ -369,52 +387,5 @@ public class SIfClearedStat {
 
     public void setRcvBroadPacketRate(String rcvBroadPacketRate) {
         this.rcvBroadPacketRate = rcvBroadPacketRate;
-    }
-
-    @Override
-    public String toString() {
-        return "SIfClearedStat{" +
-                "ifName='" + ifName + '\'' +
-                ", ifIndex='" + ifIndex + '\'' +
-                ", ifOperStatItvl='" + ifOperStatItvl + '\'' +
-                ", inByteRate='" + inByteRate + '\'' +
-                ", inPacketRate='" + inPacketRate + '\'' +
-                ", inUseRate='" + inUseRate + '\'' +
-                ", outByteRate='" + outByteRate + '\'' +
-                ", outPacketRate='" + outPacketRate + '\'' +
-                ", outUseRate='" + outUseRate + '\'' +
-                ", receiveByte='" + receiveByte + '\'' +
-                ", sendByte='" + sendByte + '\'' +
-                ", receivePacket='" + receivePacket + '\'' +
-                ", sendPacket='" + sendPacket + '\'' +
-                ", rcvUniPacket='" + rcvUniPacket + '\'' +
-                ", rcvMutiPacket='" + rcvMutiPacket + '\'' +
-                ", rcvBroadPacket='" + rcvBroadPacket + '\'' +
-                ", sendUniPacket='" + sendUniPacket + '\'' +
-                ", sendMutiPacket='" + sendMutiPacket + '\'' +
-                ", sendBroadPacket='" + sendBroadPacket + '\'' +
-                ", rcvErrorPacket='" + rcvErrorPacket + '\'' +
-                ", rcvDropPacket='" + rcvDropPacket + '\'' +
-                ", sendErrorPacket='" + sendErrorPacket + '\'' +
-                ", sendDropPacket='" + sendDropPacket + '\'' +
-                ", sendUniBit='" + sendUniBit + '\'' +
-                ", rcvUniBit='" + rcvUniBit + '\'' +
-                ", sendMutiBit='" + sendMutiBit + '\'' +
-                ", rcvMutiBit='" + rcvMutiBit + '\'' +
-                ", sendBroadBit='" + sendBroadBit + '\'' +
-                ", rcvBroadBit='" + rcvBroadBit + '\'' +
-                ", sendUniBitRate='" + sendUniBitRate + '\'' +
-                ", rcvUniBitRate='" + rcvUniBitRate + '\'' +
-                ", sendMutiBitRate='" + sendMutiBitRate + '\'' +
-                ", rcvMutiBitRate='" + rcvMutiBitRate + '\'' +
-                ", sendBroadBitRate='" + sendBroadBitRate + '\'' +
-                ", rcvBroadBitRate='" + rcvBroadBitRate + '\'' +
-                ", sendUniPacketRate='" + sendUniPacketRate + '\'' +
-                ", rcvUniPacketRate='" + rcvUniPacketRate + '\'' +
-                ", sendMutiPacketRate='" + sendMutiPacketRate + '\'' +
-                ", rcvMutiPacketRate='" + rcvMutiPacketRate + '\'' +
-                ", sendBroadPacketRate='" + sendBroadPacketRate + '\'' +
-                ", rcvBroadPacketRate='" + rcvBroadPacketRate + '\'' +
-                '}';
     }
 }

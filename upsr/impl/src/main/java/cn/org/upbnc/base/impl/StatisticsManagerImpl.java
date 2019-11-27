@@ -2,21 +2,21 @@ package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.ReadAndWriteManager;
 import cn.org.upbnc.base.StatisticsManager;
-import cn.org.upbnc.entity.Statistics;
+import cn.org.upbnc.entity.statistics.Statistics;
+import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticsManagerImpl implements StatisticsManager {
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsManagerImpl.class);
 
     private static StatisticsManager instance;
     ReadAndWriteManager readAndWriteManager = ReadAndWriteManagerImpl.getInstance();
+
 
     public static StatisticsManager getInstance() {
         if (null == instance) {
@@ -42,7 +42,12 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public void setStatistics(List<Statistics> statistics) {
+    public void setIfClearedStat(List<Statistics> statistics) {
         readAndWriteManager.write(statistics);
+    }
+
+    @Override
+    public void setifStatistics(List<IfStatisticsEntity> ifStatisticsEntityList) {
+        readAndWriteManager.writeIfStatisticsEntity(ifStatisticsEntityList);
     }
 }

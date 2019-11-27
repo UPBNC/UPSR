@@ -1,6 +1,7 @@
 package cn.org.upbnc.util.xml;
 
-import cn.org.upbnc.util.netconf.SIfClearedStat;
+import cn.org.upbnc.util.netconf.statistics.SIfClearedStat;
+import cn.org.upbnc.util.netconf.statistics.SIfStatistics;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +128,41 @@ public class StatisticXml {
                 "</get>                                                                     \n" +
                 "</rpc>";
     }
+    public static List<SIfStatistics> getIfStatisticsFromXml(String xml) {
+        List<SIfStatistics> sIfStatisticsList = new ArrayList<>();
 
+        if (!("").equals(xml)) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.element("data").element("ifm").element("interfaces").elements("interface");
+                for (org.dom4j.Element child : childElements) {
+                    SIfStatistics sIfStatistics = new SIfStatistics();
+                    sIfStatistics.setIfName(child.elementText("ifName"));
+                    sIfStatistics.setIfIndex(child.elementText("ifIndex"));
+                    org.dom4j.Element child1 = child.element("ifStatistics");
+                    sIfStatistics.setReceiveByte(child1.elementText("receiveByte"));
+                    sIfStatistics.setSendByte(child1.elementText("sendByte"));
+                    sIfStatistics.setReceivePacket(child1.elementText("receivePacket"));
+                    sIfStatistics.setSendPacket(child1.elementText("sendPacket"));
+                    sIfStatistics.setRcvUniPacket(child1.elementText("rcvUniPacket"));
+                    sIfStatistics.setRcvMutiPacket(child1.elementText("rcvMutiPacket"));
+                    sIfStatistics.setRcvBroadPacket(child1.elementText("rcvBroadPacket"));
+                    sIfStatistics.setSendUniPacket(child1.elementText("sendUniPacket"));
+                    sIfStatistics.setSendMutiPacket(child1.elementText("sendMutiPacket"));
+                    sIfStatistics.setSendBroadPacket(child1.elementText("sendBroadPacket"));
+                    sIfStatistics.setRcvErrorPacket(child1.elementText("rcvErrorPacket"));
+                    sIfStatistics.setRcvDropPacket(child1.elementText("rcvDropPacket"));
+                    sIfStatistics.setSendErrorPacket(child1.elementText("sendErrorPacket"));
+                    sIfStatistics.setSendDropPacket(child1.elementText("sendDropPacket"));
+                }
+            } catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return sIfStatisticsList;
+    }
     public static String getCpuInfoXml() {
         return  "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>                                                                                   \n" +
