@@ -7,7 +7,7 @@ import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import cn.org.upbnc.service.entity.statistics.StatisticsEntity;
+import cn.org.upbnc.service.entity.statistics.IfClearedStatServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.Statistics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.StatisticsBuilder;
@@ -56,8 +56,8 @@ public class StatisticODLApi implements UpsrStatisticService {
         resultMap = this.getStatisticsApi().getStatisticsMap(input.getRouterId(),input.getType());
         String code = (String) resultMap.get(ResponseEnum.CODE.getName());
         if (CodeEnum.SUCCESS.getName().equals(code)) {
-            List<StatisticsEntity> statisticsEntityList = (List<StatisticsEntity>) resultMap.get(ResponseEnum.BODY.getName());
-            getStatisticOutputBuilder.setStatistics(statisticsEntityMapToStatistics(statisticsEntityList));
+            List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = (List<IfClearedStatServiceEntity>) resultMap.get(ResponseEnum.BODY.getName());
+            getStatisticOutputBuilder.setStatistics(statisticsEntityMapToStatistics(ifClearedStatServiceEntityList));
             getStatisticOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         } else {
             getStatisticOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
@@ -65,10 +65,10 @@ public class StatisticODLApi implements UpsrStatisticService {
         return RpcResultBuilder.success(getStatisticOutputBuilder.build()).buildFuture();
     }
 
-    private List<Statistics> statisticsEntityMapToStatistics(List<StatisticsEntity> statisticsEntityList){
+    private List<Statistics> statisticsEntityMapToStatistics(List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList){
         List<Statistics> statisticsList=new ArrayList<>();
         StatisticsBuilder statistics;
-        for(StatisticsEntity entity:statisticsEntityList){
+        for(IfClearedStatServiceEntity entity: ifClearedStatServiceEntityList){
             statistics=new StatisticsBuilder();
             statistics.setRouterId(entity.getRouterId());
             statistics.setDate(String.valueOf(entity.getDate()));

@@ -7,7 +7,7 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.StatisticService;
-import cn.org.upbnc.service.entity.statistics.StatisticsEntity;
+import cn.org.upbnc.service.entity.statistics.IfClearedStatServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +49,15 @@ public class StatisticsApiImpl implements StatisticsApi {
                     "is null.");
             return resultMap;
         }
-        List<StatisticsEntity> statisticsEntityList = new ArrayList<>();
+        List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
         if (null == TimeEnum.getEnum(type)) {
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
             resultMap.put(ResponseEnum.BODY.getName(), null);
             resultMap.put(ResponseEnum.MESSAGE.getName(), "type is not exist.");
         } else {
-            statisticsEntityList = statisticService.getStatisticsMap(routerId, TimeEnum.getEnum(type));
+            ifClearedStatServiceEntityList = statisticService.getStatisticsMap(routerId, TimeEnum.getEnum(type));
             resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-            resultMap.put(ResponseEnum.BODY.getName(), statisticsEntityList);
+            resultMap.put(ResponseEnum.BODY.getName(), ifClearedStatServiceEntityList);
         }
         return resultMap;
     }

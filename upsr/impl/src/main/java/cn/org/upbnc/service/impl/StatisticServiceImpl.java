@@ -9,7 +9,7 @@ import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.StatisticService;
-import cn.org.upbnc.service.entity.statistics.StatisticsEntity;
+import cn.org.upbnc.service.entity.statistics.IfClearedStatServiceEntity;
 import cn.org.upbnc.service.entity.statistics.IfStatisticsServiceEntity;
 import cn.org.upbnc.util.netconf.NetconfClient;
 import cn.org.upbnc.util.netconf.NetconfDevice;
@@ -54,33 +54,33 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public List<StatisticsEntity> getStatisticsMap(String routerId, TimeEnum timeEnum) {
-        List<StatisticsEntity> statisticsEntityList = new ArrayList<>();
-        StatisticsEntity statisticsEntity;
+    public List<IfClearedStatServiceEntity> getStatisticsMap(String routerId, TimeEnum timeEnum) {
+        List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
+        IfClearedStatServiceEntity ifClearedStatServiceEntity;
         List<IfClearedStatEntity> ifClearedStatEntityList = statisticsManager.getStatistics(routerId, timeEnum);
         for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
-            statisticsEntity = statisticsMapToStatisticsEntity(ifClearedStatEntity);
-            statisticsEntityList.add(statisticsEntity);
+            ifClearedStatServiceEntity = statisticsMapToStatisticsEntity(ifClearedStatEntity);
+            ifClearedStatServiceEntityList.add(ifClearedStatServiceEntity);
         }
-        return statisticsEntityList;
+        return ifClearedStatServiceEntityList;
     }
 
-    private StatisticsEntity statisticsMapToStatisticsEntity(IfClearedStatEntity ifClearedStatEntity) {
-        StatisticsEntity statisticsEntity = new StatisticsEntity();
-        statisticsEntity.setRouterId(ifClearedStatEntity.getRouterId());
-        statisticsEntity.setDate(ifClearedStatEntity.getDate());
-        statisticsEntity.setIfIndex(ifClearedStatEntity.getIfIndex());
-        statisticsEntity.setIfName(ifClearedStatEntity.getIfName());
-        statisticsEntity.setRcvUniPacket(ifClearedStatEntity.getRcvUniPacket());
-        statisticsEntity.setSendUniPacket(ifClearedStatEntity.getSendUniPacket());
-        statisticsEntity.setSendPacket(ifClearedStatEntity.getSendPacket());
-        statisticsEntity.setInPacketRate(ifClearedStatEntity.getInPacketRate());
-        statisticsEntity.setOutPacketRate(ifClearedStatEntity.getOutPacketRate());
-        statisticsEntity.setInUseRate(ifClearedStatEntity.getInUseRate());
-        statisticsEntity.setOutUseRate(ifClearedStatEntity.getOutUseRate());
-        statisticsEntity.setRcvErrorPacket(ifClearedStatEntity.getRcvErrorPacket());
-        statisticsEntity.setSendErrorPacket(ifClearedStatEntity.getSendErrorPacket());
-        return statisticsEntity;
+    private IfClearedStatServiceEntity statisticsMapToStatisticsEntity(IfClearedStatEntity ifClearedStatEntity) {
+        IfClearedStatServiceEntity ifClearedStatServiceEntity = new IfClearedStatServiceEntity();
+        ifClearedStatServiceEntity.setRouterId(ifClearedStatEntity.getRouterId());
+        ifClearedStatServiceEntity.setDate(ifClearedStatEntity.getDate());
+        ifClearedStatServiceEntity.setIfIndex(ifClearedStatEntity.getIfIndex());
+        ifClearedStatServiceEntity.setIfName(ifClearedStatEntity.getIfName());
+        ifClearedStatServiceEntity.setRcvUniPacket(ifClearedStatEntity.getRcvUniPacket());
+        ifClearedStatServiceEntity.setSendUniPacket(ifClearedStatEntity.getSendUniPacket());
+        ifClearedStatServiceEntity.setSendPacket(ifClearedStatEntity.getSendPacket());
+        ifClearedStatServiceEntity.setInPacketRate(ifClearedStatEntity.getInPacketRate());
+        ifClearedStatServiceEntity.setOutPacketRate(ifClearedStatEntity.getOutPacketRate());
+        ifClearedStatServiceEntity.setInUseRate(ifClearedStatEntity.getInUseRate());
+        ifClearedStatServiceEntity.setOutUseRate(ifClearedStatEntity.getOutUseRate());
+        ifClearedStatServiceEntity.setRcvErrorPacket(ifClearedStatEntity.getRcvErrorPacket());
+        ifClearedStatServiceEntity.setSendErrorPacket(ifClearedStatEntity.getSendErrorPacket());
+        return ifClearedStatServiceEntity;
     }
 
     @Override
