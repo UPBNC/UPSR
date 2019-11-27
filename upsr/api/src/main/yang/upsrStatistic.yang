@@ -109,7 +109,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list statistics {
+            list cpuInfoStat {
                 uses cpuInfoGroup;
             }
         }
@@ -120,7 +120,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list statistics {
+            list memoryInfoStat {
                 uses memoryInfoGroup;
             }
         }

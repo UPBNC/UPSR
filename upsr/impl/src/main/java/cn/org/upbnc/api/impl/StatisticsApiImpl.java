@@ -7,7 +7,10 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.service.ServiceInterface;
 import cn.org.upbnc.service.StatisticService;
+import cn.org.upbnc.service.entity.statistics.CpuInfoServiceEntity;
 import cn.org.upbnc.service.entity.statistics.IfClearedStatServiceEntity;
+import cn.org.upbnc.service.entity.statistics.IfStatisticsServiceEntity;
+import cn.org.upbnc.service.entity.statistics.MemoryInfoServiceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,9 +68,36 @@ public class StatisticsApiImpl implements StatisticsApi {
     @Override
     public Map<String, Object> getIfClearedStat(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
-        Map<String,List<IfClearedStatEntity>> ifStatisticsMap = statisticService.getIfClearedStat(routerId);
+        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap = statisticService.getIfClearedStat(routerId);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),ifClearedStatMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getIfStatistics(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap = statisticService.getIfStatistics(routerId);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),ifStatisticsMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getCpuInfo(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap = statisticService.getCpuInfo(routerId);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),cpuInfoMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getMemoryInfo(String routerId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap = statisticService.getMemoryInfo(routerId);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),memoryInfoMap);
         return resultMap;
     }
 

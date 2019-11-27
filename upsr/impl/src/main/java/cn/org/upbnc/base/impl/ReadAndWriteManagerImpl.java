@@ -3,6 +3,8 @@ package cn.org.upbnc.base.impl;
 import cn.org.upbnc.base.ReadAndWriteManager;
 import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
+import cn.org.upbnc.entity.statistics.CpuInfoEntity;
+import cn.org.upbnc.entity.statistics.MemoryInfoEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import cn.org.upbnc.util.TimeUtils;
 import net.sf.json.JSONArray;
@@ -63,6 +65,16 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
 
     @Override
     public void writeIfStatisticsEntity(List<IfStatisticsEntity> ifStatisticsEntityList) {
+        return;
+    }
+
+    @Override
+    public void writeCpuInfoEntity(List<CpuInfoEntity> cpuInfoEntityList) {
+        return;
+    }
+
+    @Override
+    public void writeMemoryInfoEntity(List<MemoryInfoEntity> memoryInfoEntityList) {
         return;
     }
 

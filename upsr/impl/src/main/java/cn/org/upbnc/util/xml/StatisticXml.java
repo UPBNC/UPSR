@@ -1,7 +1,9 @@
 package cn.org.upbnc.util.xml;
 
+import cn.org.upbnc.util.netconf.statistics.SCpuInfo;
 import cn.org.upbnc.util.netconf.statistics.SIfClearedStat;
 import cn.org.upbnc.util.netconf.statistics.SIfStatistics;
+import cn.org.upbnc.util.netconf.statistics.SMemoryInfo;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +178,30 @@ public class StatisticXml {
                 "</get>                                                                                  \n" +
                 "</rpc>";
     }
-
+    public static List<SCpuInfo> getCpuInfoFromXml(String xml) {
+        List<SCpuInfo> sCpuInfoList = new ArrayList<>();
+        if (!("").equals(xml)) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> cpuInfoElements = root.element("data").element("devm").element("cpuInfos").elements("cpuInfo");
+                for (org.dom4j.Element cpuInfo : cpuInfoElements) {
+                    SCpuInfo sCpuInfo = new SCpuInfo();
+                    sCpuInfo.setPosition(cpuInfo.elementText("position"));
+                    sCpuInfo.setEntIndex(cpuInfo.elementText("entIndex"));
+                    sCpuInfo.setSystemCpuUsage(cpuInfo.elementText("systemCpuUsage"));
+                    sCpuInfo.setOvloadThreshold(cpuInfo.elementText("ovloadThreshold"));
+                    sCpuInfo.setUnovloadThreshold(cpuInfo.elementText("unovloadThreshold"));
+                    sCpuInfo.setInterval(cpuInfo.elementText("interval"));
+                    sCpuInfoList.add(sCpuInfo);
+                }
+            } catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return sCpuInfoList;
+    }
     public static String getMemoryInfoXml() {
         return  "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>                                                                                     \n" +
@@ -189,5 +214,34 @@ public class StatisticXml {
                 "  </filter>                                                                               \n" +
                 "</get>                                                                                    \n" +
                 "</rpc>";
+    }
+
+    public static List<SMemoryInfo> getMemoryInfoFromXml(String xml) {
+        List<SMemoryInfo> sMemoryInfoArrayList = new ArrayList<>();
+        if (!("").equals(xml)) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> memoryInfoElements = root.element("data").element("devm").element("memoryInfos").elements("memoryInfo");
+                for (org.dom4j.Element memoryInfo : memoryInfoElements) {
+                    SMemoryInfo sMemoryInfo= new SMemoryInfo();
+                    sMemoryInfo.setPosition(memoryInfo.elementText("position"));
+                    sMemoryInfo.setEntIndex(memoryInfo.elementText("entIndex"));
+                    sMemoryInfo.setOsMemoryTotal(memoryInfo.elementText("osMemoryTotal"));
+                    sMemoryInfo.setOsMemoryUse(memoryInfo.elementText("osMemoryUse"));
+                    sMemoryInfo.setOsMemoryFree(memoryInfo.elementText("osMemoryFree"));
+                    sMemoryInfo.setOsMemoryUsage(memoryInfo.elementText("osMemoryUsage"));
+                    sMemoryInfo.setDoMemoryTotal(memoryInfo.elementText("doMemoryTotal"));
+                    sMemoryInfo.setDoMemoryUse(memoryInfo.elementText("doMemoryUse"));
+                    sMemoryInfo.setDoMemoryFree(memoryInfo.elementText("doMemoryFree"));
+                    sMemoryInfo.setDoMemoryUsage(memoryInfo.elementText("doMemoryUsage"));
+                    sMemoryInfoArrayList.add(sMemoryInfo);
+                }
+            }catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return sMemoryInfoArrayList;
     }
 }
