@@ -96,4 +96,63 @@ public class StatisticXml {
         }
         return sIfClearedStats;
     }
+
+    public static String getIfStatisticsXml(String ifName) {
+        return  "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get>                                                                      \n" +
+                "  <filter type=\"subtree\">                                                  \n" +
+                "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">     \n" +
+                "      <ifm:interfaces>                                                     \n" +
+                "        <ifm:interface>                                                    \n" +
+                "          <ifm:ifStatistics>                                               \n" +
+                "            <receiveByte/>                                                 \n" +
+                "            <sendByte/>                                                    \n" +
+                "            <receivePacket/>                                               \n" +
+                "            <sendPacket/>                                                  \n" +
+                "            <rcvUniPacket/>                                                \n" +
+                "            <rcvMutiPacket/>                                               \n" +
+                "            <rcvBroadPacket/>                                              \n" +
+                "            <sendUniPacket/>                                               \n" +
+                "            <sendMutiPacket/>                                              \n" +
+                "            <sendBroadPacket/>                                             \n" +
+                "            <rcvErrorPacket/>                                              \n" +
+                "            <rcvDropPacket/>                                               \n" +
+                "            <sendErrorPacket/>                                             \n" +
+                "            <sendDropPacket/>                                              \n" +
+                "          </ifm:ifStatistics>                                              \n" +
+                "        </ifm:interface>                                                   \n" +
+                "      </ifm:interfaces>                                                    \n" +
+                "    </ifm:ifm>                                                             \n" +
+                "  </filter>                                                                \n" +
+                "</get>                                                                     \n" +
+                "</rpc>";
+    }
+
+    public static String getCpuInfoXml() {
+        return  "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get>                                                                                   \n" +
+                "  <filter type=\"subtree\">                                                               \n" +
+                "    <devm:devm xmlns:devm=\"http://www.huawei.com/netconf/vrp/huawei-devm\">              \n" +
+                "      <devm:cpuInfos>                                                                   \n" +
+                "        <devm:cpuInfo/>                                                                 \n" +
+                "      </devm:cpuInfos>                                                                  \n" +
+                "    </devm:devm>                                                                        \n" +
+                "  </filter>                                                                             \n" +
+                "</get>                                                                                  \n" +
+                "</rpc>";
+    }
+
+    public static String getMemoryInfoXml() {
+        return  "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get>                                                                                     \n" +
+                "  <filter type=\"subtree\">                                                                 \n" +
+                "    <devm:devm xmlns:devm=\"http://www.huawei.com/netconf/vrp/huawei-devm\">                \n" +
+                "      <devm:memoryInfos>                                                                  \n" +
+                "        <devm:memoryInfo/>                                                                \n" +
+                "      </devm:memoryInfos>                                                                 \n" +
+                "    </devm:devm>                                                                          \n" +
+                "  </filter>                                                                               \n" +
+                "</get>                                                                                    \n" +
+                "</rpc>";
+    }
 }
