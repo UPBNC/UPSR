@@ -11,6 +11,7 @@ public class StatisticsThread extends Thread {
     String switchValve = "2"; //1 : 开， 2：关
     private static StatisticsThread threadInstance = null;
     long statisticInterval = 1000 * 60 * 5;
+    boolean stopMe = false;
 
     public static StatisticsThread getInstance() {
         if (threadInstance == null) {
@@ -20,12 +21,12 @@ public class StatisticsThread extends Thread {
     }
 
     public void stopMe() {
-        this.switchValve = "2";
+        this.stopMe = true;
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (stopMe != true) {
             try {
                 if (switchValve.equals("1")) {
                     statisticsApi.setStatistics();

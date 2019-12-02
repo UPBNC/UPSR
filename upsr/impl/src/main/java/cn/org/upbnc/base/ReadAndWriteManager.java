@@ -9,9 +9,9 @@ import cn.org.upbnc.enumtype.TimeEnum;
 import java.util.List;
 
 public interface ReadAndWriteManager {
-    void write(List<IfClearedStatEntity> statistics);
+    void writeIfClearedStat(List<IfClearedStatEntity> statistics);
     void writeIfStatisticsEntity(List<IfStatisticsEntity> ifStatisticsEntityList);
     void writeCpuInfoEntity(List<CpuInfoEntity> cpuInfoEntityList);
     void writeMemoryInfoEntity(List<MemoryInfoEntity> memoryInfoEntityList);
-    List<IfClearedStatEntity> read(TimeEnum time);
+    List<IfClearedStatEntity> readIfClearedStat(TimeEnum time);
 }

@@ -18,11 +18,14 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
 
     public static ReadAndWriteManagerImpl readAndWriteManager = new ReadAndWriteManagerImpl();
     private File file = null;
-    private String path;
+    private String pathIfClearedStat;
+    private String pathIfStatistics;
+    private String pathCpuInfo;
+    private String pathMemoryInfo;
 
     public ReadAndWriteManagerImpl() {
-        this.path = "./statistics.txt";
-        this.file = new File(path);
+        this.pathIfClearedStat = "./statistics.txt";
+        this.file = new File(pathIfClearedStat);
     }
 
 
@@ -34,7 +37,7 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
     }
 
     @Override
-    public void write(List<IfClearedStatEntity> statistics) {
+    public void writeIfClearedStat(List<IfClearedStatEntity> statistics) {
         String userString = "";
         for (IfClearedStatEntity statistic : statistics) {
             JSONObject jsonObject = JSONObject.fromObject(statistic);
@@ -49,9 +52,9 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
             OutputStreamWriter os;
             if (!file.exists()) {
                 file.createNewFile();
-                fos = new FileOutputStream(path);
+                fos = new FileOutputStream(pathIfClearedStat);
             } else {
-                fos = new FileOutputStream(path, true);
+                fos = new FileOutputStream(pathIfClearedStat, true);
             }
             os = new OutputStreamWriter(
                     fos, "UTF-8");
@@ -79,10 +82,10 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
     }
 
     @Override
-    public List<IfClearedStatEntity> read(TimeEnum time) {
+    public List<IfClearedStatEntity> readIfClearedStat(TimeEnum time) {
 
         List<IfClearedStatEntity> statistics = new ArrayList<>();
-        File file = new File(path);
+        File file = new File(pathIfClearedStat);
         try {
             if (file.isFile() && file.exists()) {
                 InputStreamReader is = new InputStreamReader(

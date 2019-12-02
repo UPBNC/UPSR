@@ -30,7 +30,7 @@ public class StatisticsManagerImpl implements StatisticsManager {
     @Override
     public List<IfClearedStatEntity> getStatistics(String routerId, TimeEnum timeEnum) {
         List<IfClearedStatEntity> statistics = new ArrayList<>();
-        List<IfClearedStatEntity> ifClearedStatEntityList = readAndWriteManager.read(timeEnum);
+        List<IfClearedStatEntity> ifClearedStatEntityList = readAndWriteManager.readIfClearedStat(timeEnum);
         for (IfClearedStatEntity statistic : ifClearedStatEntityList) {
             if ("".equals(routerId)) {
                 statistics.add(statistic);
@@ -45,7 +45,7 @@ public class StatisticsManagerImpl implements StatisticsManager {
 
     @Override
     public void setIfClearedStat(List<IfClearedStatEntity> statistics) {
-        readAndWriteManager.write(statistics);
+        readAndWriteManager.writeIfClearedStat(statistics);
     }
 
     @Override
