@@ -450,6 +450,16 @@ public class TunnelServiceImpl implements TunnelService {
     }
 
     @Override
+    public Map<String, Object> getSuggestTunnel(String srcRouterId, String dstRouterId) {
+        LOG.info("getSuggestTunnel : srcRouterId " + srcRouterId + " dstRouterId " + dstRouterId);
+        Map<String, Object> map = new HashMap<>();
+        List<Tunnel> tunnelList = tunnelManager.getTunnelByDest(srcRouterId, dstRouterId);
+        map.put(ResponseEnum.BODY.getName(), tunnelList);
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return map;
+    }
+
+    @Override
     public boolean syncTunnelInstanceConf() {
         boolean flag = true;
         List<Device> devices = deviceManager.getDeviceList();
@@ -730,9 +740,13 @@ public class TunnelServiceImpl implements TunnelService {
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
-        //String pingBackResult = this.pingLsp(netconfClient, tunnelName, TunnelDetectXml.LSPPATH_HOT);
+        PingTunnelServiceEntity pingTunnelServiceEntity = new PingTunnelServiceEntity();
+        pingTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
+        pingTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
+        pingTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+        pingTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.MESSAGE.getName(), pingMainResult.toString());
+        resultMap.put(ResponseEnum.MESSAGE.getName(), pingTunnelServiceEntity);
         return resultMap;
     }
 
@@ -765,6 +779,7 @@ public class TunnelServiceImpl implements TunnelService {
         detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
         detectTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
         detectTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+        detectTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
         detectTunnelServiceEntity.setStatus(traceMainResult.getStatus());
         detectTunnelServiceEntity.setErrorType(traceMainResult.getErrorType());
         for (STraceLspHopInfo sTraceLspHopInfo : traceMainResult.getsTraceLspHopInfoList()) {

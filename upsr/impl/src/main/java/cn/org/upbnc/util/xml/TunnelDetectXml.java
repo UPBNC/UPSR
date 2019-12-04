@@ -123,11 +123,13 @@ public class TunnelDetectXml {
             sPingLspResultInfo.setPacketSend(lspPingResultElement.elementText("packetSend"));
             sPingLspResultInfo.setPacketRecv(lspPingResultElement.elementText("packetRecv"));
             sPingLspResultInfo.setLossRatio(lspPingResultElement.elementText("lossRatio"));
-//            List<Element> pingResultDetail = lspPingResultElement.element("pingResultDetails").elements("pingResultDetail");
-//            for (org.dom4j.Element interfaceElement : pingResultDetail) {
-//                System.out.println(interfaceElement.elementText("index"));
-//                System.out.println(interfaceElement.elementText("destIpAddr"));
-//            }
+            if (lspPingResultElement.element("pingResultDetails") != null) {
+                List<Element> pingResultDetailElements = lspPingResultElement.element("pingResultDetails").elements("pingResultDetail");
+                for (org.dom4j.Element pingResultDetail : pingResultDetailElements) {
+                    sPingLspResultInfo.setRttValue(pingResultDetail.elementText("rtt"));
+                    break;
+                }
+            }
         } catch (Exception e) {
                 LOG.info(e.toString());
         }

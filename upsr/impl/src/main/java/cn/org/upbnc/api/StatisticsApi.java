@@ -12,5 +12,8 @@ public interface StatisticsApi {
     Map<String, Object> getIfStatistics(String routerId);
     Map<String, Object> getCpuInfo(String routerId);
     Map<String, Object> getMemoryInfo(String routerId);
+    Map<String, Object> getDedicateBand(String routerId,String ifName);
+    Map<String, Object> getOutUsedBand(String routerId,String ifName);
+    Map<String, Object> getRemainingband(String routerId,String ifName);
     void setStatistics();
 }

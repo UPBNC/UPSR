@@ -24,4 +24,6 @@ public interface TunnelApi {
     Map<String, Object> detectTunnel(String routerId, String tunnelName, String lspPath);
 
     Map<String, Object> generateTunnelName(String routerId);
+
+    Map<String, Object> getSuggestTunnel(String srcRouterId, String dstRouterId);
 }

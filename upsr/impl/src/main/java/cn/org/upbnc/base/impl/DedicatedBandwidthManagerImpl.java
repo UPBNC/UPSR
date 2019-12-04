@@ -1,15 +1,23 @@
 package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.DedicatedBandwidthManager;
+import org.ini4j.Ini;
+import org.ini4j.Profile;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
 public class DedicatedBandwidthManagerImpl implements DedicatedBandwidthManager {
-    private Map<String,Map<String,String>> dedicatedBandwidth;
     private static DedicatedBandwidthManager instance = null;
+    private Ini band_ini = null;
     private DedicatedBandwidthManagerImpl() {
-        dedicatedBandwidth = new HashMap<>();
+        File bandFile = new File("./de_band.ini");
+        band_ini = new Ini();
+        band_ini.setFile(bandFile);
+        try {
+            band_ini.load();
+        } catch (Exception e) {
+
+        }
     }
 
     public static DedicatedBandwidthManager getInstance() {
@@ -17,5 +25,21 @@ public class DedicatedBandwidthManagerImpl implements DedicatedBandwidthManager 
             instance = new DedicatedBandwidthManagerImpl();
         }
         return instance;
+    }
+
+    @Override
+    public String getIfBand(String routerId, String ifName) {
+        if ((routerId == null) || (ifName == null)) {
+            return null;
+        }
+        if (band_ini != null) {
+            Profile.Section sectionCfg = band_ini.get(routerId);
+            if (sectionCfg == null) {
+                return null;
+            }
+            String ifBand = sectionCfg.get(ifName);
+            return ifBand;
+        }
+        return null;
     }
 }

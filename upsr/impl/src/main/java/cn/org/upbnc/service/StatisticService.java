@@ -18,5 +18,8 @@ public interface StatisticService {
     Map<String,List<IfClearedStatServiceEntity>> getIfClearedStat(String routerId);
     Map<String,List<CpuInfoServiceEntity>> getCpuInfo(String routerId);
     Map<String,List<MemoryInfoServiceEntity>> getMemoryInfo(String routerId);
+    Map<String,Integer> getDedicateBand(String routerId, String ifName);
+    Map<String,Integer> getOutUsedBand(String routerId, String ifName);
+    Map<String,Integer> getRemainingband(String routerId, String ifName);
     void setStatistics();
 }

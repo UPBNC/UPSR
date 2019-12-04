@@ -102,6 +102,33 @@ public class StatisticsApiImpl implements StatisticsApi {
     }
 
     @Override
+    public Map<String, Object> getDedicateBand(String routerId, String ifName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,Integer> dedicateBandMap = statisticService.getDedicateBand(routerId,ifName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),dedicateBandMap);
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getOutUsedBand(String routerId, String ifName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,Integer> outUsedBandMap = statisticService.getOutUsedBand(routerId,ifName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),outUsedBandMap);
+        return resultMap;
+    }
+
+	@Override
+    public Map<String, Object> getRemainingband(String routerId, String ifName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Map<String,Integer> remainingbandMap = statisticService.getRemainingband(routerId,ifName);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        resultMap.put(ResponseEnum.BODY.getName(),remainingbandMap);
+        return resultMap;
+    }
+
+    @Override
     public void setStatistics() {
         statisticService.setStatistics();
     }

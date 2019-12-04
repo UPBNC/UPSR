@@ -1,9 +1,6 @@
 package cn.org.upbnc.service.impl;
 
-import cn.org.upbnc.base.BaseInterface;
-import cn.org.upbnc.base.DeviceManager;
-import cn.org.upbnc.base.NetConfManager;
-import cn.org.upbnc.base.StatisticsManager;
+import cn.org.upbnc.base.*;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
 import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
@@ -37,6 +34,7 @@ public class StatisticServiceImpl implements StatisticService {
     private NetConfManager netConfManager;
     private DeviceManager deviceManager;
     private StatisticsManager statisticsManager;
+    private DedicatedBandwidthManager dedicatedBandwidthManager;
     private Map<String,List<IfStatisticsEntity>> ifStatisticsEntityMaps = new HashMap<>();
     private Map<String,List<IfClearedStatEntity>> ifClearedStatEntityMaps = new HashMap<>();
     private Map<String,List<CpuInfoEntity>> cpuInfoEntityMaps = new HashMap<>();
@@ -58,6 +56,7 @@ public class StatisticServiceImpl implements StatisticService {
             this.netConfManager = this.baseInterface.getNetConfManager();
             this.deviceManager = this.baseInterface.getDeviceManager();
             this.statisticsManager = this.baseInterface.getStatisticsManager();
+            this.dedicatedBandwidthManager = this.baseInterface.getDedicatedBandwidthManager();
         }
         return true;
     }
@@ -90,6 +89,48 @@ public class StatisticServiceImpl implements StatisticService {
         ifClearedStatServiceEntity.setRcvErrorPacket(ifClearedStatEntity.getRcvErrorPacket());
         ifClearedStatServiceEntity.setSendErrorPacket(ifClearedStatEntity.getSendErrorPacket());
         return ifClearedStatServiceEntity;
+    }
+
+    @Override
+    public Map<String, Integer> getDedicateBand(String routerId, String ifName) {
+        Map<String, Integer> ret = new HashMap<>();
+        String dedicateBand = dedicatedBandwidthManager.getIfBand(routerId,ifName);
+        if (dedicateBand != null) {
+            ret.put("band",Integer.valueOf(dedicateBand));
+        }
+        return ret;
+    }
+
+    @Override
+    public Map<String, Integer> getOutUsedBand(String routerId, String ifName) {
+        Map<String, Integer> ret = new HashMap<>();
+        List<IfClearedStatEntity> ifClearedStatEntityList = ifClearedStatEntityMaps.get(routerId);
+        for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
+            if (ifClearedStatEntity.getIfName().equals(ifName)) {
+                int band = 1024*Integer.parseInt(ifClearedStatEntity.getOutUseRate())/100;
+                ret.put("band",new Integer(band));
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Map<String, Integer> getRemainingband(String routerId, String ifName) {
+        Map<String, Integer> ret = new HashMap<>();
+        int remainingBand = 1024;
+        String dedicateBand = dedicatedBandwidthManager.getIfBand(routerId,ifName);
+        if (dedicateBand != null) {
+            remainingBand = Integer.parseInt(dedicateBand);
+        }
+        List<IfClearedStatEntity> ifClearedStatEntityList = ifClearedStatEntityMaps.get(routerId);
+        for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
+            if (ifClearedStatEntity.getIfName().equals(ifName)) {
+                remainingBand = remainingBand - 1024*Integer.parseInt(ifClearedStatEntity.getOutUseRate())/100;
+                break;
+            }
+        }
+        ret.put("band",new Integer(remainingBand));
+        return ret;
     }
 
     @Override

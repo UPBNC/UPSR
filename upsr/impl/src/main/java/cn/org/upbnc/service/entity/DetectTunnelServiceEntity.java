@@ -7,6 +7,7 @@ public class DetectTunnelServiceEntity {
         String packetSend;
         String packetRecv;
         String lossRatio;
+        String rttValue;
         String status;
         String errorType;
         List<TunnelHopServiceEntity> tunnelHopServiceEntityList;
@@ -53,6 +54,14 @@ public class DetectTunnelServiceEntity {
 
     public void setErrorType(String errorType) {
         this.errorType = errorType;
+    }
+
+    public String getRttValue() {
+        return rttValue;
+    }
+
+    public void setRttValue(String rttValue) {
+        this.rttValue = rttValue;
     }
 
     public List<TunnelHopServiceEntity> getTunnelHopServiceEntityList() {
