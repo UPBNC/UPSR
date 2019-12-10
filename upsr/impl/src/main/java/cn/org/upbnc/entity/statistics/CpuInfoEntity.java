@@ -1,12 +1,21 @@
 package cn.org.upbnc.entity.statistics;
 
 public class CpuInfoEntity {
+    private long date;
     private String position;
     private String entIndex;
     private String systemCpuUsage;
     private String ovloadThreshold;
     private String unovloadThreshold;
     private String interval;
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public String getPosition() {
         return position;

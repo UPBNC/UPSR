@@ -164,12 +164,13 @@ public class StatisticServiceImpl implements StatisticService {
         Map<String,List<IfStatisticsEntity>> ifStatisticsMaps = new HashMap<>();
         Map<String,List<CpuInfoEntity>> cpuInfoMaps = new HashMap<>();
         Map<String,List<MemoryInfoEntity>> memoryInfoMaps = new HashMap<>();
+        long date = System.currentTimeMillis();
         for (Device device : devices) {
             routerId = device.getRouterId();
-            List<IfClearedStatEntity> ifClearedStatEntityList = this.setIfClearedStat(routerId,"");
-            List<IfStatisticsEntity> ifStatisticsEntityList = this.setIfStatistics(routerId,"");
-            List<CpuInfoEntity> cpuInfoEntityList = this.setCpuInfo(routerId);
-            List<MemoryInfoEntity> memoryInfoEntityList = this.setMemoryInfo(routerId);
+            List<IfClearedStatEntity> ifClearedStatEntityList = this.setIfClearedStat(routerId,"",date);
+            List<IfStatisticsEntity> ifStatisticsEntityList = this.setIfStatistics(routerId,"",date);
+            List<CpuInfoEntity> cpuInfoEntityList = this.setCpuInfo(routerId,date);
+            List<MemoryInfoEntity> memoryInfoEntityList = this.setMemoryInfo(routerId,date);
             if (ifClearedStatEntityList != null) {
                 ifClearedStatMaps.put(routerId,ifClearedStatEntityList);
             }
@@ -183,6 +184,12 @@ public class StatisticServiceImpl implements StatisticService {
                 memoryInfoMaps.put(routerId,memoryInfoEntityList);
             }
         }
+
+        statisticsManager.setIfClearedStatMap(ifClearedStatMaps);
+        statisticsManager.setIfStatisticsMap(ifStatisticsMaps);
+        statisticsManager.setCpuInfoMap(cpuInfoMaps);
+        statisticsManager.setMemoryInfoMap(memoryInfoMaps);
+
         ifClearedStatEntityMaps = ifClearedStatMaps;
         ifStatisticsEntityMaps = ifStatisticsMaps;
         cpuInfoEntityMaps = cpuInfoMaps;
@@ -251,7 +258,7 @@ public class StatisticServiceImpl implements StatisticService {
         return ret;
     }
 
-    private List<IfClearedStatEntity> setIfClearedStat(String routerId, String ifName) {
+    private List<IfClearedStatEntity> setIfClearedStat(String routerId, String ifName,long date) {
         NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
         if (null != netconfClient) {
             String sendMsg = StatisticXml.getIfClearedStatXml(ifName);
@@ -261,18 +268,16 @@ public class StatisticServiceImpl implements StatisticService {
             IfClearedStatEntity statistic;
             for (SIfClearedStat sIfClearedStat : sIfClearedStats) {
                 statistic = sIfClearedStatMapToStatistics(sIfClearedStat);
+                statistic.setDate(date);
                 statistic.setRouterId(routerId);
                 statistics.add(statistic);
-            }
-            if (sIfClearedStats.size() > 0) {
-                statisticsManager.setIfClearedStat(statistics);
             }
             return statistics;
         }
         return null;
     }
 
-    private List<IfStatisticsEntity> setIfStatistics(String routerId, String ifName) {
+    private List<IfStatisticsEntity> setIfStatistics(String routerId, String ifName, long date) {
         NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
         if (null != netconfClient) {
             String sendMsg = StatisticXml.getIfStatisticsXml(ifName);
@@ -281,17 +286,15 @@ public class StatisticServiceImpl implements StatisticService {
             List<IfStatisticsEntity> ifStatisticsEntityList = new ArrayList<>();
             for (SIfStatistics sIfStatistics : sIfStatisticsList) {
                 IfStatisticsEntity ifStatisticsEntity = sIfStatisticsToIfStatisticsEntity(sIfStatistics);
+                ifStatisticsEntity.setDate(date);
                 ifStatisticsEntityList.add(ifStatisticsEntity);
-            }
-            if (ifStatisticsEntityList.size() > 0) {
-                statisticsManager.setifStatistics(ifStatisticsEntityList);
             }
             return  ifStatisticsEntityList;
         }
         return null;
     }
 
-    private List<CpuInfoEntity> setCpuInfo(String routerId) {
+    private List<CpuInfoEntity> setCpuInfo(String routerId,long date) {
         NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
         if (null != netconfClient) {
             String sendMsg = StatisticXml.getCpuInfoXml();
@@ -300,15 +303,15 @@ public class StatisticServiceImpl implements StatisticService {
             List<CpuInfoEntity> cpuInfoEntityList =  new ArrayList<>();
             for (SCpuInfo sCpuInfo : sCpuInfoList) {
                 CpuInfoEntity cpuInfoEntity = sCpuInfoToSCpuInfoEntity(sCpuInfo);
+                cpuInfoEntity.setDate(date);
                 cpuInfoEntityList.add(cpuInfoEntity);
             }
-            statisticsManager.setCpuInfo(cpuInfoEntityList);
             return  cpuInfoEntityList;
         }
         return null;
     }
 
-    private List<MemoryInfoEntity> setMemoryInfo(String routerId) {
+    private List<MemoryInfoEntity> setMemoryInfo(String routerId, long date) {
         NetconfClient netconfClient = this.netConfManager.getNetconClient(routerId);
         if (null != netconfClient) {
             String sendMsg = StatisticXml.getMemoryInfoXml();
@@ -317,9 +320,9 @@ public class StatisticServiceImpl implements StatisticService {
             List<MemoryInfoEntity> memoryInfoEntityList = new ArrayList<>();
             for (SMemoryInfo sMemoryInfo : sMemoryInfoList) {
                 MemoryInfoEntity memoryInfoEntity = sMemoryInfoToMemoryInfoEntity(sMemoryInfo);
+                memoryInfoEntity.setDate(date);
                 memoryInfoEntityList.add(memoryInfoEntity);
             }
-            statisticsManager.setMemoryInfo(memoryInfoEntityList);
             return  memoryInfoEntityList;
         }
         return null;
@@ -327,7 +330,6 @@ public class StatisticServiceImpl implements StatisticService {
 
     public IfClearedStatEntity sIfClearedStatMapToStatistics(SIfClearedStat sIfClearedStat) {
         IfClearedStatEntity ifClearedStatEntity = new IfClearedStatEntity();
-        ifClearedStatEntity.setDate(System.currentTimeMillis());
         ifClearedStatEntity.setIfIndex(sIfClearedStat.getIfIndex());
         ifClearedStatEntity.setIfName(sIfClearedStat.getIfName());
         ifClearedStatEntity.setRcvUniPacket(sIfClearedStat.getRcvUniPacket());

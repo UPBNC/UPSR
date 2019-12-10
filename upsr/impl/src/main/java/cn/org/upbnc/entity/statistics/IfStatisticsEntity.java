@@ -1,6 +1,7 @@
 package cn.org.upbnc.entity.statistics;
 
 public class IfStatisticsEntity {
+    private long date;
     private String ifName;
     private String ifIndex;
     private String receiveByte;
@@ -17,6 +18,14 @@ public class IfStatisticsEntity {
     private String rcvDropPacket;
     private String sendErrorPacket;
     private String sendDropPacket;
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public String getIfName() {
         return ifName;

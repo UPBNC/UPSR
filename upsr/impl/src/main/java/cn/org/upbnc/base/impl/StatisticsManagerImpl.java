@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StatisticsManagerImpl implements StatisticsManager {
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsManagerImpl.class);
@@ -49,7 +50,7 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public void setifStatistics(List<IfStatisticsEntity> ifStatisticsEntityList) {
+    public void setIfStatistics(List<IfStatisticsEntity> ifStatisticsEntityList) {
         readAndWriteManager.writeIfStatisticsEntity(ifStatisticsEntityList);
     }
 
@@ -61,5 +62,45 @@ public class StatisticsManagerImpl implements StatisticsManager {
     @Override
     public void setMemoryInfo(List<MemoryInfoEntity> memoryInfoEntityList) {
         readAndWriteManager.writeMemoryInfoEntity(memoryInfoEntityList);
+    }
+
+    @Override
+    public void setIfClearedStatMap(Map<String, List<IfClearedStatEntity>> ifClearedStatMaps) {
+        readAndWriteManager.writeIfClearedStatMap(ifClearedStatMaps);
+    }
+
+    @Override
+    public void setIfStatisticsMap(Map<String, List<IfStatisticsEntity>> ifStatisticsMaps) {
+        readAndWriteManager.writeIfStatisticsMap(ifStatisticsMaps);
+    }
+
+    @Override
+    public void setCpuInfoMap(Map<String, List<CpuInfoEntity>> cpuInfoMaps) {
+        readAndWriteManager.writeCpuInfoMap(cpuInfoMaps);
+    }
+
+    @Override
+    public void setMemoryInfoMap(Map<String, List<MemoryInfoEntity>> memoryInfoMaps) {
+        readAndWriteManager.writeMemoryInfoMap(memoryInfoMaps);
+    }
+
+    @Override
+    public Map<String, List<IfClearedStatEntity>> getIfClearedStatMap() {
+        return readAndWriteManager.getIfClearedStatMap();
+    }
+
+    @Override
+    public Map<String, List<IfStatisticsEntity>> getIfStatisticsMap() {
+        return readAndWriteManager.getIfStatisticsMap();
+    }
+
+    @Override
+    public Map<String, List<CpuInfoEntity>> getCpuInfoMap() {
+        return readAndWriteManager.getCpuInfoMap();
+    }
+
+    @Override
+    public Map<String, List<MemoryInfoEntity>> getMemoryInfoMap() {
+        return readAndWriteManager.getMemoryInfoMap();
     }
 }

@@ -1,6 +1,7 @@
 package cn.org.upbnc.entity.statistics;
 
 public class MemoryInfoEntity {
+    private long date;
     private String position;
     private String entIndex;
     private String osMemoryTotal;
@@ -11,6 +12,14 @@ public class MemoryInfoEntity {
     private String doMemoryUse;
     private String doMemoryFree;
     private String doMemoryUsage;
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public String getPosition() {
         return position;
