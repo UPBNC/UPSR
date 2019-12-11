@@ -31,6 +31,7 @@ public class ServiceInterface {
     private StatisticService statisticService;
     private ActionCfgService actionCfgService;
     private TrafficPolicyService trafficPolicyService;
+    private DiagnoseService diagnoseService;
 
 
     public ServiceInterface() {
@@ -48,6 +49,7 @@ public class ServiceInterface {
         this.routePolicyService = null;
         this.actionCfgService = null;
         this.trafficPolicyService = null;
+        this.diagnoseService = null;
     }
 
     public void init() {
@@ -64,6 +66,7 @@ public class ServiceInterface {
             this.statisticService = StatisticServiceImpl.getInstance();
             this.actionCfgService = ActionCfgServiceImpl.getInstance();
             this.trafficPolicyService = TrafficPolicyServiceImpl.getInstance();
+            this.diagnoseService = DiagnoseServiceImpl.getInstance();
             LOG.info("ServiceInterface init End!");
         } catch (Exception e) {
             LOG.info("ServiceInterface init failure! " + e.getMessage());
@@ -89,6 +92,7 @@ public class ServiceInterface {
             ret = ((true == ret) ? this.statisticService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.actionCfgService.setBaseInterface(this.baseInterface) : false);
             ret = ((true == ret) ? this.trafficPolicyService.setBaseInterface(this.baseInterface) : false);
+            ret = ((true == ret) ? this.diagnoseService.setBaseInterface(this.baseInterface) : false);
         } catch (Exception e) {
             ret = false;
             LOG.info(e.getMessage());
@@ -202,5 +206,9 @@ public class ServiceInterface {
 
     public TrafficPolicyService getTrafficPolicyService() {
         return trafficPolicyService;
+    }
+
+    public DiagnoseService getDiagnoseService() {
+        return diagnoseService;
     }
 }

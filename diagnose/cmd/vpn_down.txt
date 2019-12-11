@@ -1,0 +1,2 @@
+echo vpn down info
+echo bfd down info
