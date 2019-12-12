@@ -797,9 +797,11 @@ public class TunnelODLApi implements UpsrTunnelService {
                     mainPathList.add(mainPathBuilder.build());
                 }
             }
-            candidateTunnelBuilder.setMainPathBand("" + band);
-            candidateTunnelBuilder.setMainPath(mainPathList);
-            candidateTunnelList.add(candidateTunnelBuilder.build());
+            if (mainPathList.size() > 0) {
+                candidateTunnelBuilder.setMainPathBand("" + band);
+                candidateTunnelBuilder.setMainPath(mainPathList);
+                candidateTunnelList.add(candidateTunnelBuilder.build());
+            }
         }
         return candidateTunnelList;
     }

@@ -130,7 +130,11 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("getMemoryInfo begin");
         GetMemoryInfoOutputBuilder getMemoryInfoOutputBuilder = new GetMemoryInfoOutputBuilder();
         Map<String, Object> resultMap;
-        resultMap = this.getStatisticsApi().getMemoryInfo(input.getRouterId());
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getMemoryInfo(null);
+        } else {
+            resultMap = this.getStatisticsApi().getMemoryInfo(input.getRouterId());
+        }
         Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap =
                 (Map<String,List<MemoryInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<MemoryInfoStat> memoryInfoStatList = new ArrayList<>();
@@ -145,9 +149,11 @@ public class StatisticODLApi implements UpsrStatisticService {
                 memoryInfoBuilder.setOsMemoryUse(memoryInfoServiceEntity.getOsMemoryUse());
                 memoryInfoList.add(memoryInfoBuilder.build());
             }
-            memoryInfoStatBuilder.setMemoryInfo(memoryInfoList);
-            memoryInfoStatBuilder.setRouterId(rid);
-            memoryInfoStatList.add(memoryInfoStatBuilder.build());
+            if (memoryInfoList.size() > 0) {
+                memoryInfoStatBuilder.setMemoryInfo(memoryInfoList);
+                memoryInfoStatBuilder.setRouterId(rid);
+                memoryInfoStatList.add(memoryInfoStatBuilder.build());
+            }
         }
         getMemoryInfoOutputBuilder.setMemoryInfoStat(memoryInfoStatList);
         getMemoryInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
@@ -160,7 +166,11 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("getCpuInfo begin");
         GetCpuInfoOutputBuilder getCpuInfoOutputBuilder = new GetCpuInfoOutputBuilder();
         Map<String, Object> resultMap;
-        resultMap = this.getStatisticsApi().getCpuInfo(input.getRouterId());
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getCpuInfo(null);
+        } else {
+            resultMap = this.getStatisticsApi().getCpuInfo(input.getRouterId());
+        }
         Map<String,List<CpuInfoServiceEntity>> cpuInfoMap =
                 (Map<String,List<CpuInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<CpuInfoStat> cpuInfoStatList = new ArrayList<>();
@@ -176,9 +186,11 @@ public class StatisticODLApi implements UpsrStatisticService {
                 cpuInfoBuilder.setUnovloadThreshold(cpuInfoServiceEntity.getUnovloadThreshold());
                 cpuInfoList.add(cpuInfoBuilder.build());
             }
-            cpuInfoStatBuilder.setRouterId(rid);
-            cpuInfoStatBuilder.setCpuInfo(cpuInfoList);
-            cpuInfoStatList.add(cpuInfoStatBuilder.build());
+            if (cpuInfoList.size() > 0) {
+                cpuInfoStatBuilder.setRouterId(rid);
+                cpuInfoStatBuilder.setCpuInfo(cpuInfoList);
+                cpuInfoStatList.add(cpuInfoStatBuilder.build());
+            }
         }
         getCpuInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         getCpuInfoOutputBuilder.setCpuInfoStat(cpuInfoStatList);
@@ -191,7 +203,11 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("getIfClearedStat begin");
         GetIfClearedStatOutputBuilder getIfClearedStatOutputBuilder= new GetIfClearedStatOutputBuilder();
         Map<String, Object> resultMap;
-        resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId());
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getIfClearedStat(null);
+        } else {
+            resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId());
+        }
         Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap =
                 (Map<String,List<IfClearedStatServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<RouterIfCleared> routerIfClearedList = new ArrayList<>();
@@ -230,7 +246,11 @@ public class StatisticODLApi implements UpsrStatisticService {
         GetIfStatisticsOutputBuilder getIfStatisticsOutputBuilder = new GetIfStatisticsOutputBuilder();
         getIfStatisticsOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         Map<String, Object> resultMap;
-        resultMap = this.getStatisticsApi().getIfStatistics(input.getRouterId());
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getIfStatistics(null);
+        } else {
+            resultMap = this.getStatisticsApi().getIfStatistics(input.getRouterId());
+        }
         Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap =
                 (Map<String,List<IfStatisticsServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
         List<RouterIfStatistics> routerIfStatisticsList = new ArrayList<>();

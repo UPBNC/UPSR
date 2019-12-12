@@ -1,2 +1,1 @@
-echo vpn down info
-echo bfd down info
+display vpn-group | no-more

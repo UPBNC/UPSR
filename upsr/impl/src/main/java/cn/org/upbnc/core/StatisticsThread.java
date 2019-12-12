@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 public class StatisticsThread extends Thread {
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsThread.class);
     StatisticsApi statisticsApi = StatisticsApiImpl.getInstance();
-    String switchValve = "2"; //1 : 开， 2：关
+    String switchValve = "1"; //1 : 开， 2：关
     private static StatisticsThread threadInstance = null;
     long statisticInterval = 1000 * 60 * 5;
     boolean stopMe = false;
@@ -27,7 +27,7 @@ public class StatisticsThread extends Thread {
     @Override
     public void run() {
         try {
-            Thread.sleep(1000 * 60 / 10);
+            Thread.sleep(1000 * 60 * 1);
             statisticsApi.setStatistics();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -53,10 +53,10 @@ public class StatisticsThread extends Thread {
     }
 
     public long getStatisticInterval() {
-        return statisticInterval /(1000 * 60);
+        return statisticInterval /(1000);
     }
 
     public void setStatisticInterval(long statisticInterval) {
-        this.statisticInterval = statisticInterval * 1000 * 60 ;
+        this.statisticInterval = statisticInterval * 1000;
     }
 }

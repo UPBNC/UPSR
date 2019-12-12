@@ -8,7 +8,7 @@ import configparser
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='YOLO v3 Detection Module')
-    parser.add_argument("--routerId", dest='routerId', help="routerId",default="127.0.0.1", type=str)
+    parser.add_argument("--routerId", dest='routerId', help="routerId",default="1.1.1.1", type=str)
     parser.add_argument("--host", dest='host', help="SSH IP",default="127.0.0.1", type=str)
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--username", dest='username', help="username",default="root", type=str)
@@ -24,6 +24,7 @@ def sshclient_execmd(hostname, port, username, password, cmdfile):
     line = f.readlines()
     for cmd in line:
         cmd = cmd.strip()
+        print cmd
         stdin, stdout, stderr = client.exec_command(cmd)
         outprint = stdout.read()
         print(outprint)
@@ -40,9 +41,11 @@ if __name__ == '__main__':
     cmdfile = args.cmdfile
 
     deviceCfg = configparser.ConfigParser()
-    deviceCfg.read('/root/upmdc/o2/karaf-0.8.2/sr_conf.ini_cop')
+    deviceCfg.read('/root/upmdc/o2/karaf-0.8.2/sr_conf.ini')
     for i, val in enumerate(deviceCfg.sections()):
         if deviceCfg.get((val), "routerId") == routerId:
             host = deviceCfg.get((val), "sshIP")
+            username = deviceCfg.get((val), "userName")
+            password = deviceCfg.get((val), "passWord")
             sshclient_execmd(host, port, username, password, cmdfile)
             break

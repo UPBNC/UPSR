@@ -1,2 +1,1 @@
-echo tunnel down info
-echo bfd down info
+display segment-routing adjacency mpls forwarding | no-more

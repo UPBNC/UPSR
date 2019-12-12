@@ -147,7 +147,7 @@ public class StatisticServiceImpl implements StatisticService {
             if (ifClearedStatEntityList != null) {
                 for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
                     if (ifClearedStatEntity.getIfName().equals(ifName)) {
-                        remainingBand = remainingBand - 1024 * Integer.parseInt(ifClearedStatEntity.getOutUseRate()) / 100;
+                        remainingBand = (int)(remainingBand - 1024 * Float.parseFloat(ifClearedStatEntity.getOutUseRate().replace("%","")) / 100);
                         break;
                     }
                 }
