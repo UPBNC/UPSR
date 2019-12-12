@@ -53,10 +53,10 @@ public class StatisticsThread extends Thread {
     }
 
     public long getStatisticInterval() {
-        return statisticInterval /(1000);
+        return statisticInterval /(1000 * 60);
     }
 
     public void setStatisticInterval(long statisticInterval) {
-        this.statisticInterval = statisticInterval * 1000;
+        this.statisticInterval = statisticInterval * 1000 * 60;
     }
 }

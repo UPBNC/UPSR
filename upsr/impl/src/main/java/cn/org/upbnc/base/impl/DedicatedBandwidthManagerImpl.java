@@ -10,7 +10,7 @@ public class DedicatedBandwidthManagerImpl implements DedicatedBandwidthManager 
     private static DedicatedBandwidthManager instance = null;
     private Ini band_ini = null;
     private DedicatedBandwidthManagerImpl() {
-        File bandFile = new File("./de_band.ini");
+        File bandFile = new File("./dedicated_band/dedicated_band.ini");
         band_ini = new Ini();
         band_ini.setFile(bandFile);
         try {

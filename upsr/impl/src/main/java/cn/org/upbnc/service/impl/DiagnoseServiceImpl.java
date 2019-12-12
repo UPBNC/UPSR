@@ -30,7 +30,8 @@ public class DiagnoseServiceImpl implements DiagnoseService {
     public Map<String, Object> getDiagnoseTunnelInfo(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
         String diagnoseTunnel = getDiagnoseInfoByScriptFile(
-                "python diagnose/code/diagnose.py --cmdfile diagnose/cmd/tunnel_down.txt");
+                "python diagnose/code/diagnose.py --cmdfile diagnose/cmd/tunnel_down.txt" +
+                        " --routerId " + routerId);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), diagnoseTunnel);
         return resultMap;
@@ -40,7 +41,8 @@ public class DiagnoseServiceImpl implements DiagnoseService {
     public Map<String, Object> getDiagnoseVpndownInfo(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
         String diagnoseVpn = getDiagnoseInfoByScriptFile(
-                " python diagnose/code/diagnose.py --cmdfile diagnose/cmd/vpn_down.txt");
+                " python diagnose/code/diagnose.py --cmdfile diagnose/cmd/vpn_down.txt" +
+                        " --routerId " + routerId);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), diagnoseVpn);
         return resultMap;
