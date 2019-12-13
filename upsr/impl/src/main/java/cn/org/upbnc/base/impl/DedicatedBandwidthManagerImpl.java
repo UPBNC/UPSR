@@ -29,17 +29,19 @@ public class DedicatedBandwidthManagerImpl implements DedicatedBandwidthManager 
 
     @Override
     public String getIfBand(String routerId, String ifName) {
+        String ifBand = null;
         if ((routerId == null) || (ifName == null)) {
             return null;
         }
         if (band_ini != null) {
-            Profile.Section sectionCfg = band_ini.get(routerId);
-            if (sectionCfg == null) {
-                return null;
+            for (String key : band_ini.keySet()) {
+                Profile.Section sectionCfg = band_ini.get(key);
+                if (routerId.equals(sectionCfg.get("routerId"))) {
+                    ifBand = sectionCfg.get(ifName);
+                    break;
+                }
             }
-            String ifBand = sectionCfg.get(ifName);
-            return ifBand;
         }
-        return null;
+        return ifBand;
     }
 }
