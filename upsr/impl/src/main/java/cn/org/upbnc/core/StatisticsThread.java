@@ -10,7 +10,7 @@ public class StatisticsThread extends Thread {
     StatisticsApi statisticsApi = StatisticsApiImpl.getInstance();
     String switchValve = "1"; //1 : 开， 2：关
     private static StatisticsThread threadInstance = null;
-    long statisticInterval = 1000 * 60 * 5;
+    long statisticInterval = 1000 * 60 * 2;
     boolean stopMe = false;
 
     public static StatisticsThread getInstance() {
@@ -22,25 +22,34 @@ public class StatisticsThread extends Thread {
 
     public void stopMe() {
         this.stopMe = true;
+        this.threadInstance.interrupt();
     }
 
     @Override
     public void run() {
         try {
             Thread.sleep(1000 * 60 * 1);
+            LOG.info("first statistics thread " + Thread.currentThread() + " stopped " + stopMe);
             statisticsApi.setStatistics();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (stopMe == true) {
+                LOG.info("Interrupted first statistics thread " + Thread.currentThread() + " stopped");
+                return;
+            }
         }
 
         while (stopMe != true) {
             try {
                 Thread.sleep(statisticInterval);
+                LOG.info("timer statistics thread " + Thread.currentThread() + " stopped " + stopMe);
                 if (switchValve.equals("1")) {
                     statisticsApi.setStatistics();
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                if (stopMe == true) {
+                    LOG.info("Interrupted timer statistics thread " + Thread.currentThread() + " stopped");
+                    return;
+                }
             }
         }
     }

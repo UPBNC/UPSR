@@ -33,10 +33,10 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
             folder.mkdirs();
         } else {
         }
-        this.pathIfClearedStat = folder + "ifClearedStat.txt";
-        this.pathIfStatistics = folder + "ifStatistics.txt";
-        this.pathCpuInfo = folder + "cpuInfo.txt";
-        this.pathMemoryInfo = folder + "memoryInfo.txt";
+        this.pathIfClearedStat = folder + "/ifClearedStat.txt";
+        this.pathIfStatistics = folder + "/ifStatistics.txt";
+        this.pathCpuInfo = folder + "/cpuInfo.txt";
+        this.pathMemoryInfo = folder + "/memoryInfo.txt";
         this.file = new File(pathIfClearedStat);
     }
 

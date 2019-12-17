@@ -794,10 +794,14 @@ public class TunnelServiceImpl implements TunnelService {
     }
 
     private SPingLspResultInfo pingLsp(NetconfClient netconfClient, String tunnelName, String lspPath, long sleepTime) {
+        String stopLspPingXml = TunnelDetectXml.stopLspPingXml(tunnelName);
+        String deleteLspPingXml = TunnelDetectXml.deleteLspPingXml(tunnelName);
         String pingLspXml = TunnelDetectXml.startLspPingXml(tunnelName, lspPath);
         LOG.info("pingLspXml : " + pingLspXml);
         String pingLspOutPutXml = netconfController.sendMessage(netconfClient, pingLspXml);
         if (CheckXml.checkOk(pingLspOutPutXml).equals(CheckXml.RESULT_OK) != true) {
+            String stopLspPingOutPutXml = netconfController.sendMessage(netconfClient, stopLspPingXml);
+            String deleteLspPingOutPutXml = netconfController.sendMessage(netconfClient, deleteLspPingXml);
             return null;
         }
         try {
@@ -809,18 +813,20 @@ public class TunnelServiceImpl implements TunnelService {
         String pingLspResultOutPutXml = netconfController.sendMessage(netconfClient, pingLspResultXml);
         SPingLspResultInfo sPingLspResultInfo = TunnelDetectXml.pingLspResultFromResultXml(pingLspResultOutPutXml);
 
-        String stopLspPingXml = TunnelDetectXml.stopLspPingXml(tunnelName);
         String stopLspPingOutPutXml = netconfController.sendMessage(netconfClient, stopLspPingXml);
-        String deleteLspPingXml = TunnelDetectXml.deleteLspPingXml(tunnelName);
         String deleteLspPingOutPutXml = netconfController.sendMessage(netconfClient, deleteLspPingXml);
         return sPingLspResultInfo;
     }
 
     private STraceLspResultInfo traceLsp(NetconfClient netconfClient, String tunnelName, String lspPath) {
+        String stopLspTraceXml = TunnelDetectXml.stopLspTraceXml(tunnelName);
+        String deleteLspTraceXml = TunnelDetectXml.deleteLspTraceXml(tunnelName);
         String traceLspXml = TunnelDetectXml.startLspTraceXml(tunnelName, lspPath);
         LOG.info("traceLspXml : \n" + traceLspXml);
         String traceLspOutPutXml = netconfController.sendMessage(netconfClient, traceLspXml);
         if (CheckXml.checkOk(traceLspOutPutXml).equals(CheckXml.RESULT_OK) != true) {
+            String stopLspTraceOutPutXml = netconfController.sendMessage(netconfClient, stopLspTraceXml);
+            String deleteLspTraceOutPutXml = netconfController.sendMessage(netconfClient, deleteLspTraceXml);
             return null;
         }
         try {
@@ -832,9 +838,7 @@ public class TunnelServiceImpl implements TunnelService {
         String traceLspResultOutPutXml = netconfController.sendMessage(netconfClient, traceLspResultXml);
         STraceLspResultInfo sTraceLspResultInfo = TunnelDetectXml.traceLspResultFromResultXml(traceLspResultOutPutXml);
 
-        String stopLspTraceXml = TunnelDetectXml.stopLspTraceXml(tunnelName);
         String stopLspTraceOutPutXml = netconfController.sendMessage(netconfClient, stopLspTraceXml);
-        String deleteLspTraceXml = TunnelDetectXml.deleteLspTraceXml(tunnelName);
         String deleteLspTraceOutPutXml = netconfController.sendMessage(netconfClient, deleteLspTraceXml);
         return sTraceLspResultInfo;
     }
