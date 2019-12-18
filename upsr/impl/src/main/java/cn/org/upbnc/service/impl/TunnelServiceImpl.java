@@ -741,11 +741,15 @@ public class TunnelServiceImpl implements TunnelService {
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
         SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,6000);
         PingTunnelServiceEntity pingTunnelServiceEntity = new PingTunnelServiceEntity();
-        pingTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
-        pingTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
-        pingTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
-        pingTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        if (pingMainResult != null) {
+            pingTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
+            pingTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
+            pingTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+            pingTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        }
         resultMap.put(ResponseEnum.MESSAGE.getName(), pingTunnelServiceEntity);
         return resultMap;
     }
@@ -776,19 +780,23 @@ public class TunnelServiceImpl implements TunnelService {
         SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,2500);
         STraceLspResultInfo traceMainResult = this.traceLsp(netconfClient, tunnelName, lspPath);
         DetectTunnelServiceEntity detectTunnelServiceEntity = new DetectTunnelServiceEntity();
-        detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
-        detectTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
-        detectTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
-        detectTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
-        detectTunnelServiceEntity.setStatus(traceMainResult.getStatus());
-        detectTunnelServiceEntity.setErrorType(traceMainResult.getErrorType());
-        for (STraceLspHopInfo sTraceLspHopInfo : traceMainResult.getsTraceLspHopInfoList()) {
-            TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
-            tunnelHopServiceEntity.setIndex(sTraceLspHopInfo.getHopIndex());
-            tunnelHopServiceEntity.setIfAddress(sTraceLspHopInfo.getDsIpAddr());
-            detectTunnelServiceEntity.addTunnelHopServiceEntityList(tunnelHopServiceEntity);
+        if ((pingMainResult != null) && (traceMainResult != null)) {
+            detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
+            detectTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
+            detectTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+            detectTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
+            detectTunnelServiceEntity.setStatus(traceMainResult.getStatus());
+            detectTunnelServiceEntity.setErrorType(traceMainResult.getErrorType());
+            for (STraceLspHopInfo sTraceLspHopInfo : traceMainResult.getsTraceLspHopInfoList()) {
+                TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
+                tunnelHopServiceEntity.setIndex(sTraceLspHopInfo.getHopIndex());
+                tunnelHopServiceEntity.setIfAddress(sTraceLspHopInfo.getDsIpAddr());
+                detectTunnelServiceEntity.addTunnelHopServiceEntityList(tunnelHopServiceEntity);
+            }
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         }
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), detectTunnelServiceEntity);
         return resultMap;
     }

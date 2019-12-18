@@ -1,6 +1,8 @@
 package cn.org.upbnc.service.impl;
 
 import cn.org.upbnc.base.BaseInterface;
+import cn.org.upbnc.base.DeviceManager;
+import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.DiagnoseService;
@@ -13,8 +15,10 @@ import java.util.Map;
 
 public class DiagnoseServiceImpl implements DiagnoseService {
     private static DiagnoseServiceImpl ourInstance = new DiagnoseServiceImpl();
+    private DeviceManager deviceManager;
     private BaseInterface baseInterface;
     public DiagnoseServiceImpl() {
+        deviceManager = null;
     }
 
     public static DiagnoseServiceImpl getInstance() {
@@ -23,15 +27,19 @@ public class DiagnoseServiceImpl implements DiagnoseService {
     @Override
     public boolean setBaseInterface(BaseInterface baseInterface) {
         this.baseInterface = baseInterface;
+        if (null != baseInterface) {
+            this.deviceManager = this.baseInterface.getDeviceManager();
+        }
         return true;
     }
 
     @Override
     public Map<String, Object> getDiagnoseTunnelInfo(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
+        Device device = deviceManager.getDevice(routerId);
         String diagnoseTunnel = getDiagnoseInfoByScriptFile(
-                "python diagnose/code/diagnose.py --cmdfile diagnose/cmd/tunnel_down.txt" +
-                        " --routerId " + routerId);
+                "python diagnose/code/diagnose_pexpect.py --cmdfile diagnose/cmd/tunnel_down.txt" +
+                        " --routerId " + routerId + " --deviceName <" + device.getDeviceName() + ">");
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), diagnoseTunnel);
         return resultMap;
@@ -40,9 +48,10 @@ public class DiagnoseServiceImpl implements DiagnoseService {
     @Override
     public Map<String, Object> getDiagnoseVpndownInfo(String routerId) {
         Map<String, Object> resultMap = new HashMap<>();
+        Device device = deviceManager.getDevice(routerId);
         String diagnoseVpn = getDiagnoseInfoByScriptFile(
-                " python diagnose/code/diagnose.py --cmdfile diagnose/cmd/vpn_down.txt" +
-                        " --routerId " + routerId);
+                " python diagnose/code/diagnose_pexpect.py --cmdfile diagnose/cmd/vpn_down.txt" +
+                        " --routerId " + routerId + " --deviceName <" + device.getDeviceName() + ">");
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), diagnoseVpn);
         return resultMap;

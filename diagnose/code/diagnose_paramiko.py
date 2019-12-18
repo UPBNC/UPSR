@@ -7,13 +7,13 @@ import argparse
 import configparser
 
 def arg_parse():
-    parser = argparse.ArgumentParser(description='YOLO v3 Detection Module')
+    parser = argparse.ArgumentParser(description='Diagnose')
     parser.add_argument("--routerId", dest='routerId', help="routerId",default="1.1.1.1", type=str)
     parser.add_argument("--host", dest='host', help="SSH IP",default="127.0.0.1", type=str)
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--username", dest='username', help="username",default="root", type=str)
     parser.add_argument("--password", dest='password', help="password",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="diagnose/cmd/tunnel_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
     return parser.parse_args()
 
 def sshclient_execmd(hostname, port, username, password, cmdfile):

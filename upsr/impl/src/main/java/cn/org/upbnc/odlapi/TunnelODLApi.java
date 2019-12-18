@@ -793,6 +793,10 @@ public class TunnelODLApi implements UpsrTunnelService {
                         mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
                         mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
                     }
+                    if ((mainPathBuilder.getIfAddress() == null) || (mainPathBuilder.getRouterId() == null)) {
+                        mainPathList.clear();
+                        break;
+                    }
                     mainPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
                     mainPathList.add(mainPathBuilder.build());
                 }
