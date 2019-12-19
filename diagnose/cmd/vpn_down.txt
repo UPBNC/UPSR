@@ -1,1 +1,1 @@
-display vpn-group | no-more
+display tunnel-policy | no-more

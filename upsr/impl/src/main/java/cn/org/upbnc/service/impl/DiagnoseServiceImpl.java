@@ -7,9 +7,7 @@ import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.DiagnoseService;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,12 +61,20 @@ public class DiagnoseServiceImpl implements DiagnoseService {
         try {
             proc = Runtime.getRuntime().exec(cmd);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                diagnoseInfo = diagnoseInfo + line + "\n";
-            }
+            String fileName = in.readLine();
             in.close();
             proc.waitFor();
+            if (fileName != null) {
+                File file = new File(fileName);
+                if (file.isFile() && file.exists()) {
+                    InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
+                    BufferedReader bufferedReader = new BufferedReader(is);
+                    String lineTxt;
+                    while ((lineTxt = bufferedReader.readLine()) != null) {
+                        diagnoseInfo = diagnoseInfo + lineTxt + "\n";
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

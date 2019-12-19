@@ -4,6 +4,8 @@ import pexpect
 import sys
 import argparse
 import configparser
+import os
+import datetime
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Diagnose')
@@ -16,14 +18,35 @@ def arg_parse():
     parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
     return parser.parse_args()
 
+def create_file():
+    path = "diagnose_info"
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    files_list = os.listdir(path)
+    dict = {}
+    for i in files_list:
+        all_path = os.path.join(path, i)
+        ctime = os.path.getctime(all_path)
+        dict[all_path] = ctime
+    AllPathCtimeList = sorted(dict.items(), key=lambda item: item[1])
+    if len(AllPathCtimeList) <= 10:
+        pass
+    else:
+        for i in range(len(AllPathCtimeList) - 10):
+            os.remove(AllPathCtimeList[i][0])
+    finame = 'diagnose_info/'  + datetime.datetime.now().strftime('%Y%m%d_%H-%M-%S')+ '.txt'
+    fout = file(finame, 'w')
+    print finame
+    return fout
+
 def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
     child = pexpect.spawn('ssh  -o StrictHostKeyChecking=no %s@%s' % (username,hostname))
     child.expect('(?i)ssword:')
     child.sendline("%s" % password)
     child.expect("(?i)N]:")
     child.sendline("n")
+    child.logfile = create_file()
     child.expect(deviceName)
-    child.logfile = sys.stdout
     f = open(cmdfile)
     line = f.readlines()
     for cmd in line:
