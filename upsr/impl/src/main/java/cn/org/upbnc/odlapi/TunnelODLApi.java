@@ -362,7 +362,9 @@ public class TunnelODLApi implements UpsrTunnelService {
             if (pingTunnelServiceEntity.getLossRatio() != null) {
                 pingResultBuilder.setLossRatio(pingTunnelServiceEntity.getLossRatio() + "%");
             }
-            pingResultBuilder.setRttValue(pingTunnelServiceEntity.getRttValue());
+            if ("0".equals(pingTunnelServiceEntity.getPacketSend()) != true) {
+                pingResultBuilder.setRttValue(pingTunnelServiceEntity.getRttValue());
+            }
             pingTunnelInstanceOutputBuilder.setPingResult(pingResultBuilder.build());
             pingTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         }
