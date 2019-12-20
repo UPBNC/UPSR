@@ -10,7 +10,7 @@ public class StatisticsThread extends Thread {
     StatisticsApi statisticsApi = StatisticsApiImpl.getInstance();
     String switchValve = "1"; //1 : 开， 2：关
     private static StatisticsThread threadInstance = null;
-    long statisticInterval = 1000 * 60 * 2;
+    long statisticInterval = 1000 * 60 * 5;
     boolean stopMe = false;
 
     public static StatisticsThread getInstance() {
