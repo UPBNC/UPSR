@@ -39,22 +39,32 @@ def create_file():
     print finame
     return fout
 
+def child_expect(child,expectStr):
+    try:
+        child.expect(expectStr,timeout=7)
+    except Exception, e:
+        child.sendline("\n###               Failure diagnosis               ###")
+        child.close(force=True)
+        exit(2)
+
 def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
     child = pexpect.spawn('ssh  -o StrictHostKeyChecking=no %s@%s' % (username,hostname))
-    child.expect('(?i)ssword:')
+    child_expect(child,'(?i)ssword:')
     child.sendline("%s" % password)
-    child.expect("(?i)N]:")
+    child_expect(child,"(?i)N]:")
     child.sendline("n")
+    child_expect(child,deviceName)
+    child.sendline("###  The following is the diagnostic information  ###")
     child.logfile = create_file()
-    child.expect(deviceName)
+    child_expect(child,deviceName)
     f = open(cmdfile)
     line = f.readlines()
     for cmd in line:
         cmd = cmd.strip()
         child.sendline(cmd)
-        child.expect(deviceName)
+        child_expect(child,deviceName)
     f.close()
-    child.close()
+    child.close(force=True)
 
 if __name__ == '__main__':
     args = arg_parse()
