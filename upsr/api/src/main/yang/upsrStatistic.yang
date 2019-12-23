@@ -22,7 +22,53 @@ module upsrStatistic {
         leaf rcvErrorPacket { type string; }
         leaf sendErrorPacket { type string; }
     }
-
+    grouping ifClearedStatGroup{
+        leaf routerId { type string; }
+        list ifCleared {
+            leaf ifIndex { type string; }
+            leaf ifName { type string; }
+            leaf date { type string; }
+            leaf rcvUniPacket { type string; }
+            leaf sendUniPacket { type string; }
+            leaf inPacketRate { type string; }
+            leaf outPacketRate { type string; }
+            leaf inUseRate { type string; }
+            leaf outUseRate { type string; }
+            leaf rcvErrorPacket { type string; }
+            leaf sendErrorPacket { type string; }
+            leaf vpnName { type string; }
+        }
+    }
+    grouping ifStatisticsGroup{
+        leaf routerId { type string; }
+        list ifStatistics {
+            leaf ifIndex { type string; }
+            leaf ifName { type string; }
+            leaf date { type string; }
+            leaf rcvUniPacket { type string; }
+            leaf sendUniPacket { type string; }
+        }
+    }
+    grouping cpuInfoGroup{
+        leaf routerId { type string; }
+        list cpuInfo {
+            leaf position { type string; }
+            leaf entIndex { type string; }
+            leaf systemCpuUsage { type string; }
+            leaf ovloadThreshold { type string; }
+            leaf unovloadThreshold { type string; }
+        }
+    }
+    grouping memoryInfoGroup{
+        leaf routerId { type string; }
+        list memoryInfo {
+            leaf position { type string; }
+            leaf entIndex { type string; }
+            leaf osMemoryTotal { type string; }
+            leaf osMemoryUse { type string; }
+            leaf osMemoryUsage { type string; }
+        }
+    }
     rpc getStatistic {
         input {
             leaf routerId { type string; }
@@ -36,13 +82,67 @@ module upsrStatistic {
         }
     }
 
-    rpc statisticSwitch {
+    rpc getIfClearedStat {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list routerIfCleared {
+                uses ifClearedStatGroup;
+            }
+        }
+    }
+    rpc getIfStatistics {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list routerIfStatistics {
+                uses ifStatisticsGroup;
+            }
+        }
+    }
+    rpc getCpuInfo {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list cpuInfoStat {
+                uses cpuInfoGroup;
+            }
+        }
+    }
+    rpc getMemoryInfo {
+        input {
+            leaf routerId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list memoryInfoStat {
+                uses memoryInfoGroup;
+            }
+        }
+    }
+    rpc updateStatisticSwitch {
         input {
             leaf switchValue { type string; }
             leaf statisticInterval { type string; }
         }
         output {
             leaf result { type string; }
+        }
+    }
+
+    rpc getStatisticSwitch {
+        input {
+        }
+        output {
+            leaf result { type string; }
+            leaf switchValue { type string; }
+            leaf statisticInterval { type string; }
         }
     }
 }

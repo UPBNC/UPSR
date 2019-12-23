@@ -45,8 +45,27 @@ module upsrTunnel {
         container tunnelStaticBfd {uses tunnelBfd; }
         list mainPath { uses tunnelHop; }
         list backPath { uses tunnelHop; }
+        leaf mainPathBand { type string; }
+        leaf backPathBand { type string; }
     }
-
+    grouping pingResultGroup {
+        container pingResult {
+            leaf packetSend { type string; }
+            leaf packetRecv { type string; }
+            leaf lossRatio { type string; }
+            leaf rttValue { type string; }
+        }
+    }
+    grouping traceResultGroup {
+        container traceResult {
+            leaf status { type string; }
+            leaf errorType { type string; }
+            list pathInfo {
+                leaf index { type string; }
+                leaf ifAddress { type string; }
+            }
+        }
+    }
     rpc getTunnelInstances {
         input {
             leaf routerId { type string; }
@@ -99,9 +118,11 @@ module upsrTunnel {
         input {
             leaf routerId { type string; }
             leaf tunnelName { type string; }
+            leaf lspPath { type string; }
         }
         output {
             leaf result { type string; }
+            uses pingResultGroup;
         }
     }
 
@@ -114,19 +135,8 @@ module upsrTunnel {
         output {
             leaf result { type string; }
             leaf tunnelName { type string; }
-            container pingResult {
-                leaf packetSend { type string; }
-                leaf packetRecv { type string; }
-                leaf lossRatio { type string; }
-            }
-            container traceResult {
-                leaf status { type string; }
-                leaf errorType { type string; }
-                list pathInfo {
-                    leaf index { type string; }
-                    leaf ifAddress { type string; }
-                }
-            }
+            uses pingResultGroup;
+            uses traceResultGroup;
         }
     }
 
@@ -138,6 +148,19 @@ module upsrTunnel {
             leaf result { type string; }
             leaf tunnelId { type string; }
             leaf tunnelName { type string; }
+        }
+    }
+
+    rpc suggestTunnel {
+        input {
+            leaf srcRouterId { type string; }
+            leaf dstRouterId { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list candidateTunnel {
+                uses tunnelInstance;
+            }
         }
     }
 }

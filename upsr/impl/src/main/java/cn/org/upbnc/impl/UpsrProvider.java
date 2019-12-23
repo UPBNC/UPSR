@@ -17,6 +17,7 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrauth.rev170830.UpsrAuthService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.UpsrActionCfgService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrbgplssession.rev181120.UpsrBgplsSessionService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrdiagnose.rev191211.UpsrDiagnoseService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrinterface.rev181119.UpsrInterfaceService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrmonitor.rev190923.UpsrMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrnetconfsession.rev181119.UpsrNetconfSessionService;
@@ -56,6 +57,7 @@ public class UpsrProvider implements AutoCloseable {
     private BindingAwareBroker.RpcRegistration<UpsrAuthService> upsrAuthServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrMonitorService> monitorServiceRpcRegistration;
     private BindingAwareBroker.RpcRegistration<UpsrTrafficPolicyService> trafficPolicyServiceRpcRegistration;
+    private BindingAwareBroker.RpcRegistration<UpsrDiagnoseService> diagnoseServiceRpcRegistration;
     //...
     //ODL REST Service RpcRegistration end;
 
@@ -107,6 +109,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrAuthServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrAuthService.class, new UpsrAuthODLAPI(this.upsr));
         this.monitorServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrMonitorService.class, new MonitorInterfaseODLApi(this.upsr));
         this.trafficPolicyServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrTrafficPolicyService.class, new TrafficPolicyODLApi(this.upsr));
+        this.diagnoseServiceRpcRegistration = this.rpcRegistry.addRpcImplementation(UpsrDiagnoseService.class, new DiagnoseODLApi(this.upsr));
     }
 
     private void closeServices() {
@@ -126,6 +129,7 @@ public class UpsrProvider implements AutoCloseable {
         this.upsrAuthServiceRpcRegistration.close();
         this.monitorServiceRpcRegistration.close();
         this.trafficPolicyServiceRpcRegistration.close();
+        this.diagnoseServiceRpcRegistration.close();
     }
 
 }

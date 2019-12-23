@@ -2,7 +2,10 @@ package cn.org.upbnc.base.impl;
 
 import cn.org.upbnc.base.ReadAndWriteManager;
 import cn.org.upbnc.base.StatisticsManager;
-import cn.org.upbnc.entity.Statistics;
+import cn.org.upbnc.entity.statistics.IfClearedStatEntity;
+import cn.org.upbnc.entity.statistics.IfStatisticsEntity;
+import cn.org.upbnc.entity.statistics.CpuInfoEntity;
+import cn.org.upbnc.entity.statistics.MemoryInfoEntity;
 import cn.org.upbnc.enumtype.TimeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +13,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticsManagerImpl implements StatisticsManager {
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsManagerImpl.class);
 
     private static StatisticsManager instance;
     ReadAndWriteManager readAndWriteManager = ReadAndWriteManagerImpl.getInstance();
+
 
     public static StatisticsManager getInstance() {
         if (null == instance) {
@@ -26,10 +29,10 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public List<Statistics> getStatistics(String routerId, TimeEnum timeEnum) {
-        List<Statistics> statistics = new ArrayList<>();
-        List<Statistics> statisticsList = readAndWriteManager.read(timeEnum);
-        for (Statistics statistic : statisticsList) {
+    public List<IfClearedStatEntity> getStatistics(String routerId, TimeEnum timeEnum) {
+        List<IfClearedStatEntity> statistics = new ArrayList<>();
+        List<IfClearedStatEntity> ifClearedStatEntityList = readAndWriteManager.readIfClearedStat(timeEnum);
+        for (IfClearedStatEntity statistic : ifClearedStatEntityList) {
             if ("".equals(routerId)) {
                 statistics.add(statistic);
             } else {
@@ -42,7 +45,62 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public void setStatistics(List<Statistics> statistics) {
-        readAndWriteManager.write(statistics);
+    public void setIfClearedStat(List<IfClearedStatEntity> statistics) {
+        readAndWriteManager.writeIfClearedStat(statistics);
+    }
+
+    @Override
+    public void setIfStatistics(List<IfStatisticsEntity> ifStatisticsEntityList) {
+        readAndWriteManager.writeIfStatisticsEntity(ifStatisticsEntityList);
+    }
+
+    @Override
+    public void setCpuInfo(List<CpuInfoEntity> cpuInfoEntityList) {
+        readAndWriteManager.writeCpuInfoEntity(cpuInfoEntityList);
+    }
+
+    @Override
+    public void setMemoryInfo(List<MemoryInfoEntity> memoryInfoEntityList) {
+        readAndWriteManager.writeMemoryInfoEntity(memoryInfoEntityList);
+    }
+
+    @Override
+    public void setIfClearedStatMap(Map<String, List<IfClearedStatEntity>> ifClearedStatMaps) {
+        readAndWriteManager.writeIfClearedStatMap(ifClearedStatMaps);
+    }
+
+    @Override
+    public void setIfStatisticsMap(Map<String, List<IfStatisticsEntity>> ifStatisticsMaps) {
+        readAndWriteManager.writeIfStatisticsMap(ifStatisticsMaps);
+    }
+
+    @Override
+    public void setCpuInfoMap(Map<String, List<CpuInfoEntity>> cpuInfoMaps) {
+        readAndWriteManager.writeCpuInfoMap(cpuInfoMaps);
+    }
+
+    @Override
+    public void setMemoryInfoMap(Map<String, List<MemoryInfoEntity>> memoryInfoMaps) {
+        readAndWriteManager.writeMemoryInfoMap(memoryInfoMaps);
+    }
+
+    @Override
+    public Map<String, List<IfClearedStatEntity>> getIfClearedStatMap() {
+        return readAndWriteManager.getIfClearedStatMap();
+    }
+
+    @Override
+    public Map<String, List<IfStatisticsEntity>> getIfStatisticsMap() {
+        return readAndWriteManager.getIfStatisticsMap();
+    }
+
+    @Override
+    public Map<String, List<CpuInfoEntity>> getCpuInfoMap() {
+        return readAndWriteManager.getCpuInfoMap();
+    }
+
+    @Override
+    public Map<String, List<MemoryInfoEntity>> getMemoryInfoMap() {
+        return readAndWriteManager.getMemoryInfoMap();
     }
 }

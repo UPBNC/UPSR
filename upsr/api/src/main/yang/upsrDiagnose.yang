@@ -1,0 +1,24 @@
+module upsrDiagnose {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:upsrDiagnose";
+    prefix "upsrDiagnose";
+
+    revision "2019-12-11" {
+        description "Initial revision of upsrDiagnose model";
+    }
+
+    rpc getDiagnoseInfo {
+        input {
+            leaf routerId { type string; }
+            leaf sshIp { type string; }
+            leaf sshPort { type string; }
+            leaf userName { type string; }
+            leaf password { type string; }
+            leaf diagnoseType { type string; }
+        }
+        output {
+            leaf result { type string; }
+            leaf diagnoseInfo { type string; }
+        }
+    }
+}

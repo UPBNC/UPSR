@@ -1,6 +1,6 @@
-package cn.org.upbnc.entity;
+package cn.org.upbnc.entity.statistics;
 
-public class Statistics {
+public class IfClearedStatEntity {
     private String routerId;
     private long date;
     private String ifName;

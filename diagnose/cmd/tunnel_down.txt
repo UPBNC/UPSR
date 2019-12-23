@@ -1,0 +1,4 @@
+display alarm active verbose | no-more
+display alarm hist verbose | no-more
+display bfd session all | no-more
+display segment-routing adjacency mpls forwarding | no-more

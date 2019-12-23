@@ -21,6 +21,8 @@ public interface TunnelManager {
 
     List<Tunnel> getTunnel(String routerId, String name);
 
+    List<Tunnel> getTunnelByDest(String routerId, String dstRouterId);
+
     List<Tunnel> getTunnels();
 
     void emptyTunnelsByRouterId(String routerId);

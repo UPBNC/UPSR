@@ -1,4 +1,4 @@
-package cn.org.upbnc.util.netconf;
+package cn.org.upbnc.util.netconf.statistics;
 
 public class SIfClearedStat {
     private String ifName;

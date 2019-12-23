@@ -450,6 +450,16 @@ public class TunnelServiceImpl implements TunnelService {
     }
 
     @Override
+    public Map<String, Object> getSuggestTunnel(String srcRouterId, String dstRouterId) {
+        LOG.info("getSuggestTunnel : srcRouterId " + srcRouterId + " dstRouterId " + dstRouterId);
+        Map<String, Object> map = new HashMap<>();
+        List<Tunnel> tunnelList = tunnelManager.getTunnelByDest(srcRouterId, dstRouterId);
+        map.put(ResponseEnum.BODY.getName(), tunnelList);
+        map.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return map;
+    }
+
+    @Override
     public boolean syncTunnelInstanceConf() {
         boolean flag = true;
         List<Device> devices = deviceManager.getDeviceList();
@@ -729,10 +739,18 @@ public class TunnelServiceImpl implements TunnelService {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
-        //String pingBackResult = this.pingLsp(netconfClient, tunnelName, TunnelDetectXml.LSPPATH_HOT);
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
-        resultMap.put(ResponseEnum.MESSAGE.getName(), pingMainResult.toString());
+        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,6000);
+        PingTunnelServiceEntity pingTunnelServiceEntity = new PingTunnelServiceEntity();
+        if (pingMainResult != null) {
+            pingTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
+            pingTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
+            pingTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+            pingTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
+        }
+        resultMap.put(ResponseEnum.MESSAGE.getName(), pingTunnelServiceEntity);
         return resultMap;
     }
 
@@ -759,34 +777,43 @@ public class TunnelServiceImpl implements TunnelService {
             return buildResult(TunnelErrorCodeEnum.DEVICE_INVALID);
         }
         NetconfClient netconfClient = netConfManager.getNetconClient(device.getNetConf().getRouterID());
-        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath);
+        SPingLspResultInfo pingMainResult = this.pingLsp(netconfClient, tunnelName, lspPath,2500);
         STraceLspResultInfo traceMainResult = this.traceLsp(netconfClient, tunnelName, lspPath);
         DetectTunnelServiceEntity detectTunnelServiceEntity = new DetectTunnelServiceEntity();
-        detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
-        detectTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
-        detectTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
-        detectTunnelServiceEntity.setStatus(traceMainResult.getStatus());
-        detectTunnelServiceEntity.setErrorType(traceMainResult.getErrorType());
-        for (STraceLspHopInfo sTraceLspHopInfo : traceMainResult.getsTraceLspHopInfoList()) {
-            TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
-            tunnelHopServiceEntity.setIndex(sTraceLspHopInfo.getHopIndex());
-            tunnelHopServiceEntity.setIfAddress(sTraceLspHopInfo.getDsIpAddr());
-            detectTunnelServiceEntity.addTunnelHopServiceEntityList(tunnelHopServiceEntity);
+        if ((pingMainResult != null) && (traceMainResult != null)) {
+            detectTunnelServiceEntity.setPacketSend(pingMainResult.getPacketSend());
+            detectTunnelServiceEntity.setPacketRecv(pingMainResult.getPacketRecv());
+            detectTunnelServiceEntity.setLossRatio(pingMainResult.getLossRatio());
+            detectTunnelServiceEntity.setRttValue(pingMainResult.getRttValue());
+            detectTunnelServiceEntity.setStatus(traceMainResult.getStatus());
+            detectTunnelServiceEntity.setErrorType(traceMainResult.getErrorType());
+            for (STraceLspHopInfo sTraceLspHopInfo : traceMainResult.getsTraceLspHopInfoList()) {
+                TunnelHopServiceEntity tunnelHopServiceEntity = new TunnelHopServiceEntity();
+                tunnelHopServiceEntity.setIndex(sTraceLspHopInfo.getHopIndex());
+                tunnelHopServiceEntity.setIfAddress(sTraceLspHopInfo.getDsIpAddr());
+                detectTunnelServiceEntity.addTunnelHopServiceEntityList(tunnelHopServiceEntity);
+            }
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        } else {
+            resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         }
-        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(), detectTunnelServiceEntity);
         return resultMap;
     }
 
-    private SPingLspResultInfo pingLsp(NetconfClient netconfClient, String tunnelName, String lspPath) {
+    private SPingLspResultInfo pingLsp(NetconfClient netconfClient, String tunnelName, String lspPath, long sleepTime) {
+        String stopLspPingXml = TunnelDetectXml.stopLspPingXml(tunnelName);
+        String deleteLspPingXml = TunnelDetectXml.deleteLspPingXml(tunnelName);
         String pingLspXml = TunnelDetectXml.startLspPingXml(tunnelName, lspPath);
         LOG.info("pingLspXml : " + pingLspXml);
         String pingLspOutPutXml = netconfController.sendMessage(netconfClient, pingLspXml);
         if (CheckXml.checkOk(pingLspOutPutXml).equals(CheckXml.RESULT_OK) != true) {
+            String stopLspPingOutPutXml = netconfController.sendMessage(netconfClient, stopLspPingXml);
+            String deleteLspPingOutPutXml = netconfController.sendMessage(netconfClient, deleteLspPingXml);
             return null;
         }
         try {
-            sleep(2500);
+            sleep(sleepTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -794,18 +821,20 @@ public class TunnelServiceImpl implements TunnelService {
         String pingLspResultOutPutXml = netconfController.sendMessage(netconfClient, pingLspResultXml);
         SPingLspResultInfo sPingLspResultInfo = TunnelDetectXml.pingLspResultFromResultXml(pingLspResultOutPutXml);
 
-        String stopLspPingXml = TunnelDetectXml.stopLspPingXml(tunnelName);
         String stopLspPingOutPutXml = netconfController.sendMessage(netconfClient, stopLspPingXml);
-        String deleteLspPingXml = TunnelDetectXml.deleteLspPingXml(tunnelName);
         String deleteLspPingOutPutXml = netconfController.sendMessage(netconfClient, deleteLspPingXml);
         return sPingLspResultInfo;
     }
 
     private STraceLspResultInfo traceLsp(NetconfClient netconfClient, String tunnelName, String lspPath) {
+        String stopLspTraceXml = TunnelDetectXml.stopLspTraceXml(tunnelName);
+        String deleteLspTraceXml = TunnelDetectXml.deleteLspTraceXml(tunnelName);
         String traceLspXml = TunnelDetectXml.startLspTraceXml(tunnelName, lspPath);
         LOG.info("traceLspXml : \n" + traceLspXml);
         String traceLspOutPutXml = netconfController.sendMessage(netconfClient, traceLspXml);
         if (CheckXml.checkOk(traceLspOutPutXml).equals(CheckXml.RESULT_OK) != true) {
+            String stopLspTraceOutPutXml = netconfController.sendMessage(netconfClient, stopLspTraceXml);
+            String deleteLspTraceOutPutXml = netconfController.sendMessage(netconfClient, deleteLspTraceXml);
             return null;
         }
         try {
@@ -817,9 +846,7 @@ public class TunnelServiceImpl implements TunnelService {
         String traceLspResultOutPutXml = netconfController.sendMessage(netconfClient, traceLspResultXml);
         STraceLspResultInfo sTraceLspResultInfo = TunnelDetectXml.traceLspResultFromResultXml(traceLspResultOutPutXml);
 
-        String stopLspTraceXml = TunnelDetectXml.stopLspTraceXml(tunnelName);
         String stopLspTraceOutPutXml = netconfController.sendMessage(netconfClient, stopLspTraceXml);
-        String deleteLspTraceXml = TunnelDetectXml.deleteLspTraceXml(tunnelName);
         String deleteLspTraceOutPutXml = netconfController.sendMessage(netconfClient, deleteLspTraceXml);
         return sTraceLspResultInfo;
     }

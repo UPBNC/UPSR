@@ -6,6 +6,7 @@ public class SPingLspResultInfo {
     String packetRecv;
     String lossRatio;
     String resultType;
+    String rttValue;
 
     public String getTunnelName() {
         return tunnelName;
@@ -47,13 +48,22 @@ public class SPingLspResultInfo {
         this.resultType = resultType;
     }
 
+    public String getRttValue() {
+        return rttValue;
+    }
+
+    public void setRttValue(String rttValue) {
+        this.rttValue = rttValue;
+    }
+
     @Override
     public String toString() {
         String ret = "Ping result: " + " \n " +
                 "tunnelName : " + this.tunnelName + "; \n " +
                 "packetSend : " + this.packetSend + "; \n " +
                 "packetRecv : " + this.packetRecv + "; \n " +
-                "lossRatio  : " + this.lossRatio + "%; \n ";
+                "lossRatio  : " + this.lossRatio + "%; \n " +
+                "rttValue   : " + this.rttValue + "  ;\n ";
         return ret;
     }
 }

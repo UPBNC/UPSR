@@ -16,6 +16,8 @@ public interface TunnelService {
 
     Map<String, Object> getAllTunnel(String routerId, String tunnelName);
 
+    Map<String, Object> getSuggestTunnel(String srcRouterId, String dstRouterId);
+
     boolean syncTunnelInstanceConf();
 
     boolean syncTunnelInstanceConf(String routerId);

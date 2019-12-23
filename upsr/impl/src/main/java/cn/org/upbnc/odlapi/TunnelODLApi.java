@@ -1,18 +1,23 @@
 package cn.org.upbnc.odlapi;
 
 import cn.org.upbnc.api.APIInterface;
+import cn.org.upbnc.api.StatisticsApi;
 import cn.org.upbnc.api.TunnelApi;
 import cn.org.upbnc.core.Session;
 import cn.org.upbnc.entity.*;
 import cn.org.upbnc.enumtype.*;
 import cn.org.upbnc.service.entity.*;
+import cn.org.upbnc.util.netconf.SPingLspResultInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.*;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.PingResultBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.TraceResultBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.traceresult.PathInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.detecttunnelpath.output.traceresult.PathInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.pingresultgroup.PingResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.pingresultgroup.PingResultBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.traceresultgroup.TraceResultBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.traceresultgroup.traceresult.PathInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.traceresultgroup.traceresult.PathInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.gettunnelinstances.output.TunnelInstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.suggesttunnel.output.CandidateTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.suggesttunnel.output.CandidateTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.tunnelinstance.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrtunnel.rev181227.tunnelinstance.TunnelBfd;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -28,6 +33,7 @@ public class TunnelODLApi implements UpsrTunnelService {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelODLApi.class);
     Session session;
     TunnelApi tunnelApi;
+    StatisticsApi statisticsApi;
 
     public TunnelODLApi(Session session) {
         this.session = session;
@@ -41,6 +47,16 @@ public class TunnelODLApi implements UpsrTunnelService {
             }
         }
         return this.tunnelApi;
+    }
+
+    private StatisticsApi getStatisticsApi() {
+        if (this.statisticsApi == null) {
+            APIInterface apiInterface = session.getApiInterface();
+            if (apiInterface != null) {
+                this.statisticsApi = apiInterface.getStatisticsApi();
+            }
+        }
+        return this.statisticsApi;
     }
 
     List<TunnelInstances> getTunnel(List<Tunnel> tunnels) {
@@ -338,7 +354,19 @@ public class TunnelODLApi implements UpsrTunnelService {
         if (pingResultMap.get(ResponseEnum.CODE.getName()) != CodeEnum.SUCCESS.getName()) {
             pingTunnelInstanceOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
         } else {
-            pingTunnelInstanceOutputBuilder.setResult((String) pingResultMap.get(ResponseEnum.MESSAGE.getName()));
+            PingTunnelServiceEntity pingTunnelServiceEntity =
+                    (PingTunnelServiceEntity) pingResultMap.get(ResponseEnum.MESSAGE.getName());
+            PingResultBuilder pingResultBuilder = new PingResultBuilder();
+            pingResultBuilder.setPacketSend(pingTunnelServiceEntity.getPacketSend());
+            pingResultBuilder.setPacketRecv(pingTunnelServiceEntity.getPacketRecv());
+            if (pingTunnelServiceEntity.getLossRatio() != null) {
+                pingResultBuilder.setLossRatio(pingTunnelServiceEntity.getLossRatio() + "%");
+            }
+            if ("0".equals(pingTunnelServiceEntity.getPacketSend()) != true) {
+                pingResultBuilder.setRttValue(pingTunnelServiceEntity.getRttValue());
+            }
+            pingTunnelInstanceOutputBuilder.setPingResult(pingResultBuilder.build());
+            pingTunnelInstanceOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         }
         return RpcResultBuilder.success(pingTunnelInstanceOutputBuilder.build()).buildFuture();
     }
@@ -416,7 +444,10 @@ public class TunnelODLApi implements UpsrTunnelService {
                 (DetectTunnelServiceEntity) map.get(ResponseEnum.BODY.getName());
         pingResultBuilder.setPacketSend(detectTunnelServiceEntity.getPacketSend());
         pingResultBuilder.setPacketRecv(detectTunnelServiceEntity.getPacketRecv());
-        pingResultBuilder.setLossRatio(detectTunnelServiceEntity.getLossRatio() + "%");
+        if (detectTunnelServiceEntity.getLossRatio() != null) {
+            pingResultBuilder.setLossRatio(detectTunnelServiceEntity.getLossRatio() + "%");
+        }
+        pingResultBuilder.setRttValue(detectTunnelServiceEntity.getRttValue());
         return pingResultBuilder;
     }
 
@@ -703,6 +734,82 @@ public class TunnelODLApi implements UpsrTunnelService {
         }
 
         return ret;
+    }
+
+    @Override
+    public Future<RpcResult<SuggestTunnelOutput>> suggestTunnel(SuggestTunnelInput input) {
+        LOG.info("suggestTunnel begin");
+        SuggestTunnelOutputBuilder suggestTunnelOutputBuilder = new SuggestTunnelOutputBuilder();
+
+        if (SystemStatusEnum.ON != this.session.getStatus()) {
+            suggestTunnelOutputBuilder.setResult("SystemStatus is not on.");
+            return RpcResultBuilder.success(suggestTunnelOutputBuilder.build()).buildFuture();
+        } else {
+            this.getTunnelApi();
+        }
+        Map<String, Object> resultMap;
+        resultMap = this.tunnelApi.getSuggestTunnel(input.getSrcRouterId(), input.getDstRouterId());
+        String code = (String) resultMap.get(ResponseEnum.CODE.getName());
+        if (CodeEnum.SUCCESS.getName().equals(code)) {
+            List<Tunnel> tunnelList = (List<Tunnel>) resultMap.get(ResponseEnum.BODY.getName());
+            List<CandidateTunnel> candidateTunnelList = buildCandidateTunnel(tunnelList);
+            suggestTunnelOutputBuilder.setCandidateTunnel(candidateTunnelList);
+            suggestTunnelOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        } else {
+            suggestTunnelOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
+        }
+        suggestTunnelOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("suggestTunnel end");
+        return RpcResultBuilder.success(suggestTunnelOutputBuilder.build()).buildFuture();
+    }
+
+    List<CandidateTunnel> buildCandidateTunnel(List<Tunnel> tunnels) {
+        List<CandidateTunnel> candidateTunnelList = new ArrayList<>();
+        List<MainPath> mainPathList;
+        MainPathBuilder mainPathBuilder;
+        Map<String, Label> map;
+        CandidateTunnelBuilder candidateTunnelBuilder;
+        int band = 1024;
+        for (Tunnel tunnel : tunnels) {
+            mainPathList = new ArrayList<>();
+            candidateTunnelBuilder = new CandidateTunnelBuilder();
+            candidateTunnelBuilder.setSrcDevice(tunnel.getDevice().getDeviceName());
+            candidateTunnelBuilder.setSrcRouterId(tunnel.getDevice().getRouterId());
+            candidateTunnelBuilder.setTunnelId(tunnel.getTunnelId());
+            candidateTunnelBuilder.setTunnelName(tunnel.getTunnelName());
+            candidateTunnelBuilder.setDestDevice(tunnel.getDestDeviceName());
+            candidateTunnelBuilder.setDestRouterId(tunnel.getDestRouterId());
+            ExplicitPath mainPath = tunnel.getMasterPath();
+            if (mainPath != null) {
+                map = mainPath.getLabelMap();
+                for (String key : map.keySet()) {
+                    mainPathBuilder = new MainPathBuilder();
+                    mainPathBuilder.setIndex(key);
+                    if (null != map.get(key).getAddressLocal()) {
+                        Map<String, Object> remainingbandMap = getStatisticsApi().getRemainingband(map.get(key).getDevice().getRouterId(),
+                                map.get(key).getAddressLocal());
+                        Map<String, Object> remainingband =
+                                (Map<String, Object>)remainingbandMap.get(ResponseEnum.BODY.getName());
+                        band = Math.min(band, ((Integer) remainingband.get("band")).intValue());
+                        mainPathBuilder.setIfAddress(map.get(key).getAddressLocal().getAddress());
+                        mainPathBuilder.setRouterId(map.get(key).getDevice().getRouterId());
+                        mainPathBuilder.setDeviceName(map.get(key).getDevice().getDeviceName());
+                    }
+                    if ((mainPathBuilder.getIfAddress() == null) || (mainPathBuilder.getRouterId() == null)) {
+                        mainPathList.clear();
+                        break;
+                    }
+                    mainPathBuilder.setAdjlabel(String.valueOf(map.get(key).getValue()));
+                    mainPathList.add(mainPathBuilder.build());
+                }
+            }
+            if (mainPathList.size() > 0) {
+                candidateTunnelBuilder.setMainPathBand("" + band);
+                candidateTunnelBuilder.setMainPath(mainPathList);
+                candidateTunnelList.add(candidateTunnelBuilder.build());
+            }
+        }
+        return candidateTunnelList;
     }
 
 }

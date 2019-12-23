@@ -7,10 +7,29 @@ import cn.org.upbnc.core.StatisticsThread;
 import cn.org.upbnc.enumtype.CodeEnum;
 import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.enumtype.SystemStatusEnum;
-import cn.org.upbnc.service.entity.StatisticsEntity;
+import cn.org.upbnc.service.entity.statistics.CpuInfoServiceEntity;
+import cn.org.upbnc.service.entity.statistics.IfClearedStatServiceEntity;
+import cn.org.upbnc.service.entity.statistics.IfStatisticsServiceEntity;
+import cn.org.upbnc.service.entity.statistics.MemoryInfoServiceEntity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.cpuinfogroup.CpuInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.cpuinfogroup.CpuInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getcpuinfo.output.CpuInfoStat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getcpuinfo.output.CpuInfoStatBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getifclearedstat.output.RouterIfCleared;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getifclearedstat.output.RouterIfClearedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getifstatistics.output.RouterIfStatistics;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getifstatistics.output.RouterIfStatisticsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getmemoryinfo.output.MemoryInfoStat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getmemoryinfo.output.MemoryInfoStatBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.Statistics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.getstatistic.output.StatisticsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.ifclearedstatgroup.IfCleared;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.ifclearedstatgroup.IfClearedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.ifstatisticsgroup.IfStatistics;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.ifstatisticsgroup.IfStatisticsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.memoryinfogroup.MemoryInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsrstatistic.rev181227.memoryinfogroup.MemoryInfoBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -56,8 +75,8 @@ public class StatisticODLApi implements UpsrStatisticService {
         resultMap = this.getStatisticsApi().getStatisticsMap(input.getRouterId(),input.getType());
         String code = (String) resultMap.get(ResponseEnum.CODE.getName());
         if (CodeEnum.SUCCESS.getName().equals(code)) {
-            List<StatisticsEntity> statisticsEntityList = (List<StatisticsEntity>) resultMap.get(ResponseEnum.BODY.getName());
-            getStatisticOutputBuilder.setStatistics(statisticsEntityMapToStatistics(statisticsEntityList));
+            List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = (List<IfClearedStatServiceEntity>) resultMap.get(ResponseEnum.BODY.getName());
+            getStatisticOutputBuilder.setStatistics(statisticsEntityMapToStatistics(ifClearedStatServiceEntityList));
             getStatisticOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         } else {
             getStatisticOutputBuilder.setResult(CodeEnum.ERROR.getMessage());
@@ -65,10 +84,10 @@ public class StatisticODLApi implements UpsrStatisticService {
         return RpcResultBuilder.success(getStatisticOutputBuilder.build()).buildFuture();
     }
 
-    private List<Statistics> statisticsEntityMapToStatistics(List<StatisticsEntity> statisticsEntityList){
+    private List<Statistics> statisticsEntityMapToStatistics(List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList){
         List<Statistics> statisticsList=new ArrayList<>();
         StatisticsBuilder statistics;
-        for(StatisticsEntity entity:statisticsEntityList){
+        for(IfClearedStatServiceEntity entity: ifClearedStatServiceEntityList){
             statistics=new StatisticsBuilder();
             statistics.setRouterId(entity.getRouterId());
             statistics.setDate(String.valueOf(entity.getDate()));
@@ -89,9 +108,9 @@ public class StatisticODLApi implements UpsrStatisticService {
     }
 
     @Override
-    public Future<RpcResult<StatisticSwitchOutput>> statisticSwitch(StatisticSwitchInput input) {
+    public Future<RpcResult<UpdateStatisticSwitchOutput>> updateStatisticSwitch(UpdateStatisticSwitchInput input) {
         LOG.info("statisticSwitch end");
-        StatisticSwitchOutputBuilder statisticSwitchOutputBuilder = new StatisticSwitchOutputBuilder();
+        UpdateStatisticSwitchOutputBuilder statisticSwitchOutputBuilder = new UpdateStatisticSwitchOutputBuilder();
         StatisticsThread statisticsThread = StatisticsThread.getInstance();
         if (input.getSwitchValue() != null) {
             statisticsThread.setSwitchValve(input.getSwitchValue());
@@ -104,5 +123,168 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("interval : " + statisticsThread.getStatisticInterval());
         LOG.info("statisticSwitch end");
         return RpcResultBuilder.success(statisticSwitchOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetMemoryInfoOutput>> getMemoryInfo(GetMemoryInfoInput input) {
+        LOG.info("getMemoryInfo begin");
+        GetMemoryInfoOutputBuilder getMemoryInfoOutputBuilder = new GetMemoryInfoOutputBuilder();
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getMemoryInfo(null);
+        } else {
+            resultMap = this.getStatisticsApi().getMemoryInfo(input.getRouterId());
+        }
+        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap =
+                (Map<String,List<MemoryInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<MemoryInfoStat> memoryInfoStatList = new ArrayList<>();
+        for (String rid : memoryInfoMap.keySet()) {
+            MemoryInfoStatBuilder memoryInfoStatBuilder = new MemoryInfoStatBuilder();
+            List<MemoryInfo> memoryInfoList = new ArrayList<>();
+            for (MemoryInfoServiceEntity memoryInfoServiceEntity : memoryInfoMap.get(rid)) {
+                MemoryInfoBuilder memoryInfoBuilder = new MemoryInfoBuilder();
+                memoryInfoBuilder.setEntIndex(memoryInfoServiceEntity.getEntIndex());
+                memoryInfoBuilder.setOsMemoryUsage(memoryInfoServiceEntity.getOsMemoryUsage());
+                memoryInfoBuilder.setOsMemoryTotal(memoryInfoServiceEntity.getOsMemoryTotal());
+                memoryInfoBuilder.setOsMemoryUse(memoryInfoServiceEntity.getOsMemoryUse());
+                memoryInfoList.add(memoryInfoBuilder.build());
+            }
+            if (memoryInfoList.size() > 0) {
+                memoryInfoStatBuilder.setMemoryInfo(memoryInfoList);
+                memoryInfoStatBuilder.setRouterId(rid);
+                memoryInfoStatList.add(memoryInfoStatBuilder.build());
+            }
+        }
+        getMemoryInfoOutputBuilder.setMemoryInfoStat(memoryInfoStatList);
+        getMemoryInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("getMemoryInfo end");
+        return RpcResultBuilder.success(getMemoryInfoOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetCpuInfoOutput>> getCpuInfo(GetCpuInfoInput input) {
+        LOG.info("getCpuInfo begin");
+        GetCpuInfoOutputBuilder getCpuInfoOutputBuilder = new GetCpuInfoOutputBuilder();
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getCpuInfo(null);
+        } else {
+            resultMap = this.getStatisticsApi().getCpuInfo(input.getRouterId());
+        }
+        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap =
+                (Map<String,List<CpuInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<CpuInfoStat> cpuInfoStatList = new ArrayList<>();
+        for (String rid : cpuInfoMap.keySet()) {
+            CpuInfoStatBuilder cpuInfoStatBuilder = new CpuInfoStatBuilder();
+            List<CpuInfo> cpuInfoList = new ArrayList<>();
+            for (CpuInfoServiceEntity cpuInfoServiceEntity : cpuInfoMap.get(rid)) {
+                CpuInfoBuilder cpuInfoBuilder = new CpuInfoBuilder();
+                cpuInfoBuilder.setEntIndex(cpuInfoServiceEntity.getEntIndex());
+                cpuInfoBuilder.setSystemCpuUsage(cpuInfoServiceEntity.getSystemCpuUsage());
+                cpuInfoBuilder.setOvloadThreshold(cpuInfoServiceEntity.getOvloadThreshold());
+                cpuInfoBuilder.setPosition(cpuInfoServiceEntity.getPosition());
+                cpuInfoBuilder.setUnovloadThreshold(cpuInfoServiceEntity.getUnovloadThreshold());
+                cpuInfoList.add(cpuInfoBuilder.build());
+            }
+            if (cpuInfoList.size() > 0) {
+                cpuInfoStatBuilder.setRouterId(rid);
+                cpuInfoStatBuilder.setCpuInfo(cpuInfoList);
+                cpuInfoStatList.add(cpuInfoStatBuilder.build());
+            }
+        }
+        getCpuInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        getCpuInfoOutputBuilder.setCpuInfoStat(cpuInfoStatList);
+        LOG.info("getCpuInfo end");
+        return RpcResultBuilder.success(getCpuInfoOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetIfClearedStatOutput>> getIfClearedStat(GetIfClearedStatInput input) {
+        LOG.info("getIfClearedStat begin");
+        GetIfClearedStatOutputBuilder getIfClearedStatOutputBuilder= new GetIfClearedStatOutputBuilder();
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getIfClearedStat(null);
+        } else {
+            resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId());
+        }
+        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap =
+                (Map<String,List<IfClearedStatServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<RouterIfCleared> routerIfClearedList = new ArrayList<>();
+        for (String rid : ifClearedStatMap.keySet()) {
+            RouterIfClearedBuilder routerIfClearedBuilder = new RouterIfClearedBuilder();
+            List<IfCleared> ifClearedList = new ArrayList<>();
+            for (IfClearedStatServiceEntity ifClearedStatServiceEntity : ifClearedStatMap.get(rid)) {
+                IfClearedBuilder ifClearedBuilder = new IfClearedBuilder();
+                ifClearedBuilder.setDate(String.valueOf(ifClearedStatServiceEntity.getDate()));
+                ifClearedBuilder.setIfIndex(ifClearedStatServiceEntity.getIfIndex());
+                ifClearedBuilder.setIfName(ifClearedStatServiceEntity.getIfName());
+                ifClearedBuilder.setRcvUniPacket(ifClearedStatServiceEntity.getRcvUniPacket());
+                ifClearedBuilder.setSendUniPacket(ifClearedStatServiceEntity.getSendUniPacket());
+                ifClearedBuilder.setInPacketRate(ifClearedStatServiceEntity.getInPacketRate());
+                ifClearedBuilder.setOutPacketRate(ifClearedStatServiceEntity.getOutPacketRate());
+                ifClearedBuilder.setInUseRate(ifClearedStatServiceEntity.getInUseRate());
+                ifClearedBuilder.setOutUseRate(ifClearedStatServiceEntity.getOutUseRate());
+                ifClearedBuilder.setRcvErrorPacket(ifClearedStatServiceEntity.getRcvErrorPacket());
+                ifClearedBuilder.setSendErrorPacket(ifClearedStatServiceEntity.getSendErrorPacket());
+                ifClearedBuilder.setVpnName(ifClearedStatServiceEntity.getVpnName());
+                if (ifClearedStatServiceEntity.getVpnName() != null) {
+                    ifClearedList.add(ifClearedBuilder.build());
+                }
+            }
+            routerIfClearedBuilder.setRouterId(rid);
+            routerIfClearedBuilder.setIfCleared(ifClearedList);
+            routerIfClearedList.add(routerIfClearedBuilder.build());
+        }
+        getIfClearedStatOutputBuilder.setRouterIfCleared(routerIfClearedList);
+        getIfClearedStatOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("getIfClearedStat end");
+        return RpcResultBuilder.success(getIfClearedStatOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetIfStatisticsOutput>> getIfStatistics(GetIfStatisticsInput input) {
+        LOG.info("getIfStatistics begin");
+        GetIfStatisticsOutputBuilder getIfStatisticsOutputBuilder = new GetIfStatisticsOutputBuilder();
+        getIfStatisticsOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        Map<String, Object> resultMap;
+        if (input == null) {
+            resultMap = this.getStatisticsApi().getIfStatistics(null);
+        } else {
+            resultMap = this.getStatisticsApi().getIfStatistics(input.getRouterId());
+        }
+        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap =
+                (Map<String,List<IfStatisticsServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<RouterIfStatistics> routerIfStatisticsList = new ArrayList<>();
+        for (String rid : ifStatisticsMap.keySet()) {
+            RouterIfStatisticsBuilder routerIfStatisticsBuilder = new RouterIfStatisticsBuilder();
+            List<IfStatistics> ifStatisticsList = new ArrayList<>();
+            for (IfStatisticsServiceEntity ifStatisticsServiceEntity : ifStatisticsMap.get(rid)) {
+                IfStatisticsBuilder ifStatisticsBuilder = new IfStatisticsBuilder();
+                ifStatisticsBuilder.setIfIndex(ifStatisticsServiceEntity.getIfIndex());
+                ifStatisticsBuilder.setIfName(ifStatisticsServiceEntity.getIfName());
+                ifStatisticsList.add(ifStatisticsBuilder.build());
+            }
+            routerIfStatisticsBuilder.setRouterId(rid);
+            routerIfStatisticsBuilder.setIfStatistics(ifStatisticsList);
+            routerIfStatisticsList.add(routerIfStatisticsBuilder.build());
+        }
+        getIfStatisticsOutputBuilder.setRouterIfStatistics(routerIfStatisticsList);
+        LOG.info("getIfStatistics end");
+        return RpcResultBuilder.success(getIfStatisticsOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<GetStatisticSwitchOutput>> getStatisticSwitch(GetStatisticSwitchInput input) {
+        LOG.info("getStatisticSwitch end");
+        GetStatisticSwitchOutputBuilder getStatisticSwitchOutputBuilder = new GetStatisticSwitchOutputBuilder();
+        StatisticsThread statisticsThread = StatisticsThread.getInstance();
+        LOG.info("switch   : " + statisticsThread.getSwitchValve());
+        LOG.info("interval : " + statisticsThread.getStatisticInterval());
+        getStatisticSwitchOutputBuilder.setStatisticInterval("" + statisticsThread.getStatisticInterval());
+        getStatisticSwitchOutputBuilder.setSwitchValue(statisticsThread.getSwitchValve());
+        getStatisticSwitchOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
+        LOG.info("getStatisticSwitch end");
+        return RpcResultBuilder.success(getStatisticSwitchOutputBuilder.build()).buildFuture();
     }
 }

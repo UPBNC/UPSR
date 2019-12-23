@@ -1,6 +1,6 @@
-package cn.org.upbnc.service.entity;
+package cn.org.upbnc.service.entity.statistics;
 
-public class StatisticsEntity {
+public class IfClearedStatServiceEntity {
     private String ifName;
     private long date;
     private String routerId;
@@ -44,6 +44,7 @@ public class StatisticsEntity {
     private String rcvMutiPacketRate;
     private String sendBroadPacketRate;
     private String rcvBroadPacketRate;
+    private String vpnName;
 
     public String getRouterId() {
         return routerId;
@@ -387,5 +388,13 @@ public class StatisticsEntity {
 
     public void setRcvBroadPacketRate(String rcvBroadPacketRate) {
         this.rcvBroadPacketRate = rcvBroadPacketRate;
+    }
+
+    public String getVpnName() {
+        return vpnName;
+    }
+
+    public void setVpnName(String vpnName) {
+        this.vpnName = vpnName;
     }
 }

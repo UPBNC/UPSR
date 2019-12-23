@@ -90,6 +90,20 @@ public class TunnelManagerImpl implements TunnelManager {
     }
 
     @Override
+    public List<Tunnel> getTunnelByDest(String routerId, String dstRouterId) {
+        List<Tunnel> tunnelList = new ArrayList<>();
+        if (tunnelMap.containsKey(routerId)) {
+            for (String tunnelName : tunnelMap.get(routerId).keySet()) {
+                Tunnel tunnel = tunnelMap.get(routerId).get(tunnelName);
+                if (dstRouterId.equals(tunnel.getDestRouterId())) {
+                    tunnelList.add(tunnel);
+                }
+            }
+        }
+        return tunnelList;
+    }
+
+    @Override
     public List<Tunnel> getTunnels() {
         List<Tunnel> tunnelList = new ArrayList<>();
         for (String key : tunnelMap.keySet()) {

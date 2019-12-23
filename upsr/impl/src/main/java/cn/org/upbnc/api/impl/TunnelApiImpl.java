@@ -220,6 +220,11 @@ public class TunnelApiImpl implements TunnelApi {
         return tunnelService.generateTunnelName(routerId);
     }
 
+    @Override
+    public Map<String, Object> getSuggestTunnel(String srcRouterId, String dstRouterId) {
+        return tunnelService.getSuggestTunnel(srcRouterId,dstRouterId);
+    }
+
     private boolean checkStaticBfdParams(BfdServiceEntity bfdServiceEntity){
         if(bfdServiceEntity.getDiscriminatorLocal() == null || bfdServiceEntity.getDiscriminatorRemote() == null ||
                 bfdServiceEntity.getMinRecvTime() == null || bfdServiceEntity.getMinSendTime() == null || bfdServiceEntity.getMultiplier() == null ||
