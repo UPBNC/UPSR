@@ -7,15 +7,66 @@ module upsrActionCfg {
         description "Initial revision of upsrActionCfg model";
     }
 
-    rpc commitCfg {
+    grouping routers {
+            list router{
+                leaf routerId { type string; }
+             }
+    }
+    rpc vpn {
         input {
-            leaf routerId { type string; }
-            leaf cfgType { type string; }
+            uses routers;
         }
         output {
             leaf result { type string; }
         }
     }
+
+
+    rpc lable {
+        input {
+            uses routers;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc tunnel {
+        input {
+            uses routers;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc confirm {
+        input {
+            uses routers;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc cancel {
+        input {
+            uses routers;
+        }
+        output {
+            leaf result { type string; }
+        }
+    }
+
+    rpc commitCfg {
+             input {
+                 leaf routerId { type string; }
+                 leaf cfgType { type string; }
+             }
+             output {
+                 leaf result { type string; }
+             }
+         }
 
     rpc getCfgCliChange {
         input {

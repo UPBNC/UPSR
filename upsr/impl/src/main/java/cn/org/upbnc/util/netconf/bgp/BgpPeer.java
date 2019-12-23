@@ -30,4 +30,12 @@ public class BgpPeer {
         this.peerAddr=peerAddr;
         this.remoteAs=remoteAs;
     }
+
+    @Override
+    public String toString() {
+        return "BgpPeer{" +
+                "peerAddr='" + peerAddr + '\'' +
+                ", remoteAs='" + remoteAs + '\'' +
+                '}';
+    }
 }

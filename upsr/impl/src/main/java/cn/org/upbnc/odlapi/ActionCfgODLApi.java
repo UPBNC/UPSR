@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsracti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.getcfgcommit.output.commitrouters.commitinfo.CurrentChangesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.getcfgcommit.output.commitrouters.commitinfo.SinceChanges;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.getcfgcommit.output.commitrouters.commitinfo.SinceChangesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.upsractioncfg.rev190509.routers.Router;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -52,6 +53,66 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         return this.actionCfgApi;
     }
 
+
+    @Override
+    public Future<RpcResult<VpnOutput>> vpn(VpnInput input) {
+        VpnOutputBuilder vpnOutputBuilder = new VpnOutputBuilder();
+        List<String> routers = new ArrayList<>();
+        for (Router router : input.getRouter()) {
+            LOG.info("router.getRouterId() :" + router.getRouterId());
+            routers.add(router.getRouterId());
+        }
+        Map<String, Object> resultMap
+                = this.getActionCfgApi().vpn(routers);
+        vpnOutputBuilder.setResult((String) resultMap.get(ResponseEnum.BODY.getName()));
+        return RpcResultBuilder.success(vpnOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<LableOutput>> lable(LableInput input) {
+        LableOutputBuilder lableOutputBuilder = new LableOutputBuilder();
+        List<String> routers = new ArrayList<>();
+        for (Router router : input.getRouter()) {
+            LOG.info("router.getRouterId() :" + router.getRouterId());
+            routers.add(router.getRouterId());
+        }
+        Map<String, Object> resultMap
+                = this.getActionCfgApi().lable(routers);
+        lableOutputBuilder.setResult((String) resultMap.get(ResponseEnum.BODY.getName()));
+        return RpcResultBuilder.success(lableOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<TunnelOutput>> tunnel(TunnelInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<ConfirmOutput>> confirm(ConfirmInput input) {
+        ConfirmOutputBuilder confirmOutputBuilder = new ConfirmOutputBuilder();
+        List<String> routers = new ArrayList<>();
+        for (Router router : input.getRouter()) {
+            routers.add(router.getRouterId());
+        }
+        Map<String, Object> resultMap
+                = this.getActionCfgApi().confirm(routers);
+        confirmOutputBuilder.setResult((String) resultMap.get(ResponseEnum.BODY.getName()));
+        return RpcResultBuilder.success(confirmOutputBuilder.build()).buildFuture();
+    }
+
+    @Override
+    public Future<RpcResult<CancelOutput>> cancel(CancelInput input) {
+        CancelOutputBuilder cancelOutputBuilder = new CancelOutputBuilder();
+        List<String> routers = new ArrayList<>();
+        for (Router router : input.getRouter()) {
+            routers.add(router.getRouterId());
+        }
+        Map<String, Object> resultMap
+                = this.getActionCfgApi().cancel(routers);
+        cancelOutputBuilder.setResult((String) resultMap.get(ResponseEnum.BODY.getName()));
+        return RpcResultBuilder.success(cancelOutputBuilder.build()).buildFuture();
+    }
+
     @Override
     public Future<RpcResult<CommitCfgOutput>> commitCfg(CommitCfgInput input) {
         LOG.info("commitCfg begin");
@@ -76,7 +137,7 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
     }
 
     @Override
-    public Future<RpcResult<GetCfgChangeOutput>> getCfgChange(GetCfgChangeInput input){
+    public Future<RpcResult<GetCfgChangeOutput>> getCfgChange(GetCfgChangeInput input) {
         LOG.info("getCfgChane begin");
         GetCfgChangeOutputBuilder getCfgChangeOutputBuilder = new GetCfgChangeOutputBuilder();
         getCfgChangeOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
@@ -107,17 +168,19 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         return RpcResultBuilder.success(getCfgChangeOutputBuilder.build()).buildFuture();
     }
 
+
     @Override
     public Future<RpcResult<CancelCfgChangeOutput>> cancelCfgChange(CancelCfgChangeInput input) {
         CancelCfgChangeOutputBuilder cancelCfgChangeOutputBuilder = new CancelCfgChangeOutputBuilder();
         LOG.info("cancelCfgChane begin");
         LOG.info(input.getCfgType());
         LOG.info(input.getRouterId());
-        this.actionCfgApi.cancelCfgChane(input.getRouterId(),input.getCfgType());
+        this.actionCfgApi.cancelCfgChane(input.getRouterId(), input.getCfgType());
         cancelCfgChangeOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("cancelCfgChane begin");
         return RpcResultBuilder.success(cancelCfgChangeOutputBuilder.build()).buildFuture();
     }
+
 
     @Override
     public Future<RpcResult<ConfirmCfgChangeOutput>> confirmCfgChange(ConfirmCfgChangeInput input) {
@@ -125,15 +188,16 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LOG.info("confirmCfgChane begin");
         LOG.info(input.getCfgType());
         LOG.info(input.getRouterId());
-        this.actionCfgApi.commitCfgChane(input.getRouterId(),input.getCfgType());
+        this.actionCfgApi.commitCfgChane(input.getRouterId(), input.getCfgType());
         confirmCfgChangeOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("confirmCfgChane end");
         return RpcResultBuilder.success(confirmCfgChangeOutputBuilder.build()).buildFuture();
     }
 
+
     private void commandChangeBuild(CommandBuilder commandBuilder, List<String> commandList) {
         List<CommandChange> commandChangeList = new ArrayList<>();
-        for(int i = 0 ; i < commandList.size() ; i++) {
+        for (int i = 0; i < commandList.size(); i++) {
             CommandChangeBuilder commandChangeBuilder = new CommandChangeBuilder();
             commandChangeBuilder.setIndex("" + i);
             commandChangeBuilder.setChange(commandList.get(i));
@@ -155,7 +219,7 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
             resultMap = this.getActionCfgApi().getCfgCommitPointInfo(input.getRouterId(), input.getCommitId());
         }
         Map<String, List<CheckPointInfoServiceEntity>> checkInfoMap =
-                (Map<String, List<CheckPointInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+                (Map<String, List<CheckPointInfoServiceEntity>>) resultMap.get(ResponseEnum.BODY.getName());
         List<CommitRouters> commitRoutersList = new ArrayList<>();
         for (String key : checkInfoMap.keySet()) {
             CommitRoutersBuilder commitRoutersBuilder = new CommitRoutersBuilder();

@@ -28,10 +28,11 @@ public class VpnXml {
         String vrfRD = l3vpnInstance.getVrfRD();
         String vrfRTValue = l3vpnInstance.getVrfRTValue();
         List<L3vpnIf> l3vpnIfs = l3vpnInstance.getL3vpnIfs();
+        // running candidate
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
-                "      <running/>\n" +
+                "      <candidate/>\n" +
                 "    </target>\n" +
                 "     <error-option>rollback-on-error</error-option>" +
                 "    <config>\n" +
@@ -147,6 +148,82 @@ public class VpnXml {
         return str;
     }
 
+    public static String getRunningVpnXml(String vrfName) {
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <running/>\n" +
+                "    </source>\n" +
+                "  <filter type=\"subtree\">\n" +
+                "    <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
+                "      <l3vpncomm>\n" +
+                "        <l3vpnInstances>\n" +
+                "          <l3vpnInstance>\n" +
+                "            <vrfName>" + vrfName + "</vrfName>\n" +
+                "            <vrfDescription/>\n" +
+                "            <trafficStatisticEnable/>\n" +
+                "            <vpnInstAFs>\n" +
+                "              <vpnInstAF xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "                <afType>ipv4uni</afType>\n" +
+                "                <vrfRD/>\n" +
+                "                <vpnFrr/>\n" +
+                "                <vrfLabelMode/>\n" +
+                "                <tnlPolicyName/>\n" +
+                "                <l3vpnTtlMode>\n" +
+                "                   <ttlMode/>\n" +
+                "                </l3vpnTtlMode>\n" +
+                "                <vpnTargets/>\n" +
+                "              </vpnInstAF>\n" +
+                "            </vpnInstAFs>\n" +
+                "            <l3vpnIfs/>\n" +
+                "          </l3vpnInstance>\n" +
+                "        </l3vpnInstances>\n" +
+                "      </l3vpncomm>\n" +
+                "    </l3vpn>\n" +
+                "  </filter>\n" +
+                "</get-config>" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getCandidateVpnXml(String vrfName) {
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <candidate/>\n" +
+                "    </source>\n" +
+                "  <filter type=\"subtree\">\n" +
+                "    <l3vpn xmlns=\"http://www.huawei.com/netconf/vrp/huawei-l3vpn\">\n" +
+                "      <l3vpncomm>\n" +
+                "        <l3vpnInstances>\n" +
+                "          <l3vpnInstance>\n" +
+                "            <vrfName>" + vrfName + "</vrfName>\n" +
+                "            <vrfDescription/>\n" +
+                "            <trafficStatisticEnable/>\n" +
+                "            <vpnInstAFs>\n" +
+                "              <vpnInstAF xmlns:nc=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "                <afType>ipv4uni</afType>\n" +
+                "                <vrfRD/>\n" +
+                "                <vpnFrr/>\n" +
+                "                <vrfLabelMode/>\n" +
+                "                <tnlPolicyName/>\n" +
+                "                <l3vpnTtlMode>\n" +
+                "                   <ttlMode/>\n" +
+                "                </l3vpnTtlMode>\n" +
+                "                <vpnTargets/>\n" +
+                "              </vpnInstAF>\n" +
+                "            </vpnInstAFs>\n" +
+                "            <l3vpnIfs/>\n" +
+                "          </l3vpnInstance>\n" +
+                "        </l3vpnInstances>\n" +
+                "      </l3vpncomm>\n" +
+                "    </l3vpn>\n" +
+                "  </filter>\n" +
+                "</get-config>" +
+                "</rpc>";
+        return str;
+    }
+
     public static List<L3vpnInstance> getVpnFromXml(String xml) {
         List<L3vpnInstance> l3vpnInstanceList = new ArrayList<>();
         List<L3vpnIf> l3vpnIfs;
@@ -219,7 +296,7 @@ public class VpnXml {
         String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "  <edit-config>\n" +
                 "     <target>\n" +
-                "\t\t<running/>\n" +
+                "\t\t<candidate/>\n" +
                 "\t  </target>\n" +
                 "\t  <default-operation>none</default-operation>\n" +
                 "\t  <error-option>rollback-on-error</error-option>\n" +

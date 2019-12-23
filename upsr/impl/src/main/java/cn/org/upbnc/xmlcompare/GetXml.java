@@ -21,6 +21,7 @@ import java.util.List;
 
 public class GetXml {
     private static final Logger LOG = LoggerFactory.getLogger(GetXml.class);
+
     public static List<SSrTeTunnel> getSrTeTunnelFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
         List<SSrTeTunnel> srTeTunnels = new ArrayList<>();
         SSrTeTunnel srTeTunnel;
@@ -82,6 +83,44 @@ public class GetXml {
         return srTeTunnels;
     }
 
+    public static List<Interface> getInterface(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
+        List<Interface> interfaces = new ArrayList<>();
+        Interface face;
+        if (!("".equals(xml))) {
+            try {
+                SAXReader reader = new SAXReader();
+                org.dom4j.Document document = reader.read(new InputSource(new StringReader(xml)));
+                org.dom4j.Element root = document.getRootElement();
+                List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements();
+                Element element;
+                if (ActionTypeEnum.modify == actionTypeEnum) {
+                    element = childElements.get(attributes.get(attributes.size() - 6).getIndex() - 1);
+                } else {
+                    element = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                }
+                face = new Interface();
+                face.setIfName(element.elementText("ifName"));
+                face.setAddrCfgType(element.elements("ipv4Config").get(0).elementText("addrCfgType"));
+                try {
+                    face.setUnNumIfName(element.elements("ipv4Config").get(0).elementText("unNumIfName"));
+                } catch (Exception e) {
+
+                }
+                try {
+                    face.setIfIpAddr(element.elements("ipv4Config").get(0).elements("am4CfgAddrs").get(0).elements().get(0).elementText("ifIpAddr"));
+                    face.setSubnetMask(element.elements("ipv4Config").get(0).elements("am4CfgAddrs").get(0).elements().get(0).elementText("subnetMask"));
+                    face.setAddrType(element.elements("ipv4Config").get(0).elements("am4CfgAddrs").get(0).elements().get(0).elementText("addrType"));
+                } catch (Exception e) {
+                } finally {
+                    interfaces.add(face);
+                }
+            } catch (Exception e) {
+                LOG.info(e.toString());
+            }
+        }
+        return interfaces;
+    }
+
     public static List<SExplicitPath> getExplicitPathFromXml(String xml, List<Attribute> attributes, ActionTypeEnum actionTypeEnum) {
         List<SExplicitPath> explicitPaths = new ArrayList<>();
         SExplicitPath explicitPath;
@@ -141,8 +180,24 @@ public class GetXml {
                 Element child = null;
                 if (ActionTypeEnum.modify == actionTypeEnum) {
                     child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                } else if (ActionTypeEnum.delete == actionTypeEnum) {
+                    if (attributes.get(attributes.size() - 3).getIndex() - 1 == 0) {
+                        child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    } else {
+                        child = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                    }
                 } else {
-                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    if (attributes.get(attributes.size() - 1).getIndex() - 1 == 0) {
+                        child = childElements.get(attributes.get(attributes.size() - 2).getIndex() - 1);
+                    } else {
+                        child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    }
+                    if(attributes.get(attributes.size() - 2).getName().equals("peerAF")){
+                        child = childElements.get(attributes.get(attributes.size() - 6).getIndex() - 1);
+                    }
+                    if(attributes.get(attributes.size() - 2).getName().equals("advertiseCommunity")){
+                        child = childElements.get(attributes.get(attributes.size() - 7).getIndex() - 1);
+                    }
                 }
                 if ("_public_".equals(child.elementText("vrfName"))) {
                 } else {
@@ -221,10 +276,31 @@ public class GetXml {
                 List<org.dom4j.Element> childElements = root.elements().get(0).elements().get(0).elements().get(0).elements();
                 Element child = null;
                 if (ActionTypeEnum.modify == actionTypeEnum) {
-                    child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
-                } else {
-                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                    if (attributes.get(attributes.size() - 5).getIndex() - 1 == 0) {
+                        child = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                    } else {
+                        child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
+                    }
+                } else {//if(ActionTypeEnum.delete == actionTypeEnum)
+                    if ("tnlPolicyName".equals(attributes.get(attributes.size() - 1).getName()) || "vrfDescription".equals(attributes.get(attributes.size() - 1).getName())) {
+                        if (attributes.get(attributes.size() - 4).getIndex() - 1 == 0) {
+                            child = childElements.get(attributes.get(attributes.size() - 2).getIndex() - 1);
+                        } else {
+                            child = childElements.get(attributes.get(attributes.size() - 4).getIndex() - 1);
+                        }
+
+                    } else {
+                        if (attributes.get(attributes.size() - 3).getIndex() - 1 == 0) {
+                            child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                        } else {
+                            child = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
+                        }
+                    }
+
                 }
+//                else {
+//                    child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+//                }
                 l3vpnInstance = new L3vpnInstance();
                 l3vpnIfs = new ArrayList<>();
                 l3vpnInstance.setVrfName(child.elementText("vrfName"));

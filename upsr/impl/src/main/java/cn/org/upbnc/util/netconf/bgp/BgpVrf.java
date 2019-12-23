@@ -37,6 +37,17 @@ public class BgpVrf {
         this.ImportRoutes = ImportRoutes;
     }
 
+    @Override
+    public String toString() {
+        return "BgpVrf{" +
+                "vrfName='" + vrfName + '\'' +
+                ", BgpPeers=" + BgpPeers +
+                ", NetworkRoutes=" + NetworkRoutes +
+                ", ImportRoutes=" + ImportRoutes +
+                ", bgpVrfAFs=" + bgpVrfAFs +
+                '}';
+    }
+
     public List<SBgpVrfAF> getBgpVrfAFs() {
         return bgpVrfAFs;
     }

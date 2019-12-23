@@ -26,10 +26,11 @@ public class EbgpXml {
     private static final Logger LOG = LoggerFactory.getLogger(EbgpXml.class);
 
     public static String createEbgpXml(BgpVrf bgpVrf) {
+        //candidate running
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
-                "      <running/>\n" +
+                "      <candidate/>\n" +
                 "    </target>\n" +
                 "    <config>\n" +
                 "      <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
@@ -210,6 +211,29 @@ public class EbgpXml {
         return bgpVrfs;
     }
 
+    public static String getAsXml() {
+        String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
+                "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <source>\n" +
+                "    <running/>\n" +
+                "  </source>\n" +
+                "  <filter type=\"subtree\">\n" +
+                "    <bgp:bgp xmlns:bgp=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +
+                "      <bgp:bgpcomm>\n" +
+                "        <bgp:bgpSite/>\n" +
+                "      </bgp:bgpcomm>\n" +
+                "    </bgp:bgp>\n" +
+                "  </filter>\n" +
+                "</get-config>" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getAsFromXml(String xml) {
+        String str = xml.substring(xml.indexOf("<asNumber>") + 10, xml.indexOf("</asNumber>"));
+        return str;
+    }
+
     public static String getEbgpXml(String vrfName) {
         String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<get>\n" +
@@ -245,7 +269,7 @@ public class EbgpXml {
         String str = "<rpc message-id =\"" + GetMessageId.getId() + "\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" >\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "    <bgp xmlns=\"http://www.huawei.com/netconf/vrp/huawei-bgp\">\n" +

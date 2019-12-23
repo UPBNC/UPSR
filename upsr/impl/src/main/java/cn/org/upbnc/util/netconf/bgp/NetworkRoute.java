@@ -16,6 +16,14 @@ public class NetworkRoute {
         this.maskLen=maskLen;
     }
 
+    @Override
+    public String toString() {
+        return "NetworkRoute{" +
+                "networkAddress='" + networkAddress + '\'' +
+                ", maskLen='" + maskLen + '\'' +
+                '}';
+    }
+
     public String getNetworkAddress() {
         return networkAddress;
     }

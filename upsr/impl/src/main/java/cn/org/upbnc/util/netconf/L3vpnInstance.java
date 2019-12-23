@@ -115,6 +115,21 @@ public class L3vpnInstance {
         return ttlMode;
     }
 
+    @Override
+    public String toString() {
+        return "L3vpnInstance{" +
+                "vrfName='" + vrfName + '\'' +
+                ", vrfDescription='" + vrfDescription + '\'' +
+                ", vrfRD='" + vrfRD + '\'' +
+                ", vrfRTValue='" + vrfRTValue + '\'' +
+                ", l3vpnIfs=" + l3vpnIfs +
+                ", tunnelPolicy='" + tunnelPolicy + '\'' +
+                ", vpnFrr='" + vpnFrr + '\'' +
+                ", applyLabel='" + applyLabel + '\'' +
+                ", ttlMode='" + ttlMode + '\'' +
+                '}';
+    }
+
     public void setTtlMode(String ttlMode) {
         this.ttlMode = (VpnTtlModeEnum.UNIFORM.getName().equals(ttlMode) || VpnTtlModeEnum.UNIFORM.getName().equals(ttlMode))?
                 VpnTtlModeEnum.UNIFORM.getName():VpnTtlModeEnum.PIPE.getName();

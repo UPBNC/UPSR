@@ -97,8 +97,7 @@ public class SessionListener implements NetconfClientSessionListener {
 
     @Override
     public synchronized void onMessage(NetconfClientSession session, NetconfMessage message) {
-        LOG.info("New message arrived: {}", message);
-
+//        LOG.info("New message arrived: {}", message);
         final RequestEntry e = requests.poll();
         if (e != null) {
             e.promise.setSuccess(message);

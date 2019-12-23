@@ -16,6 +16,14 @@ public class ImportRoute {
         this.importProtocol=importProtocol;
     }
 
+    @Override
+    public String toString() {
+        return "ImportRoute{" +
+                "importProtocol='" + importProtocol + '\'' +
+                ", importProcessId='" + importProcessId + '\'' +
+                '}';
+    }
+
     public String getImportProcessId() {
         return importProcessId;
     }
