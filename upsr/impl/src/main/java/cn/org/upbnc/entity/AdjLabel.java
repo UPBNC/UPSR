@@ -29,4 +29,12 @@ public class AdjLabel extends Label {
     public void setAddressRemote(Address addressRemote) {
         this.addressRemote = addressRemote;
     }
+
+    @Override
+    public String toString() {
+        return "AdjLabel{" +
+                "addressLocal=" + addressLocal +
+                ", addressRemote=" + addressRemote +
+                '}';
+    }
 }

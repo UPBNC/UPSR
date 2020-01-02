@@ -143,6 +143,7 @@ public class SSrTeTunnel {
     public String toString() {
         return "SSrTeTunnel{" +
                 "tunnelName='" + tunnelName + '\'' +
+                ", tunnelDesc='" + tunnelDesc + '\'' +
                 ", mplsTunnelEgressLSRId='" + mplsTunnelEgressLSRId + '\'' +
                 ", mplsTunnelIndex='" + mplsTunnelIndex + '\'' +
                 ", mplsTeTunnelSetupPriority='" + mplsTeTunnelSetupPriority + '\'' +
@@ -151,7 +152,9 @@ public class SSrTeTunnel {
                 ", mplsTeTunnelBfdMinTx='" + mplsTeTunnelBfdMinTx + '\'' +
                 ", mplsTeTunnelBfdMinnRx='" + mplsTeTunnelBfdMinnRx + '\'' +
                 ", mplsTeTunnelBfdDetectMultiplier='" + mplsTeTunnelBfdDetectMultiplier + '\'' +
+                ", mplsTeTunnelBfdEnable='" + mplsTeTunnelBfdEnable + '\'' +
                 ", srTeTunnelPaths=" + srTeTunnelPaths +
+                ", mplsteServiceClass=" + mplsteServiceClass +
                 ", unNumIfName='" + unNumIfName + '\'' +
                 ", addrCfgType='" + addrCfgType + '\'' +
                 '}';

@@ -4,6 +4,14 @@ public class SSrgbRange {
     String srgbBegin;
     String srgbEnd;
 
+    @Override
+    public String toString() {
+        return "SSrgbRange{" +
+                "srgbBegin='" + srgbBegin + '\'' +
+                ", srgbEnd='" + srgbEnd + '\'' +
+                '}';
+    }
+
     public String getSrgbBegin() {
         return srgbBegin;
     }

@@ -23,6 +23,22 @@ public class NetconfSrLabelInfo {
     String adjUpperSid;
     List<SSrgbRange> srgbRangeList;
 
+    @Override
+    public String toString() {
+        return "NetconfSrLabelInfo{" +
+                "ospfProcessId='" + ospfProcessId + '\'' +
+                ", ospfAreaId='" + ospfAreaId + '\'' +
+                ", srgbBegin='" + srgbBegin + '\'' +
+                ", srgbEnd='" + srgbEnd + '\'' +
+                ", prefixIfName='" + prefixIfName + '\'' +
+                ", prefixLabel='" + prefixLabel + '\'' +
+                ", prefixType='" + prefixType + '\'' +
+                ", adjLowerSid='" + adjLowerSid + '\'' +
+                ", adjUpperSid='" + adjUpperSid + '\'' +
+                ", srgbRangeList=" + srgbRangeList +
+                '}';
+    }
+
     public String getPrefixIfName() {
         return prefixIfName;
     }

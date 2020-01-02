@@ -131,6 +131,7 @@ public class CandidateXml {
                 "                <ospfv2:area>\n" +
                 "                  <ospfv2:interfaces>\n" +
                 "                    <ospfv2:interface>\n" +
+                "                      <ospfv2:ifName>LoopBack0</ospfv2:ifName>"+
                 "                      <ospfv2:srInterface>\n" +
                 "                        <ospfv2:prefixSidType/>\n" +
                 "                        <ospfv2:prefixLabel/>\n" +
@@ -393,5 +394,103 @@ public class CandidateXml {
                 "  </get-config>\n" +
                 "</rpc>";
         return xml;
+    }
+
+    public static String getTunnelIfmXml() {
+        String str = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <candidate/>\n" +
+                "    </source>\n" +
+                "    <filter>\n" +
+                "      <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "        <ifm:interfaces>\n" +
+                "          <ifm:interface>\n" +
+                "            <ifm:ifName/>\n" +
+                "            <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n" +
+                "            <ifm:ifDescr/>\n" +
+                "            <ifm:ipv4Config>\n" +
+                "              <ifm:addrCfgType/>\n" +
+                "              <ifm:unNumIfName/>\n" +
+                "            </ifm:ipv4Config>\n" +
+                "          </ifm:interface>\n" +
+                "        </ifm:interfaces>\n" +
+                "      </ifm:ifm>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getTunnelXml() {
+        String str = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <candidate/>\n" +
+                "    </source>\n" +
+                "    <filter>\n" +
+                "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                "        <mpls:mplsTe>\n" +
+                "          <mpls:srTeTunnels>\n" +
+                "            <mpls:srTeTunnel>\n" +
+                "              <mpls:tunnelName/>\n" +
+                "              <mpls:mplsTunnelEgressLSRId/>\n" +
+                "              <mpls:mplsTunnelIndex/>\n" +
+                "              <mpls:mplsTunnelBandwidth/>\n" +
+                "              <mpls:mplsTeTunnelSetupPriority/>\n" +
+                "              <mpls:holdPriority/>\n" +
+                "              <mpls:hotStandbyEnable/>\n" +
+                "              <mpls:resvForBinding/>\n" +
+                "              <mpls:srTeTunnelPaths>\n" +
+                "                <mpls:srTeTunnelPath>\n" +
+                "                  <mpls:pathType/>\n" +
+                "                  <mpls:explicitPathName/>\n" +
+                "                </mpls:srTeTunnelPath>\n" +
+                "              </mpls:srTeTunnelPaths>\n" +
+                "              <mpls:tunnelInterface>\n" +
+                "                <mpls:interfaceName/>\n" +
+                "                <mpls:lsp_tpEnable/>\n" +
+                "                <mpls:statEnable/>\n" +
+                "                <mpls:mplsteServiceClass/>\n" +
+                "              </mpls:tunnelInterface>\n" +
+                "              <mpls:mplsTeTunnelBfd/>\n" +
+                "            </mpls:srTeTunnel>\n" +
+                "          </mpls:srTeTunnels>\n" +
+                "        </mpls:mplsTe>\n" +
+                "      </mpls:mpls>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getExplicitPathXml() {
+        String str = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <candidate/>\n" +
+                "    </source>\n" +
+                "    <filter>\n" +
+                "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
+                "        <mpls:mplsTe>\n" +
+                "          <mpls:explicitPaths>\n" +
+                "            <mpls:explicitPath>\n" +
+                "              <mpls:explicitPathName></mpls:explicitPathName>\n" +
+                "              <mpls:explicitPathHops>\n" +
+                "                <mpls:explicitPathHop>\n" +
+                "                  <mpls:mplsTunnelHopIndex></mpls:mplsTunnelHopIndex>\n" +
+                "                  <mpls:mplsTunnelHopMode></mpls:mplsTunnelHopMode>\n" +
+                "                  <mpls:mplsTunnelHopSidLabel></mpls:mplsTunnelHopSidLabel>\n" +
+                "                  <mpls:mplsTunnelHopSidLabelType></mpls:mplsTunnelHopSidLabelType>\n" +
+                "                </mpls:explicitPathHop>\n" +
+                "              </mpls:explicitPathHops>\n" +
+                "            </mpls:explicitPath>\n" +
+                "          </mpls:explicitPaths>\n" +
+                "        </mpls:mplsTe>\n" +
+                "      </mpls:mpls>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>";
+        return str;
     }
 }

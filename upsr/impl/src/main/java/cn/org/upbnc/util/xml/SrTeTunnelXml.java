@@ -227,7 +227,7 @@ public class SrTeTunnelXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
@@ -250,7 +250,7 @@ public class SrTeTunnelXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
@@ -278,7 +278,7 @@ public class SrTeTunnelXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <filter type=\"subtree\">\n" +
                 "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +

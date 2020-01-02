@@ -18,7 +18,7 @@ public class ExplicitPathXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "    <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
@@ -111,7 +111,7 @@ public class ExplicitPathXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "    <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
@@ -139,7 +139,7 @@ public class ExplicitPathXml {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<edit-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <target>\n" +
-                "    <running/>\n" +
+                "    <candidate/>\n" +
                 "  </target>\n" +
                 "  <config>\n" +
                 "    <mpls xmlns=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +

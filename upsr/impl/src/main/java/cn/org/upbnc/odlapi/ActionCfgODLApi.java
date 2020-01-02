@@ -59,7 +59,6 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         VpnOutputBuilder vpnOutputBuilder = new VpnOutputBuilder();
         List<String> routers = new ArrayList<>();
         for (Router router : input.getRouter()) {
-            LOG.info("router.getRouterId() :" + router.getRouterId());
             routers.add(router.getRouterId());
         }
         Map<String, Object> resultMap
@@ -73,7 +72,6 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
         LableOutputBuilder lableOutputBuilder = new LableOutputBuilder();
         List<String> routers = new ArrayList<>();
         for (Router router : input.getRouter()) {
-            LOG.info("router.getRouterId() :" + router.getRouterId());
             routers.add(router.getRouterId());
         }
         Map<String, Object> resultMap
@@ -84,7 +82,15 @@ public class ActionCfgODLApi implements UpsrActionCfgService {
 
     @Override
     public Future<RpcResult<TunnelOutput>> tunnel(TunnelInput input) {
-        return null;
+        TunnelOutputBuilder tunnelOutputBuilder = new TunnelOutputBuilder();
+        List<String> routers = new ArrayList<>();
+        for (Router router : input.getRouter()) {
+            routers.add(router.getRouterId());
+        }
+        Map<String, Object> resultMap
+                = this.getActionCfgApi().tunnel(routers);
+        tunnelOutputBuilder.setResult((String) resultMap.get(ResponseEnum.BODY.getName()));
+        return RpcResultBuilder.success(tunnelOutputBuilder.build()).buildFuture();
     }
 
     @Override

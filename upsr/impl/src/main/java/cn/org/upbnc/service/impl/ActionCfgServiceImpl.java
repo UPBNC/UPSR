@@ -6,6 +6,7 @@ import cn.org.upbnc.base.NetConfManager;
 import cn.org.upbnc.cfgcli.srlabelcli.SrlabelCli;
 import cn.org.upbnc.cfgcli.tunnelcli.TunnelCli;
 import cn.org.upbnc.cfgcli.vpncli.VpnCli;
+import cn.org.upbnc.entity.AdjLabel;
 import cn.org.upbnc.entity.CommandLine;
 import cn.org.upbnc.entity.Device;
 import cn.org.upbnc.enumtype.CfgTypeEnum;
@@ -14,9 +15,7 @@ import cn.org.upbnc.enumtype.ResponseEnum;
 import cn.org.upbnc.service.ActionCfgService;
 import cn.org.upbnc.service.entity.actionCfg.CheckPointInfoServiceEntity;
 import cn.org.upbnc.service.entity.actionCfg.PointChangeInfoServiceEntity;
-import cn.org.upbnc.util.netconf.L3vpnInstance;
-import cn.org.upbnc.util.netconf.NetconfClient;
-import cn.org.upbnc.util.netconf.NetconfSrLabelInfo;
+import cn.org.upbnc.util.netconf.*;
 import cn.org.upbnc.util.netconf.actionCfg.SCheckPointInfo;
 import cn.org.upbnc.util.netconf.actionCfg.SPointChangeInfo;
 import cn.org.upbnc.util.netconf.bgp.BgpVrf;
@@ -72,18 +71,10 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             result = result + "\nrouter : " + routerId + "\n";
             synType = "2";
             NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
-
             String vpnRunningXml = RunningXml.getVpnXml();
-            LOG.info("vpnRunningXml :" + vpnRunningXml);
             String vpnCandidateXml = CandidateXml.getVpnXml();
-            LOG.info("vpnCandidateXml :" + vpnCandidateXml);
             String xmlRunningResult = netconfController.sendMessage(netconfClient, vpnRunningXml);
-//        LOG.info("xmlRunningResult :" + xmlRunningResult);
             String xmlCandidateResult = netconfController.sendMessage(netconfClient, vpnCandidateXml);
-//        LOG.info("xmlRunningResult :" + xmlRunningResult);
-//        String xml1 = VpnUtils.modify();
-//        String xml2 = VpnUtils.running();
-            //xml1 candidate  xml2 running
             xmlRunningResult = XmlUtils.subString(xmlRunningResult);
             xmlCandidateResult = XmlUtils.subString(xmlCandidateResult);
             flag = "explicitPath";
@@ -93,7 +84,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             boolean modifyFlay = false;
             actionEntity = XmlUtils.compare(xmlCandidateResult, xmlRunningResult, flag);
             if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                LOG.info("add");
                 List<L3vpnInstance> l3vpnInstances = GetXml.getVpnFromXml(xmlCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                 if (l3vpnInstances.size() != 0 && (!("_public_").equals(l3vpnInstances.get(0).getVrfName()))) {
                     vpnName = l3vpnInstances.get(0).getVrfName();
@@ -126,11 +116,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 
                 }
             } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                LOG.info("delete");
-//                result = "delete";
                 List<L3vpnInstance> l3vpnInstances = GetXml.getVpnFromXml(xmlRunningResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                 if (l3vpnInstances.size() != 0 && (!("_public_").equals(l3vpnInstances.get(0).getVrfName()))) {
-                    LOG.info(l3vpnInstances.get(0).toString());
                     vpnName = l3vpnInstances.get(0).getVrfName();
                     deleteFlag = true;
                     result = result + "# \n" + " - ip vpn-instance " + l3vpnInstances.get(0).getVrfName();
@@ -154,7 +141,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 }
             } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
                 List<L3vpnInstance> l3vpnInstances = GetXml.getVpnFromXml(xmlCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                LOG.info("modify");
                 vpnName = l3vpnInstances.get(0).getVrfName();
                 String remove = "";
                 String add = "";
@@ -165,7 +151,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 boolean ipv4FamilyFlag = false;
                 modifyFlay = true;
                 if (l3vpnInstances.size() != 0) {
-                    LOG.info(l3vpnInstances.get(0).getVrfName());
                     List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
                     for (ModifyEntity modifyEntity : modifyEntities) {
                         if ("vrfDescription".equals(modifyEntity.getLabel())) {
@@ -207,9 +192,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                                 ipv4FamilyAdd = ipv4FamilyAdd + "\n +   ttl-mode   " + modifyEntity.getNewValue();
                             }
                         }
-                        LOG.info("lable :" + modifyEntity.getLabel());
-                        LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                        LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
                     }
                     result = result + instance + remove;
                     if (ipv4FamilyFlag) {
@@ -233,9 +215,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                     } else {
                         sendMsg = VpnXml.getCandidateVpnXml(vpnName);
                     }
-                    LOG.info(sendMsg);
                     String getResult = netconfController.sendMessage(netconfClient, sendMsg);
-                    LOG.info(getResult);
                     List<L3vpnInstance> l3vpnInstances = VpnXml.getVpnFromXml(getResult);
                     if (l3vpnInstances.size() > 0 && l3vpnInstances.get(0).getL3vpnIfs().size() > 0) {
                         if (deleteFlag) {
@@ -255,47 +235,28 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             if (!deleteFlag && modifyFlay) {
                 {
                     String ifmRunningXml = RunningXml.getIfmXml();
-                    LOG.info("ifmRunningXml :" + ifmRunningXml);
                     String ifmCandidateXml = CandidateXml.getIfmXml();
-                    LOG.info("ifmCandidateXml :" + ifmCandidateXml);
                     String ifmRunningResult = netconfController.sendMessage(netconfClient, ifmRunningXml);
                     String ifmCandidateResult = netconfController.sendMessage(netconfClient, ifmCandidateXml);
                     ifmCandidateResult = XmlUtils.subString(ifmCandidateResult);
                     ifmRunningResult = XmlUtils.subString(ifmRunningResult);
-                    //xml1 candidate  xml2 running
                     flag = "explicitPath";
                     actionEntity = XmlUtils.compare(ifmCandidateResult, ifmRunningResult, flag);
                     if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                        LOG.info("add");
                         List<Interface> interfaces = GetXml.getInterface(ifmCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                         LOG.info(interfaces.get(0).toString());
-//                        result = result + "#2" + "\n" + "interface " + interfaces.get(0).getIfName() + "\n"
-//                                + " +   ip address " + interfaces.get(0).getIfIpAddr()
-//                                + " " + interfaces.get(0).getSubnetMask() + "\n #";
-                        //+ "+   ip binding vpn-instance "+vpnName + "\n"
-//                        LOG.info(result);
                     } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                        LOG.info("delete");
                         List<Interface> interfaces = GetXml.getInterface(ifmRunningResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                         LOG.info(interfaces.toString());
-//                        result = result + "#2" + "\n" + "interface " + interfaces.get(0).getIfName() + "\n"
-//                                + " -   ip address " + interfaces.get(0).getIfIpAddr()
-//                                + " " + interfaces.get(0).getSubnetMask() + "\n #";
-                        // + "-   ip binding vpn-instance "+vpnName + "\n"
-//                        LOG.info(result);
                     } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
                         List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
                         for (ModifyEntity modifyEntity : modifyEntities) {
                             List<Interface> interfaces = GetXml.getInterface(ifmCandidateResult, AttributeParse.parse(modifyEntity.getPath()), actionEntity.getAction());
                             LOG.info(interfaces.get(0).toString());
-                            LOG.info("lable :" + modifyEntity.getLabel());
-                            LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                            LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
                             if ("ifIpAddr".equals(modifyEntity.getLabel())) {
                                 result = result + "#" + "\n" + "   interface " + interfaces.get(0).getIfName() + "\n"
                                         + " -   ip address " + modifyEntity.getOdlValue()
                                         + " " + interfaces.get(0).getSubnetMask();
-                                // + "-   ip binding vpn-instance "+vpnName + "\n"
                                 result = result + "\n +   ip address " + modifyEntity.getNewValue()
                                         + " " + interfaces.get(0).getSubnetMask() + "\n #";
                                 LOG.info(result);
@@ -310,12 +271,9 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 
             {
                 String ebgpRunningXml = RunningXml.getEbgpXml();
-                LOG.info("ebgpRunningXml :" + ebgpRunningXml);
                 String ebgpCandidateXml = CandidateXml.getEbgpXml();
-                LOG.info("ebgpCandidateXml :" + ebgpCandidateXml);
                 String xmlEbgpRunningResult = netconfController.sendMessage(netconfClient, ebgpRunningXml);
                 String xmlEbgpCandidateResult = netconfController.sendMessage(netconfClient, ebgpCandidateXml);
-                //xml1 candidate  xml2 running
                 flag = "explicitPath";
                 xmlEbgpCandidateResult = XmlUtils.subString(xmlEbgpCandidateResult);
                 xmlEbgpRunningResult = XmlUtils.subString(xmlEbgpRunningResult);
@@ -324,7 +282,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 String asResult = netconfController.sendMessage(netconfClient, asXml);
                 String as = EbgpXml.getAsFromXml(asResult);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (bgpVrfs.size() != 0 && (AttributeParse.parse(actionEntity.getPath()).get(AttributeParse.parse(actionEntity.getPath()).size() - 2).getName().equals("peerAF")
                             || AttributeParse.parse(actionEntity.getPath()).get(AttributeParse.parse(actionEntity.getPath()).size() - 2).getName().equals("advertiseCommunity"))) {
@@ -349,7 +306,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                     } else {
                         if (bgpVrfs.size() != 0 && bgpVrfs.get(0).getBgpVrfAFs().size() > 0 && bgpVrfs.get(0).getBgpPeers().size() > 0) {
-                            LOG.info(bgpVrfs.get(0).toString());
                             result = result + "# \n bgp " + as + " \n" +
                                     "   ipv4-family vpn-instance " + bgpVrfs.get(0).getVrfName() +
                                     "\n+   preference " + bgpVrfs.get(0).getBgpVrfAFs().get(0).getPreferenceExternal() +
@@ -372,7 +328,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                     }
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpRunningResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (bgpVrfs.size() != 0 && bgpVrfs.get(0).getBgpVrfAFs().size() > 0 && bgpVrfs.get(0).getBgpPeers().size() > 0) {
                         LOG.info(bgpVrfs.get(0).toString());
@@ -398,9 +353,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                     }
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                    LOG.info("modify");
                     if (bgpVrfs.size() != 0) {
-                        LOG.info(bgpVrfs.get(0).getVrfName());
                         String peerAddrOld = "";
                         String peerAddrNew = "";
                         String asOld = "";
@@ -422,23 +375,20 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         String preferenceExternalNew = preferenceExternal;
                         String preferenceInternalNew = preferenceInternal;
                         String preferenceLocalNew = preferenceLocal;
-                        String importOld="";
-                        String exportOld="";
-                        String communityOld="";
-                        if(bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().size()>0){
+                        String importOld = "";
+                        String exportOld = "";
+                        String communityOld = "";
+                        if (bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().size() > 0) {
                             importOld = bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().get(0).getImportRtPolicyName();
                             exportOld = bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().get(0).getExportRtPolicyName();
-                            communityOld=bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity();
+                            communityOld = bgpVrfs.get(0).getBgpVrfAFs().get(0).getPeerAFs().get(0).getAdvertiseCommunity();
                         }
                         String importNew = importOld;
                         String exportNew = exportOld;
-                        String communityNew=communityOld;
+                        String communityNew = communityOld;
                         boolean perferenceFlag = false;
                         boolean peerIpOnlyFlag = false;
                         for (ModifyEntity modifyEntity : modifyEntities) {
-                            LOG.info("lable :" + modifyEntity.getLabel());
-                            LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                            LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
                             if ("peerAddr".equals(modifyEntity.getLabel())) {
                                 peerIpOnlyFlag = true;
                                 peerAddrOld = modifyEntity.getOdlValue();
@@ -460,26 +410,26 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                                 perferenceFlag = true;
                             }
                             if ("remoteAs".equals(modifyEntity.getLabel())) {
-                                asOld=modifyEntity.getOdlValue();
-                                asNew=modifyEntity.getNewValue();
+                                asOld = modifyEntity.getOdlValue();
+                                asNew = modifyEntity.getNewValue();
                                 remove = remove + "\n -   peer " + peerAddrOld + " as-number " + modifyEntity.getOdlValue();
                                 add = add + "\n +   peer " + peerAddrNew + " as-number " + modifyEntity.getNewValue();
                             }
                             if ("importRtPolicyName".equals(modifyEntity.getLabel())) {
-                                importOld=modifyEntity.getOdlValue();
-                                importNew=modifyEntity.getNewValue();
+                                importOld = modifyEntity.getOdlValue();
+                                importNew = modifyEntity.getNewValue();
                                 remove = remove + "\n -   peer " + peerAddrOld + " route-policy " + modifyEntity.getOdlValue() + " import";
                                 add = add + "\n +   peer " + peerAddrNew + " route-policy " + modifyEntity.getNewValue() + " import";
                             }
                             if ("exportRtPolicyName".equals(modifyEntity.getLabel())) {
-                                exportOld=modifyEntity.getOdlValue();
-                                exportNew=modifyEntity.getNewValue();
+                                exportOld = modifyEntity.getOdlValue();
+                                exportNew = modifyEntity.getNewValue();
                                 remove = remove + "\n -   peer " + peerAddrOld + " route-policy " + modifyEntity.getOdlValue() + " export";
                                 add = add + "\n +   peer " + peerAddrNew + " route-policy " + modifyEntity.getNewValue() + " export";
                             }
                             if ("advertiseCommunity".equals(modifyEntity.getLabel())) {
-                                communityOld=modifyEntity.getOdlValue();
-                                communityNew=modifyEntity.getNewValue();
+                                communityOld = modifyEntity.getOdlValue();
+                                communityNew = modifyEntity.getNewValue();
                                 if ("true".equals(modifyEntity.getNewValue())) {
                                     add = add + "\n +   peer " + peerAddrNew + " advertise-community ";
                                 }
@@ -490,20 +440,20 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
 
                         if (peerIpOnlyFlag) {
-                            remove="";
-                            add="";
+                            remove = "";
+                            add = "";
                             remove = remove + "\n -   peer " + peerAddrOld + " as-number " + asOld;
                             add = add + "\n +   peer " + peerAddrNew + " as-number " + asNew;
-                            if(!("".equals(importOld))){
+                            if (!("".equals(importOld))) {
                                 remove = remove + "\n -   peer " + peerAddrOld + " route-policy " + importOld + " import";
                             }
-                            if(!("".equals(importNew))){
+                            if (!("".equals(importNew))) {
                                 add = add + "\n +   peer " + peerAddrNew + " route-policy " + importNew + " import";
                             }
-                            if(!("".equals(exportOld))){
+                            if (!("".equals(exportOld))) {
                                 remove = remove + "\n -   peer " + peerAddrOld + " route-policy " + exportOld + " export";
                             }
-                            if(!("".equals(exportNew))){
+                            if (!("".equals(exportNew))) {
                                 add = add + "\n +   peer " + peerAddrNew + " route-policy " + exportNew + " export";
                             }
                             if ("true".equals(communityNew)) {
@@ -546,34 +496,30 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
             {
                 String areasRunningXml = RunningXml.getAreasXml();
-                LOG.info("areasRunningXml :" + areasRunningXml);
                 String areasCandidateXml = CandidateXml.getAreasXml();
-                LOG.info("areasCandidateXml :" + areasCandidateXml);
                 String xmlRunningResult = netconfController.sendMessage(netconfClient, areasRunningXml);
                 String xmlCandidateResult = netconfController.sendMessage(netconfClient, areasCandidateXml);
                 String xml1 = xmlRunningResult;
                 String xml2 = xmlCandidateResult;
                 xml1 = XmlUtils.subString(xml1);
                 xml2 = XmlUtils.subString(xml2);
-                //xml1 candidate  xml2 running
                 flag = "explicitPath";
                 actionEntity = XmlUtils.compare(xml1, xml2, flag);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
                     NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelFromgSrNodeLabelXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     LOG.info(netconfSrLabelInfo.toString());
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
                     NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelFromgSrNodeLabelXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     LOG.info(netconfSrLabelInfo.toString());
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
                     NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelFromgSrNodeLabelXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                    LOG.info(netconfSrLabelInfo.getPrefixIfName());
+                    result = result + "\n  #\n  interface " + netconfSrLabelInfo.getPrefixIfName();
                     List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
                     for (ModifyEntity modifyEntity : modifyEntities) {
-                        LOG.info("lable :" + modifyEntity.getLabel());
-                        LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                        LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                        if ("prefixLabel".equals(modifyEntity.getLabel())) {
+                            result = result + "\n-  ospf prefix-sid absolute " + modifyEntity.getNewValue() + "" +
+                                    "\n+  ospf prefix-sid absolute " + modifyEntity.getOdlValue() + "\n  #";
+                        }
                     }
                 } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
                     LOG.info("modifyEntity action() :" + actionEntity.getAction());
@@ -583,31 +529,38 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 
             {
                 String srgbRunningXml = RunningXml.getSrgbXml();
-                LOG.info("srgbRunningXml :" + srgbRunningXml);
                 String srgbCandidateXml = CandidateXml.getSrgbXml();
-                LOG.info("srgbCandidateXml :" + srgbCandidateXml);
                 String xml1 = netconfController.sendMessage(netconfClient, srgbCandidateXml);
                 String xml2 = netconfController.sendMessage(netconfClient, srgbRunningXml);
+                String xml3 = xml2;
                 xml1 = XmlUtils.subString(xml1);
                 xml2 = XmlUtils.subString(xml2);
-                //xml1 candidate  xml2 running
                 flag = "explicitPath";
                 actionEntity = XmlUtils.compare(xml1, xml2, flag);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
                     NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelRangeFromNodeLabelRangeXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     LOG.info(netconfSrLabelInfo.toString());
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
                     NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrNodeLabelRangeFromNodeLabelRangeXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     LOG.info(netconfSrLabelInfo.toString());
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
+                    NetconfSrLabelInfo netconfSrLabelInfo = SrLabelXml.getSrNodeLabelRangeFromNodeLabelRangeXml(xml3);
+                    String begin = netconfSrLabelInfo.getSrgbBegin();
+                    String end = netconfSrLabelInfo.getSrgbEnd();
+                    String beginNew = begin;
+                    String endNew = end;
                     List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
+                    result = result + "\n  #\n  ospf " + netconfSrLabelInfo.getOspfProcessId() + " router-id " + routerId;
                     for (ModifyEntity modifyEntity : modifyEntities) {
-                        LOG.info("lable :" + modifyEntity.getLabel());
-                        LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                        LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                        if ("srgbBegin".equals(modifyEntity.getLabel())) {
+                            beginNew = modifyEntity.getNewValue();
+                        }
+                        if ("srgbEnd".equals(modifyEntity.getLabel())) {
+                            endNew = modifyEntity.getNewValue();
+                        }
                     }
+                    result = result + "\n-  segment-routing global-block " + begin + " " + end + "" +
+                            "\n+  segment-routing global-block " + beginNew + " " + endNew + "\n  #";
                 } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
                     LOG.info("modifyEntity action() :" + actionEntity.getAction());
                 }
@@ -615,37 +568,53 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 
             {
                 String segrRunningXml = RunningXml.getSegrXml();
-                LOG.info("segrRunningXml :" + segrRunningXml);
                 String segrCandidateXml = CandidateXml.getSegrXml();
-                LOG.info("segrCandidateXml :" + segrCandidateXml);
                 String xml1 = netconfController.sendMessage(netconfClient, segrRunningXml);
+                String xml3 = xml1;
                 String xml2 = netconfController.sendMessage(netconfClient, segrCandidateXml);
                 xml1 = XmlUtils.subString(xml1);
                 xml2 = XmlUtils.subString(xml2);
-                //xml1 candidate  xml2 running
                 flag = "explicitPath";
                 actionEntity = XmlUtils.compare(xml1, xml2, flag);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
-                    NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrSRGBRangeFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                    LOG.info(netconfSrLabelInfo.toString());
+                    List<AdjLabel> adjLabelList = GetXml.getSrAdjLabelFromSrAdjLabelXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    result = result + "\n  #\n  segment-routing\n-  ipv4 adjacency local-ip-addr " + adjLabelList.get(0).getAddressLocal().getAddress()
+                            + " remote-ip-addr " + adjLabelList.get(0).getAddressRemote().getAddress() + " sid " + adjLabelList.get(0).getValue() + "\n  #";
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
-                    NetconfSrLabelInfo netconfSrLabelInfo = GetXml.getSrSRGBRangeFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                    LOG.info(netconfSrLabelInfo.toString());
+                    List<AdjLabel> adjLabelList = GetXml.getSrAdjLabelFromSrAdjLabelXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                    result = result + "\n  #\n  segment-routing\n+  ipv4 adjacency local-ip-addr " + adjLabelList.get(0).getAddressLocal().getAddress()
+                            + " remote-ip-addr " + adjLabelList.get(0).getAddressRemote().getAddress() + " sid " + adjLabelList.get(0).getValue() + "\n  #";
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
-                    List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
-                    for (ModifyEntity modifyEntity : modifyEntities) {
-                        LOG.info("lable :" + modifyEntity.getLabel());
-                        LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                        LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                    List<AdjLabel> adjLabelList = SrLabelXml.getSrAdjLabelFromSrAdjLabelXml(xml3);
+                    LOG.info("adjLabelList :" + adjLabelList.toString());
+                    Map<String, AdjLabel> map = new HashMap<>();
+                    for (AdjLabel adjLabel : adjLabelList) {
+                        map.put(Integer.toString(adjLabel.getValue()), adjLabel);
                     }
+                    List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
+                    result = result + "\n  #\n  segment-routing";
+                    String remove = "";
+                    String add = "";
+                    for (ModifyEntity modifyEntity : modifyEntities) {
+                        if ("segmentId".equals(modifyEntity.getLabel())) {
+                            if (map.containsKey(modifyEntity.getNewValue())) {
+                                remove = remove + "\n-  ipv4 adjacency local-ip-addr " + map.get(modifyEntity.getNewValue())
+                                        .getAddressLocal().getAddress() + " remote-ip-addr " + map.get(modifyEntity.getNewValue())
+                                        .getAddressRemote().getAddress() + " sid " + modifyEntity.getNewValue();
+                                add = add + "\n+  ipv4 adjacency local-ip-addr " + map.get(modifyEntity.getNewValue())
+                                        .getAddressLocal().getAddress() + " remote-ip-addr " + map.get(modifyEntity.getNewValue())
+                                        .getAddressRemote().getAddress() + " sid " + modifyEntity.getOdlValue();
+                            }
+
+                        }
+                    }
+                    result = result + remove + add + "\n  #";
                 } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
                     LOG.info("modifyEntity action() :" + actionEntity.getAction());
                 }
             }
-
         }
+        LOG.info(result);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
@@ -653,7 +622,61 @@ public class ActionCfgServiceImpl implements ActionCfgService {
 
     @Override
     public Map<String, Object> tunnel(List<String> routers) {
-        return null;
+        Map<String, Object> resultMap = new HashMap<>();
+        String result = "";
+        String flag;
+        ActionEntity actionEntity;
+        for (String routerId : routers) {
+            result = result + "\nrouter : " + routerId + "\n";
+            synType = "0";
+            NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
+            {
+                String tunnelRunningXml = RunningXml.getTunnelXml();
+                String tunnelCandidateXml = CandidateXml.getTunnelXml();
+                String xmlRunningResult = netconfController.sendMessage(netconfClient, tunnelRunningXml);
+                String xmlCandidateResult = netconfController.sendMessage(netconfClient, tunnelCandidateXml);
+                String xml1 = xmlCandidateResult;
+                String xml2 = xmlRunningResult;
+                List<SeparateEntity> separateEntities = Separate.getSeparate(xml1, xml2);
+                if (separateEntities.size() > 0 && separateEntities.get(0).getActionEntities().size() > 0) {
+                    actionEntity = separateEntities.get(0).getActionEntities().get(0);
+                    if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
+                        LOG.info("add");
+                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                        if (sSrTeTunnels.size() != 0) {
+                            LOG.info(sSrTeTunnels.get(0).toString());
+                        }
+                    } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
+                        LOG.info("delete");
+                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                        if (sSrTeTunnels.size() != 0) {
+                            LOG.info(sSrTeTunnels.get(0).toString());
+                        }
+                    } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
+                        List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
+                        LOG.info("modify");
+                        if (sSrTeTunnels.size() != 0) {
+                            LOG.info(sSrTeTunnels.get(0).getTunnelName());
+                            List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
+                            for (ModifyEntity modifyEntity : modifyEntities) {
+                                List<Attribute> attributes = AttributeParse.parse(modifyEntity.getPath());
+                                String label = attributes.get(attributes.size() - 2).getName();
+                                modifyEntity.setLabel(label);
+                                LOG.info("label :" + modifyEntity.getLabel());
+                                LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
+                                LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+                            }
+                        }
+                    } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
+                        System.out.println("modifyEntity action() :" + actionEntity.getAction());
+                    }
+                }
+            }
+        }
+        LOG.info(result);
+        resultMap.put(ResponseEnum.BODY.getName(), result);
+        resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
+        return resultMap;
     }
 
     @Override
@@ -663,7 +686,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String result = "";
         NetconfClient netconfClient;
         for (String routerId : routers) {
-//            result = result + "\n routerId : " + routerId + "\n";
             netconfClient = netConfManager.getNetconClient(routerId);
             result = netconfController.sendMessage(netconfClient, confirmXml);
             result = CheckXml.checkOk(result);
@@ -683,7 +705,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String result = "";
         NetconfClient netconfClient;
         for (String routerId : routers) {
-            result = result + "\n routerId : " + routerId + "\n";
             netconfClient = netConfManager.getNetconClient(routerId);
             result = netconfController.sendMessage(netconfClient, cancelXml);
             result = CheckXml.checkOk(result);
@@ -697,9 +718,14 @@ public class ActionCfgServiceImpl implements ActionCfgService {
     }
 
     private void syn(String type) {
-        if (type.equals("2")) {
+        if (type.equals("2") || type.equals("3")) {
             VPNServiceImpl.getInstance().syncVpnInstanceConf();
             RoutePolicyServiceImpl.getInstance().syncRoutePolicyConf();
+        }
+        if (type.equals("3")) {
+            InterfaceServiceImpl.getInstance().syncInterfaceConf();
+            SrLabelServiceImpl.getInstance().syncAllIntfLabel();
+            SrLabelServiceImpl.getInstance().syncAllNodeLabel();
         }
         InterfaceServiceImpl.getInstance().syncInterfaceConf();
         synType = "0";

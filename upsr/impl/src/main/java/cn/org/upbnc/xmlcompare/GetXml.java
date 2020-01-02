@@ -192,10 +192,10 @@ public class GetXml {
                     } else {
                         child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
                     }
-                    if(attributes.get(attributes.size() - 2).getName().equals("peerAF")){
+                    if (attributes.get(attributes.size() - 2).getName().equals("peerAF")) {
                         child = childElements.get(attributes.get(attributes.size() - 6).getIndex() - 1);
                     }
-                    if(attributes.get(attributes.size() - 2).getName().equals("advertiseCommunity")){
+                    if (attributes.get(attributes.size() - 2).getName().equals("advertiseCommunity")) {
                         child = childElements.get(attributes.get(attributes.size() - 7).getIndex() - 1);
                     }
                 }
@@ -391,7 +391,7 @@ public class GetXml {
             if (ActionTypeEnum.modify == actionTypeEnum) {
                 child = childElements.get(attributes.get(attributes.size() - 5).getIndex() - 1);
             } else {
-                child = childElements.get(attributes.get(attributes.size() - 1).getIndex() - 1);
+                child = childElements.get(attributes.get(attributes.size() - 3).getIndex() - 1);
             }
             AdjLabel adjLabel = new AdjLabel();
             adjLabel.setAddressLocal(new Address(child.elementText("localIpAddress"), AddressTypeEnum.V4));

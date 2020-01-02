@@ -11,7 +11,7 @@ public class STunnelServiceClass {
     private boolean cs6ServiceClassEnable;
     private boolean cs7ServiceClassEnable;
 
-    public STunnelServiceClass(){
+    public STunnelServiceClass() {
         this.defaultServiceClassEnable = false;
         this.beServiceClassEnable = false;
         this.af1ServiceClassEnable = false;
@@ -93,5 +93,20 @@ public class STunnelServiceClass {
 
     public void setEfServiceClassEnable(boolean efServiceClassEnable) {
         this.efServiceClassEnable = efServiceClassEnable;
+    }
+
+    @Override
+    public String toString() {
+        return "STunnelServiceClass{" +
+                "defaultServiceClassEnable=" + defaultServiceClassEnable +
+                ", beServiceClassEnable=" + beServiceClassEnable +
+                ", af1ServiceClassEnable=" + af1ServiceClassEnable +
+                ", af2ServiceClassEnable=" + af2ServiceClassEnable +
+                ", af3ServiceClassEnable=" + af3ServiceClassEnable +
+                ", af4ServiceClassEnable=" + af4ServiceClassEnable +
+                ", efServiceClassEnable=" + efServiceClassEnable +
+                ", cs6ServiceClassEnable=" + cs6ServiceClassEnable +
+                ", cs7ServiceClassEnable=" + cs7ServiceClassEnable +
+                '}';
     }
 }
