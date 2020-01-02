@@ -1,4 +1,4 @@
-display alarm active verbose | no-more
-display alarm hist verbose | no-more
-display bfd session all | no-more
-display segment-routing adjacency mpls forwarding | no-more
+display alarm active verbose | no-more | include "primary LSP to the hot-standby"
+display alarm active verbose | no-more | include "NeighborDownPrimeReason=BFD Session Down"
+display ospf peer | no-more | include "(Neighbor is up for) | (Router ID: )"
+display logbuffer | no-more | include primary | include "primary LSP to the hot-standby"

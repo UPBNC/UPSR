@@ -15,7 +15,7 @@ def arg_parse():
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--username", dest='username', help="username",default="root", type=str)
     parser.add_argument("--password", dest='password', help="password",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
     return parser.parse_args()
 
 def create_file():
