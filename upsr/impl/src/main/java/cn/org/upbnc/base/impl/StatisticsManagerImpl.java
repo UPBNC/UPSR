@@ -85,22 +85,22 @@ public class StatisticsManagerImpl implements StatisticsManager {
     }
 
     @Override
-    public Map<String, List<IfClearedStatEntity>> getIfClearedStatMap() {
-        return readAndWriteManager.getIfClearedStatMap();
+    public List<Map<String, List<IfClearedStatEntity>>> getIfClearedStatMap(int rows) {
+        return readAndWriteManager.getIfClearedStatMap(rows);
     }
 
     @Override
-    public Map<String, List<IfStatisticsEntity>> getIfStatisticsMap() {
-        return readAndWriteManager.getIfStatisticsMap();
+    public List<Map<String, List<IfStatisticsEntity>>> getIfStatisticsMap(int rows) {
+        return readAndWriteManager.getIfStatisticsMap(rows);
     }
 
     @Override
-    public Map<String, List<CpuInfoEntity>> getCpuInfoMap() {
-        return readAndWriteManager.getCpuInfoMap();
+    public List<Map<String, List<CpuInfoEntity>>> getCpuInfoMap(int rows) {
+        return readAndWriteManager.getCpuInfoMap(rows);
     }
 
     @Override
-    public Map<String, List<MemoryInfoEntity>> getMemoryInfoMap() {
-        return readAndWriteManager.getMemoryInfoMap();
+    public List<Map<String, List<MemoryInfoEntity>>> getMemoryInfoMap(int rows) {
+        return readAndWriteManager.getMemoryInfoMap(rows);
     }
 }

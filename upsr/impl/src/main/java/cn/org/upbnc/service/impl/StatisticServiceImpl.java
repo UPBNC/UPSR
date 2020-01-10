@@ -198,7 +198,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<IfClearedStatServiceEntity>> getIfClearedStat(String routerId) {
+    public Map<String, List<IfClearedStatServiceEntity>> getIfClearedStat(String routerId, int entityNum) {
         Map<String, List<IfClearedStatServiceEntity>> ret = new HashMap<>();
         for (String rid : ifClearedStatEntityMaps.keySet()) {
             List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
@@ -216,7 +216,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<IfStatisticsServiceEntity>> getIfStatistics(String routerId) {
+    public Map<String, List<IfStatisticsServiceEntity>> getIfStatistics(String routerId, int entityNum {
         Map<String, List<IfStatisticsServiceEntity>> ret = new HashMap<>();
         for (String rid : ifStatisticsEntityMaps.keySet()) {
             List<IfStatisticsServiceEntity> ifStatisticsServiceEntityList= new ArrayList<>();
@@ -230,7 +230,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<CpuInfoServiceEntity>> getCpuInfo(String routerId) {
+    public Map<String, List<CpuInfoServiceEntity>> getCpuInfo(String routerId, int entityNum) {
         Map<String, List<CpuInfoServiceEntity>> ret = new HashMap<>();
         for (String rid : cpuInfoEntityMaps.keySet()) {
             List<CpuInfoServiceEntity> cpuInfoServiceEntityList= new ArrayList<>();
@@ -245,7 +245,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<MemoryInfoServiceEntity>> getMemoryInfo(String routerId) {
+    public Map<String, List<MemoryInfoServiceEntity>> getMemoryInfo(String routerId, int entityNum) {
         Map<String, List<MemoryInfoServiceEntity>> ret = new HashMap<>();
         for (String rid : memoryInfoEntityMaps.keySet()) {
             List<MemoryInfoServiceEntity> memoryInfoServiceEntityList= new ArrayList<>();

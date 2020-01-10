@@ -19,8 +19,8 @@ public interface StatisticsManager {
     void setCpuInfoMap(Map<String,List<CpuInfoEntity>> cpuInfoMap);
     void setMemoryInfo(List<MemoryInfoEntity> memoryInfoEntityList);
     void setMemoryInfoMap(Map<String,List<MemoryInfoEntity>> memoryInfoMap);
-    Map<String,List<IfClearedStatEntity>> getIfClearedStatMap();
-    Map<String,List<IfStatisticsEntity>>  getIfStatisticsMap();
-    Map<String,List<CpuInfoEntity>> getCpuInfoMap();
-    Map<String,List<MemoryInfoEntity>> getMemoryInfoMap();
+    List<Map<String, List<IfClearedStatEntity>>> getIfClearedStatMap(int rows);
+    List<Map<String,List<IfStatisticsEntity>>>  getIfStatisticsMap(int rows);
+    List<Map<String,List<CpuInfoEntity>>> getCpuInfoMap(int rows);
+    List<Map<String,List<MemoryInfoEntity>>> getMemoryInfoMap(int rows);
 }

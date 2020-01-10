@@ -67,36 +67,36 @@ public class StatisticsApiImpl implements StatisticsApi {
     }
 
     @Override
-    public Map<String, Object> getIfClearedStat(String routerId) {
+    public Map<String, Object> getIfClearedStat(String routerId, int entityNum) {
         Map<String, Object> resultMap = new HashMap<>();
-        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap = statisticService.getIfClearedStat(routerId);
+        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap = statisticService.getIfClearedStat(routerId, entityNum);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),ifClearedStatMap);
         return resultMap;
     }
 
     @Override
-    public Map<String, Object> getIfStatistics(String routerId) {
+    public Map<String, Object> getIfStatistics(String routerId, int entityNum) {
         Map<String, Object> resultMap = new HashMap<>();
-        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap = statisticService.getIfStatistics(routerId);
+        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap = statisticService.getIfStatistics(routerId, entityNum);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),ifStatisticsMap);
         return resultMap;
     }
 
     @Override
-    public Map<String, Object> getCpuInfo(String routerId) {
+    public Map<String, Object> getCpuInfo(String routerId, int entityNum) {
         Map<String, Object> resultMap = new HashMap<>();
-        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap = statisticService.getCpuInfo(routerId);
+        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap = statisticService.getCpuInfo(routerId, entityNum);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),cpuInfoMap);
         return resultMap;
     }
 
     @Override
-    public Map<String, Object> getMemoryInfo(String routerId) {
+    public Map<String, Object> getMemoryInfo(String routerId, int entityNum) {
         Map<String, Object> resultMap = new HashMap<>();
-        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap = statisticService.getMemoryInfo(routerId);
+        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap = statisticService.getMemoryInfo(routerId, entityNum);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         resultMap.put(ResponseEnum.BODY.getName(),memoryInfoMap);
         return resultMap;

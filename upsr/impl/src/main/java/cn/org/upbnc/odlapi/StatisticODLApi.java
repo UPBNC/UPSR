@@ -285,4 +285,15 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("getStatisticSwitch end");
         return RpcResultBuilder.success(getStatisticSwitchOutputBuilder.build()).buildFuture();
     }
+
+    @Override
+    public Future<RpcResult<GetStatisticHistoryOutput>> getStatisticHistory(GetStatisticHistoryInput input) {
+        LOG.info("getStatisticHistory begin");
+        GetStatisticHistoryOutputBuilder getStatisticHistoryOutputBuilder = new GetStatisticHistoryOutputBuilder();
+        Map<String, Object> resultMap;
+        resultMap = this.getStatisticsApi().getStatisticHistory(null,100);
+
+        LOG.info("getStatisticHistory end");
+        return RpcResultBuilder.success(getStatisticHistoryOutputBuilder.build()).buildFuture();
+    }
 }
