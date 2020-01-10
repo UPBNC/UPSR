@@ -474,6 +474,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     private CpuInfoServiceEntity cpuInfoEntityToCpuInfoServiceEntity(CpuInfoEntity cpuInfoEntity) {
         CpuInfoServiceEntity cpuInfoServiceEntity = new CpuInfoServiceEntity();
+        cpuInfoServiceEntity.setDate(cpuInfoEntity.getDate());
         cpuInfoServiceEntity.setPosition(cpuInfoEntity.getPosition());
         cpuInfoServiceEntity.setEntIndex(cpuInfoEntity.getEntIndex());
         cpuInfoServiceEntity.setSystemCpuUsage(cpuInfoEntity.getSystemCpuUsage());
@@ -485,6 +486,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     private MemoryInfoServiceEntity memoryInfoEntityToMemoryInfoServiceEntity(MemoryInfoEntity memoryInfoEntity) {
         MemoryInfoServiceEntity memoryInfoServiceEntity = new MemoryInfoServiceEntity();
+        memoryInfoServiceEntity.setDate(memoryInfoEntity.getDate());
         memoryInfoServiceEntity.setPosition(memoryInfoEntity.getPosition());
         memoryInfoServiceEntity.setEntIndex(memoryInfoEntity.getEntIndex());
         memoryInfoServiceEntity.setOsMemoryTotal(memoryInfoEntity.getOsMemoryTotal());

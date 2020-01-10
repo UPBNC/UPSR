@@ -37,6 +37,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -284,13 +285,14 @@ public class StatisticODLApi implements UpsrStatisticService {
         return RpcResultBuilder.success(getStatisticHistoryOutputBuilder.build()).buildFuture();
     }
     private List<RouterIfCleared> buildIfClearedStat(Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap) {
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<RouterIfCleared> routerIfClearedList = new ArrayList<>();
         for (String rid : ifClearedStatMap.keySet()) {
             RouterIfClearedBuilder routerIfClearedBuilder = new RouterIfClearedBuilder();
             List<IfCleared> ifClearedList = new ArrayList<>();
             for (IfClearedStatServiceEntity ifClearedStatServiceEntity : ifClearedStatMap.get(rid)) {
                 IfClearedBuilder ifClearedBuilder = new IfClearedBuilder();
-                ifClearedBuilder.setDate(String.valueOf(ifClearedStatServiceEntity.getDate()));
+                ifClearedBuilder.setDate(dateformat.format(ifClearedStatServiceEntity.getDate()));
                 ifClearedBuilder.setIfIndex(ifClearedStatServiceEntity.getIfIndex());
                 ifClearedBuilder.setIfName(ifClearedStatServiceEntity.getIfName());
                 ifClearedBuilder.setRcvUniPacket(ifClearedStatServiceEntity.getRcvUniPacket());
@@ -311,12 +313,14 @@ public class StatisticODLApi implements UpsrStatisticService {
         return routerIfClearedList;
     }
     private List<CpuInfoStat> buildCpuInfoStat(Map<String,List<CpuInfoServiceEntity>> cpuInfoMap) {
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<CpuInfoStat> cpuInfoStatList = new ArrayList<>();
         for (String rid : cpuInfoMap.keySet()) {
             CpuInfoStatBuilder cpuInfoStatBuilder = new CpuInfoStatBuilder();
             List<CpuInfo> cpuInfoList = new ArrayList<>();
             for (CpuInfoServiceEntity cpuInfoServiceEntity : cpuInfoMap.get(rid)) {
                 CpuInfoBuilder cpuInfoBuilder = new CpuInfoBuilder();
+                cpuInfoBuilder.setDate(dateformat.format(cpuInfoServiceEntity.getDate()));
                 cpuInfoBuilder.setEntIndex(cpuInfoServiceEntity.getEntIndex());
                 cpuInfoBuilder.setSystemCpuUsage(cpuInfoServiceEntity.getSystemCpuUsage());
                 cpuInfoBuilder.setOvloadThreshold(cpuInfoServiceEntity.getOvloadThreshold());
@@ -333,6 +337,7 @@ public class StatisticODLApi implements UpsrStatisticService {
         return cpuInfoStatList;
     }
     private List<MemoryInfoStat> buildMemoryInfoStat(Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap) {
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<MemoryInfoStat> memoryInfoStatList = new ArrayList<>();
         for (String rid : memoryInfoMap.keySet()) {
             MemoryInfoStatBuilder memoryInfoStatBuilder = new MemoryInfoStatBuilder();
@@ -343,6 +348,7 @@ public class StatisticODLApi implements UpsrStatisticService {
                 memoryInfoBuilder.setOsMemoryUsage(memoryInfoServiceEntity.getOsMemoryUsage());
                 memoryInfoBuilder.setOsMemoryTotal(memoryInfoServiceEntity.getOsMemoryTotal());
                 memoryInfoBuilder.setOsMemoryUse(memoryInfoServiceEntity.getOsMemoryUse());
+                memoryInfoBuilder.setDate(dateformat.format(memoryInfoServiceEntity.getDate()));
                 memoryInfoList.add(memoryInfoBuilder.build());
             }
             if (memoryInfoList.size() > 0) {

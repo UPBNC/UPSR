@@ -52,13 +52,17 @@ def analysis_business(tunnelName):
     dic_xy = {'1':'上海CNTZRT12001','3':'上海CNTZRT12002',
               '2':'北京CNBJRT12001','4':'北京CNBJRT12002'}
     dic_z = {'5':'EF','4':'AF4','3':'AF3','1':'AF1'}
+    dic_line = {'12':'移动线路','32':'移动线路',
+              '14':'联通线路','34':'联通线路'}
+    
     ret = ''
     tunnelId = filter(str.isdigit, tunnelName)
     if len(tunnelId) < 4 :
         return ret
     else:
-        ret = ': ' + dic_ww[tunnelId[0:len(tunnelId)-3]] + ' 从 ' + dic_xy[tunnelId[len(tunnelId)-3]] +\
-              ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]] + ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]] + ' 业务'
+        ret = ': ' + dic_ww[tunnelId[0:(len(tunnelId)-3)]] + ' 从 ' + dic_xy[tunnelId[len(tunnelId)-3]] +\
+              ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]] + ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]] + ' 业务,' +\
+              '线路为: ' + dic_line[tunnelId[(len(tunnelId)-3):(len(tunnelId)-1)]]
     return ret
 def analysis_alarm_hot(echo_info):
     switched_tunnel = re.findall(r'[(](.*?)[)]', echo_info)
