@@ -145,4 +145,31 @@ module upsrStatistic {
             leaf statisticInterval { type string; }
         }
     }
+    rpc getStatisticHistory {
+        input {
+            leaf routerId { type string; }
+            leaf historyNum { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list ifClearedHistory {
+                leaf historyIndex { type string; }
+                list routerIfCleared {
+                    uses ifClearedStatGroup;
+                }
+            }
+            list cpuInfoHistory {
+                leaf historyIndex { type string; }
+                list cpuInfoStat {
+                    uses cpuInfoGroup;
+                }
+            }
+            list memoryInfoHistory {
+                leaf historyIndex { type string; }
+                list memoryInfoStat {
+                    uses memoryInfoGroup;
+                }
+            }
+        }
+    }
 }

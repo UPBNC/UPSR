@@ -131,12 +131,13 @@ public class StatisticODLApi implements UpsrStatisticService {
         GetMemoryInfoOutputBuilder getMemoryInfoOutputBuilder = new GetMemoryInfoOutputBuilder();
         Map<String, Object> resultMap;
         if (input == null) {
-            resultMap = this.getStatisticsApi().getMemoryInfo(null);
+            resultMap = this.getStatisticsApi().getMemoryInfo(null,1);
         } else {
-            resultMap = this.getStatisticsApi().getMemoryInfo(input.getRouterId());
+            resultMap = this.getStatisticsApi().getMemoryInfo(input.getRouterId(),1);
         }
-        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap =
-                (Map<String,List<MemoryInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<Map<String,List<MemoryInfoServiceEntity>>> mapServiceList = (List<Map<String,
+                List<MemoryInfoServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
+        Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap = mapServiceList.get(0);
         List<MemoryInfoStat> memoryInfoStatList = new ArrayList<>();
         for (String rid : memoryInfoMap.keySet()) {
             MemoryInfoStatBuilder memoryInfoStatBuilder = new MemoryInfoStatBuilder();
@@ -167,12 +168,13 @@ public class StatisticODLApi implements UpsrStatisticService {
         GetCpuInfoOutputBuilder getCpuInfoOutputBuilder = new GetCpuInfoOutputBuilder();
         Map<String, Object> resultMap;
         if (input == null) {
-            resultMap = this.getStatisticsApi().getCpuInfo(null);
+            resultMap = this.getStatisticsApi().getCpuInfo(null,1);
         } else {
-            resultMap = this.getStatisticsApi().getCpuInfo(input.getRouterId());
+            resultMap = this.getStatisticsApi().getCpuInfo(input.getRouterId(),1);
         }
-        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap =
-                (Map<String,List<CpuInfoServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<Map<String,List<CpuInfoServiceEntity>>> mapServiceList = (List<Map<String,
+                List<CpuInfoServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
+        Map<String,List<CpuInfoServiceEntity>> cpuInfoMap = mapServiceList.get(0);
         List<CpuInfoStat> cpuInfoStatList = new ArrayList<>();
         for (String rid : cpuInfoMap.keySet()) {
             CpuInfoStatBuilder cpuInfoStatBuilder = new CpuInfoStatBuilder();
@@ -204,12 +206,13 @@ public class StatisticODLApi implements UpsrStatisticService {
         GetIfClearedStatOutputBuilder getIfClearedStatOutputBuilder= new GetIfClearedStatOutputBuilder();
         Map<String, Object> resultMap;
         if (input == null) {
-            resultMap = this.getStatisticsApi().getIfClearedStat(null);
+            resultMap = this.getStatisticsApi().getIfClearedStat(null,1);
         } else {
-            resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId());
+            resultMap = this.getStatisticsApi().getIfClearedStat(input.getRouterId(),1);
         }
-        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap =
-                (Map<String,List<IfClearedStatServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<Map<String,List<IfClearedStatServiceEntity>>> mapServiceList = (List<Map<String,
+                List<IfClearedStatServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
+        Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap = mapServiceList.get(0);
         List<RouterIfCleared> routerIfClearedList = new ArrayList<>();
         for (String rid : ifClearedStatMap.keySet()) {
             RouterIfClearedBuilder routerIfClearedBuilder = new RouterIfClearedBuilder();
@@ -247,12 +250,13 @@ public class StatisticODLApi implements UpsrStatisticService {
         getIfStatisticsOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         Map<String, Object> resultMap;
         if (input == null) {
-            resultMap = this.getStatisticsApi().getIfStatistics(null);
+            resultMap = this.getStatisticsApi().getIfStatistics(null,1);
         } else {
-            resultMap = this.getStatisticsApi().getIfStatistics(input.getRouterId());
+            resultMap = this.getStatisticsApi().getIfStatistics(input.getRouterId(),1);
         }
-        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap =
-                (Map<String,List<IfStatisticsServiceEntity>>)resultMap.get(ResponseEnum.BODY.getName());
+        List<Map<String,List<IfStatisticsServiceEntity>>> mapServiceList = (List<Map<String,
+                List<IfStatisticsServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
+        Map<String,List<IfStatisticsServiceEntity>> ifStatisticsMap = mapServiceList.get(0);
         List<RouterIfStatistics> routerIfStatisticsList = new ArrayList<>();
         for (String rid : ifStatisticsMap.keySet()) {
             RouterIfStatisticsBuilder routerIfStatisticsBuilder = new RouterIfStatisticsBuilder();
@@ -291,7 +295,6 @@ public class StatisticODLApi implements UpsrStatisticService {
         LOG.info("getStatisticHistory begin");
         GetStatisticHistoryOutputBuilder getStatisticHistoryOutputBuilder = new GetStatisticHistoryOutputBuilder();
         Map<String, Object> resultMap;
-        resultMap = this.getStatisticsApi().getStatisticHistory(null,100);
 
         LOG.info("getStatisticHistory end");
         return RpcResultBuilder.success(getStatisticHistoryOutputBuilder.build()).buildFuture();
