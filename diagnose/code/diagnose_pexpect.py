@@ -15,7 +15,7 @@ def arg_parse():
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--username", dest='username', help="username",default="root", type=str)
     parser.add_argument("--password", dest='password', help="password",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
     return parser.parse_args()
 
 def create_file():
@@ -177,19 +177,23 @@ def get_reserved_bind_alarm(child, deviceName,tunnelName):
     child_expect(child, deviceName)
     child.sendline('quit')
     child_expect(child, deviceName)
-    child.sendline('display alarm active verbose | no-more | include "The tunnel up event is occurred"')
+    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
     child_expect(child, deviceName)
     return True
 #vpn的第五步
 def get_te_interface_alarm(child, deviceName,tunnelNam):
+    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
+    child_expect(child, deviceName)
     return True
 #vpn的第六步
 def get_ldp_lsp_alarm(child,deviceName,vpnName):
-    child.sendline('display alarm active verbose | no-more | include "The tunnel up event is occurred"')
+    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
     child_expect(child, deviceName)
     return True
 #vpn的第七步
 def get_vpn_instance_status(child,deviceName,vpnName):
+    child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
+    child_expect(child, deviceName)
     return True
 def get_tunnel_list_by_tunnel_policy(child,deviceName,policyName):
     child.sendline('display tunnel-policy ' + policyName + ' | no-more | include Tunnel')
@@ -219,6 +223,25 @@ def check_resvered_bind(child, deviceName, tunnelName):
         child.sendline('quit ')
         child_expect(child, deviceName)
         return True
+def collect_alarm_and_contact_hw(child,deviceName):
+    child.sendline('display version')
+    child_expect(child, deviceName)
+    child.sendline('display esn')
+    child_expect(child, deviceName)
+    child.sendline('save logfile')
+    child_expect(child, deviceName)
+    child.sendline('system')
+    child_expect(child, deviceName)
+    child.sendline('diagnose')
+    child_expect(child, deviceName)
+    child.sendline('diaplay diagnostic-information >> diagnose.log')
+    child_expect(child, deviceName)
+    child.sendline('save logfile diagnose-log')
+    child_expect(child, deviceName)
+    child.sendline('quit')
+    child_expect(child, deviceName)
+    child.sendline('quit')
+    child_expect(child, deviceName)
 def diagnose_vpn_by_name(child,deviceName,vpnName):
     ret = ''
     policyName = get_tunnel_policy_by_vpnname(child, deviceName, vpnName)
@@ -234,25 +257,25 @@ def diagnose_vpn_by_name(child,deviceName,vpnName):
                     if get_vpn_instance_status(child,deviceName,vpnName) == True:
                         ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
                     else:
-                        ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : 请收集告警信息和配置信息，并联系技术支持工程师'
+                        ret = ret + ('\n  %-13s'%tunnelList[i]) + collect_alarm_and_contact_hw(child,deviceName)
                 else:
                     #4.进入Tunnel接口视图，配置mpls te reserved-for-binding命令，然后看是否出现告警
                     if get_reserved_bind_alarm(child, deviceName,tunnelList[i]) == True:
                         ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
                     else:
-                        ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : 请收集告警信息和配置信息，并联系技术支持工程师'
+                        ret = ret + ('\n  %-13s'%tunnelList[i]) + collect_alarm_and_contact_hw(child,deviceName)
             else:
                 #5.检查TE接口下的配置，并根据TE相关的告警确认和排除问题，然后看是否出现告警
                 if get_te_interface_alarm(child, deviceName, tunnelList[i]) == True:
                     ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
                 else:
-                    ret = ret + ('\n  %-13s'%tunnelList[i]) + ' : 请收集告警信息和配置信息，并联系技术支持工程师'
+                    ret = ret + ('\n  %-13s'%tunnelList[i]) + collect_alarm_and_contact_hw(child,deviceName)
     else:
         #6.检查LDP LSP的配置，并根据LSP相关的告警确认和排除问题，然后看是否出现告警
         if get_ldp_lsp_alarm(child, deviceName, vpnName) == True:
             ret = ret + '\n  ' + 'The tunnel up event is occurred'
         else:
-            ret = ret + '\n  ' + '请收集告警信息和配置信息，并联系技术支持工程师'
+            ret = ret + '\n  ' + collect_alarm_and_contact_hw(child,deviceName)
     return ret
 def analysis_vpn_down(child,deviceName):
     ret = ''

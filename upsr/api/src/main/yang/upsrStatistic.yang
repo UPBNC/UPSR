@@ -160,6 +160,8 @@ module upsrStatistic {
         input {
             leaf routerId { type string; }
             leaf historyNum { type string; }
+            leaf tunnelName { type string; }
+            leaf vpnName { type string; }
         }
         output {
             leaf result { type string; }
