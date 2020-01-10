@@ -69,6 +69,21 @@ module upsrStatistic {
             leaf osMemoryUsage { type string; }
         }
     }
+    grouping memoryInfoStatList {
+        list memoryInfoStat {
+            uses memoryInfoGroup;
+        }
+    }
+    grouping cpuInfoStatList {
+        list cpuInfoStat {
+            uses cpuInfoGroup;
+        }
+    }
+    grouping routerIfClearedList {
+        list routerIfCleared {
+            uses ifClearedStatGroup;
+        }
+    }
     rpc getStatistic {
         input {
             leaf routerId { type string; }
@@ -88,9 +103,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list routerIfCleared {
-                uses ifClearedStatGroup;
-            }
+            uses routerIfClearedList;
         }
     }
     rpc getIfStatistics {
@@ -110,9 +123,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list cpuInfoStat {
-                uses cpuInfoGroup;
-            }
+            uses cpuInfoStatList;
         }
     }
     rpc getMemoryInfo {
@@ -121,9 +132,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list memoryInfoStat {
-                uses memoryInfoGroup;
-            }
+            uses memoryInfoStatList;
         }
     }
     rpc updateStatisticSwitch {
@@ -154,21 +163,15 @@ module upsrStatistic {
             leaf result { type string; }
             list ifClearedHistory {
                 leaf historyIndex { type string; }
-                list routerIfCleared {
-                    uses ifClearedStatGroup;
-                }
+                uses routerIfClearedList;
             }
             list cpuInfoHistory {
                 leaf historyIndex { type string; }
-                list cpuInfoStat {
-                    uses cpuInfoGroup;
-                }
+                uses cpuInfoStatList;
             }
             list memoryInfoHistory {
                 leaf historyIndex { type string; }
-                list memoryInfoStat {
-                    uses memoryInfoGroup;
-                }
+                uses memoryInfoStatList;
             }
         }
     }

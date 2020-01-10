@@ -232,7 +232,7 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
         File file = new File(pathCpuInfo);
         try {
             if (file.isFile() && file.exists()) {
-                byte[] tempbytes = this.readLastRows(pathIfStatistics,rows);
+                byte[] tempbytes = this.readLastRows(pathCpuInfo,rows);
                 if (tempbytes != null) {
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
                     InputStream inputStream = byteArrayInputStream;
@@ -263,7 +263,7 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
         File file = new File(pathMemoryInfo);
         try {
             if (file.isFile() && file.exists()) {
-                byte[] tempbytes = this.readLastRows(pathIfStatistics,rows);
+                byte[] tempbytes = this.readLastRows(pathMemoryInfo,rows);
                 if (tempbytes != null) {
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
                     InputStream inputStream = byteArrayInputStream;
