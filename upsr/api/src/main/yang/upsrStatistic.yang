@@ -57,6 +57,7 @@ module upsrStatistic {
             leaf systemCpuUsage { type string; }
             leaf ovloadThreshold { type string; }
             leaf unovloadThreshold { type string; }
+            leaf date { type string; }
         }
     }
     grouping memoryInfoGroup{
@@ -67,6 +68,22 @@ module upsrStatistic {
             leaf osMemoryTotal { type string; }
             leaf osMemoryUse { type string; }
             leaf osMemoryUsage { type string; }
+            leaf date { type string; }
+        }
+    }
+    grouping memoryInfoStatList {
+        list memoryInfoStat {
+            uses memoryInfoGroup;
+        }
+    }
+    grouping cpuInfoStatList {
+        list cpuInfoStat {
+            uses cpuInfoGroup;
+        }
+    }
+    grouping routerIfClearedList {
+        list routerIfCleared {
+            uses ifClearedStatGroup;
         }
     }
     rpc getStatistic {
@@ -88,9 +105,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list routerIfCleared {
-                uses ifClearedStatGroup;
-            }
+            uses routerIfClearedList;
         }
     }
     rpc getIfStatistics {
@@ -110,9 +125,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list cpuInfoStat {
-                uses cpuInfoGroup;
-            }
+            uses cpuInfoStatList;
         }
     }
     rpc getMemoryInfo {
@@ -121,9 +134,7 @@ module upsrStatistic {
         }
         output {
             leaf result { type string; }
-            list memoryInfoStat {
-                uses memoryInfoGroup;
-            }
+            uses memoryInfoStatList;
         }
     }
     rpc updateStatisticSwitch {
@@ -143,6 +154,29 @@ module upsrStatistic {
             leaf result { type string; }
             leaf switchValue { type string; }
             leaf statisticInterval { type string; }
+        }
+    }
+    rpc getStatisticHistory {
+        input {
+            leaf routerId { type string; }
+            leaf historyNum { type string; }
+            leaf tunnelName { type string; }
+            leaf vpnName { type string; }
+        }
+        output {
+            leaf result { type string; }
+            list ifClearedHistory {
+                leaf historyIndex { type string; }
+                uses routerIfClearedList;
+            }
+            list cpuInfoHistory {
+                leaf historyIndex { type string; }
+                uses cpuInfoStatList;
+            }
+            list memoryInfoHistory {
+                leaf historyIndex { type string; }
+                uses memoryInfoStatList;
+            }
         }
     }
 }

@@ -43,7 +43,7 @@ public class DiagnoseODLApi implements UpsrDiagnoseService {
         if(input.getDiagnoseType().equals("tunnel")) {
             resultMap = getDiagnoseApi().getDiagnoseTunnelInfo(input.getRouterId());
         }
-        if(input.getDiagnoseType().equals("VPN")) {
+        if(input.getDiagnoseType().equals("vpn")) {
             resultMap = getDiagnoseApi().getDiagnoseVpndownInfo(input.getRouterId());
         }
         String diagnoseInfo =  (String) resultMap.get(ResponseEnum.BODY.getName());

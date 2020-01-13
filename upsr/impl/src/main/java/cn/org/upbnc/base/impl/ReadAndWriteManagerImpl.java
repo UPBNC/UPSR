@@ -12,6 +12,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,103 +165,127 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
     }
 
     @Override
-    public Map<String, List<IfClearedStatEntity>> getIfClearedStatMap() {
-        Map<String, List<IfClearedStatEntity>> retMap = new HashMap<>();
+    public List<Map<String, List<IfClearedStatEntity>>> getIfClearedStatMap(int rows) {
+        List<Map<String, List<IfClearedStatEntity>>> mapList = new ArrayList<>();
         File file = new File(pathIfClearedStat);
         try {
             if (file.isFile() && file.exists()) {
-                InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
-                BufferedReader bufferedReader = new BufferedReader(is);
-                String lineTxt;
-                while ((lineTxt = bufferedReader.readLine()) != null) {
-                    JSONObject jsonObject = JSONObject.fromObject(lineTxt);
-                    Map<String, JSONArray> map = (Map<String, JSONArray>)jsonObject;
-                    for (String key:map.keySet()) {
-                        List<IfClearedStatEntity> ifClearedStatEntityList =
-                                JSONArray.toList( map.get(key), new IfClearedStatEntity(),new JsonConfig());
-                        retMap.put(key,ifClearedStatEntityList);
+                byte[] tempbytes = this.readLastRows(pathIfClearedStat,rows);
+                if (tempbytes != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
+                    InputStream inputStream = byteArrayInputStream;
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    String lineTxt;
+                    while ((lineTxt = bufferedReader.readLine()) != null) {
+                        Map<String, List<IfClearedStatEntity>> tempMap = new HashMap<>();
+                        JSONObject jsonObject = JSONObject.fromObject(lineTxt);
+                        Map<String, JSONArray> map = (Map<String, JSONArray>) jsonObject;
+                        for (String key : map.keySet()) {
+                            List<IfClearedStatEntity> ifClearedStatEntityList =
+                                    JSONArray.toList(map.get(key), new IfClearedStatEntity(), new JsonConfig());
+                            tempMap.put(key, ifClearedStatEntityList);
+                        }
+                        mapList.add(tempMap);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return retMap;
+        return mapList;
     }
 
     @Override
-    public Map<String, List<IfStatisticsEntity>> getIfStatisticsMap() {
-        Map<String, List<IfStatisticsEntity>> retMap = new HashMap<>();
+    public List<Map<String, List<IfStatisticsEntity>>> getIfStatisticsMap(int rows) {
+        List<Map<String, List<IfStatisticsEntity>>> mapList = new ArrayList<>();
         File file = new File(pathIfStatistics);
         try {
             if (file.isFile() && file.exists()) {
-                InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
-                BufferedReader bufferedReader = new BufferedReader(is);
-                String lineTxt;
-                while ((lineTxt = bufferedReader.readLine()) != null) {
-                    JSONObject jsonObject = JSONObject.fromObject(lineTxt);
-                    Map<String, JSONArray> map = (Map<String, JSONArray>)jsonObject;
-                    for (String key:map.keySet()) {
-                        List<IfStatisticsEntity> ifStatisticsEntityList =
-                                JSONArray.toList( map.get(key), new IfStatisticsEntity(),new JsonConfig());
-                        retMap.put(key,ifStatisticsEntityList);
+                byte[] tempbytes = this.readLastRows(pathIfStatistics,rows);
+                if (tempbytes != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
+                    InputStream inputStream = byteArrayInputStream;
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    String lineTxt;
+                    while ((lineTxt = bufferedReader.readLine()) != null) {
+                        Map<String, List<IfStatisticsEntity>> tempMap = new HashMap<>();
+                        JSONObject jsonObject = JSONObject.fromObject(lineTxt);
+                        Map<String, JSONArray> map = (Map<String, JSONArray>) jsonObject;
+                        for (String key : map.keySet()) {
+                            List<IfStatisticsEntity> ifStatisticsEntityList =
+                                    JSONArray.toList(map.get(key), new IfStatisticsEntity(), new JsonConfig());
+                            tempMap.put(key, ifStatisticsEntityList);
+                        }
+                        mapList.add(tempMap);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return retMap;
+        return mapList;
     }
 
     @Override
-    public Map<String, List<CpuInfoEntity>> getCpuInfoMap() {
-        Map<String, List<CpuInfoEntity>> retMap = new HashMap<>();
+    public List<Map<String, List<CpuInfoEntity>>> getCpuInfoMap(int rows) {
+        List<Map<String, List<CpuInfoEntity>>> mapList = new ArrayList<>();
         File file = new File(pathCpuInfo);
         try {
             if (file.isFile() && file.exists()) {
-                InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
-                BufferedReader bufferedReader = new BufferedReader(is);
-                String lineTxt;
-                while ((lineTxt = bufferedReader.readLine()) != null) {
-                    JSONObject jsonObject = JSONObject.fromObject(lineTxt);
-                    Map<String, JSONArray> map = (Map<String, JSONArray>)jsonObject;
-                    for (String key:map.keySet()) {
-                        List<CpuInfoEntity> cpuInfoEntityList =
-                                JSONArray.toList( map.get(key), new CpuInfoEntity(),new JsonConfig());
-                        retMap.put(key,cpuInfoEntityList);
+                byte[] tempbytes = this.readLastRows(pathCpuInfo,rows);
+                if (tempbytes != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
+                    InputStream inputStream = byteArrayInputStream;
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    String lineTxt;
+                    while ((lineTxt = bufferedReader.readLine()) != null) {
+                        Map<String, List<CpuInfoEntity>> tempMap = new HashMap<>();
+                        JSONObject jsonObject = JSONObject.fromObject(lineTxt);
+                        Map<String, JSONArray> map = (Map<String, JSONArray>) jsonObject;
+                        for (String key : map.keySet()) {
+                            List<CpuInfoEntity> cpuInfoEntityList =
+                                    JSONArray.toList(map.get(key), new CpuInfoEntity(), new JsonConfig());
+                            tempMap.put(key, cpuInfoEntityList);
+                        }
+                        mapList.add(tempMap);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return retMap;
+        return mapList;
     }
 
     @Override
-    public Map<String, List<MemoryInfoEntity>> getMemoryInfoMap() {
-        Map<String, List<MemoryInfoEntity>> retMap = new HashMap<>();
+    public List<Map<String, List<MemoryInfoEntity>>> getMemoryInfoMap(int rows) {
+        List<Map<String, List<MemoryInfoEntity>>> mapList = new ArrayList<>();
         File file = new File(pathMemoryInfo);
         try {
             if (file.isFile() && file.exists()) {
-                InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
-                BufferedReader bufferedReader = new BufferedReader(is);
-                String lineTxt;
-                while ((lineTxt = bufferedReader.readLine()) != null) {
-                    JSONObject jsonObject = JSONObject.fromObject(lineTxt);
-                    Map<String, JSONArray> map = (Map<String, JSONArray>)jsonObject;
-                    for (String key:map.keySet()) {
-                        List<MemoryInfoEntity> memoryInfoEntityList =
-                                JSONArray.toList( map.get(key), new MemoryInfoEntity(),new JsonConfig());
-                        retMap.put(key,memoryInfoEntityList);
+                byte[] tempbytes = this.readLastRows(pathMemoryInfo,rows);
+                if (tempbytes != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(tempbytes);
+                    InputStream inputStream = byteArrayInputStream;
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    String lineTxt;
+                    while ((lineTxt = bufferedReader.readLine()) != null) {
+                        Map<String, List<MemoryInfoEntity>> tempMap = new HashMap<>();
+                        JSONObject jsonObject = JSONObject.fromObject(lineTxt);
+                        Map<String, JSONArray> map = (Map<String, JSONArray>) jsonObject;
+                        for (String key : map.keySet()) {
+                            List<MemoryInfoEntity> memoryInfoEntityList =
+                                    JSONArray.toList(map.get(key), new MemoryInfoEntity(), new JsonConfig());
+                            tempMap.put(key, memoryInfoEntityList);
+                        }
+                        mapList.add(tempMap);
                     }
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return retMap;
+        return mapList;
     }
 
     @Override
@@ -303,5 +328,34 @@ public class ReadAndWriteManagerImpl implements ReadAndWriteManager {
             e.printStackTrace();
         }
         return statistics;
+    }
+
+    private byte[] readLastRows(String filename, int rows) {
+        String lineSeparator = "\r\n";
+        try (RandomAccessFile rf = new RandomAccessFile(filename, "r")) {
+            // 每次读取的字节数要和系统换行符大小一致
+            byte[] c = new byte[lineSeparator.getBytes().length];
+            // 在获取到指定行数和读完文档之前,从文档末尾向前移动指针,遍历文档每一个字节
+            for (long pointer = rf.length(), lineSeparatorNum = 0; pointer >= 0 && lineSeparatorNum < rows; ) {
+                // 移动指针
+                rf.seek(pointer--);
+                // 读取数据
+                int readLength = rf.read(c);
+                if (readLength != -1 && new String(c, 0, readLength).equals(lineSeparator)) {
+                    lineSeparatorNum++;
+                }
+                //扫描完依然没有找到足够的行数,将指针归0
+                if (pointer == -1 && lineSeparatorNum < rows) {
+                    rf.seek(0);
+                }
+            }
+            byte[] tempbytes = new byte[(int) (rf.length() - rf.getFilePointer())];
+            rf.readFully(tempbytes);
+            rf.close();
+            return tempbytes;
+        } catch (IOException e) {
+
+        }
+        return null;
     }
 }

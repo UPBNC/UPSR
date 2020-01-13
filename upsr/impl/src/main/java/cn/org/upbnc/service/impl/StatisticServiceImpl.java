@@ -198,64 +198,103 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Map<String, List<IfClearedStatServiceEntity>> getIfClearedStat(String routerId) {
-        Map<String, List<IfClearedStatServiceEntity>> ret = new HashMap<>();
-        for (String rid : ifClearedStatEntityMaps.keySet()) {
-            List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
-            List<IfClearedStatEntity> ifClearedStatEntityList = ifClearedStatEntityMaps.get(rid);
-            for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
-                String vpnName = deviceManager.getVpnNameByIfname(rid,ifClearedStatEntity.getIfName());
-                IfClearedStatServiceEntity ifClearedStatServiceEntity =
-                        ifClearedStatEntityToIfClearedStatServiceEntity(ifClearedStatEntity);
-                ifClearedStatServiceEntity.setVpnName(vpnName);
-                ifClearedStatServiceEntityList.add(ifClearedStatServiceEntity);
-            }
-            ret.put(rid,ifClearedStatServiceEntityList);
+    public List<Map<String, List<IfClearedStatServiceEntity>>> getIfClearedStat(String routerId, int entityNum) {
+        List<Map<String, List<IfClearedStatEntity>>> mapList = new ArrayList<>();
+        List<Map<String, List<IfClearedStatServiceEntity>>> mapServiceList = new ArrayList<>();
+        if (entityNum == 1){
+            mapList.add(ifClearedStatEntityMaps);
+        } else {
+            mapList = statisticsManager.getIfClearedStatMap(entityNum);
         }
-        return ret;
+        for (Map<String, List<IfClearedStatEntity>> stringListMap : mapList) {
+            Map<String, List<IfClearedStatServiceEntity>> tempMap = new HashMap<>();
+            for (String rid : stringListMap.keySet()) {
+                List<IfClearedStatServiceEntity> ifClearedStatServiceEntityList = new ArrayList<>();
+                List<IfClearedStatEntity> ifClearedStatEntityList = stringListMap.get(rid);
+                for (IfClearedStatEntity ifClearedStatEntity : ifClearedStatEntityList) {
+                    String vpnName = deviceManager.getVpnNameByIfname(rid, ifClearedStatEntity.getIfName());
+                    IfClearedStatServiceEntity ifClearedStatServiceEntity =
+                            ifClearedStatEntityToIfClearedStatServiceEntity(ifClearedStatEntity);
+                    ifClearedStatServiceEntity.setVpnName(vpnName);
+                    ifClearedStatServiceEntityList.add(ifClearedStatServiceEntity);
+                }
+                tempMap.put(rid, ifClearedStatServiceEntityList);
+            }
+            mapServiceList.add(tempMap);
+        }
+        return mapServiceList;
     }
 
     @Override
-    public Map<String, List<IfStatisticsServiceEntity>> getIfStatistics(String routerId) {
-        Map<String, List<IfStatisticsServiceEntity>> ret = new HashMap<>();
-        for (String rid : ifStatisticsEntityMaps.keySet()) {
-            List<IfStatisticsServiceEntity> ifStatisticsServiceEntityList= new ArrayList<>();
-            List<IfStatisticsEntity> ifStatisticsEntityList = ifStatisticsEntityMaps.get(rid);
-            for (IfStatisticsEntity ifStatisticsEntity: ifStatisticsEntityList) {
-                ifStatisticsServiceEntityList.add(ifStatisticsEntityToIfStatisticsServiceEntity(ifStatisticsEntity));
-            }
-            ret.put(rid,ifStatisticsServiceEntityList);
+    public List<Map<String, List<IfStatisticsServiceEntity>>> getIfStatistics(String routerId, int entityNum) {
+        List<Map<String,List<IfStatisticsEntity>>> mapList = new ArrayList<>();
+        List<Map<String, List<IfStatisticsServiceEntity>>> mapServiceList = new ArrayList<>();
+        if (entityNum == 1){
+            mapList.add(ifStatisticsEntityMaps);
+        } else {
+            mapList = statisticsManager.getIfStatisticsMap(entityNum);
         }
-        return ret;
+        for (Map<String,List<IfStatisticsEntity>> stringListMap : mapList) {
+            Map<String, List<IfStatisticsServiceEntity>> tempMap = new HashMap<>();
+            for (String rid : stringListMap.keySet()) {
+                List<IfStatisticsServiceEntity> ifStatisticsServiceEntityList = new ArrayList<>();
+                List<IfStatisticsEntity> ifStatisticsEntityList = stringListMap.get(rid);
+                for (IfStatisticsEntity ifStatisticsEntity : ifStatisticsEntityList) {
+                    ifStatisticsServiceEntityList.add(ifStatisticsEntityToIfStatisticsServiceEntity(ifStatisticsEntity));
+                }
+                tempMap.put(rid, ifStatisticsServiceEntityList);
+            }
+            mapServiceList.add(tempMap);
+        }
+        return mapServiceList;
     }
 
     @Override
-    public Map<String, List<CpuInfoServiceEntity>> getCpuInfo(String routerId) {
-        Map<String, List<CpuInfoServiceEntity>> ret = new HashMap<>();
-        for (String rid : cpuInfoEntityMaps.keySet()) {
-            List<CpuInfoServiceEntity> cpuInfoServiceEntityList= new ArrayList<>();
-            List<CpuInfoEntity> ifStatisticsEntityList = cpuInfoEntityMaps.get(rid);
-            for (CpuInfoEntity cpuInfoEntity: ifStatisticsEntityList) {
-                cpuInfoServiceEntityList.add(cpuInfoEntityToCpuInfoServiceEntity(cpuInfoEntity));
-            }
-            ret.put(rid,cpuInfoServiceEntityList);
+    public List<Map<String, List<CpuInfoServiceEntity>>> getCpuInfo(String routerId, int entityNum) {
+        List<Map<String,List<CpuInfoEntity>>> mapList = new ArrayList<>();
+        List<Map<String, List<CpuInfoServiceEntity>>> mapServiceList = new ArrayList<>();
+        if (entityNum == 1){
+            mapList.add(cpuInfoEntityMaps);
+        } else {
+            mapList = statisticsManager.getCpuInfoMap(entityNum);
         }
-        return ret;
-
+        for (Map<String,List<CpuInfoEntity>> stringListMap : mapList) {
+            Map<String, List<CpuInfoServiceEntity>> tempMap = new HashMap<>();
+            for (String rid : stringListMap.keySet()) {
+                List<CpuInfoServiceEntity> cpuInfoServiceEntityList= new ArrayList<>();
+                List<CpuInfoEntity> ifStatisticsEntityList = stringListMap.get(rid);
+                for (CpuInfoEntity cpuInfoEntity: ifStatisticsEntityList) {
+                    cpuInfoServiceEntityList.add(cpuInfoEntityToCpuInfoServiceEntity(cpuInfoEntity));
+                }
+                tempMap.put(rid,cpuInfoServiceEntityList);
+            }
+            mapServiceList.add(tempMap);
+        }
+        return mapServiceList;
     }
 
     @Override
-    public Map<String, List<MemoryInfoServiceEntity>> getMemoryInfo(String routerId) {
-        Map<String, List<MemoryInfoServiceEntity>> ret = new HashMap<>();
-        for (String rid : memoryInfoEntityMaps.keySet()) {
-            List<MemoryInfoServiceEntity> memoryInfoServiceEntityList= new ArrayList<>();
-            List<MemoryInfoEntity> memoryInfoEntityList = memoryInfoEntityMaps.get(rid);
-            for (MemoryInfoEntity memoryInfoEntity: memoryInfoEntityList) {
-                memoryInfoServiceEntityList.add(memoryInfoEntityToMemoryInfoServiceEntity(memoryInfoEntity));
-            }
-            ret.put(rid,memoryInfoServiceEntityList);
+    public List<Map<String, List<MemoryInfoServiceEntity>>> getMemoryInfo(String routerId, int entityNum) {
+        List<Map<String,List<MemoryInfoEntity>>> mapList = new ArrayList<>();
+        List<Map<String, List<MemoryInfoServiceEntity>>> mapServiceList = new ArrayList<>();
+        if (entityNum == 1){
+            mapList.add(memoryInfoEntityMaps);
+        } else {
+            mapList = statisticsManager.getMemoryInfoMap(entityNum);
         }
-        return ret;
+        for (Map<String,List<MemoryInfoEntity>> stringListMap : mapList) {
+            Map<String, List<MemoryInfoServiceEntity>> tempMap = new HashMap<>();
+            for (String rid : stringListMap.keySet()) {
+                List<MemoryInfoServiceEntity> memoryInfoServiceEntityList= new ArrayList<>();
+                List<MemoryInfoEntity> memoryInfoEntityList = stringListMap.get(rid);
+                for (MemoryInfoEntity memoryInfoEntity: memoryInfoEntityList) {
+                    memoryInfoServiceEntityList.add(memoryInfoEntityToMemoryInfoServiceEntity(memoryInfoEntity));
+                }
+                tempMap.put(rid,memoryInfoServiceEntityList);
+            }
+            mapServiceList.add(tempMap);
+        }
+        return mapServiceList;
     }
 
     private List<IfClearedStatEntity> setIfClearedStat(String routerId, String ifName,long date) {
@@ -435,6 +474,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     private CpuInfoServiceEntity cpuInfoEntityToCpuInfoServiceEntity(CpuInfoEntity cpuInfoEntity) {
         CpuInfoServiceEntity cpuInfoServiceEntity = new CpuInfoServiceEntity();
+        cpuInfoServiceEntity.setDate(cpuInfoEntity.getDate());
         cpuInfoServiceEntity.setPosition(cpuInfoEntity.getPosition());
         cpuInfoServiceEntity.setEntIndex(cpuInfoEntity.getEntIndex());
         cpuInfoServiceEntity.setSystemCpuUsage(cpuInfoEntity.getSystemCpuUsage());
@@ -446,6 +486,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     private MemoryInfoServiceEntity memoryInfoEntityToMemoryInfoServiceEntity(MemoryInfoEntity memoryInfoEntity) {
         MemoryInfoServiceEntity memoryInfoServiceEntity = new MemoryInfoServiceEntity();
+        memoryInfoServiceEntity.setDate(memoryInfoEntity.getDate());
         memoryInfoServiceEntity.setPosition(memoryInfoEntity.getPosition());
         memoryInfoServiceEntity.setEntIndex(memoryInfoEntity.getEntIndex());
         memoryInfoServiceEntity.setOsMemoryTotal(memoryInfoEntity.getOsMemoryTotal());
