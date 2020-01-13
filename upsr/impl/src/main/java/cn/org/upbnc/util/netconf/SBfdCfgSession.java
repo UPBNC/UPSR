@@ -11,6 +11,20 @@ public class SBfdCfgSession {
     private String localDiscr;
     private String remoteDiscr;
 
+    @Override
+    public String toString() {
+        return "SBfdCfgSession{" +
+                "sessName='" + sessName + '\'' +
+                ", multiplier='" + multiplier + '\'' +
+                ", minTxInt='" + minTxInt + '\'' +
+                ", minRxInt='" + minRxInt + '\'' +
+                ", linkType='" + linkType + '\'' +
+                ", tunnelName='" + tunnelName + '\'' +
+                ", createType='" + createType + '\'' +
+                ", localDiscr='" + localDiscr + '\'' +
+                ", remoteDiscr='" + remoteDiscr + '\'' +
+                '}';
+    }
 
     public String getSessName() {
         return sessName;

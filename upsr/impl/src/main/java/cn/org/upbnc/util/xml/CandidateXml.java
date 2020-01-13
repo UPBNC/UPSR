@@ -432,29 +432,6 @@ public class CandidateXml {
                 "      <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +
                 "        <mpls:mplsTe>\n" +
                 "          <mpls:srTeTunnels>\n" +
-                "            <mpls:srTeTunnel>\n" +
-                "              <mpls:tunnelName/>\n" +
-                "              <mpls:mplsTunnelEgressLSRId/>\n" +
-                "              <mpls:mplsTunnelIndex/>\n" +
-                "              <mpls:mplsTunnelBandwidth/>\n" +
-                "              <mpls:mplsTeTunnelSetupPriority/>\n" +
-                "              <mpls:holdPriority/>\n" +
-                "              <mpls:hotStandbyEnable/>\n" +
-                "              <mpls:resvForBinding/>\n" +
-                "              <mpls:srTeTunnelPaths>\n" +
-                "                <mpls:srTeTunnelPath>\n" +
-                "                  <mpls:pathType/>\n" +
-                "                  <mpls:explicitPathName/>\n" +
-                "                </mpls:srTeTunnelPath>\n" +
-                "              </mpls:srTeTunnelPaths>\n" +
-                "              <mpls:tunnelInterface>\n" +
-                "                <mpls:interfaceName/>\n" +
-                "                <mpls:lsp_tpEnable/>\n" +
-                "                <mpls:statEnable/>\n" +
-                "                <mpls:mplsteServiceClass/>\n" +
-                "              </mpls:tunnelInterface>\n" +
-                "              <mpls:mplsTeTunnelBfd/>\n" +
-                "            </mpls:srTeTunnel>\n" +
                 "          </mpls:srTeTunnels>\n" +
                 "        </mpls:mplsTe>\n" +
                 "      </mpls:mpls>\n" +

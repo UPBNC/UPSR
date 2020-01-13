@@ -129,11 +129,33 @@ public class SrTeTunnelXml {
         return start + middle + end;
     }
 
-    public static String getSrTeTunnelXml(String tunnelName,String database) {
+    public static String getInterfaceDes(String name, String database) {
+        String str = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
+                "  <source>\n" +
+                "    <" + database + "/>\n" +
+                "  </source>\n" +
+                "  <filter>\n" +
+                "    <ifm:ifm xmlns:ifm=\"http://www.huawei.com/netconf/vrp/huawei-ifm\">\n" +
+                "      <ifm:interfaces>\n" +
+                "        <ifm:interface>\n" +
+                "          <ifm:ifName>" + name + "</ifm:ifName>\n" +
+                "          <ifm:ifPhyType>Tunnel</ifm:ifPhyType>\n" +
+                "          <ifm:ifDescr/>\n" +
+                "        </ifm:interface>\n" +
+                "      </ifm:interfaces>\n" +
+                "    </ifm:ifm>\n" +
+                "  </filter>\n" +
+                "</get-config>" +
+                "</rpc>";
+        return str;
+    }
+
+    public static String getSrTeTunnelXml(String tunnelName, String database) {
         String start = "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "<get-config xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">\n" +
                 "  <source>\n" +
-                "    <"+database+"/>\n" +
+                "    <" + database + "/>\n" +
                 "  </source>\n" +
                 "  <filter type=\"subtree\">\n" +
                 "    <mpls:mpls xmlns:mpls=\"http://www.huawei.com/netconf/vrp/huawei-mpls\">\n" +

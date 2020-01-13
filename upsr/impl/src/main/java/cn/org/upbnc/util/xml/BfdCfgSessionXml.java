@@ -19,7 +19,7 @@ public class BfdCfgSessionXml {
                 "  <edit-config >\n";
 
         String target = "    <target>\n" +
-                "      <running/>\n" +
+                "      <candidate/>\n" +
                 "    </target>\n";
 
         String configStart = "    <config>\n";
@@ -52,7 +52,7 @@ public class BfdCfgSessionXml {
                 "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
                 "  <edit-config>\n" +
                 "    <target>\n" +
-                "      <running/>\n" +
+                "      <candidate/>\n" +
                 "    </target>\n" +
                 "    <error-option>continue-on-error</error-option>\n" +
                 "    <config>\n" +
@@ -90,6 +90,24 @@ public class BfdCfgSessionXml {
 
         return xml;
     }
+
+    public static String getBfdCfgSessionsXml(String database) {
+        String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"" + GetMessageId.getId() + "\">\n" +
+                "  <get-config>\n" +
+                "    <source>\n" +
+                "      <" + database + "/>\n" +
+                "    </source>\n" +
+                "    <filter type=\"subtree\">\n" +
+                "      <bfd:bfd xmlns:bfd=\"http://www.huawei.com/netconf/vrp/huawei-bfd\">\n" +
+                "        <bfd:bfdCfgSessions/>\n" +
+                "      </bfd:bfd>\n" +
+                "    </filter>\n" +
+                "  </get-config>\n" +
+                "</rpc>\n";
+        return xml;
+    }
+
 
     public static List<SBfdCfgSession> getBfdCfgSessionsFromXml(String xml) {
         List<SBfdCfgSession> ret = new ArrayList<SBfdCfgSession>();
