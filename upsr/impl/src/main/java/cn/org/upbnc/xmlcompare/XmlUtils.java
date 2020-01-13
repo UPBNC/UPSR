@@ -74,7 +74,12 @@ public class XmlUtils {
 
     public static String subString(String string) {
         String str;
-        str = string.substring(string.indexOf("<data"), string.lastIndexOf("</data>") + 7);
+        if (string.contains("<data/>")) {
+            str = "<data>\n" +
+                    "</data>";
+        } else {
+            str = string.substring(string.indexOf("<data"), string.lastIndexOf("</data>") + 7);
+        }
         return str;
     }
 }

@@ -626,7 +626,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         String result = "";
         String flag;
         ActionEntity actionEntity;
-
         for (String routerId : routers) {
             result = result + "\nrouter : " + routerId + "\n";
             synType = "1";
@@ -636,7 +635,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             NetconfClient netconfClient = netConfManager.getNetconClient(routerId);
             String tunnelName = "";
             {
-                LOG.info("************* tunnel ***************");
                 String tunnelRunningXml = RunningXml.getTunnelXml();
                 String tunnelCandidateXml = CandidateXml.getTunnelXml();
                 String xmlRunningResult = netconfController.sendMessage(netconfClient, tunnelRunningXml);
@@ -648,7 +646,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 actionEntity = XmlUtils.compare(xml1, xml2, "");
                 String des = "";
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
                     action = "add";
                     List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (sSrTeTunnels.size() != 0) {
@@ -720,7 +717,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         LOG.info(sSrTeTunnels.get(0).toString());
                     }
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
                     action = "delete";
                     List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (sSrTeTunnels.size() != 0) {
@@ -793,7 +789,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                     }
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
                     List<SSrTeTunnel> sSrTeTunnels = GetXml.getSrTeTunnelFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-                    LOG.info("modify");
                     if (sSrTeTunnels.size() != 0) {
                         LOG.info(sSrTeTunnels.get(0).getTunnelName());
                         List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
@@ -811,9 +806,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             }
 
             {
-                LOG.info("************* explicit path ***************");
                 if (action.equals("delete") && explicitPaths.size() > 0) {
-                    LOG.info("delete");
                     String deleteResult = netconfController.sendMessage(netconfClient,
                             ExplicitPathXml.getExplicitPathXml(explicitPaths, "running"));
                     List<SExplicitPath> sExplicitPaths = ExplicitPathXml.getExplicitPathFromXml(deleteResult);
@@ -827,7 +820,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                     }
                     LOG.info(sExplicitPaths.toString());
                 } else if (action.equals("add") && explicitPaths.size() > 0) {
-                    LOG.info("add");
                     String addResult = netconfController.sendMessage(netconfClient,
                             ExplicitPathXml.getExplicitPathXml(explicitPaths, "candidate"));
                     List<SExplicitPath> sExplicitPaths = ExplicitPathXml.getExplicitPathFromXml(addResult);
@@ -845,7 +837,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             }
 
             {
-                LOG.info("************* bfd ***************");
                 String bfdRunningXml = BfdCfgSessionXml.getBfdCfgSessionsXml("running");
                 String bfdCandidateXml = BfdCfgSessionXml.getBfdCfgSessionsXml("candidate");
                 String xmlRunningResult = netconfController.sendMessage(netconfClient, bfdRunningXml);
@@ -854,17 +845,11 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 String xml2 = xmlRunningResult;
                 xml1 = XmlUtils.subString(xml1);
                 xml2 = XmlUtils.subString(xml2);
-                //xml1 candidate  xml2 running
                 flag = "explicitPath";
                 xml1 = XmlUtils.subString(xml1);
                 xml2 = XmlUtils.subString(xml2);
                 actionEntity = XmlUtils.compare(xml1, xml2, flag);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("add");
-//                    List<SBfdCfgSession> sBfdCfgSessions = GetXml.getBfdCfgSessionsFromXml(xml1, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-//                    if (sBfdCfgSessions.size() != 0) {
-//                        LOG.info(sBfdCfgSessions.get(0).toString());
-//                    }
                     List<SBfdCfgSession> bfdCfgSessions = BfdCfgSessionXml.getBfdCfgSessionsFromXml(xmlCandidateResult);
                     for (SBfdCfgSession bfd : bfdCfgSessions) {
                         if (tunnelName.equals(bfd.getTunnelName())) {
@@ -884,11 +869,6 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                     }
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
-                    LOG.info("delete");
-//                    List<SBfdCfgSession> sBfdCfgSessions = GetXml.getBfdCfgSessionsFromXml(xml2, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
-//                    if (sBfdCfgSessions.size() != 0) {
-//                        LOG.info(sBfdCfgSessions.get(0).toString());
-//                    }
                     List<SBfdCfgSession> bfdCfgSessions = BfdCfgSessionXml.getBfdCfgSessionsFromXml(xmlRunningResult);
                     for (SBfdCfgSession bfd : bfdCfgSessions) {
                         if (tunnelName.equals(bfd.getTunnelName())) {
@@ -914,9 +894,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         LOG.info(sBfdCfgSessions.get(0).getSessName());
                         List<ModifyEntity> modifyEntities = actionEntity.getModifyEntities();
                         for (ModifyEntity modifyEntity : modifyEntities) {
-                            LOG.info("lable :" + modifyEntity.getLabel());
-                            LOG.info("modifyEntity.getOdlValue() :" + modifyEntity.getOdlValue());
-                            LOG.info("modifyEntity.getNewValue() :" + modifyEntity.getNewValue());
+
                         }
                     }
                 } else if (ActionTypeEnum.identical.name().equals(actionEntity.getAction().name())) {
