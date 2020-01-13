@@ -208,7 +208,7 @@ def get_ldp_lsp_alarm(child,deviceName,vpnName):
 def get_vpn_instance_status(child,deviceName,vpnName):
     child.sendline('display trapbuffer | no-more | include "The tunnel up event is occurred"')
     child_expect(child, deviceName)
-    return True
+    return False
 def get_tunnel_list_by_tunnel_policy(child,deviceName,policyName):
     child.sendline('display tunnel-policy ' + policyName + ' | no-more | include Tunnel')
     child_expect(child, deviceName)
@@ -219,43 +219,55 @@ def check_tunnel_up(child,deviceName,tunnelName):
     child.sendline('display interface ' + tunnelName + ' | no-more | include "Line protocol current state :"')
     child_expect(child, deviceName)
     echo_info = child.before
-    if echo_info.strip().split(':')[-1] == 'UP':
+    if echo_info.strip().split(':')[-1].strip() == 'UP':
         return True
     else:
         return False
 def check_resvered_bind(child, deviceName, tunnelName):
+    ret = True
+    child.sendline('system-view ')
+    child_expect(child, deviceName[1:-1]+']')
     child.sendline('interface ' + tunnelName)
-    child_expect(child, deviceName)
+    child_expect(child, deviceName[1:-1]+'-'+tunnelName+']')
     child.sendline('display this | no-more')
-    child_expect(child, deviceName)
+    child_expect(child, deviceName[1:-1]+'-'+tunnelName+']')
     echo_tunnel_info = child.before
     if echo_tunnel_info.find('mpls te reserved-for-binding') == -1:
-        child.sendline('quit ')
-        child_expect(child, deviceName)
-        return False
-    else:
-        child.sendline('quit ')
-        child_expect(child, deviceName)
-        return True
+        ret = False
+    child.sendline('quit ')
+    child_expect(child, deviceName[1:-1]+']')
+    child.sendline('quit ')
+    child_expect(child, deviceName)
+    return ret
 def collect_alarm_and_contact_hw(child,deviceName):
-    child.sendline('display version')
+    return ''
+    ret = ''
+    child.sendline('display version | no-more')
     child_expect(child, deviceName)
-    child.sendline('display esn')
+    ret = ret + child.before
+    child.sendline('display esn | no-more')
     child_expect(child, deviceName)
+    ret = ret + child.before
     child.sendline('save logfile')
     child_expect(child, deviceName)
+    ret = ret + child.before
     child.sendline('system')
-    child_expect(child, deviceName)
+    child_expect(child, deviceName[1:-1]+']')
+    ret = ret + child.before
     child.sendline('diagnose')
-    child_expect(child, deviceName)
-    child.sendline('diaplay diagnostic-information >> diagnose.log')
-    child_expect(child, deviceName)
-    child.sendline('save logfile diagnose-log')
-    child_expect(child, deviceName)
+    child_expect(child, deviceName[1:-1]+'-diagnose]')
+    ret = ret + child.before
+    # child.sendline('display diagnostic-information >> diagnose.log')
+    # child_expect(child, deviceName[1:-1]+'-diagnose]')
+    # ret = ret + child.before
+    # child.sendline('save logfile diagnose-log')
+    # child_expect(child, deviceName[1:-1]+'-diagnose]')
+    # ret = ret + child.before
+    child.sendline('quit')
+    child_expect(child, deviceName[1:-1]+']')
     child.sendline('quit')
     child_expect(child, deviceName)
-    child.sendline('quit')
-    child_expect(child, deviceName)
+    return ''
 def diagnose_vpn_by_name(child,deviceName,vpnName):
     ret = ''
     policyName = get_tunnel_policy_by_vpnname(child, deviceName, vpnName)
@@ -267,34 +279,38 @@ def diagnose_vpn_by_name(child,deviceName,vpnName):
         ret = ret + '\n  ' + policyName + ' 包含的隧道有 ' + ', '.join(tunnelList)
         for i in range(len(tunnelList)):
             if check_tunnel_up(child, deviceName, tunnelList[i]) == True:
-                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态UP， '
+                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态UP，'
                 # 3.进入Tunnel接口视图，执行display this命令检查Tunnel接口下是否配置了mpls te reserved-for-binding命令。
                 if check_resvered_bind(child, deviceName,tunnelList[i]) == True:
-                    ret = ret + ' 已配置绑定 '
+                    ret = ret + '已配置绑定 '
                     #7.检查VPN实例的接口状态。查看status是否为UP，查看是否存在对端VPN路由。
                     if get_vpn_instance_status(child,deviceName,vpnName) == True:
-                        ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
+                        # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
+                        pass
                     else:
                         ret = ret + collect_alarm_and_contact_hw(child,deviceName)
                 else:
                     #4.进入Tunnel接口视图，配置mpls te reserved-for-binding命令，然后看是否出现告警
-                    ret = ret + ' 未配置绑定 '
+                    ret = ret + '未配置绑定 '
                     if get_reserved_bind_alarm(child, deviceName,tunnelList[i]) == True:
-                        ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
+                        pass
+                        # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
                     else:
                         ret = ret + collect_alarm_and_contact_hw(child,deviceName)
             else:
                 #5.检查TE接口下的配置，并根据TE相关的告警确认和排除问题，然后看是否出现告警
-                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态DOWN， '
+                ret = ret + ('\n  %-13s' % tunnelList[i]) + ' 隧道状态DOWN'
                 if get_te_interface_alarm(child, deviceName, tunnelList[i]) == True:
-                    ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
+                    pass
+                    # ret = ret + ' : hwTnl2VpnTrapEvent: The tunnel up event is occurred'
                 else:
                     ret = ret + collect_alarm_and_contact_hw(child,deviceName)
     else:
         #6.检查LDP LSP的配置，并根据LSP相关的告警确认和排除问题，然后看是否出现告警
         ret = ret + 'tnl-policy字段为空'
         if get_ldp_lsp_alarm(child, deviceName, vpnName) == True:
-            ret = ret + '\n  ' + 'The tunnel up event is occurred'
+            pass
+            # ret = ret + '\n  ' + 'The tunnel up event is occurred'
         else:
             ret = ret + '\n  ' + collect_alarm_and_contact_hw(child,deviceName)
     return ret
@@ -318,7 +334,7 @@ def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
     child_expect(child,deviceName)
     child.sendline("###  The following is the diagnostic information  ###")
     finame = create_file()
-    #child.logfile = file(finame, 'w')
+    # child.logfile = file(finame, 'w')
     child_expect(child,deviceName)
     f = open(cmdfile)
     line = f.readlines()
