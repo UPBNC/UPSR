@@ -128,6 +128,8 @@ public class ServiceInterface {
         this.tunnelService.syncTunnelInstanceConf();
         this.tunnelPolicyService.syncTunnelPolicyConf();
         this.routePolicyService.syncRoutePolicyConf();
+        LOG.info("get first statistics data");
+        this.statisticService.setStatistics();
 //        this.trafficPolicyService.syncTrafficPolicyConf();
         // Start topology service at last
         this.topoService.startService();

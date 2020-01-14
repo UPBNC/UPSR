@@ -141,7 +141,7 @@ public class StatisticODLApi implements UpsrStatisticService {
         List<Map<String,List<MemoryInfoServiceEntity>>> mapServiceList = (List<Map<String,
                 List<MemoryInfoServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
         Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap = mapServiceList.get(0);
-        List<MemoryInfoStat> memoryInfoStatList = this.buildMemoryInfoStat(memoryInfoMap,null);
+        List<MemoryInfoStat> memoryInfoStatList = this.buildMemoryInfoStat(memoryInfoMap,null,false);
         getMemoryInfoOutputBuilder.setMemoryInfoStat(memoryInfoStatList);
         getMemoryInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getMemoryInfo end");
@@ -161,7 +161,7 @@ public class StatisticODLApi implements UpsrStatisticService {
         List<Map<String,List<CpuInfoServiceEntity>>> mapServiceList = (List<Map<String,
                 List<CpuInfoServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
         Map<String,List<CpuInfoServiceEntity>> cpuInfoMap = mapServiceList.get(0);
-        List<CpuInfoStat> cpuInfoStatList = this.buildCpuInfoStat(cpuInfoMap,null);
+        List<CpuInfoStat> cpuInfoStatList = this.buildCpuInfoStat(cpuInfoMap,null,false);
         getCpuInfoOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         getCpuInfoOutputBuilder.setCpuInfoStat(cpuInfoStatList);
         LOG.info("getCpuInfo end");
@@ -181,7 +181,7 @@ public class StatisticODLApi implements UpsrStatisticService {
         List<Map<String,List<IfClearedStatServiceEntity>>> mapServiceList = (List<Map<String,
                 List<IfClearedStatServiceEntity>>>)resultMap.get(ResponseEnum.BODY.getName());
         Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap = mapServiceList.get(0);
-        List<RouterIfCleared> routerIfClearedList = this.buildIfClearedStat(ifClearedStatMap,null,null,null);
+        List<RouterIfCleared> routerIfClearedList = this.buildIfClearedStat(ifClearedStatMap,null,null,null,false);
         getIfClearedStatOutputBuilder.setRouterIfCleared(routerIfClearedList);
         getIfClearedStatOutputBuilder.setResult(CodeEnum.SUCCESS.getMessage());
         LOG.info("getIfClearedStat end");
@@ -265,7 +265,7 @@ public class StatisticODLApi implements UpsrStatisticService {
                 for (Map<String, List<MemoryInfoServiceEntity>> memoryInfoMap : mapMemServiceList) {
                     MemoryInfoHistoryBuilder memoryInfoHistoryBuilder = new MemoryInfoHistoryBuilder();
                     memoryInfoHistoryBuilder.setHistoryIndex("" + mapMemServiceList.indexOf(memoryInfoMap));
-                    memoryInfoHistoryBuilder.setMemoryInfoStat(this.buildMemoryInfoStat(memoryInfoMap, routerId));
+                    memoryInfoHistoryBuilder.setMemoryInfoStat(this.buildMemoryInfoStat(memoryInfoMap, routerId,true));
                     memoryInfoHistoryList.add(memoryInfoHistoryBuilder.build());
                 }
                 resultMap = this.getStatisticsApi().getCpuInfo(null, entityNum);
@@ -274,7 +274,7 @@ public class StatisticODLApi implements UpsrStatisticService {
                 for (Map<String, List<CpuInfoServiceEntity>> cpuInfoMap : mapCpuServiceList) {
                     CpuInfoHistoryBuilder cpuInfoHistoryBuilder = new CpuInfoHistoryBuilder();
                     cpuInfoHistoryBuilder.setHistoryIndex("" + mapCpuServiceList.indexOf(cpuInfoMap));
-                    cpuInfoHistoryBuilder.setCpuInfoStat(this.buildCpuInfoStat(cpuInfoMap,routerId));
+                    cpuInfoHistoryBuilder.setCpuInfoStat(this.buildCpuInfoStat(cpuInfoMap,routerId,true));
                     cpuInfoHistoryList.add(cpuInfoHistoryBuilder.build());
                 }
             } else {
@@ -284,7 +284,8 @@ public class StatisticODLApi implements UpsrStatisticService {
                 for (Map<String, List<IfClearedStatServiceEntity>> ifClearedStatMap : mapIfServiceList) {
                     IfClearedHistoryBuilder ifClearedHistoryBuilder = new IfClearedHistoryBuilder();
                     ifClearedHistoryBuilder.setHistoryIndex("" + mapIfServiceList.indexOf(ifClearedStatMap));
-                    ifClearedHistoryBuilder.setRouterIfCleared(this.buildIfClearedStat(ifClearedStatMap, routerId, vpnName, tunnelName));
+                    ifClearedHistoryBuilder.setRouterIfCleared(this.buildIfClearedStat(ifClearedStatMap, routerId,
+                            vpnName, tunnelName,true));
                     ifClearedHistoryList.add(ifClearedHistoryBuilder.build());
                 }
             }
@@ -298,18 +299,18 @@ public class StatisticODLApi implements UpsrStatisticService {
         return RpcResultBuilder.success(getStatisticHistoryOutputBuilder.build()).buildFuture();
     }
     private List<RouterIfCleared> buildIfClearedStat(Map<String,List<IfClearedStatServiceEntity>> ifClearedStatMap,
-                                                     String routerId, String vpnName, String tunnelName) {
+                                                     String routerId, String vpnName, String tunnelName,boolean isHistory) {
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<RouterIfCleared> routerIfClearedList = new ArrayList<>();
         for (String rid : ifClearedStatMap.keySet()) {
-            if ((routerId != null) && (routerId.equals(rid))) {
+            if (!isHistory || ((routerId != null) && (routerId.equals(rid)))) {
                 RouterIfClearedBuilder routerIfClearedBuilder = new RouterIfClearedBuilder();
                 List<IfCleared> ifClearedList = new ArrayList<>();
                 for (IfClearedStatServiceEntity ifClearedStatServiceEntity : ifClearedStatMap.get(rid)) {
-                    if ((vpnName != null) && (vpnName.equals(ifClearedStatServiceEntity.getVpnName()) != true)) {
+                    if (isHistory && ((vpnName != null) && (vpnName.equals(ifClearedStatServiceEntity.getVpnName()) != true))) {
                         continue;
                     }
-                    if ((tunnelName != null) && (tunnelName.equals(ifClearedStatServiceEntity.getIfName()) != true)) {
+                    if (isHistory && ((tunnelName != null) && (tunnelName.equals(ifClearedStatServiceEntity.getIfName()) != true))) {
                         continue;
                     }
                     IfClearedBuilder ifClearedBuilder = new IfClearedBuilder();
@@ -334,11 +335,11 @@ public class StatisticODLApi implements UpsrStatisticService {
         }
         return routerIfClearedList;
     }
-    private List<CpuInfoStat> buildCpuInfoStat(Map<String,List<CpuInfoServiceEntity>> cpuInfoMap, String routerId) {
+    private List<CpuInfoStat> buildCpuInfoStat(Map<String,List<CpuInfoServiceEntity>> cpuInfoMap, String routerId,boolean isHistory) {
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<CpuInfoStat> cpuInfoStatList = new ArrayList<>();
         for (String rid : cpuInfoMap.keySet()) {
-            if ((routerId != null) && (routerId.equals(rid))) {
+            if (!isHistory || ((routerId != null) && (routerId.equals(rid)))) {
                 CpuInfoStatBuilder cpuInfoStatBuilder = new CpuInfoStatBuilder();
                 List<CpuInfo> cpuInfoList = new ArrayList<>();
                 for (CpuInfoServiceEntity cpuInfoServiceEntity : cpuInfoMap.get(rid)) {
@@ -360,11 +361,12 @@ public class StatisticODLApi implements UpsrStatisticService {
         }
         return cpuInfoStatList;
     }
-    private List<MemoryInfoStat> buildMemoryInfoStat(Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap, String routerId) {
+    private List<MemoryInfoStat> buildMemoryInfoStat(Map<String,List<MemoryInfoServiceEntity>> memoryInfoMap,
+                                                     String routerId, boolean isHistory) {
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<MemoryInfoStat> memoryInfoStatList = new ArrayList<>();
         for (String rid : memoryInfoMap.keySet()) {
-            if ((routerId != null) && (routerId.equals(rid))) {
+            if (!isHistory || ((routerId != null) && (routerId.equals(rid)))) {
                 MemoryInfoStatBuilder memoryInfoStatBuilder = new MemoryInfoStatBuilder();
                 List<MemoryInfo> memoryInfoList = new ArrayList<>();
                 for (MemoryInfoServiceEntity memoryInfoServiceEntity : memoryInfoMap.get(rid)) {

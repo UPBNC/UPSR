@@ -27,17 +27,6 @@ public class StatisticsThread extends Thread {
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(1000 * 60 * 1);
-            LOG.info("first statistics thread " + Thread.currentThread() + " stopped " + stopMe);
-            statisticsApi.setStatistics();
-        } catch (InterruptedException e) {
-            if (stopMe == true) {
-                LOG.info("Interrupted first statistics thread " + Thread.currentThread() + " stopped");
-                return;
-            }
-        }
-
         while (stopMe != true) {
             try {
                 Thread.sleep(statisticInterval);
