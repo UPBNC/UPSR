@@ -207,13 +207,15 @@ public class ExplicitPathXml {
                     explicitPath = new SExplicitPath();
                     explicitPathHops = new ArrayList<>();
                     explicitPath.setExplicitPathName(element.elementText("explicitPathName"));
-                    for (org.dom4j.Element child : element.elements("explicitPathHops").get(0).elements()) {
-                        explicitPathHop = new SExplicitPathHop();
-                        explicitPathHop.setMplsTunnelHopIndex(child.elementText("mplsTunnelHopIndex"));
-                        explicitPathHop.setMplsTunnelHopMode(child.elementText("mplsTunnelHopMode"));
-                        explicitPathHop.setMplsTunnelHopSidLabel(child.elementText("mplsTunnelHopSidLabel"));
-                        explicitPathHop.setMplsTunnelHopSidLabelType(child.elementText("mplsTunnelHopSidLabelType"));
-                        explicitPathHops.add(explicitPathHop);
+                    if (element.element("explicitPathHops") != null) {
+                        for (org.dom4j.Element child : element.elements("explicitPathHops").get(0).elements()) {
+                            explicitPathHop = new SExplicitPathHop();
+                            explicitPathHop.setMplsTunnelHopIndex(child.elementText("mplsTunnelHopIndex"));
+                            explicitPathHop.setMplsTunnelHopMode(child.elementText("mplsTunnelHopMode"));
+                            explicitPathHop.setMplsTunnelHopSidLabel(child.elementText("mplsTunnelHopSidLabel"));
+                            explicitPathHop.setMplsTunnelHopSidLabelType(child.elementText("mplsTunnelHopSidLabelType"));
+                            explicitPathHops.add(explicitPathHop);
+                        }
                     }
                     explicitPath.setExplicitPathHops(explicitPathHops);
                     explicitPaths.add(explicitPath);

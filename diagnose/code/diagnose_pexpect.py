@@ -15,7 +15,7 @@ def arg_parse():
     parser.add_argument("--port", dest='port', help="SSH port",default="22", type=str)
     parser.add_argument("--upsrname", dest='upsrname', help="upsrname",default="root", type=str)
     parser.add_argument("--upsrword", dest='upsrword', help="upsrword",default="123456", type=str)
-    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/vpn_down.txt", type=str)
+    parser.add_argument("--cmdfile", dest='cmdfile', help="CMD file name",default="/root/tools/test/o2/karaf-0.8.2/diagnose/cmd/tunnel_down.txt", type=str)
     return parser.parse_args()
 
 def create_file():
@@ -57,18 +57,23 @@ def analysis_business(tunnelName):
     
     ret = ''
     tunnelId = filter(str.isdigit, tunnelName)
-    if len(tunnelId) < 4 :
-        return ret
+    if len(tunnelId) < 4 or len(tunnelId) > 5:
+        ret = ': 没有与之对应的业务'
+    elif dic_ww.has_key(tunnelId[0:(len(tunnelId) - 3)]) and \
+            dic_line.has_key(tunnelId[(len(tunnelId) - 3):(len(tunnelId) - 1)]) and \
+            dic_xy.has_key(tunnelId[len(tunnelId) - 3]) and dic_xy.has_key(tunnelId[len(tunnelId) - 2]) and \
+            dic_z.has_key(tunnelId[len(tunnelId) - 1]):
+            ret = ': ' + dic_ww[tunnelId[0:(len(tunnelId)-3)]] + \
+                  ' 的 '+ dic_line[tunnelId[(len(tunnelId)-3):(len(tunnelId)-1)]] +\
+                  ', 从 ' + dic_xy[tunnelId[len(tunnelId)-3]] +\
+                  ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]] + ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]] + ' 业务'
     else:
-        ret = ': ' + dic_ww[tunnelId[0:(len(tunnelId)-3)]] + \
-              ' 的 '+ dic_line[tunnelId[(len(tunnelId)-3):(len(tunnelId)-1)]] +\
-              ', 从 ' + dic_xy[tunnelId[len(tunnelId)-3]] +\
-              ' 到 ' + dic_xy[tunnelId[len(tunnelId)-2]] + ' 的 ' + dic_z[tunnelId[len(tunnelId)-1]] + ' 业务,'
+        ret = ': 没有与之对应的业务'
     return ret
 def analysis_alarm_hot(echo_info):
     switched_tunnel = re.findall(r'[(](.*?)[)]', echo_info)
     if len(switched_tunnel) == 0:
-        return 'There is no switched tunnel'
+        return []
     else:
         ret = 'Switched info: \n  '
         tunnels = []
@@ -78,9 +83,8 @@ def analysis_alarm_hot(echo_info):
             for j in range(len(tuneldetail)):
                 if tuneldetail[j].find('TunnelName') > 0:
                     TunnelName = tuneldetail[j].split('=')
-                    tunnels.append(TunnelName[1] + analysis_business(TunnelName[1]))
+                    tunnels.append(TunnelName[1])
                     break
-        tunnels.append('Tunnel7125')
         return tunnels
 def analysis_alarm_bfd(echo_info):
     echo_info = 'Sep  9 2019 03:00:45.476+08:00 CNTZRT12001 %%01OSPF/3/NBR_DOWN_REASON(l):CID=0x808304ee;Neighbor state left full or changed to Down. (ProcessId=65100, NeighborRouterId=145.8.177.221, NeighborIp=144.1.241.102, NeighborAreaId=0.0.0.0, NeighborInterface=GigabitEthernet1/0/0, NeighborDownImmediate reason=Neighbor Down Due to Kill Neighbor, NeighborDownPrimeReason=BFD Session Down, CpuUsage=10%, VpnName=_public_, IfMTU=1500, LocalIp=144.1.241.101)'
@@ -101,6 +105,8 @@ def analysis_alarm_bfd(echo_info):
                     ret = ret + '' + NeighborIp[1] + ', 发生过中断，可能是导致隧道down的原因'
     return ret
 def analysis_ospf_up(echo_info):
+    interfaceList = ['GE0/3/2','GE0/3/6']
+    ospfInterfaceList = []
     ret = ''
     areas = echo_info.split('Area')
     if len(areas) == 0:
@@ -108,13 +114,18 @@ def analysis_ospf_up(echo_info):
     for i in range(1,len(areas)):
         area = areas[i].strip()
         areadetail = area.split(' ')
-        ret = ret + '\n  Area ' + areadetail[0]  + " interface " + ''.join(re.findall(r'[(](.*?)[)]', area))
+        ifName = re.findall(r'[(](.*?)[)]', area)
+        ospfInterfaceList = ospfInterfaceList + ifName
+        ret = ret + "\n  interface " + ''.join(ifName) + ' Area ' + areadetail[0]
         ret = ret + ' up time : ' + areadetail[-1]
         uptime = re.findall(r'\d+', areadetail[-1])
         if int(uptime[0]) >= 24 :
             ret = ret + " ，OSPF形成时间大于24小时，不是OSPF的问题"
         else:
             ret = ret + " ，OSPF形成时间小于24小时，OSPF可能有问题"
+    ifDownList = list(set(interfaceList).difference(set(ospfInterfaceList)))
+    for i in range(len(ifDownList)):
+        ret = ret + '\n  ' + "interface " + ifDownList[i] +': 没有OSPF邻居，可能有问题'
     return ret
 def analysis_logbuffer_hot(echo_info):
     ret = '\nLogbuffer info:'
@@ -349,16 +360,19 @@ def pexpect_execmd(hostname, deviceName, username, password, cmdfile):
         child.sendline('display alarm active verbose | no-more | include "primary LSP to the hot-standby"')
         child_expect(child,deviceName)
         tunnelList = analysis_alarm_hot(child.before)
-        analysis = analysis + '\n  ' +  ', '.join(tunnelList)
-        analysis = analysis + '\n第二步: 查看ospf邻居的up时间'
-        child.sendline('display ospf peer | no-more | include "(Neighbor is up for) | (Router ID: )"')
-        child_expect(child,deviceName)
-        analysis = analysis + analysis_ospf_up(child.before)
-        analysis = analysis + '\n第三步: 分析业务影响'
-        for i in range(len(tunnelList)):
-            analysis = analysis + '\n  ' + tunnelList[i] + analysis_business(tunnelList[i])
-            #analysis = analysis + analysis_alarm_bfd(child.before)
-            #analysis = analysis + analysis_logbuffer_hot(child.before)
+        if (len(tunnelList)) != 0:
+            analysis = analysis + '\n  ' +  ', '.join(tunnelList)
+            analysis = analysis + '\n第二步: 查看ospf邻居的up时间'
+            child.sendline('display ospf peer | no-more | include "(Neighbor is up for) | (Router ID: )"')
+            child_expect(child,deviceName)
+            analysis = analysis + analysis_ospf_up(child.before)
+            analysis = analysis + '\n第三步: 分析业务影响'
+            for i in range(len(tunnelList)):
+                analysis = analysis + '\n  ' + tunnelList[i] + analysis_business(tunnelList[i])
+                #analysis = analysis + analysis_alarm_bfd(child.before)
+                #analysis = analysis + analysis_logbuffer_hot(child.before)
+        else:
+            analysis = analysis + '\n  没有处于切换状态的隧道，结束检查'
     f.close()
     child.close(force=True)
     with open(finame, 'a+') as analysis_f:
