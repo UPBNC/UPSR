@@ -293,9 +293,9 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                 xmlEbgpRunningResult = XmlUtils.subString(xmlEbgpRunningResult);
                 actionEntity = XmlUtils.compare(xmlEbgpCandidateResult, xmlEbgpRunningResult, flag);
                 String asXml = EbgpXml.getAsXml();
-                String asResult = netconfController.sendMessage(netconfClient, asXml);
-                String as = EbgpXml.getAsFromXml(asResult);
                 if (ActionTypeEnum.add.name().equals(actionEntity.getAction().name())) {
+                    String asResult = netconfController.sendMessage(netconfClient, asXml);
+                    String as = EbgpXml.getAsFromXml(asResult);
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (bgpVrfs.size() != 0 && (AttributeParse.parse(actionEntity.getPath()).get(AttributeParse.parse(actionEntity.getPath()).size() - 2).getName().equals("peerAF")
                             || AttributeParse.parse(actionEntity.getPath()).get(AttributeParse.parse(actionEntity.getPath()).size() - 2).getName().equals("advertiseCommunity"))) {
@@ -342,6 +342,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                     }
                 } else if (ActionTypeEnum.delete.name().equals(actionEntity.getAction().name())) {
+                    String asResult = netconfController.sendMessage(netconfClient, asXml);
+                    String as = EbgpXml.getAsFromXml(asResult);
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpRunningResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (bgpVrfs.size() != 0 && bgpVrfs.get(0).getBgpVrfAFs().size() > 0 && bgpVrfs.get(0).getBgpPeers().size() > 0) {
                         LOG.info(bgpVrfs.get(0).toString());
@@ -366,6 +368,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                     }
                 } else if (ActionTypeEnum.modify.name().equals(actionEntity.getAction().name())) {
+                    String asResult = netconfController.sendMessage(netconfClient, asXml);
+                    String as = EbgpXml.getAsFromXml(asResult);
                     List<BgpVrf> bgpVrfs = GetXml.getEbgpFromXml(xmlEbgpCandidateResult, AttributeParse.parse(actionEntity.getPath()), actionEntity.getAction());
                     if (bgpVrfs.size() != 0) {
                         String peerAddrOld = "";
