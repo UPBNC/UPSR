@@ -61,6 +61,20 @@ public class ActionCfgServiceImpl implements ActionCfgService {
         return true;
     }
 
+    public String getApplyLabel(String string) {
+        String appLable = "";
+        if ("perNextHop".equals(string)) {
+            appLable = "per-nexthop";
+        }
+        if ("perInstance".equals(string)) {
+            appLable = "per-instance";
+        }
+        if ("perRoute".equals(string)) {
+            appLable = "per-route";
+        }
+        return appLable;
+    }
+
     @Override
     public Map<String, Object> vpn(List<String> routers) {
         Map<String, Object> resultMap = new HashMap<>();
@@ -108,7 +122,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                             result = result + "\n +   tnl-policy " + l3vpnInstances.get(0).getTunnelPolicy();
                         }
                         result = result +
-                                "\n +   apply-label " + l3vpnInstances.get(0).getApplyLabel() +
+                                "\n +   apply-label " + getApplyLabel(l3vpnInstances.get(0).getApplyLabel()) +
                                 "\n +   vpn-target " + l3vpnInstances.get(0).getVrfRTValue() + " export-extcommunity" +
                                 "\n +   vpn-target " + l3vpnInstances.get(0).getVrfRTValue() + " import-extcommunity" +
                                 "\n +   ttl-mode " + l3vpnInstances.get(0).getTtlMode() + "\n #";
@@ -134,7 +148,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         result = result + "\n -   tnl-policy " + l3vpnInstances.get(0).getTunnelPolicy();
                     }
                     result = result +
-                            "\n -   apply-label " + l3vpnInstances.get(0).getApplyLabel() +
+                            "\n -   apply-label " + getApplyLabel(l3vpnInstances.get(0).getApplyLabel()) +
                             "\n -   vpn-target " + l3vpnInstances.get(0).getVrfRTValue() + " export-extcommunity" +
                             "\n -   vpn-target " + l3vpnInstances.get(0).getVrfRTValue() + " import-extcommunity" +
                             "\n -   ttl-mode " + l3vpnInstances.get(0).getTtlMode() + "\n #";
@@ -177,8 +191,8 @@ public class ActionCfgServiceImpl implements ActionCfgService {
                         }
                         if ("vrfLabelMode".equals(modifyEntity.getLabel())) {
                             ipv4FamilyFlag = true;
-                            ipv4FamilyRemove = ipv4FamilyRemove + "\n -   apply-label  " + modifyEntity.getOdlValue();
-                            ipv4FamilyAdd = ipv4FamilyAdd + "\n +   apply-label  " + modifyEntity.getNewValue();
+                            ipv4FamilyRemove = ipv4FamilyRemove + "\n -   apply-label  " + getApplyLabel(modifyEntity.getOdlValue());
+                            ipv4FamilyAdd = ipv4FamilyAdd + "\n +   apply-label  " + getApplyLabel(modifyEntity.getNewValue());
                         }
                         if ("ttlMode".equals(modifyEntity.getLabel())) {
                             if ("pipe".equals(modifyEntity.getOdlValue())) {
@@ -922,7 +936,7 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             result = result + "\n";
             LOG.info(result);
         }
-        syn(synType,routers);
+        syn(synType, routers);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
@@ -941,14 +955,14 @@ public class ActionCfgServiceImpl implements ActionCfgService {
             result = result + "\n";
             LOG.info(result);
         }
-        syn(synType,routers);
+        syn(synType, routers);
         resultMap.put(ResponseEnum.BODY.getName(), result);
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.SUCCESS.getName());
         return resultMap;
     }
 
     private void syn(String type, List<String> routers) {
-        for(String r:routers){
+        for (String r : routers) {
             if (type.equals("1") || type.equals("3")) {
                 TunnelServiceImpl.getInstance().syncTunnelInstanceConf(r);
                 TunnelPolicyServiceImpl.getInstance().syncTunnelPolicyConf();
