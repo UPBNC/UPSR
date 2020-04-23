@@ -85,7 +85,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         String deviceIP = netconfSession.getDeviceIP();
         Integer devicePort = netconfSession.getDevicePort();
         String userName = netconfSession.getUserName();
-        String userPassword = netconfSession.getUserPassword();
+        String userUpsrStaticChek = netconfSession.getUserUpsrStaticChek();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
@@ -97,18 +97,18 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             device.setDeviceType(deviceType);
             netconf = device.getNetConf();
             if ((null != netconf) && ((true != deviceIP.equals(netconf.getIp().getAddress())) || (true != devicePort.equals(netconf.getPort()))
-                    || (true != userName.equals(netconf.getUser())) || (true != userPassword.equals(netconf.getPassword())))) {
+                    || (true != userName.equals(netconf.getUser())) || (true != userUpsrStaticChek.equals(netconf.getUpsrStaticChek())))) {
                 netconf.setDevice(device);
                 netconf.setUser(userName);
-                netconf.setPassword(userPassword);
+                netconf.setUpsrStaticChek(userUpsrStaticChek);
                 netconf.setPort(devicePort);
                 netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
             }
             if (null == netconf) {
-                netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
+                netconf = new NetConf(deviceIP, devicePort, userName, userUpsrStaticChek);
                 device.setNetConf(netconf);
                 netconf.setUser(userName);
-                netconf.setPassword(userPassword);
+                netconf.setUpsrStaticChek(userUpsrStaticChek);
                 netconf.setPort(devicePort);
                 netconf.setIp(new Address(deviceIP, AddressTypeEnum.V4));
                 netconf.setDevice(device);
@@ -116,7 +116,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             }
 
         } else {
-            netconf = new NetConf(deviceIP, devicePort, userName, userPassword);
+            netconf = new NetConf(deviceIP, devicePort, userName, userUpsrStaticChek);
             netconf.setStatus(setStatus(netconfSession.getStatus()));
             device = this.deviceManager.addDevice(deviceName, routerId);
             if ((null == device)) {
@@ -133,11 +133,11 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         }
         netconf.setRouterID(routerId);
         if (netconfSession.isFlag()) {
-            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, NetConfStatusEnum.Unknown.name());
+            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userUpsrStaticChek, NetConfStatusEnum.Unknown.name());
             NetConf netConf = this.netConfManager.addDevice(netconf);
             String message = getStatus(netConf.getStatus().name());
             resultMap.put(ResponseEnum.MESSAGE.getName(), message);
-            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userPassword, netConf.getStatus().name());
+            saveNetconfSession(routerId, deviceDesc, deviceType, deviceIP, devicePort, userName, userUpsrStaticChek, netConf.getStatus().name());
             if (netConf.getStatus() == NetConfStatusEnum.Connected) {
                 if ((null != netconf) && (null != netconf.getIp())) {
                     NetConf netconfStat = this.netConfManager.getDevice(netconf.getRouterID());
@@ -180,7 +180,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             netconfSession.setDeviceIP(device.getNetConf().getIp().getAddress());
             netconfSession.setDevicePort(device.getNetConf().getPort());
             netconfSession.setUserName(device.getNetConf().getUser());
-            netconfSession.setUserPassword(device.getNetConf().getPassword());
+            netconfSession.setUserUpsrStaticChek(device.getNetConf().getUpsrStaticChek());
             netconfSession.setFlag(true);
             Map<String, Object> resultMap = updateNetconfSession(netconfSession);
             result = (boolean) resultMap.get(ResponseEnum.BODY.getName());
@@ -200,7 +200,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
                 boolean result = this.netConfManager.deleteDevice(device.getNetConf());
                 if (result) {
                     saveNetconfSession(routerId, device.getDataCenter(), device.getDeviceType(), device.getNetConf().getIp().getAddress(),
-                            device.getNetConf().getPort(), device.getNetConf().getUser(), device.getNetConf().getPassword(),
+                            device.getNetConf().getPort(), device.getNetConf().getUser(), device.getNetConf().getUpsrStaticChek(),
                             NetConfStatusEnum.Disconnected.name());
                     netConfManager.closeNetconfByRouterId(routerId);
                     vpnInstanceManager.emptyVpnInstancesByRouterId(routerId);
@@ -391,7 +391,7 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
         String sectionName = null;
         String routerId = null, deviceName = null, deviceDesc = null, deviceType = null;
         String deviceIP = null, devicePort = null;
-        String userName = null, passWord = null, status = null;
+        String userName = null, upsrStaticChek = null, status = null;
         NetconfSession netconfSession;
         for (seq = netconfSession_seq_min; seq < netconfSession_seq_max; seq++) {
             sectionName = "netconfSession_" + seq;
@@ -404,9 +404,9 @@ public class NetconfSessionServiceImpl implements NetconfSessionService {
             deviceIP = this.iniSectionManager.getValue(sectionName, "sshIP", null);
             devicePort = this.iniSectionManager.getValue(sectionName, "sshPort", null);
             userName = this.iniSectionManager.getValue(sectionName, "userName", null);
-            passWord = this.iniSectionManager.getValue(sectionName, "passWord", null);
+            upsrStaticChek = this.iniSectionManager.getValue(sectionName, "passWord", null);
             status = this.iniSectionManager.getValue(sectionName, "status", null);
-            netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, passWord);
+            netconfSession = new NetconfSession(routerId, deviceName, deviceDesc, deviceType, deviceIP, Integer.parseInt(devicePort), userName, upsrStaticChek);
             if (!(NetConfStatusEnum.Connected.name().equals(status))) {
                 netconfSession.setStatus(status);
                 netconfSession.setFlag(false);

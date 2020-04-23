@@ -16,7 +16,7 @@ public class NetconfSession {
     private String userName;
     private String routerId;
     private String status;
-    private String userPassword;
+    private String userUpsrStaticChek;
     private boolean flag = true;
 
     public NetconfSession() {
@@ -24,12 +24,12 @@ public class NetconfSession {
 
     public NetconfSession(String routerId, String deviceName, String deviceDesc,
                           String deviceType, String deviceIP, Integer devicePort,
-                          String userName, String userPassword) {
+                          String userName, String userUpsrStaticChek) {
         this.routerId = routerId;
         this.deviceName = deviceName;
         this.deviceDesc = deviceDesc;
         this.deviceType = deviceType;
-        this.userPassword = userPassword;
+        this.userUpsrStaticChek = userUpsrStaticChek;
         this.deviceIP = deviceIP;
         this.devicePort = devicePort;
         this.userName = userName;
@@ -54,12 +54,20 @@ public class NetconfSession {
         this.flag = flag;
     }
 
-    public String getUserPassword() {
-        return userPassword;
+    public String getUserUpsrStaticChek() {
+        return userUpsrStaticChek;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setUserUpsrStaticChek(String userUpsrStaticChek) {
+        this.userUpsrStaticChek = userUpsrStaticChek;
+    }
+
+    public String getUserUpsrpwd() {
+        return userUpsrStaticChek;
+    }
+
+    public void setUserUpsrpwd(String userUpsrStaticChek) {
+        this.userUpsrStaticChek = userUpsrStaticChek;
     }
 
     public String getDeviceType() {

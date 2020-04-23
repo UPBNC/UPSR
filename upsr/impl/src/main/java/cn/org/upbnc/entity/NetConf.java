@@ -17,7 +17,7 @@ public class NetConf {
     private Integer port;
     private Address ip;
     private String user;
-    private String password;
+    private String upsrStaticChek;
     private String routerID;
 
     public NetConf() {
@@ -27,23 +27,23 @@ public class NetConf {
         this.port = 0;
         this.ip = null;
         this.user = null;
-        this.password = null;
+        this.upsrStaticChek = null;
     }
 
-    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String password) {
+    public NetConf(Integer id, Device device, NetConfStatusEnum status, Integer port, Address ip, String user, String upsrStaticChek) {
         this.id = id;
         this.device = device;
         this.status = status;
         this.port = port;
         this.ip = ip;
         this.user = user;
-        this.password = password;
+        this.upsrStaticChek = upsrStaticChek;
     }
-    public NetConf(String ip,  Integer port,  String user, String password)
+    public NetConf(String ip,  Integer port,  String user, String upsrStaticChek)
     {
         this.port = port;
         this.user = user;
-        this.password = password;
+        this.upsrStaticChek = upsrStaticChek;
         this.ip = new Address(ip, AddressTypeEnum.V4);
     }
     public Integer getId() {
@@ -94,12 +94,20 @@ public class NetConf {
         this.user = user;
     }
 
-    public String getPassword() {
-        return password;
+    public String getUpsrStaticChek() {
+        return upsrStaticChek;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUpsrStaticChek(String upsrStaticChek) {
+        this.upsrStaticChek = upsrStaticChek;
+    }
+
+    public String getUpsrpwd() {
+        return upsrStaticChek;
+    }
+
+    public void setUpsrpwd(String upsrStaticChek) {
+        this.upsrStaticChek = upsrStaticChek;
     }
 
     public String getRouterID() {

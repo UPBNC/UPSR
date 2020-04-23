@@ -46,7 +46,7 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
         String routerId = netconfSession.getRouterId();
         String deviceIP = netconfSession.getDeviceIP();
         Integer devicePort = netconfSession.getDevicePort();
-        String password = netconfSession.getUserPassword();
+        String upsrStaticChek = netconfSession.getUserUpsrStaticChek();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put(ResponseEnum.CODE.getName(), CodeEnum.ERROR.getName());
         resultMap.put(ResponseEnum.BODY.getName(), false);
@@ -56,8 +56,8 @@ public class NetconfSessionApiImpl implements NetconfSessionApi {
             errorMsg += "rouoterId is empty.";
             flag = true;
         }
-        if ((null == password) || password.isEmpty()) {
-            errorMsg += "password is empty";
+        if ((null == upsrStaticChek) || upsrStaticChek.isEmpty()) {
+            errorMsg += "upsrStaticChek is empty";
             flag = true;
         }
         if ((null == deviceIP) || deviceIP.isEmpty() || (null == devicePort)) {
